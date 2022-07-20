@@ -39,7 +39,7 @@ Journal articles
 
 Book chapters
 
-- Manfred Krug & Lukas **Sönning**. 2017. Language change in Maltese English: The influence of age and parental languages. In: Patrizia Paggio & Albert Gatt (eds.), *The languages of Malta*, 247-270. Berlin: Language Science Press. DOI: 10.5281/zenodo.1181801 `r icons::academicons$'open-access'` [Open access](https://doi.org/10.5281/zenodo.1181801)
+- Krug, Manfred & Lukas **Sönning**. 2017. Language change in Maltese English: The influence of age and parental languages. In: Patrizia Paggio & Albert Gatt (eds.), *The languages of Malta*, 247-270. Berlin: Language Science Press. DOI: 10.5281/zenodo.1181801 `r icons::academicons$'open-access'` [Open access](https://doi.org/10.5281/zenodo.1181801)
 
 - **Sönning**, Lukas & Manfred Krug. 2022. Comparing study designs and down-sampling strategies in corpus analysis: The importance of speaker metadata in the BNCs of 1994 and 2014. In Ole Schützler & Julia Schlüter (eds.), Data and methods in corpus linguistics: Comparative approaches, 127-159. Cambridge: Cambridge University Press. DOI: 10.1017/9781108589314.006 `r icons::academicons$'closed-access'` [Link](https://doi.org/10.1017/9781108589314.006) | `r icons::academicons$osf` [OSF](https://osf.io/v3byq/) | `r icons::academicons$dataverse` [Data](https://doi.org/10.18710/A3SATC)
 
