@@ -12,8 +12,8 @@
 
 #### Contact
 
-- Office: U9/01.11
 - Address: An der Universität 9, D-96047 Bamberg
+- Office: U9/01.11
 - Phone: +49 (0)951/863-2267
 - Email: lukas[dot]soenning[at]uni-bamberg[dot]de
 - `r icons::academicons$orcid` ORCID ID [0000-0002-2705-395X](https://orcid.org/0000-0002-2705-395X)  
