@@ -9,23 +9,25 @@
 
 #### Awards
 
-- 2014 Best poster award at Olinco conferenece ("Vowel reduction in German Learner English: Developmental patterns")
-- 2018 John Sinclair bursary for the best paper by an early career researcher ("Visual inference for corpus linguistics")
+- 2014 Best poster award, Olinco conferenece, Olomouc ("Vowel reduction in German Learner English: Developmental patterns")
+- 2018 Best paper by an early career researcher, ICAME39, Tampere (John Sinclair bursary) ("Visual inference for corpus linguistics")
 
 
 #### Teaching
 
 University courses
 
+- Forming (new) words: The morphological architecture of English
+- Applied data analysis for linguists
+- Investigating Lerner English
+- Second Language speech: Theory and practice
+- Measuring (your) foreign accent: The acoustic analysis of non-native speech
 - English phonetics & phonology
 - English grammar analysis
 - Translation English-German (intermediate and advanced level)
-- Revision course for state exam candidates: Snyhronic linguistics
+- Revision course for state exam candidates: Synchronic linguistics
 - Revision course for state exam candidates: Translation English-German
-- Forming (new) words: The morphological architecture of English
-- Applied data analysis for linguists- Investigating Lerner English
-- Second Language speech: Theory and practive
-- Measuring (your) foreign accent: The acoustic analysis of non-native speech
+
 
 Workshops
 

@@ -2,17 +2,19 @@
 
 #### Unpublished
 
-- Sönning, Lukas. (to appear). (Re-)viewing the acquisition of rhythm in the light of L2 phonological theories. In Robert Fuchs (ed.), Speech rhythm in L2 and L3 varieties of English. Singapore: Springer.
+- **Sönning**, Lukas. (to appear). (Re-)viewing the acquisition of rhythm in the light of L2 phonological theories. In Robert Fuchs (ed.), Speech rhythm in L2 and L3 varieties of English. Singapore: Springer.
 
-- Sönning, Lukas. (to appear). Drawing on principles of perception: The line plot. In Lukas Sönning & Ole Schützler (eds.) Data visualization in corpus linguistics: Reflections and future directions, VARIENG. `r icons::academicons$psyarxiv` [Preprint](https://psyarxiv.com/tjfz5/) | `r icons::academicons$osf` [OSF](https://osf.io/ksr5a)
+- **Sönning**, Lukas. (to appear). Drawing on principles of perception: The line plot. In Lukas Sönning & Ole Schützler (eds.) Data visualization in corpus linguistics: Reflections and future directions, VARIENG. `r icons::academicons$psyarxiv` [Preprint](https://psyarxiv.com/tjfz5/) | `r icons::academicons$osf` [OSF](https://osf.io/ksr5a)
 
-- Sönning, Lukas & Ole Schützler (eds.). (to appear). Data visualization in corpus linguistics: Reflections and future directions, VARIENG.
+- **Sönning**, Lukas & Ole Schützler (eds.). (to appear). Data visualization in corpus linguistics: Reflections and future directions, VARIENG.
 
-- Sönning, Lukas. (submitted). Evaluation of keyness metrics: Reliability and interpretability.  
+- **Sönning**, Lukas. (in preparation). Evaluation of text-level measures of lexical dispersion: Robustness and consistency.  `r icons::academicons$psyarxiv` [Preprint](https://psyarxiv.com/h9mvs/) | `r icons::academicons$dataverse` [Data](https://doi.org/10.18710/MNVB36) | `r icons::academicons$osf` [OSF](https://osf.io/rpfb8/) 
 
-- Sönning, Lukas & Jason Grafmiller. (in preparation). Seeing the wood for the trees: Predictive margins for random forests. `r icons::academicons$osf` [OSF](https://osf.io/4tuv2)
+- **Sönning**, Lukas. (in preparation). Evaluation of keyness metrics: Reliability and interpretability. `r icons::academicons$psyarxiv` [Preprint](https://psyarxiv.com/eb2n9/) | `r icons::academicons$dataverse` [Data](https://doi.org/10.18710/ATCQZW) | `r icons::academicons$osf` [OSF](https://osf.io/kcwus/)
 
-- Sönning, Lukas. (in preparation). Evaluation of text-level measures of lexical dispersion: Robustness and consistency.
+- **Sönning**, Lukas & Jason Grafmiller. (in preparation). Seeing the wood for the trees: Predictive margins for random forests. `r icons::academicons$psyarxiv` [Preprint](https://psyarxiv.com/jr8yk/) | [Data](https://osf.io/r4s87) | `r icons::academicons$osf` [OSF](https://osf.io/4tuv2)
+
+
 
 \  
 
