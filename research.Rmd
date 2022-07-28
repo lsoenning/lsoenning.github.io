@@ -12,6 +12,8 @@
 
 - **Sönning**, Lukas. (in preparation). Evaluation of keyness metrics: Reliability and interpretability. `r icons::academicons$psyarxiv` [Preprint](https://psyarxiv.com/eb2n9/) | `r icons::academicons$dataverse` [Data](https://doi.org/10.18710/ATCQZW) | `r icons::academicons$osf` [OSF](https://osf.io/kcwus/)
 
+- **Sönning**, Lukas. (in preparation). Count regression models for keyness analysis `r icons::academicons$psyarxiv` [Preprint](https://psyarxiv.com/25mwj/) | `r icons::academicons$osf` [OSF](https://osf.io/mc26t/)
+
 - **Sönning**, Lukas & Jason Grafmiller. (in preparation). Seeing the wood for the trees: Predictive margins for random forests. `r icons::academicons$psyarxiv` [Preprint](https://psyarxiv.com/jr8yk/) | [Data](https://osf.io/r4s87) | `r icons::academicons$osf` [OSF](https://osf.io/4tuv2)
 
 
