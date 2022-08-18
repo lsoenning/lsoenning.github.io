@@ -2,7 +2,7 @@
 
 #### Unpublished
 
-- **Sönning**, Lukas. (to appear). (Re-)viewing the acquisition of rhythm in the light of L2 phonological theories. In Robert Fuchs (ed.), Speech rhythm in L2 and L3 varieties of English. Singapore: Springer.
+- **Sönning**, Lukas. (to appear). (Re-)viewing the acquisition of rhythm in the light of L2 phonological theories. In Robert Fuchs (ed.), Speech rhythm in L2 and L3 varieties of English. Singapore: Springer. `r icons::academicons$psyarxiv` [Preprint](https://psyarxiv.com/x36jh/) | `r icons::academicons$dataverse` [Data](https://doi.org/10.18710/GTI2BR) | `r icons::academicons$osf` [OSF](https://osf.io/25kq4) 
 
 - **Sönning**, Lukas. (to appear). Drawing on principles of perception: The line plot. In Lukas Sönning & Ole Schützler (eds.) Data visualization in corpus linguistics: Reflections and future directions, VARIENG. `r icons::academicons$psyarxiv` [Preprint](https://psyarxiv.com/tjfz5/) | `r icons::academicons$osf` [OSF](https://osf.io/ksr5a)
 
@@ -52,7 +52,7 @@ Book chapters
 
 Proceedings
 
-- **Sönning**, Lukas. 2013. Scrabble yourself to success: Methods in teaching transcription. In Joanna Przedlacka, John Maidment & Michael Ashby (eds.) *Proceedings of the Phonetics Teaching and Learning Conference*, PTLC2013. London: University College London, 87-90. `r icons::academicons$'open-access'` [Open access](https://fis.uni-bamberg.de/bitstream/uniba/2422/2/fisba2422.pdf)
+- **Sönning**, Lukas. 2013. Scrabble yourself to success: Methods in teaching transcription. In Joanna Przedlacka, John Maidment & Michael Ashby (eds.) *Proceedings of the Phonetics Teaching and Learning Conference*, PTLC2013. London: University College London, 87-90. `r icons::academicons$'open-access'` [Open access](https://fis.uni-bamberg.de/bitstream/uniba/2422/2/fisba2422.pdf) | `r icons::academicons$osf` [OSF](https://osf.io/vxgmu/) | `r icons::academicons$dataverse` [Data](https://doi.org/10.18710/2UJHHU) 
 
 - **Sönning**, Lukas. 2014. Developmental patterns in the reduction of unstressed vowels by German learners of English. In Ludmila Veselovská & Markéta Janebová (eds.), *Complex visibles out there: Proceedings of the Olomouc Linguistics Colloquium 2014: Language use and linguistic structure, vol. 4 Olomouc modern language series*, 765–778 Olomouc: Palacký University. `r icons::academicons$'open-access'` [Open access](http://olinco.upol.cz/wp-content/uploads/2015/11/olinco-2014-proceedings.pdf)
 
