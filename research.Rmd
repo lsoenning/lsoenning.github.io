@@ -29,38 +29,43 @@ Monograph
   
 Edited volumes
 
-- Christ, Hanna, Daniel Klenovšak, Lukas **Sönning** & Valentin Werner (eds.). 2016. *A blend of MaLT: Selected contributions from the Methods and Linguistic Theories Symposium*. Bamberg: University of Bamberg Press.   `r icons::academicons$'open-access'` [Open access](https://fis.uni-bamberg.de/bitstream/uniba/41360/1/BABEL15WernerMaLTopusse_A3a.pdf)
-
 - **Sönning**, Lukas & Valentin Werner. 2021. The replication crisis: Implications for linguistics. Special issue in *Linguistics*.   `r icons::academicons$'closed-access'` [Link](https://www.degruyter.com/journal/key/ling/59/5/html)  
+
+- Christ, Hanna, Daniel Klenovšak, Lukas **Sönning** & Valentin Werner (eds.). 2016. *A blend of MaLT: Selected contributions from the Methods and Linguistic Theories Symposium*. Bamberg: University of Bamberg Press.   `r icons::academicons$'open-access'` [Open access](https://fis.uni-bamberg.de/bitstream/uniba/41360/1/BABEL15WernerMaLTopusse_A3a.pdf)
 
 
 Journal articles
 
-- **Sönning**, Lukas. 2014. Unstressed vowels in German Learner English: An instrumental study. *Research in Language* 12(2), 163-173. DOI: 10.2478/rela-2014-0001   `r icons::academicons$'open-access'` [Open access](https://digijournals.uni.lodz.pl/rela/vol12/iss2/4/)
-
 - **Sönning**, Lukas & Valentin Werner. 2021. The replication crisis, scientific revolutions, and linguistics. *Linguistics* 59(5), 1179-1206. DOI: 10.1515/ling-2019-0045   `r icons::academicons$'closed-access'` [Link](https://www.degruyter.com/document/doi/10.1515/ling-2019-0045/html?lang=de)  
+
+- **Sönning**, Lukas. 2014. Unstressed vowels in German Learner English: An instrumental study. *Research in Language* 12(2), 163-173. DOI: 10.2478/rela-2014-0001   `r icons::academicons$'open-access'` [Open access](https://digijournals.uni.lodz.pl/rela/vol12/iss2/4/)
 
 
 Book chapters
-
-- Krug, Manfred & Lukas **Sönning**. 2018. Language change in Maltese English: The influence of age and parental languages. In: Patrizia Paggio & Albert Gatt (eds.), *The languages of Malta*, 247-270. Berlin: Language Science Press. DOI: 10.5281/zenodo.1181801   `r icons::academicons$'open-access'` [Open access](https://doi.org/10.5281/zenodo.1181801)
 
 - **Sönning**, Lukas & Manfred Krug. 2022. Comparing study designs and down-sampling strategies in corpus analysis: The importance of speaker metadata in the BNCs of 1994 and 2014. In Ole Schützler & Julia Schlüter (eds.), Data and methods in corpus linguistics: Comparative approaches, 127-159. Cambridge: Cambridge University Press. DOI: 10.1017/9781108589314.006   `r icons::academicons$'closed-access'` [Link](https://doi.org/10.1017/9781108589314.006) | `r icons::academicons$osf` [OSF](https://osf.io/v3byq/) | `r icons::academicons$dataverse` [Data](https://doi.org/10.18710/A3SATC)
 
 - **Sönning**, Lukas & Julia Schlüter. 2022. Comparing standard reference corpora and Google Books Ngrams: Strengths, limitations and synergies in the contrastive study of variable h- in British and American English. In Ole Schützler & Julia Schlüter (eds.), Data and methods in corpus linguistics: Comparative approaches, 17-45. Cambridge: Cambridge University Press. DOI: 10.1017/9781108589314.002   `r icons::academicons$'closed-access'` [Link](https://doi.org/10.1017/9781108589314.002) | `r icons::academicons$osf` [OSF](https://osf.io/47p6u/)  
 
+- Krug, Manfred & Lukas **Sönning**. 2018. Language change in Maltese English: The influence of age and parental languages. In: Patrizia Paggio & Albert Gatt (eds.), *The languages of Malta*, 247-270. Berlin: Language Science Press. DOI: 10.5281/zenodo.1181801   `r icons::academicons$'open-access'` [Open access](https://doi.org/10.5281/zenodo.1181801)
+
 
 Proceedings
 
-- **Sönning**, Lukas. 2013. Scrabble yourself to success: Methods in teaching transcription. In Joanna Przedlacka, John Maidment & Michael Ashby (eds.), *Proceedings of the Phonetics Teaching and Learning Conference, UCL, London, 8-10 August 2013*. London: Phonetics Teaching and Learning Conference, 87-90.  `r icons::academicons$'open-access'` [Open access](https://fis.uni-bamberg.de/bitstream/uniba/2422/2/fisba2422.pdf) | `r icons::academicons$osf` [OSF](https://osf.io/vxgmu/) | `r icons::academicons$dataverse` [Data](https://doi.org/10.18710/2UJHHU) 
-
-- **Sönning**, Lukas. 2014. Developmental patterns in the reduction of unstressed vowels by German learners of English. In Ludmila Veselovská & Markéta Janebová (eds.), *Complex visibles out there: Proceedings of the Olomouc Linguistics Colloquium 2014: Language use and linguistic structure, vol. 4 Olomouc modern language series*, 765–778 Olomouc: Palacký University.   `r icons::academicons$'open-access'` [Open access](http://olinco.upol.cz/wp-content/uploads/2015/11/olinco-2014-proceedings.pdf)
-
 - **Sönning**, Lukas. 2016. The dot plot: A graphical tool for data analysis and presentation. In Hanna Christ, Daniel Klenovšak, Lukas Sönning & Valentin Werner (eds.), *A blend of MaLT: Selected contributions from the Methods and Linguistic Theories Symposium*, 101–129. Bamberg: University of Bamberg Press.   `r icons::academicons$'open-access'` [Open access](https://fis.uni-bamberg.de/bitstream/uniba/41360/1/BABEL15WernerMaLTopusse_A3a.pdf)  
+
+- **Sönning**, Lukas. 2014. Developmental patterns in the reduction of unstressed vowels by German learners of English. In Ludmila Veselovská & Markéta Janebová (eds.), *Complex visibles out there: Proceedings of the Olomouc Linguistics Colloquium 2014: Language use and linguistic structure, vol. 4 Olomouc modern language series*, 765–778. Olomouc: Palacký University.   `r icons::academicons$'open-access'` [Open access](http://olinco.upol.cz/wp-content/uploads/2015/11/olinco-2014-proceedings.pdf)
+
+- **Sönning**, Lukas. 2013. Scrabble yourself to success: Methods in teaching transcription. In Joanna Przedlacka, John Maidment & Michael Ashby (eds.), *Proceedings of the Phonetics Teaching and Learning Conference, UCL, London, 8-10 August 2013*. London: Phonetics Teaching and Learning Conference, 87-90.  `r icons::academicons$'open-access'` [Open access](https://fis.uni-bamberg.de/bitstream/uniba/2422/2/fisba2422.pdf) | `r icons::academicons$osf` [OSF](https://osf.io/vxgmu/) | `r icons::academicons$dataverse` [Data](https://doi.org/10.18710/2UJHHU) 
 
 \  
 
 #### Datasets
+
+- Sönning, Lukas. 2022. Speech rhythm in German Learner English: Dataset for "(Re-)viewing the acquisition of rhythm in the light of L2 phonological theories", https://doi.org/10.18710/GTI2BR, DataverseNO, V1.
+
+- Sönning, Lukas & Manfred Krug. 2021. Actually in contemporary British speech: Data from the Spoken BNC corpora, https://doi.org/10.18710/A3SATC, DataverseNO, V1.
+
 
 Dissertation {#data-diss}
 
@@ -78,10 +83,6 @@ Dissertation {#data-diss}
 
 - Sönning, Lukas & Graham Pascoe. 2021 Final voiced obstruents in German Learner English: Dataset for chapter 10 in "Phonological variation in German Learner English", https://doi.org/10.18710/DKIGE5, DataverseNO, V1.
 
-Other datasets
 
-- Sönning, Lukas & Manfred Krug. 2021. Actually in contemporary British speech: Data from the Spoken BNC corpora, https://doi.org/10.18710/A3SATC, DataverseNO, V1.
-
-- Sönning, Lukas. 2022. Speech rhythm in German Learner English: Dataset for "(Re-)viewing the acquisition of rhythm in the light of L2 phonological theories", https://doi.org/10.18710/GTI2BR, DataverseNO, V1.
 
 
