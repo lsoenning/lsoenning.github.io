@@ -8,13 +8,13 @@
 
 - **Sönning**, Lukas & Ole Schützler (eds.). (to appear). Data visualization in corpus linguistics: Reflections and future directions, VARIENG.
 
-- **Sönning**, Lukas. (in preparation). Evaluation of text-level measures of lexical dispersion: Robustness and consistency.   `r icons::academicons$psyarxiv` [Preprint](https://psyarxiv.com/h9mvs/) | `r icons::academicons$dataverse` [Data](https://doi.org/10.18710/MNVB36) | `r icons::academicons$osf` [OSF](https://osf.io/rpfb8/) 
+- **Sönning**, Lukas. (in review). Evaluation of text-level measures of lexical dispersion: Robustness and consistency.   `r icons::academicons$psyarxiv` [Preprint](https://psyarxiv.com/h9mvs/) | `r icons::academicons$dataverse` [Data](https://doi.org/10.18710/MNVB36) | `r icons::academicons$osf` [OSF](https://osf.io/rpfb8/) 
 
-- **Sönning**, Lukas. (in preparation). Evaluation of keyness metrics: Reliability and interpretability.   `r icons::academicons$psyarxiv` [Preprint](https://psyarxiv.com/eb2n9/) | `r icons::academicons$dataverse` [Data](https://doi.org/10.18710/ATCQZW) | `r icons::academicons$osf` [OSF](https://osf.io/kcwus/)
+- **Sönning**, Lukas. (in review). Evaluation of keyness metrics: Reliability and interpretability.   `r icons::academicons$psyarxiv` [Preprint](https://psyarxiv.com/eb2n9/) | `r icons::academicons$dataverse` [Data](https://doi.org/10.18710/ATCQZW) | `r icons::academicons$osf` [OSF](https://osf.io/kcwus/)
 
-- **Sönning**, Lukas. (in preparation). Count regression models for keyness analysis.   `r icons::academicons$psyarxiv` [Preprint](https://psyarxiv.com/25mwj/) | `r icons::academicons$osf` [OSF](https://osf.io/mc26t/)
+- **Sönning**, Lukas. (in review). Count regression models for keyness analysis.   `r icons::academicons$psyarxiv` [Preprint](https://psyarxiv.com/25mwj/) | `r icons::academicons$osf` [OSF](https://osf.io/mc26t/)
 
-- **Sönning**, Lukas & Jason Grafmiller. (in preparation). Seeing the wood for the trees: Predictive margins for random forests.   `r icons::academicons$psyarxiv` [Preprint](https://psyarxiv.com/jr8yk/) | [Data](https://osf.io/r4s87) | `r icons::academicons$osf` [OSF](https://osf.io/4tuv2)
+- **Sönning**, Lukas & Jason Grafmiller. (in review). Seeing the wood for the trees: Predictive margins for random forests.   `r icons::academicons$psyarxiv` [Preprint](https://psyarxiv.com/jr8yk/) | [Data](https://osf.io/r4s87) | `r icons::academicons$osf` [OSF](https://osf.io/4tuv2)
 
 
 
