@@ -66,6 +66,8 @@ Proceedings
 
 - Sönning, Lukas & Manfred Krug. 2021. Actually in contemporary British speech: Data from the Spoken BNC corpora, https://doi.org/10.18710/A3SATC, DataverseNO, V1.
 
+- Sönning, Lukas. 2022. Dataset for "Scrabble yourself to success: Methods in teaching transcription", https://doi.org/10.18710/2UJHHU, DataverseNO, V1.
+
 
 Dissertation {#data-diss}
 
@@ -81,7 +83,7 @@ Dissertation {#data-diss}
 
 - Sönning, Lukas, Graham Pascoe & Christina Wunder. 2021. The voiced dental fricative in German Learner English: Dataset for chapter 9 in "Phonological variation in German Learner English", https://doi.org/10.18710/DYAGZG, DataverseNO, V1.
 
-- Sönning, Lukas & Graham Pascoe. 2021 Final voiced obstruents in German Learner English: Dataset for chapter 10 in "Phonological variation in German Learner English", https://doi.org/10.18710/DKIGE5, DataverseNO, V1.
+- Sönning, Lukas & Graham Pascoe. 2021. Final voiced obstruents in German Learner English: Dataset for chapter 10 in "Phonological variation in German Learner English", https://doi.org/10.18710/DKIGE5, DataverseNO, V1.
 
 
 
