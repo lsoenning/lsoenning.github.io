@@ -69,7 +69,7 @@ Proceedings
 - Sönning, Lukas. 2022. Dataset for "Scrabble yourself to success: Methods in teaching transcription", https://doi.org/10.18710/2UJHHU, DataverseNO, V1.
 
 
-Dissertation {#data-diss}
+####### Dissertation {#data-diss}
 
 - Sönning, Lukas. 2021. The TRAP-DRESS contrast in German Learner English: Dataset for chapter 4 in "Phonological variation in German Learner English", https://doi.org/10.18710/ATIRRV, DataverseNO, V1.
 

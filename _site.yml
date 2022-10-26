@@ -8,6 +8,8 @@ navbar:
       href: about.html
     - text: "Research"
       href: research.html
+    - text: "Resources"
+      href: resources.html
   right: 
     - icon: fa-envelope fa-lg
       href: mailto:<lukas.soenning@uni-bamberg.de>
