@@ -1,7 +1,6 @@
 name: "lsoenning-website"
 output_dir: "."
 navbar:
-  #title: "My personal website"
   left:
     - text: "Home"
       href: index.html
