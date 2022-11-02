@@ -36,5 +36,3 @@ Workshops
 - 2018 (Uppsala) Statistical inference using estimation: Methods for corpus linguistics
 - 2014 (EmMeth conference, Bamberg): Data visualization with R
 - 2014 (FJUEL conference, Bamberg): Workshop on statistical methods
-
-
