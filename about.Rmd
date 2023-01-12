@@ -31,6 +31,7 @@ University courses
 
 Workshops
 
+- 2023 (University of Würzburg) [slides](resources_pages/test_multiplex.html)
 - 2019 (FJUEL conference, Bayreuth): Using "statistics" to learn about language: What matters (and what doesn‘t)
 - 2019 (BICLCE conference, Bamberg): The replication crisis in science: Challenges and chances for linguistics
 - 2018 (Uppsala) Statistical inference using estimation: Methods for corpus linguistics
