@@ -40,3 +40,6 @@ Excel templates for some useful graph types can be found in the following `r ico
 
 <center><img src="files/scatter_plot.png" /></center>
 
+- Links
+
+Speaker slides [Würzburg](resources_pages/test_multiplex-speaker.html)
