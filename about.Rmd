@@ -31,9 +31,10 @@ University courses
 
 Workshops
 
-- 2023 (University of Würzburg) Analyzing language data using R and RStudio [slides part 1](resources_pages/slides_part_1.html){target="_blank"} | [slides part 3](resources_pages/slides_part_1.html){target="_blank"} 
-- 2019 (FJUEL conference, Bayreuth): Using "statistics" to learn about language: What matters (and what doesn‘t)
-- 2019 (BICLCE conference, Bamberg): The replication crisis in science: Challenges and chances for linguistics
-- 2018 (Uppsala) Statistical inference using estimation: Methods for corpus linguistics
+- 2023 (University of Würzburg) Basics of data analysis using R and RStudio [slides part 1](resources_pages/slides_part_1.html){target="_blank"} | [slides part 3](resources_pages/slides_part_1.html){target="_blank"} 
+- 2022 (University of Würzburg) Basic statistical methods for TEFL research `r icons::academicons$osf` [OSF](https://osf.io/v37pw/) 
+- 2019 (FJUEL conference, Bayreuth): Using "statistics" to learn about language: What matters (and what doesn‘t) `r icons::academicons$osf` [OSF](https://osf.io/jafbz/)
+- 2019 (BICLCE conference, Bamberg): The replication crisis in science: Challenges and chances for linguistics `r icons::academicons$osf` [OSF](https://osf.io/dhbce/)
+- 2018 (Uppsala) Statistical inference using estimation: Methods for corpus linguistics [slides](https://osf.io/qrv5k)
 - 2014 (EmMeth conference, Bamberg): Data visualization with R
 - 2014 (FJUEL conference, Bamberg): Workshop on statistical methods
