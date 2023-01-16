@@ -43,9 +43,9 @@ Journal articles
 
 Book chapters
 
-- **Sönning**, Lukas & Manfred Krug. 2022. Comparing study designs and down-sampling strategies in corpus analysis: The importance of speaker metadata in the BNCs of 1994 and 2014. In Ole Schützler & Julia Schlüter (eds.), Data and methods in corpus linguistics: Comparative approaches, 127-159. Cambridge: Cambridge University Press. DOI: 10.1017/9781108589314.006   `r icons::academicons$'closed-access'` [Link](https://doi.org/10.1017/9781108589314.006) | `r icons::academicons$osf` [OSF](https://osf.io/v3byq/) | `r icons::academicons$dataverse` [Data](https://doi.org/10.18710/A3SATC)
+- **Sönning**, Lukas & Manfred Krug. 2022. Comparing study designs and down-sampling strategies in corpus analysis: The importance of speaker metadata in the BNCs of 1994 and 2014. In Ole Schützler & Julia Schlüter (eds.), *Data and methods in corpus linguistics: Comparative approaches*, 127-159. Cambridge: Cambridge University Press. DOI: 10.1017/9781108589314.006   `r icons::academicons$'closed-access'` [Link](https://doi.org/10.1017/9781108589314.006) | `r icons::academicons$osf` [OSF](https://osf.io/v3byq/) | `r icons::academicons$dataverse` [Data](https://doi.org/10.18710/A3SATC)
 
-- **Sönning**, Lukas & Julia Schlüter. 2022. Comparing standard reference corpora and Google Books Ngrams: Strengths, limitations and synergies in the contrastive study of variable h- in British and American English. In Ole Schützler & Julia Schlüter (eds.), Data and methods in corpus linguistics: Comparative approaches, 17-45. Cambridge: Cambridge University Press. DOI: 10.1017/9781108589314.002   `r icons::academicons$'closed-access'` [Link](https://doi.org/10.1017/9781108589314.002) | `r icons::academicons$osf` [OSF](https://osf.io/47p6u/)  
+- **Sönning**, Lukas & Julia Schlüter. 2022. Comparing standard reference corpora and Google Books Ngrams: Strengths, limitations and synergies in the contrastive study of variable h- in British and American English. In Ole Schützler & Julia Schlüter (eds.), *Data and methods in corpus linguistics: Comparative approaches*, 17-45. Cambridge: Cambridge University Press. DOI: 10.1017/9781108589314.002   `r icons::academicons$'closed-access'` [Link](https://doi.org/10.1017/9781108589314.002) | `r icons::academicons$osf` [OSF](https://osf.io/47p6u/)  
 
 - Krug, Manfred & Lukas **Sönning**. 2018. Language change in Maltese English: The influence of age and parental languages. In: Patrizia Paggio & Albert Gatt (eds.), *The languages of Malta*, 247-270. Berlin: Language Science Press. DOI: 10.5281/zenodo.1181801   `r icons::academicons$'open-access'` [Open access](https://doi.org/10.5281/zenodo.1181801)
 
@@ -62,28 +62,28 @@ Proceedings
 
 #### Datasets
 
-- Sönning, Lukas. 2022. Speech rhythm in German Learner English: Dataset for "(Re-)viewing the acquisition of rhythm in the light of L2 phonological theories", https://doi.org/10.18710/GTI2BR, DataverseNO, V1.
+- Sönning, Lukas. 2022. *Speech rhythm in German Learner English: Dataset for "(Re-)viewing the acquisition of rhythm in the light of L2 phonological theories"*, https://doi.org/10.18710/GTI2BR, DataverseNO, V1.
 
-- Sönning, Lukas & Manfred Krug. 2021. Actually in contemporary British speech: Data from the Spoken BNC corpora, https://doi.org/10.18710/A3SATC, DataverseNO, V1.
+- Sönning, Lukas & Manfred Krug. 2021. *Actually in contemporary British speech: Data from the Spoken BNC corpora*, https://doi.org/10.18710/A3SATC, DataverseNO, V1.
 
-- Sönning, Lukas. 2022. Dataset for "Scrabble yourself to success: Methods in teaching transcription", https://doi.org/10.18710/2UJHHU, DataverseNO, V1.
+- Sönning, Lukas. 2022. *Dataset for "Scrabble yourself to success: Methods in teaching transcription"*, https://doi.org/10.18710/2UJHHU, DataverseNO, V1.
 
 
 ####### Dissertation {#data-diss}
 
-- Sönning, Lukas. 2021. The TRAP-DRESS contrast in German Learner English: Dataset for chapter 4 in "Phonological variation in German Learner English", https://doi.org/10.18710/ATIRRV, DataverseNO, V1.
+- Sönning, Lukas. 2021. *The TRAP-DRESS contrast in German Learner English: Dataset for chapter 4 in "Phonological variation in German Learner English"*, https://doi.org/10.18710/ATIRRV, DataverseNO, V1.
 
-- Sönning, Lukas. 2021. Clear vs. dark /l/ in German Learner English: Dataset for chapter 5 in "Phonological variation in German Learner English", https://doi.org/10.18710/G6PJ5F, DataverseNO, V1.
+- Sönning, Lukas. 2021. *Clear vs. dark /l/ in German Learner English: Dataset for chapter 5 in "Phonological variation in German Learner English"*, https://doi.org/10.18710/G6PJ5F, DataverseNO, V1.
 
-- Sönning, Lukas, Graham Pascoe, Isabel Rank and Christina Wunder. 2021. English /r/ in German Learner English: Dataset for chapter 6 in "Phonological variation in German Learner English", https://doi.org/10.18710/YDKDFG, DataverseNO, V1.
+- Sönning, Lukas, Graham Pascoe, Isabel Rank and Christina Wunder. 2021. *English /r/ in German Learner English: Dataset for chapter 6 in "Phonological variation in German Learner English"*, https://doi.org/10.18710/YDKDFG, DataverseNO, V1.
 
-- Sönning, Lukas, Graham Pascoe, Isabel Rank and Christina Wunder. 2021. The labio-velar glide /w/ in German Learner English: Dataset for chapter 7 in "Phonological variation in German Learner English", https://doi.org/10.18710/F1A34O, DataverseNO, V1.
+- Sönning, Lukas, Graham Pascoe, Isabel Rank and Christina Wunder. 2021. *The labio-velar glide /w/ in German Learner English: Dataset for chapter 7 in "Phonological variation in German Learner English"*, https://doi.org/10.18710/F1A34O, DataverseNO, V1.
 
-- Sönning, Lukas & Isabel Rank. 2021. The labiodental fricative /v/ in German Learner English: Dataset for chapter 8 in "Phonological variation in German Learner English", https://doi.org/10.18710/B276ZX, DataverseNO, V1.
+- Sönning, Lukas & Isabel Rank. 2021. *The labiodental fricative /v/ in German Learner English: Dataset for chapter 8 in "Phonological variation in German Learner English"*, https://doi.org/10.18710/B276ZX, DataverseNO, V1.
 
-- Sönning, Lukas, Graham Pascoe & Christina Wunder. 2021. The voiced dental fricative in German Learner English: Dataset for chapter 9 in "Phonological variation in German Learner English", https://doi.org/10.18710/DYAGZG, DataverseNO, V1.
+- Sönning, Lukas, Graham Pascoe & Christina Wunder. 2021. *The voiced dental fricative in German Learner English: Dataset for chapter 9 in "Phonological variation in German Learner English"*, https://doi.org/10.18710/DYAGZG, DataverseNO, V1.
 
-- Sönning, Lukas & Graham Pascoe. 2021. Final voiced obstruents in German Learner English: Dataset for chapter 10 in "Phonological variation in German Learner English", https://doi.org/10.18710/DKIGE5, DataverseNO, V1.
+- Sönning, Lukas & Graham Pascoe. 2021. *Final voiced obstruents in German Learner English: Dataset for chapter 10 in "Phonological variation in German Learner English"*, https://doi.org/10.18710/DKIGE5, DataverseNO, V1.
 
 
 
