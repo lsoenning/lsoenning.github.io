@@ -1,7 +1,7 @@
 ### Lukas Sönning
 
 <div style="float:right;position: relative;">
-<p><img src="files/lsoenning_photo.png" /></p>
+<p><img src="files/lsoenning_photo.png" width="95" height="122" /></p>
 </div>
 
 
