@@ -8,14 +8,11 @@
 
 - **Sönning**, Lukas & Ole Schützler (eds.). (to appear). Data visualization in corpus linguistics: Reflections and future directions, VARIENG.
 
-- **Sönning**, Lukas. (in review). Evaluation of text-level measures of lexical dispersion: Robustness and consistency.   `r icons::academicons$psyarxiv` [Preprint](https://psyarxiv.com/h9mvs/) | `r icons::academicons$dataverse` [Data](https://doi.org/10.18710/MNVB36) | `r icons::academicons$osf` [OSF](https://osf.io/rpfb8/) 
-
-- **Sönning**, Lukas. (in review). Evaluation of keyness metrics: Reliability and interpretability.   `r icons::academicons$psyarxiv` [Preprint](https://psyarxiv.com/eb2n9/) | `r icons::academicons$dataverse` [Data](https://doi.org/10.18710/ATCQZW) | `r icons::academicons$osf` [OSF](https://osf.io/kcwus/)
+- **Sönning**, Lukas. (unpublished manuscript). Evaluation of text-level measures of lexical dispersion: Robustness and consistency.   `r icons::academicons$psyarxiv` [Preprint](https://psyarxiv.com/h9mvs/) | `r icons::academicons$dataverse` [Data](https://doi.org/10.18710/MNVB36) | `r icons::academicons$osf` [OSF](https://osf.io/rpfb8/) 
 
 - **Sönning**, Lukas. (in review). Count regression models for keyness analysis.   `r icons::academicons$psyarxiv` [Preprint](https://psyarxiv.com/25mwj/) | `r icons::academicons$osf` [OSF](https://osf.io/mc26t/)
 
-- **Sönning**, Lukas & Jason Grafmiller. (in review). Seeing the wood for the trees: Predictive margins for random forests.   `r icons::academicons$psyarxiv` [Preprint](https://psyarxiv.com/jr8yk/) | [Data](https://osf.io/r4s87) | `r icons::academicons$osf` [OSF](https://osf.io/4tuv2)
-
+- **Sönning**, Lukas. (in review). Down-sampling from hierarchically structured corpus data.
 
 
 \  
@@ -29,16 +26,21 @@ Monograph
   
 Edited volumes
 
-- **Sönning**, Lukas & Valentin Werner. 2021. The replication crisis: Implications for linguistics. Special issue in *Linguistics*.   `r icons::academicons$'closed-access'` [Link](https://www.degruyter.com/journal/key/ling/59/5/html)  
+- **Sönning**, Lukas & Valentin Werner. 2021. The replication crisis: Implications for linguistics. Special issue in *Linguistics*.   `r icons::academicons$'open-access'` [Open access](https://www.degruyter.com/journal/key/ling/59/5/html)  
 
 - Christ, Hanna, Daniel Klenovšak, Lukas **Sönning** & Valentin Werner (eds.). 2016. *A blend of MaLT: Selected contributions from the Methods and Linguistic Theories Symposium*. Bamberg: University of Bamberg Press.   `r icons::academicons$'open-access'` [Open access](https://fis.uni-bamberg.de/bitstream/uniba/41360/1/BABEL15WernerMaLTopusse_A3a.pdf)
 
 
 Journal articles
 
-- **Sönning**, Lukas & Valentin Werner. 2021. The replication crisis, scientific revolutions, and linguistics. *Linguistics* 59(5), 1179-1206. DOI: 10.1515/ling-2019-0045   `r icons::academicons$'closed-access'` [Link](https://www.degruyter.com/document/doi/10.1515/ling-2019-0045/html?lang=de)  
 
-- **Sönning**, Lukas. 2014. Unstressed vowels in German Learner English: An instrumental study. *Research in Language* 12(2), 163-173. DOI: 10.2478/rela-2014-0001   `r icons::academicons$'open-access'` [Open access](https://digijournals.uni.lodz.pl/rela/vol12/iss2/4/) | `r icons::academicons$osf` [OSF](https://osf.io/48ejg/)
+- **Sönning**, Lukas. 2023. Evaluation of keyness metrics: Performance and reliability. *Corpus Linguistics and Linguistic Theory*. https://doi.org/10.1515/cllt-2022-0116 `r icons::academicons$psyarxiv` [Preprint](https://psyarxiv.com/eb2n9/) | `r icons::academicons$dataverse` [Data](https://doi.org/10.18710/EUXSMW) | `r icons::academicons$osf` [OSF](https://osf.io/kcwus/)
+
+- **Sönning**, Lukas & Jason Grafmiller. 2023. Seeing the wood for the trees: Predictive margins for random forests. *Corpus Linguistics and Linguistic Theory*. https://doi.org/10.1515/cllt-2022-0083  `r icons::academicons$psyarxiv` [Preprint](https://psyarxiv.com/jr8yk/) | `r icons::academicons$dataverse` [Data](https://doi.org/10.18710/R7HM8J) | `r icons::academicons$osf` [OSF](https://osf.io/4tuv2)
+
+- **Sönning**, Lukas & Valentin Werner. 2021. The replication crisis, scientific revolutions, and linguistics. *Linguistics* 59(5), 1179-1206. https://doi.org/10.1515/ling-2019-0045   `r icons::academicons$'open-access'` [Open access](https://doi.org/10.1515/ling-2019-0045)  
+
+- **Sönning**, Lukas. 2014. Unstressed vowels in German Learner English: An instrumental study. *Research in Language* 12(2), 163-173. https://doi.org/10.2478/rela-2014-0001   `r icons::academicons$'open-access'` [Open access](https://digijournals.uni.lodz.pl/rela/vol12/iss2/4/) | `r icons::academicons$osf` [OSF](https://osf.io/48ejg/)
 
 
 Book chapters
@@ -61,6 +63,8 @@ Proceedings
 \  
 
 #### Datasets
+
+- Sönning, Lukas. 2023. *Key verbs in academic writing: Dataset for "Evaluation of keyness metrics: Performance and reliability"*, https://doi.org/10.18710/EUXSMW, DataverseNO, V1.
 
 - Sönning, Lukas. 2022. *Speech rhythm in German Learner English: Dataset for "(Re-)viewing the acquisition of rhythm in the light of L2 phonological theories"*, https://doi.org/10.18710/GTI2BR, DataverseNO, V1.
 
