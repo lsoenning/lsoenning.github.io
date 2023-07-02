@@ -10,9 +10,13 @@
 
 - **Sönning**, Lukas. (unpublished manuscript). Evaluation of text-level measures of lexical dispersion: Robustness and consistency.   `r icons::academicons$psyarxiv` [Preprint](https://psyarxiv.com/h9mvs/) | `r icons::academicons$dataverse` [Data](https://doi.org/10.18710/MNVB36) | `r icons::academicons$osf` [OSF](https://osf.io/rpfb8/) 
 
-- **Sönning**, Lukas. (in review). Count regression models for keyness analysis.   `r icons::academicons$psyarxiv` [Preprint](https://psyarxiv.com/25mwj/) | `r icons::academicons$osf` [OSF](https://osf.io/mc26t/)
+- **Sönning**, Lukas. (in review). Count regression models for keyness analysis.   `r icons::academicons$psyarxiv` [Manuscript](https://psyarxiv.com/25mwj/) | `r icons::academicons$osf` [OSF](https://osf.io/mc26t/)
 
-- **Sönning**, Lukas. (in review). Down-sampling from hierarchically structured corpus data.
+- **Sönning**, Lukas. (in review). Down-sampling from hierarchically structured corpus data.   `r icons::academicons$psyarxiv` [Manuscript](https://psyarxiv.com/4vtja/) | `r icons::academicons$osf` [OSF](https://osf.io/7ernz/)
+
+- **Sönning**, Lukas. (in review). Advancing our understanding of dispersion measures in corpus research.    `r icons::academicons$psyarxiv` [Manuscript](https://psyarxiv.com/ns4q9/) | `r icons::academicons$osf` [OSF](https://osf.io/nhw2y/)
+
+- **Sönning**, Lukas, Manfred Krug, Fabian Vetter, Anne Leucht, Timo Schmid & Paul Messer. (in preparation). Latent-variable modeling of ordinal outcomes in language data analysis.
 
 
 \  
