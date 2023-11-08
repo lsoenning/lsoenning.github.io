@@ -1,0 +1,26 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "Lukas Sönning"
+  navbar:
+    background: lightgrey
+    foreground: black
+    search: true
+    left:
+      - text: Home
+        file: index.qmd
+      - about.qmd
+      - research.qmd
+      - resources.qmd
+      #- posts.qmd
+
+format:
+  html:
+    theme: lumen
+    css: styles.css
+    toc: true
+
+editor: visual
+

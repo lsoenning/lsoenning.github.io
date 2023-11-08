@@ -1,0 +1,49 @@
+---
+title: "Resources"
+editor: source
+---
+
+##### Plot templates for Microsoft Excel 
+
+Excel templates for some useful graph types can be found in the following {{< ai osf >}} [OSF project](https://osf.io/v37pw). 
+
+
+- Dot diagram   
+[template](https://osf.io/tjsaf) | [instructions](https://osf.io/w4736)
+
+<center><img src="files/dot_diagram.png" /></center>
+
+
+- Simple dot plot   
+[template](https://osf.io/4scxt) | [instructions](https://osf.io/8cg3j)
+
+<center><img src="files/dot_plot_one.png" /></center>
+
+
+- Grouped dot plot   
+[template](https://osf.io/4scxt) | [instructions](https://osf.io/8cg3j)
+
+<center><img src="files/dot_plot_two.png" /></center>
+
+
+- Box plot   
+[template](https://osf.io/f46aq) | [instructions](https://osf.io/t2qmy)
+
+<center><img src="files/box_plot.png" /></center>
+
+
+- Vertical dot plot   
+[template](https://osf.io/w4u7m)
+
+<center><img src="files/vertical_dot_plot.png" /></center>
+
+
+- Scatter plot   
+[template](https://osf.io/xajyk) | [instructions](https://osf.io/hkd4c)
+
+<center><img src="files/scatter_plot.png" /></center>
+
+
+##### Speaker slides for workshop
+
+- Würzburg: [speaker slides part 1](resources_pages/slides_part_1-speaker.html){target="_blank"} | [speaker slides part 3](resources_pages/slides_part_3-speaker.html){target="_blank"} 
