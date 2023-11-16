@@ -1,0 +1,317 @@
+---
+title: "Standard error and sample size"
+description: "This blog post compares the way in which the term *dispersion* is used in corpus linguistics and statistics."
+date: 2023-01-18
+categories: [corpus linguistics, statistics, dispersion, terminology] # self-defined categories
+citation: 
+  url: https://lsoenning.github.io/posts/2023-01-18-dispersion_terminology/ 
+draft: true
+
+---
+
+We start by loading the lattice package:
+
+```{r}
+library(lattice)
+library(here)
+library(tidyverse)
+source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils.R")
+```
+
+This code reproduces Figure 1 (in the preprint) and saves it as a PDF file, in the folder "figures".
+
+```{r}
+sample_sizes = runif(n = 100, min=1, max=100)
+
+trials = sample_sizes
+successes = NA
+for(i in 1:length(sample_sizes)) successes[i] <- sum(rbinom(sample_sizes[i], 1, .5))
+prop = successes/trials
+
+
+# SE according to Agresti & Coull 1998
+prop_adj = (successes+1)/(trials+2)
+prop_se = sqrt((prop_adj*(1-prop_adj))/trials)
+
+
+prop_se_adj = (prop-.5) / prop_se
+
+prop_steps = c(.55, .6, .65, .7, .75, .8, .85, .9, .95)
+
+```
+
+```{r}
+xyplot(prop ~ trials, ylim=c(0,1), pch=16, col=1, cex=.5,
+	   panel=function(x,y,...){
+	   	panel.xyplot(x,y,...)
+	   	panel.segments(x0=x, x1=x, y0=prop_adj + prop_se, y1=prop_adj - prop_se)
+	   })
+```
+
+```{r}
+xyplot(prop_se_adj ~ sqrt(trials), ylim=c(-10, 10),
+	   par.settings=my_settings, axis=axis_L,
+	   scales=list(x=list(at=sqrt(c(1, 5, 10, 20, 50, 100, 200)), labels=c(1, 5, 10, 20, 50, 100, 200))),
+	   panel=function(x,y){
+	   	#panel.segments(x0=x, x1=x, y0=prop_adj + prop_se, y1=prop_adj - prop_se)
+	   	panel.abline(h=0, col="grey90")
+	   	for(i in 1:length(prop_steps)) {
+	   		panel.curve((prop_steps[i]-.5) / (sqrt((prop_steps[i]*(1-prop_steps[i]))/x^2)), col="grey70")
+	   		panel.curve((-prop_steps[i]+.5) / (sqrt((prop_steps[i]*(1-prop_steps[i]))/x^2)), col="grey70")
+	   	}
+	   	panel.text(x=sqrt(230), y=(prop_steps-.5) / (sqrt((prop_steps*(1-prop_steps))/220)), label=prop_steps, adj=0, cex=.8, col="grey30")
+	   	panel.text(x=sqrt(230), y=(-prop_steps+.5) / (sqrt((prop_steps*(1-prop_steps))/220)), label=1-prop_steps, adj=0, cex=.8, col="grey30")
+	   	panel.xyplot(x,y, col=1)
+	   	panel.abline(h=0)
+	   })
+```
+
+```{r}
+xyplot(prop_se_adj ~ trials, #ylim=c(0,1),
+	   panel=function(x,y){
+	   	#panel.segments(x0=x, x1=x, y0=prop_adj + prop_se, y1=prop_adj - prop_se)
+	   	for(i in 1:length(prop_steps)) {
+	   		panel.curve((prop_steps[i]-.5) / (sqrt((prop_steps[i]*(1-prop_steps[i]))/x)), col="grey")
+	   		panel.curve((-prop_steps[i]+.5) / (sqrt((prop_steps[i]*(1-prop_steps[i]))/x)), col="grey")
+	   	}
+	   	panel.abline(h=0, col="grey")
+	   	panel.xyplot(x,y, col=1)
+	   })
+```
+
+### Grasshopper data
+
+```{r}
+d <- read.delim(here("posts/2023-01-26_standard_error_sample_size/data", "grasshopper_data.txt"))
+
+d$date <- factor(d$date)
+d$location <- factor(d$location)
+
+str(d)
+```
+
+```{r fig.height=1.5, fig.width=3}
+d |> ggplot(aes(x=R/N)) + geom_dotplot()
+```
+
+```{r fig.height=1.5, fig.width=3}
+d |> ggplot(aes(x = N, y=R/N)) + geom_point()
+```
+
+```{r}
+m <- glm(cbind(R, N-R) ~ location * date, data=d, family="binomial")
+summary(m)
+```
+
+```{r}
+anova(m)
+```
+
+```{r}
+car::Anova(m)
+```
+
+```{r}
+xyplot(m$residuals ~ m$fitted.values)
+xyplot(m$residuals ~ d$N)
+
+plot(m)
+car::residualPlots(m)
+```
+
+```{r}
+d$mother <- 1:88
+
+m <- lme4::glmer(cbind(R, N-R) ~ location * date + (1|mother), data=d, family=binomial)
+summary(m)
+```
+
+```{r}
+library(metafor)
+data(dat.hackshaw1998)
+str(dat.hackshaw1998)
+
+### fit equal-effects model
+res <- rma(yi, vi, data=dat.hackshaw1998, method="EE")
+ 
+### adjust margins so the space is better used
+par(mar=c(5,4,0,3))
+ 
+### draw radial plot
+radial(res)
+
+
+```
+
+### Actually data
+
+```{r}
+d <- read.csv(here("posts/2023-01-26_standard_error_sample_size/data", "actually_data_2014.csv"))
+
+sim_count <- NA
+for(i in 1:nrow(d)) sim_count[i] <- sum(rpois(d$total[i], lambda = .001))
+
+d$sim_count <- sim_count
+
+d$rate_pttw <- (d$count/d$total)*10000
+
+#d <- d[sample(1:nrow(d), size = 100, replace = F), ]
+str(d)
+```
+
+Draw a histogram
+
+```{r fig.height=2, fig.wisth=3}
+histogram(sqrt(d$rate_pttw), 
+		  par.settings=my_settings, 
+		  axis=axis_bottom,
+		  col="grey",
+		  nint=50,
+		  ylab="", 
+		  xlab="Occurrence rate sqrt(pttw)")
+```
+
+```{r fig.height=1.8, fig.width=3}
+d |> ggplot(aes(x=rate_pttw)) + 
+	geom_histogram(color="black", fill="grey", bins = 89) +
+	scale_x_continuous(breaks=c(0,10,20,30,40,50,60,70,80)) +
+	ylab("Number of speakers") +
+	xlab("Occurrence rate (ptw, square-root scaled)") +
+	theme_minimal()
+```
+
+```{r fig.height=4, fig.width=7}
+d |> 
+	mutate(n_total_bins = factor(
+		cut(total, breaks = c(0,1e3,1e4,1e5, 1e6)))) |> 
+	mutate(n_total_bins = fct_rev(n_total_bins)) |> 
+	ggplot(aes(x=rate_pttw, 
+			   fill=n_total_bins)) +
+	geom_dotplot(method="histodot", binwidth = 1, binpositions="all", stackgroups=TRUE, stackratio=.7) +
+	scale_fill_manual(values=rev(c("white", "grey80", "grey50", "black"))) + 
+	scale_y_discrete(labels = NULL, breaks = NULL, expand = c(.01, .01)) + 
+	labs(y = "", fill="tokens") +
+	theme_minimal() 
+
+```
+
+```{r}
+m <- glm(count ~ offset(log(total)), data=d, family=quasipoisson)
+arm::display(m)
+
+m <- lme4::glmer(count ~ offset(log(total)) + (1|speaker), data=d, family=poisson)
+arm::display(m)
+
+```
+
+```{r fig.height=3, fig.width=3}
+d |> ggplot(aes(x=sqrt(total), y=(count/total))) +
+	geom_point() + labs(subtitle="No transformation")
+```
+
+```{r fig.height=3, fig.width=3}
+d |> ggplot(aes(x=1/(sqrt(count+.25)/total), y=(count/total))) +
+	geom_point() + labs(subtitle="No transformation")
+```
+
+```{r fig.height=3, fig.width=3}
+d |> ggplot(aes(x=1/(1/(sqrt(4*total))), y=sqrt(count/total))) +
+	geom_point() + labs(subtitle="Square-root transformation")
+```
+
+```{r fig.height=3, fig.width=3}
+d |> ggplot(aes(x=1/(1/(sqrt(count+.25))), y=log((count+.25)/total))) +
+	geom_point() + labs(subtitle="Log transformation")
+```
+
+```{r fig.height=3, fig.width=3}
+d$precision <- 1/(1/(sqrt(4*d$total)))
+d$estimate <- sqrt(d$count/d$total)
+d$std_estimate <- (d$estimate - sqrt(sum(d$count)/sum(d$total))) / (1/d$precision)
+
+d |> ggplot(aes(x=precision, y=std_estimate)) +
+	geom_point() + labs(subtitle="Square-root transformation")
+```
+
+```{r fig.height=3, fig.width=3}
+d$precision <- 1/(1/(sqrt(d$count)))
+d$estimate <- log((d$count+.25)/d$total)
+d$std_estimate <- (d$estimate - log(sum(d$count)/sum(d$total))) / (1/d$precision)
+
+d |> ggplot(aes(x=precision, y=std_estimate)) +
+	geom_point() + labs(subtitle="Log transformation")
+```
+
+```{r fig.height=3, fig.width=4}
+d$precision <- 1/(1/(sqrt(4*d$total)))
+d$estimate <- sqrt(d$count/d$total)
+d$std_estimate <- (d$estimate - sqrt(sum(d$count)/sum(d$total))) / (1/d$precision)
+
+x_seq <- seq(0, 1300, length.out=2)
+
+
+my_settings_temp <- my_settings
+my_settings_temp$clip$panel <- "on"
+
+xyplot(std_estimate ~ precision, data=d,
+	   ylim=c(-25,25), xlim=c(0, NA),
+	   par.settings=my_settings_temp, axis=axis_left,
+	   panel=function(x,y,...){
+	   	panel.points(x=x_seq, y=(sqrt(0) - sqrt(sum(d$count)/sum(d$total)))/(1/(x_seq)), type="l", col="grey")
+	   	panel.points(x=x_seq, y=(sqrt(.0002) - sqrt(sum(d$count)/sum(d$total)))/(1/(x_seq)), type="l", col="lightgrey")
+	   	panel.points(x=x_seq, y=(sqrt(.0005) - sqrt(sum(d$count)/sum(d$total)))/(1/(x_seq)), type="l", col="lightgrey")
+	   	panel.points(x=x_seq, y=(sqrt(.0010) - sqrt(sum(d$count)/sum(d$total)))/(1/(x_seq)), type="l", col="lightgrey")
+	   	panel.points(x=x_seq, y=(sqrt(.0015) - sqrt(sum(d$count)/sum(d$total)))/(1/(x_seq)), type="l", col="lightgrey")
+	   	panel.points(x=x_seq, y=(sqrt(.0020) - sqrt(sum(d$count)/sum(d$total)))/(1/(x_seq)), type="l", col="lightgrey")
+	   	panel.points(x=x_seq, y=(sqrt(.0030) - sqrt(sum(d$count)/sum(d$total)))/(1/(x_seq)), type="l", col="lightgrey")
+	   	panel.points(x=x_seq, y=(sqrt(.0050) - sqrt(sum(d$count)/sum(d$total)))/(1/(x_seq)), type="l", col="lightgrey")
+	   	panel.points(x=x_seq, y=(sqrt(.0075) - sqrt(sum(d$count)/sum(d$total)))/(1/(x_seq)), type="l", col="lightgrey")
+
+	   	panel.xyplot(x,y,...)
+	   })
+```
+
+```{r fig.height=2, fig.wisth=3}
+histogram(d$std_estimate, 
+		  par.settings=my_settings, 
+		  axis=axis_bottom,
+		  col="grey",
+		  nint=30)
+```
+
+### Simulated data
+
+```{r fig.height=2, fig.width=4}
+d$precision <- 1/(1/(sqrt(4*d$total)))
+d$estimate <- sqrt(d$sim_count/d$total)
+d$std_estimate <- (d$estimate - sqrt(sum(d$sim_count)/sum(d$total))) / (1/d$precision)
+
+x_seq <- seq(0, 1300, length.out=2)
+
+xyplot(std_estimate ~ precision, data=d,
+	   ylim=c(-5,5),
+	   par.settings=my_settings, axis=axis_left,
+	   panel=function(x,y,...){
+	   	panel.points(x=x_seq, y=(sqrt(0) - sqrt(sum(d$sim_count)/sum(d$total)))/(1/(x_seq)), type="l", col="grey")
+	   	panel.points(x=x_seq, y=(sqrt(.0005) - sqrt(sum(d$sim_count)/sum(d$total)))/(1/(x_seq)), type="l", col="grey")
+	   	panel.points(x=x_seq, y=(sqrt(.0008) - sqrt(sum(d$sim_count)/sum(d$total)))/(1/(x_seq)), type="l", col="grey")
+	   	panel.points(x=x_seq, y=(sqrt(.0010) - sqrt(sum(d$sim_count)/sum(d$total)))/(1/(x_seq)), type="l", col="grey")
+	   	panel.points(x=x_seq, y=(sqrt(.0012) - sqrt(sum(d$sim_count)/sum(d$total)))/(1/(x_seq)), type="l", col="grey")
+	   	panel.points(x=x_seq, y=(sqrt(.0015) - sqrt(sum(d$sim_count)/sum(d$total)))/(1/(x_seq)), type="l", col="grey")
+	   	panel.points(x=x_seq, y=(sqrt(.0030) - sqrt(sum(d$sim_count)/sum(d$total)))/(1/(x_seq)), type="l", col="grey")
+
+	   	panel.xyplot(x,y,...)
+	   })
+```
+
+```{r fig.height=2, fig.wisth=3}
+histogram(d$std_estimate, 
+		  par.settings=my_settings, 
+		  axis=axis_bottom,
+		  col="grey",
+		  nint=30)
+```
+
+```{r}
+sd(d$std_estimate)
+```

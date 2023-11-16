@@ -4,6 +4,7 @@ project:
 
 website:
   title: "Lukas Sönning"
+  site-url: https://lsoenning.github.io
   navbar:
     background: lightgrey
     foreground: black
@@ -14,7 +15,7 @@ website:
       - about.qmd
       - research.qmd
       - resources.qmd
-      #- posts.qmd
+      - posts.qmd
 
 format:
   html:

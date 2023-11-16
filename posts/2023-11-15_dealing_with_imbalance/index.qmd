@@ -1,0 +1,175 @@
+---
+title: "Some obstacles to replication in corpus linguistics"
+description: "This blog post includes a number of thoughts on replication."
+date: 2023-11-08
+categories: [corpus linguistics, statistics, replication, models]
+citation: 
+  url: https://lsoenning.github.io/posts/2023-11-08-modals_replication/ 
+draft: true
+---
+
+This blog post discusses two features of corpus data that make it more complicated to talk about replicability. The first one concerns the issue of non-independence of observations: Tokens extracted from a corpus are almost always clustered by source (author of speaker). The second one concerns the lack of balance in corpus data. In contrast to experiments, where the researcher has (almost) full control over the distribution of data points across the conditions of interest, the spread of corpus hits across the levels of relevant predictors is uneven.
+
+We will consider, as an illustrative set of data, the frequency of modals in recent British and American English. These make for an interesting case study, not only because they have generated an exchange on replicability in the recent literature (Leech 2003; Millar) and they have been used by McEnery & Brezina to illustrate key ideas about replication. The data on which the following (selective) discussion is based are available from TROLLing [@Soenning2023], which should facilitate follow-up discussions.
+
+The following points are relevant for both text-linguistic and variationist research.
+
+ The illustrative data used in this blog post is available from TROLLing .
+
+```{r}
+#| warning: false
+#| message: false
+#| code-fold: true
+#| code-summary: "Load R packages"
+
+library(tidyverse)
+library(marginaleffects)
+library(MASS)
+library(ggthemes)
+library(lattice)
+library(DescTools)
+library(here)
+library(kableExtra)
+library(gtsummary)
+library(gamlss)
+
+source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils.R")
+```
+
+
+```{r}
+#| code-fold: true
+#| code-summary: "Load and prepare data"
+ 
+d_modals <- read_tsv("./data/modals_freq_form.tsv")
+#d_modals <- read_tsv("./posts/2023-11-08_modals_replication/data/modals_freq_form.tsv")
+d_modals <- subset(d_modals, corpus %in% c("Brown", "Frown"))
+
+d_modals$time_period <- factor(d_modals$time_period)
+d_modals$genre <- factor(d_modals$genre)
+
+contrasts(d_modals$genre) <- contr.sum(4)
+contrasts(d_modals$time_period) <- contr.sum(2)
+
+should_data <- subset(d_modals, modal=="should")
+should_Brown <- subset(d_modals, modal=="should" & corpus=="Brown")
+```
+
+
+
+
+
+
+```{r}
+m_poi <- glm(n_tokens ~ genre + offset(log(n_words)), data=should_Brown, family=poisson)
+m_nb2 <- glm.nb(n_tokens ~ genre + offset(log(n_words)), data=should_Brown)
+
+preds_conditions_poi <- predictions(
+  m_poi, 
+  newdata = datagrid(
+    genre = c("press", "general_prose", "learned", "fiction"),
+    n_words = 1e6))
+
+preds_conditions_poi <- data.frame(preds_conditions_poi)
+preds_conditions_poi <- preds_conditions_poi[,c(9,2,5,6)]
+
+
+preds_conditions_nb2 <- predictions(
+  m_nb2, 
+  newdata = datagrid(
+    genre = c("press", "general_prose", "learned", "fiction"),
+    n_words = 1e6))
+
+preds_conditions_nb2 <- data.frame(preds_conditions_nb2)
+preds_conditions_nb2 <- preds_conditions_nb2[,c(9,2,5,6)]
+
+preds_conditions_poi$model <- "Poisson"
+preds_conditions_nb2$model <- "Negative binomial"
+
+preds_conditions <- rbind(
+  preds_conditions_nb2,
+  preds_conditions_poi
+)
+
+preds_conditions$genre_nice <- rep(c("Press", "General\nprose", "Learned", "Fiction"), 2)
+```
+
+```{r fig.height=3, fig.width=3}
+preds_conditions |> 
+  ggplot(aes(x=genre_nice, y=estimate, group=model, color=genre_nice, shape=model)) + 
+  scale_y_continuous(limits=c(0,NA), expand=c(0,0)) +
+  ylab("Normalized frequency (pmw)") +
+  xlab(NULL) +
+  scale_color_colorblind() +
+  scale_shape_manual(values=c(21, 19)) +
+  geom_errorbar(aes(ymin=conf.low, ymax=conf.high), width=.1, alpha=.5,
+                position = position_dodge(.3)) +
+  geom_point(position = position_dodge(.3), fill="white") +
+  theme_classic_ls() +
+  labs(subtitle="should") +
+  theme(plot.subtitle = element_text(face = "italic")) +
+  theme(legend.position = "none")
+```
+
+
+#### Dealing with imbalances in the data: Simple vs. weighted averages
+
+Leech (2003: 228) looked at the frequency of different modals in the Brown family corpora. For *should* in Brown, he reports a raw frequency of 910 instances, which his consistent with the current output of CQPweb. Compared against the total number of words in Brown (1,148,454 words), this corresponds to a normalized frequency of 792 per million words (pmw). This occurrence rate is obtained in the following way: We divide the number of times *should* occurs in Brown (`r sum(should_Brown$n_tokens) `).
+
+Now let's assume we want to reproduce these figures using a regression model. Since we are dealing with count data, we use a Poisson model. And since we are interested in normalized occurrence rates (and since texts differ very slightly in length), we will use a rate model that includes an offset to account for the length of texts. The output of this model is not a count, but a rate (i.e. normalized frequency) of "per 1 word", i.e. a proportion. We can  multiply this rate by 1,000,000 to get our preferred rate (i.e. pmw). 
+
+This works:
+
+```{r}
+m <- glm(
+  n_tokens ~ 1 + offset(log(n_words)), 
+  data=should_Brown, 
+  family=poisson)
+```
+
+```{r}
+m |> tbl_regression(
+  intercept = TRUE,
+  exponentiate = TRUE,
+  estimate_fun = purrr::partial(style_ratio, digits = 6))
+```
+
+
+```{r}
+round(exp(coef(m))*1e6, 0)
+
+```
+
+
+
+Next, we consider the frequency of should in the four broad genres.
+
+```{r}
+should_Brown
+```
+
+
+```{r}
+genre_rates <- should_Brown |> 
+  mutate(rate_pmw = (n_tokens/n_words)*1e6) |> 
+  group_by(genre) |> 
+  dplyr::summarize(
+    pmw = round(mean(rate_pmw)),
+    corpus = unique(corpus),
+    Tokens = sum(n_tokens),
+    n_words = sum(n_words)) |> 
+  mutate(p_words = n_words/sum(n_words))
+
+genre_rates$Percent <- paste0("(", round(genre_rates$p_words*100), "%)")
+genre_rates$Rate <- paste0(genre_rates$pmw, " pmw")
+genre_rates$Words <- paste0(format(round(as.numeric(genre_rates$n_words), 0), nsmall=0, big.mark=","), " (", round(genre_rates$p_words*100), "%)")
+genre_rates$Genre <- c("Fiction", "General prose", "Learned", "Press")
+
+genre_rates |> dplyr::select(c(Genre, Words, Tokens, Rate)) |> 
+  kbl() |> 
+  kable_paper("hover", full_width = F)
+```
+
+
+### Estimation: Averaging on the data vs. model scale
+

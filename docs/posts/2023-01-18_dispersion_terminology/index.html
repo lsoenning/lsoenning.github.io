@@ -7,10 +7,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Lukas Sönning">
-<meta name="dcterms.date" content="2023-01-18">
-<meta name="description" content="This blog post compares the way in which the term dispersion is used in corpus linguistics and statistics.">
+<meta name="dcterms.date" content="2023-11-18">
+<meta name="description" content="This blog post clarifies the different ways in which the term dispersion is used in corpus linguistics and statistics.">
 
-<title>My website - ‘Dispersion’ in corpus linguistics and statistics</title>
+<title>Lukas Sönning - ‘Dispersion’ in corpus linguistics and statistics</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -57,7 +57,26 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
@@ -109,7 +128,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container">
     <a class="navbar-brand" href="../../index.html">
-    <span class="navbar-title">My website</span>
+    <span class="navbar-title">Lukas Sönning</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -168,7 +187,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <div>
   <div class="description">
-    This blog post compares the way in which the term <em>dispersion</em> is used in corpus linguistics and statistics.
+    This blog post clarifies the different ways in which the term <em>dispersion</em> is used in corpus linguistics and statistics.
   </div>
 </div>
 
@@ -177,7 +196,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <div class="quarto-title-meta-heading">Affiliation</div>
   
     <div class="quarto-title-meta-contents">
-    <p class="author"><a href="https://lsoenning.github.io/">Lukas Sönning</a> <a href="https://orcid.org/0000-0002-5300-3075" class="quarto-title-author-orcid"> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg=="></a></p>
+    <p class="author"><a href="https://lsoenning.github.io/">Lukas Sönning</a> <a href="https://orcid.org/0000-0002-2705-395X" class="quarto-title-author-orcid"> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg=="></a></p>
   </div>
     <div class="quarto-title-meta-contents">
         <p class="affiliation">
@@ -192,7 +211,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">January 18, 2023</p>
+      <p class="date">November 18, 2023</p>
     </div>
   </div>
   
@@ -204,85 +223,193 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <p>We start by loading the lattice package:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lattice)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Paket 'lattice' wurde unter R Version 4.2.3 erstellt</code></pre>
+<details>
+<summary>R setup</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lattice)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils.R"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: Paket 'gridExtra' wurde unter R Version 4.2.3 erstellt</code></pre>
-</div>
-</div>
-<p>This code reproduces Figure 1 (in the preprint) and saves it as a PDF file, in the folder “figures”.</p>
+<p>In corpus linguistics, the term <em>dispersion</em> is used to describe the distribution of an item or structure in a corpus <span class="citation" data-cites="Gries2008 Gries2020">(see <a href="#ref-Gries2008" role="doc-biblioref">Gries 2008</a>, <a href="#ref-Gries2020" role="doc-biblioref">2020</a>)</span>. For most dispersion measures, a corpus must first be divided into units (or parts). These units commonly reflect the design of the corpus – they can be text files, for instance, or text categories. A dispersion index then describes the distribution of an item across these units. There are two general classes of measures:</p>
+<ul>
+<li>those measuring the <em>pervasiveness</em> of an item, which is reflected in the number of units that contain the item (Range and Text Dispersion, its proportional analog)</li>
+<li>the much larger class of <em>evenness</em> measures, which express how evenly an item is distributed across the units (e.g.&nbsp;<em>D</em>, <em>D<sub>2</sub></em>, <em>S</em>, <em>D<sub>P</sub></em>, <em>D<sub>A</sub></em>, <em>D<sub>KL</sub></em>).</li>
+</ul>
+<p>Most dispersion measures range between 0 and 1, where 1 indicates a perfectly even distribution, or the maximal degree of pervasiveness (i.e.&nbsp;the item occurs in every unit).</p>
+<p>From a statistical viewpoint, the input for the calculation of evenness measures would be considered a count variable, since it records the number of events (occurrences of the item) that are observed during a certain period of observation. In corpus linguistics, the “period of observation” is “text time”, expressed as a word count.</p>
+<p>There is an extensive literature on the use of regression models for count variables <span class="citation" data-cites="Long1997 Cameron_Trivedi2013 Hilbe2014">(e.g. <a href="#ref-Long1997" role="doc-biblioref">Long 1997</a>; <a href="#ref-Cameron_Trivedi2013" role="doc-biblioref">Cameron and Trivedi 2013</a>; <a href="#ref-Hilbe2014" role="doc-biblioref">Hilbe 2014</a>)</span>, and such models have seen some successful applications to word frequency data <span class="citation" data-cites="Mosteller_Wallace1984 Church_Gale1995">(e.g. <a href="#ref-Mosteller_Wallace1984" role="doc-biblioref">Mosteller and Wallace 1984</a>; <a href="#ref-Church_Gale1995" role="doc-biblioref">Church and Gale 1995</a>)</span>; <span class="citation" data-cites="Winter_Buerkner2021">Winter and Bürkner (<a href="#ref-Winter_Buerkner2021" role="doc-biblioref">2021</a>)</span> provide an accessible introduction for linguists. In this literature, the term “dispersion” is also used, though with a different (apparently opposite) meaning.</p>
+<p>Let us first consider the corpus-linguistic (and lexicographic) sense, which can be best described visually, using a so-called “dispersion plot”. <a href="#fig-1">Figure&nbsp;1</a> shows a dispersion plot for two corpora, A and B. The framed rectangles represent the sequence of words forming the corpus, and the spikes inside of these locate the occurrences of a specific item in the corpus. In corpus A, the item is spread out quite evenly. In corpus B, instances are more densely clustered, and there are large stretches where the item does not occur. In the corpus-linguistic sense, then, the dispersion of the item is greater in corpus A. The dispersion score for the item would be greater in Corpus A (i.e.&nbsp;closer to 1).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>n_tokens_A <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">3</span>,<span class="dv">5</span>,<span class="dv">4</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">4</span>,<span class="dv">5</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>n_tokens_B <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">5</span>,<span class="dv">9</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">2</span>)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>n_texts <span class="ot">&lt;-</span> <span class="fu">length</span>(n_tokens_A)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>A_loc <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>n_texts, n_tokens_A)<span class="sc">+</span><span class="fu">runif</span>(<span class="fu">sum</span>(n_tokens_A))</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>B_loc <span class="ot">&lt;-</span> <span class="fu">rep</span>((<span class="dv">1</span><span class="sc">:</span>n_texts)[n_tokens_B<span class="sc">!=</span><span class="dv">0</span>], n_tokens_B[n_tokens_B<span class="sc">!=</span><span class="dv">0</span>])<span class="sc">+</span><span class="fu">runif</span>(<span class="fu">sum</span>(n_tokens_B))</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(<span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type=</span><span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="fl">12.5</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="fl">6.5</span>),</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">par.settings=</span>my_settings, <span class="at">scales=</span><span class="fu">list</span>(<span class="at">draw=</span>F), <span class="at">xlab=</span><span class="st">""</span>, <span class="at">ylab=</span><span class="st">""</span>,</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">panel=</span><span class="cf">function</span>(...){</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="dv">2</span><span class="sc">:</span>n_texts, <span class="at">x1=</span><span class="dv">2</span><span class="sc">:</span>n_texts, <span class="at">y0=</span><span class="fl">4.45</span>, <span class="at">y1=</span><span class="fl">4.65</span>, <span class="at">col=</span><span class="st">"grey"</span>, <span class="at">lwd=</span>.<span class="dv">5</span>)</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.rect</span>(<span class="at">xleft=</span><span class="dv">1</span>, <span class="at">xright=</span>n_texts<span class="sc">+</span><span class="dv">1</span>, <span class="at">ytop=</span><span class="fl">5.1</span>, <span class="at">ybottom=</span><span class="fl">4.75</span>, <span class="at">border=</span><span class="dv">1</span>, <span class="at">col=</span><span class="st">"white"</span>, <span class="at">lwd=</span><span class="dv">1</span>)</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.segments</span>(<span class="at">x0=</span>A_loc,</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>                       <span class="at">x1=</span>A_loc, <span class="at">y0=</span><span class="fl">4.8</span>, <span class="at">y1=</span><span class="fl">5.05</span>, <span class="at">lwd=</span>.<span class="dv">75</span>)</span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.text</span>(<span class="at">x=</span>(<span class="dv">1</span><span class="sc">:</span>n_texts)<span class="sc">+</span>.<span class="dv">5</span>, <span class="at">y=</span><span class="fl">4.55</span>, <span class="at">label=</span>n_tokens_A, <span class="at">col=</span><span class="st">"grey50"</span>, <span class="at">cex=</span>.<span class="dv">8</span>)</span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="dv">2</span><span class="sc">:</span>n_texts, <span class="at">x1=</span><span class="dv">2</span><span class="sc">:</span>n_texts, <span class="at">y0=</span><span class="fl">3.45</span>, <span class="at">y1=</span><span class="fl">3.65</span>, <span class="at">col=</span><span class="st">"grey"</span>, <span class="at">lwd=</span>.<span class="dv">5</span>)</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.rect</span>(<span class="at">xleft=</span><span class="dv">1</span>, <span class="at">xright=</span>n_texts<span class="sc">+</span><span class="dv">1</span>, <span class="at">ytop=</span><span class="fl">4.1</span>, <span class="at">ybottom=</span><span class="fl">3.75</span>, <span class="at">border=</span><span class="dv">1</span>, <span class="at">col=</span><span class="st">"white"</span>, <span class="at">lwd=</span><span class="dv">1</span>)</span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.segments</span>(<span class="at">x0=</span>B_loc,</span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>                       <span class="at">x1=</span>B_loc, <span class="at">y0=</span><span class="fl">3.8</span>, <span class="at">y1=</span><span class="fl">4.05</span>, <span class="at">lwd=</span>.<span class="dv">75</span>)</span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.text</span>(<span class="at">x=</span>(<span class="dv">1</span><span class="sc">:</span>n_texts)<span class="sc">+</span>.<span class="dv">5</span>, <span class="at">y=</span><span class="fl">3.55</span>, <span class="at">label=</span>n_tokens_B, <span class="at">col=</span><span class="st">"grey50"</span>, <span class="at">cex=</span>.<span class="dv">8</span>)</span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.dotdiagram</span>(<span class="dv">1</span><span class="sc">+</span>(n_tokens_A<span class="sc">/</span><span class="dv">5</span>), <span class="at">y_anchor=</span><span class="dv">1</span>, <span class="at">scale_y=</span>.<span class="dv">125</span>, <span class="at">set_cex=</span><span class="fl">1.3</span>)</span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.dotdiagram</span>(<span class="dv">1</span><span class="sc">+</span>(n_tokens_B<span class="sc">/</span><span class="dv">5</span>), <span class="at">y_anchor=</span><span class="dv">0</span>, <span class="at">scale_y=</span>.<span class="dv">125</span>, <span class="at">set_cex=</span><span class="fl">1.3</span>)</span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="dv">1</span>, <span class="at">x1=</span><span class="fl">3.2</span>, <span class="at">y0=</span><span class="dv">1</span>, <span class="at">y1=</span><span class="dv">1</span>)</span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="dv">1</span>, <span class="at">x1=</span><span class="fl">3.2</span>, <span class="at">y0=</span><span class="dv">0</span>, <span class="at">y1=</span><span class="dv">0</span>)</span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="dv">1</span><span class="sc">+</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">5</span>,<span class="dv">10</span>)<span class="sc">/</span><span class="dv">5</span>, <span class="at">x1=</span><span class="dv">1</span><span class="sc">+</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">5</span>,<span class="dv">10</span>)<span class="sc">/</span><span class="dv">5</span>, <span class="at">y0=</span><span class="dv">1</span>, <span class="at">y1=</span>.<span class="dv">95</span>)</span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="dv">1</span><span class="sc">+</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">5</span>,<span class="dv">10</span>)<span class="sc">/</span><span class="dv">5</span>, <span class="at">x1=</span><span class="dv">1</span><span class="sc">+</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">5</span>,<span class="dv">10</span>)<span class="sc">/</span><span class="dv">5</span>, <span class="at">y0=</span><span class="dv">0</span>, <span class="at">y1=</span><span class="sc">-</span>.<span class="dv">05</span>)</span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.text</span>(<span class="at">x=</span><span class="dv">1</span><span class="sc">+</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">5</span>,<span class="dv">10</span>)<span class="sc">/</span><span class="dv">5</span>, <span class="at">y=</span><span class="sc">-</span>.<span class="dv">2</span>, <span class="at">label=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">5</span>,<span class="dv">10</span>), <span class="at">col=</span><span class="st">"grey40"</span>, <span class="at">cex=</span>.<span class="dv">8</span>)</span>
-<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.text</span>(<span class="at">x=</span>.<span class="dv">6</span>, <span class="at">y=</span><span class="fu">c</span>(<span class="dv">4</span>,<span class="dv">5</span>)<span class="sc">-</span>.<span class="dv">1</span>, <span class="at">label=</span><span class="fu">c</span>(<span class="st">"Corpus 2"</span>, <span class="st">"Corpus 1"</span>), <span class="at">adj=</span><span class="dv">1</span>, <span class="at">cex=</span>.<span class="dv">9</span>)</span>
-<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.text</span>(<span class="at">x=</span>.<span class="dv">6</span>, <span class="at">y=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>)<span class="sc">+</span>.<span class="dv">1</span>, <span class="at">label=</span><span class="fu">c</span>(<span class="st">"Corpus 2"</span>, <span class="st">"Corpus 1"</span>), <span class="at">adj=</span><span class="dv">1</span>, <span class="at">cex=</span>.<span class="dv">9</span>)</span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.text</span>(<span class="at">x=</span><span class="sc">-</span><span class="fl">1.3</span>, <span class="at">y=</span><span class="dv">6</span>, <span class="at">label=</span><span class="st">"(a)  Dispersion in the corpus-linguistic sense: Distribution of word tokens in the corpus"</span>, <span class="at">adj=</span><span class="dv">0</span>, <span class="at">cex=</span><span class="dv">1</span>)</span>
-<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.text</span>(<span class="at">x=</span><span class="sc">-</span><span class="fl">1.3</span>, <span class="at">y=</span><span class="dv">2</span>, <span class="at">label=</span><span class="st">"(b)  Dispersion in the statistical sense: Distribution of text-level ocurrence rates"</span>, <span class="at">adj=</span><span class="dv">0</span>, <span class="at">cex=</span><span class="dv">1</span>)</span>
-<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.text</span>(<span class="at">x=</span><span class="fl">9.7</span>, <span class="at">y=</span><span class="fu">c</span>(<span class="fl">3.8</span>, <span class="fl">4.8</span>), <span class="at">adj=</span><span class="dv">0</span>, <span class="at">label=</span><span class="fu">c</span>(<span class="st">"Lower dispersion</span><span class="sc">\n</span><span class="st">"</span>, <span class="st">"Higher dispersion</span><span class="sc">\n</span><span class="st">"</span>), <span class="at">col=</span><span class="dv">1</span>, <span class="at">lineheight=</span>.<span class="dv">85</span>, <span class="at">cex=</span>.<span class="dv">85</span>)</span>
-<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.text</span>(<span class="at">x=</span><span class="dv">4</span>, <span class="at">y=</span><span class="fu">c</span>(<span class="fl">0.1</span> ,<span class="fl">1.1</span>), <span class="at">adj=</span><span class="dv">0</span>, <span class="at">label=</span><span class="fu">c</span>(<span class="st">"Higher dispersion</span><span class="sc">\n</span><span class="st">"</span>, <span class="st">"Lower dispersion</span><span class="sc">\n</span><span class="st">"</span>), <span class="at">col=</span><span class="dv">1</span>, <span class="at">lineheight=</span>.<span class="dv">85</span>, <span class="at">cex=</span>.<span class="dv">85</span>)</span>
-<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.text</span>(<span class="at">x=</span><span class="fl">9.7</span>, <span class="at">y=</span><span class="fu">c</span>(<span class="fl">3.8</span>, <span class="fl">4.8</span>), <span class="at">adj=</span><span class="dv">0</span>, <span class="at">label=</span><span class="fu">c</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">(more concentrated)"</span>, <span class="st">"</span><span class="sc">\n</span><span class="st">(more spread out)"</span>), <span class="at">col=</span><span class="st">"grey40"</span>, <span class="at">lineheight=</span>.<span class="dv">85</span>, <span class="at">cex=</span>.<span class="dv">85</span>)</span>
-<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.text</span>(<span class="at">x=</span><span class="dv">4</span>, <span class="at">y=</span><span class="fu">c</span>(<span class="fl">0.1</span> ,<span class="fl">1.1</span>), <span class="at">adj=</span><span class="dv">0</span>, <span class="at">label=</span><span class="fu">c</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">(more spread out)"</span>, <span class="st">"</span><span class="sc">\n</span><span class="st">(more concentrated)"</span>), <span class="at">col=</span><span class="st">"grey40"</span>, <span class="at">lineheight=</span>.<span class="dv">85</span>, <span class="at">cex=</span>.<span class="dv">85</span>)</span>
-<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="dv">8</span>, <span class="at">x1=</span><span class="dv">9</span>, <span class="at">y0=</span><span class="fl">5.25</span>, <span class="at">y1=</span><span class="fl">5.25</span>, <span class="at">lwd=</span>.<span class="dv">5</span>, <span class="at">col=</span><span class="st">"grey40"</span>)</span>
-<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="dv">8</span><span class="sc">:</span><span class="dv">9</span>, <span class="at">x1=</span><span class="dv">8</span><span class="sc">:</span><span class="dv">9</span>, <span class="at">y0=</span><span class="fl">5.25</span>, <span class="at">y1=</span><span class="fl">5.2</span>, <span class="at">lwd=</span>.<span class="dv">5</span>, <span class="at">col=</span><span class="st">"grey40"</span>)</span>
-<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.text</span>(<span class="at">x=</span><span class="fl">8.5</span>, <span class="at">y=</span><span class="fl">5.4</span>, <span class="at">label=</span><span class="st">"Text"</span>, <span class="at">col=</span><span class="st">"grey40"</span>, <span class="at">cex=</span>.<span class="dv">8</span>)</span>
-<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.text</span>(<span class="at">x=</span><span class="fl">8.5</span>, <span class="at">y=</span><span class="fl">3.1</span>, <span class="at">label=</span><span class="st">"Text-level</span><span class="sc">\n</span><span class="st">token count"</span>, <span class="at">col=</span><span class="st">"grey40"</span>, <span class="at">cex=</span>.<span class="dv">8</span>, <span class="at">lineheight=</span>.<span class="dv">85</span>)</span>
-<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.text</span>(<span class="at">x=</span><span class="fl">2.7</span>, <span class="at">y=</span>.<span class="dv">6</span>, <span class="at">label=</span><span class="st">"Text-level</span><span class="sc">\n</span><span class="st">occurrence rate"</span>, <span class="at">col=</span><span class="st">"grey40"</span>, <span class="at">cex=</span>.<span class="dv">8</span>, <span class="at">lineheight=</span>.<span class="dv">85</span>)</span>
-<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>       })</span>
-<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>p1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details>
+<summary>R code: Figure 1</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2000</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>n_tokens_A <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">3</span>,<span class="dv">5</span>,<span class="dv">4</span>,<span class="dv">4</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">4</span>,<span class="dv">5</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>n_tokens_B <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">5</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">9</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">0</span>,<span class="dv">3</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>n_texts <span class="ot">&lt;-</span> <span class="fu">length</span>(n_tokens_A)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>A_loc <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>n_texts, n_tokens_A)<span class="sc">+</span><span class="fu">runif</span>(<span class="fu">sum</span>(n_tokens_A))</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>B_loc <span class="ot">&lt;-</span> <span class="fu">rep</span>((<span class="dv">1</span><span class="sc">:</span>n_texts)[n_tokens_B<span class="sc">!=</span><span class="dv">0</span>], n_tokens_B[n_tokens_B<span class="sc">!=</span><span class="dv">0</span>])<span class="sc">+</span><span class="fu">runif</span>(<span class="fu">sum</span>(n_tokens_B))</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="fu">xyplot</span>(</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type=</span><span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="dv">14</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="fl">2.8</span>,<span class="dv">6</span>),</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings=</span>my_settings, <span class="at">scales=</span><span class="fu">list</span>(<span class="at">draw=</span>F), <span class="at">xlab=</span><span class="st">""</span>, <span class="at">ylab=</span><span class="st">""</span>,</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">panel=</span><span class="cf">function</span>(...){</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.rect</span>(<span class="at">xleft=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">5</span>,<span class="dv">7</span>), <span class="at">xright=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">6</span>,<span class="dv">8</span>), <span class="at">ytop=</span><span class="fl">5.1</span>, <span class="at">ybottom=</span><span class="fl">4.75</span>, </span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>               <span class="at">border=</span><span class="cn">FALSE</span>, <span class="at">col=</span><span class="st">"grey90"</span>, <span class="at">lwd=</span><span class="dv">1</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.rect</span>(<span class="at">xleft=</span><span class="dv">1</span>, <span class="at">xright=</span>n_texts<span class="sc">+</span><span class="dv">1</span>, <span class="at">ytop=</span><span class="fl">5.1</span>, <span class="at">ybottom=</span><span class="fl">4.75</span>, </span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>               <span class="at">border=</span><span class="st">"grey50"</span>, <span class="at">lwd=</span><span class="dv">1</span>)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0=</span>A_loc, <span class="at">x1=</span>A_loc, <span class="at">y0=</span><span class="fl">4.8</span>, <span class="at">y1=</span><span class="fl">5.05</span>, <span class="at">lwd=</span>.<span class="dv">75</span>)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x=</span>(<span class="dv">1</span><span class="sc">:</span>n_texts)<span class="sc">+</span>.<span class="dv">5</span>, <span class="at">y=</span><span class="fl">4.55</span>, <span class="at">label=</span>n_tokens_A, </span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>               <span class="at">col=</span><span class="st">"grey50"</span>, <span class="at">cex=</span>.<span class="dv">9</span>)</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.rect</span>(<span class="at">xleft=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>,<span class="dv">5</span>,<span class="dv">7</span>), <span class="at">xright=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">6</span>,<span class="dv">8</span>), <span class="at">ytop=</span><span class="fl">4.1</span>, <span class="at">ybottom=</span><span class="fl">3.75</span>, </span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>               <span class="at">border=</span><span class="cn">FALSE</span>, <span class="at">col=</span><span class="st">"grey90"</span>, <span class="at">lwd=</span><span class="dv">1</span>)</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.rect</span>(<span class="at">xleft=</span><span class="dv">1</span>, <span class="at">xright=</span>n_texts<span class="sc">+</span><span class="dv">1</span>, <span class="at">ytop=</span><span class="fl">4.1</span>, <span class="at">ybottom=</span><span class="fl">3.75</span>, </span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>               <span class="at">border=</span><span class="st">"grey60"</span>, <span class="at">lwd=</span><span class="dv">1</span>)</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0=</span>B_loc, <span class="at">x1=</span>B_loc, <span class="at">y0=</span><span class="fl">3.8</span>, <span class="at">y1=</span><span class="fl">4.05</span>, <span class="at">lwd=</span>.<span class="dv">75</span>)</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x=</span>(<span class="dv">1</span><span class="sc">:</span>n_texts)<span class="sc">+</span>.<span class="dv">5</span>, <span class="at">y=</span><span class="fl">3.55</span>, <span class="at">label=</span>n_tokens_B, </span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>               <span class="at">col=</span><span class="st">"grey60"</span>, <span class="at">cex=</span>.<span class="dv">9</span>)</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x=</span>.<span class="dv">4</span>, <span class="at">y=</span><span class="fu">c</span>(<span class="dv">4</span>,<span class="dv">5</span>)<span class="sc">-</span>.<span class="dv">1</span>, <span class="at">label=</span><span class="fu">c</span>(<span class="st">"Corpus B"</span>, <span class="st">"Corpus A"</span>), </span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>               <span class="at">adj=</span><span class="dv">1</span>, <span class="at">cex=</span><span class="dv">1</span>)</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x=</span><span class="fl">9.7</span>, <span class="at">y=</span><span class="fu">c</span>(<span class="fl">3.8</span>, <span class="fl">4.8</span>), <span class="at">adj=</span><span class="dv">0</span>, </span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>               <span class="at">label=</span><span class="fu">c</span>(<span class="st">"Lower dispersion</span><span class="sc">\n</span><span class="st">"</span>, <span class="st">"Higher dispersion</span><span class="sc">\n</span><span class="st">"</span>), </span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>               <span class="at">col=</span><span class="dv">1</span>, <span class="at">lineheight=</span>.<span class="dv">85</span>, <span class="at">cex=</span><span class="dv">1</span>)</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x=</span><span class="fl">9.7</span>, <span class="at">y=</span><span class="fu">c</span>(<span class="fl">3.8</span>, <span class="fl">4.8</span>), <span class="at">adj=</span><span class="dv">0</span>, </span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>               <span class="at">label=</span><span class="fu">c</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">(more concentrated)"</span>, <span class="st">"</span><span class="sc">\n</span><span class="st">(more spread out)"</span>), </span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>               <span class="at">col=</span><span class="st">"grey40"</span>, <span class="at">lineheight=</span>.<span class="dv">85</span>, <span class="at">cex=</span>.<span class="dv">9</span>)</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="dv">1</span>, <span class="at">x1=</span><span class="dv">2</span>, <span class="at">y0=</span><span class="fl">5.4</span>, <span class="at">y1=</span><span class="fl">5.4</span>, <span class="at">lwd=</span>.<span class="dv">5</span>, <span class="at">col=</span><span class="st">"grey50"</span>)</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">x1=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">y0=</span><span class="fl">5.4</span>, <span class="at">y1=</span><span class="fl">5.3</span>, <span class="at">lwd=</span>.<span class="dv">5</span>, <span class="at">col=</span><span class="st">"grey50"</span>)</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x=</span><span class="fl">1.5</span>, <span class="at">y=</span><span class="fl">5.75</span>, <span class="at">label=</span><span class="st">"Text 1"</span>, <span class="at">col=</span><span class="st">"grey40"</span>, <span class="at">cex=</span>.<span class="dv">8</span>)</span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x=</span><span class="dv">7</span>, <span class="at">y=</span><span class="fl">2.75</span>, <span class="at">label=</span><span class="st">"Occurrences</span><span class="sc">\n</span><span class="st">of item in text"</span>, <span class="at">col=</span><span class="st">"grey40"</span>, </span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>               <span class="at">cex=</span>.<span class="dv">9</span>, <span class="at">lineheight=</span>.<span class="dv">85</span>)</span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="fl">5.9</span>, <span class="at">x1=</span><span class="fl">5.6</span>, <span class="at">y0=</span><span class="dv">3</span>, <span class="at">y1=</span><span class="fl">3.3</span>, <span class="at">col=</span><span class="st">"grey40"</span>, <span class="at">lwd=</span>.<span class="dv">5</span>)</span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>    })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
-<p><img src="index_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="408"></p>
+<div id="fig-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="index_files/figure-html/fig-1-1.png" class="img-fluid figure-img" width="480"></p>
+<figcaption class="figure-caption">Figure&nbsp;1: Dispersion in the corpus-linguistic sense: Distribution of word tokens in the corpus.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Note how each corpus is divided into 8 texts, which are shown in <a href="#fig-1">Figure&nbsp;1</a> using greyshading. The numbers below the dispersion plot for each corpus report the number of occurrences of the item in each text. For corpus A, they range between 3 and 5; for corpus B, between 0 and 9.</p>
+<p><a href="#fig-2">Figure&nbsp;2</a> shows a different representation of these data. Instead of looking at the corpus as a string of words, we consider the text-specific frequencies (sometimes called sub-frequencies) of the item. These indicate how often the item occurs in each document. <a href="#fig-2">Figure&nbsp;2</a> shows these text-level token counts: Each text is represented by a dot, which marks how often the item appears in the text. In our hypothetical corpora, each text has the same length, which is why we can compare absolute counts. If texts differ in length, we would instead use normalized frequencies, i.e.&nbsp;occurrence rates such as “3.1 per thousand words”.</p>
+<div class="cell">
+<details>
+<summary>R code: Figure 2</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xyplot</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type=</span><span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="fl">7.5</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span>.<span class="dv">35</span>,<span class="fl">2.3</span>),</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings=</span>my_settings, <span class="at">scales=</span><span class="fu">list</span>(<span class="at">draw=</span>F), <span class="at">xlab=</span><span class="st">""</span>, <span class="at">ylab=</span><span class="st">""</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">panel=</span><span class="cf">function</span>(...){</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.dotdiagram</span>(<span class="dv">1</span><span class="sc">+</span>(n_tokens_A<span class="sc">/</span><span class="dv">5</span>), <span class="at">y_anchor=</span><span class="dv">1</span>, <span class="at">scale_y=</span>.<span class="dv">125</span>, <span class="at">set_cex=</span><span class="fl">1.3</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.dotdiagram</span>(<span class="dv">1</span><span class="sc">+</span>(n_tokens_B<span class="sc">/</span><span class="dv">5</span>), <span class="at">y_anchor=</span><span class="dv">0</span>, <span class="at">scale_y=</span>.<span class="dv">125</span>, <span class="at">set_cex=</span><span class="fl">1.3</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="dv">1</span>, <span class="at">x1=</span><span class="fl">3.2</span>, <span class="at">y0=</span><span class="dv">1</span>, <span class="at">y1=</span><span class="dv">1</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="dv">1</span>, <span class="at">x1=</span><span class="fl">3.2</span>, <span class="at">y0=</span><span class="dv">0</span>, <span class="at">y1=</span><span class="dv">0</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="dv">1</span><span class="sc">+</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">5</span>,<span class="dv">10</span>)<span class="sc">/</span><span class="dv">5</span>, <span class="at">x1=</span><span class="dv">1</span><span class="sc">+</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">5</span>,<span class="dv">10</span>)<span class="sc">/</span><span class="dv">5</span>, <span class="at">y0=</span><span class="dv">1</span>, <span class="at">y1=</span>.<span class="dv">95</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="dv">1</span><span class="sc">+</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">5</span>,<span class="dv">10</span>)<span class="sc">/</span><span class="dv">5</span>, <span class="at">x1=</span><span class="dv">1</span><span class="sc">+</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">5</span>,<span class="dv">10</span>)<span class="sc">/</span><span class="dv">5</span>, <span class="at">y0=</span><span class="dv">0</span>, <span class="at">y1=</span><span class="sc">-</span>.<span class="dv">05</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x=</span><span class="dv">1</span><span class="sc">+</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">5</span>,<span class="dv">10</span>)<span class="sc">/</span><span class="dv">5</span>, <span class="at">y=</span><span class="sc">-</span>.<span class="dv">2</span>, <span class="at">label=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">5</span>,<span class="dv">10</span>), <span class="at">col=</span><span class="st">"grey40"</span>, <span class="at">cex=</span>.<span class="dv">8</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x=</span>.<span class="dv">6</span>, <span class="at">y=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>)<span class="sc">+</span>.<span class="dv">1</span>, <span class="at">label=</span><span class="fu">c</span>(<span class="st">"Corpus B"</span>, <span class="st">"Corpus A"</span>), </span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>               <span class="at">adj=</span><span class="dv">1</span>, <span class="at">cex=</span><span class="dv">1</span>)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x=</span><span class="dv">4</span>, <span class="at">y=</span><span class="fu">c</span>(<span class="fl">0.1</span> ,<span class="fl">1.1</span>), <span class="at">adj=</span><span class="dv">0</span>, </span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>               <span class="at">label=</span><span class="fu">c</span>(<span class="st">"Higher dispersion</span><span class="sc">\n</span><span class="st">"</span>, <span class="st">"Lower dispersion</span><span class="sc">\n</span><span class="st">"</span>), </span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>               <span class="at">col=</span><span class="dv">1</span>, <span class="at">lineheight=</span>.<span class="dv">85</span>, <span class="at">cex=</span><span class="dv">1</span>)</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x=</span><span class="dv">4</span>, <span class="at">y=</span><span class="fu">c</span>(<span class="fl">0.1</span> ,<span class="fl">1.1</span>), <span class="at">adj=</span><span class="dv">0</span>, </span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>               <span class="at">label=</span><span class="fu">c</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">(more spread out)"</span>, <span class="st">"</span><span class="sc">\n</span><span class="st">(more concentrated)"</span>), </span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>               <span class="at">col=</span><span class="st">"grey40"</span>, <span class="at">lineheight=</span>.<span class="dv">85</span>, <span class="at">cex=</span>.<span class="dv">9</span>)</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x=</span><span class="dv">2</span>, <span class="at">y=</span><span class="sc">-</span>.<span class="dv">5</span>, <span class="at">label=</span><span class="st">"Occurrences of item"</span>, <span class="at">cex=</span><span class="dv">1</span>, <span class="at">lineheight=</span>.<span class="dv">9</span>)</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x=</span><span class="dv">3</span>, <span class="at">y=</span><span class="fl">2.2</span>, <span class="at">label=</span><span class="st">"Each dot</span><span class="sc">\n</span><span class="st">represents a text"</span>, <span class="at">cex=</span>.<span class="dv">9</span>, </span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>               <span class="at">lineheight=</span>.<span class="dv">9</span>, <span class="at">col=</span><span class="st">"grey40"</span>)</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="index_files/figure-html/fig-2-1.png" class="img-fluid figure-img" width="336"></p>
+<figcaption class="figure-caption">Figure&nbsp;2: Dispersion in the statistical sense: Distribution of text-level ocurrence rates.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>If we compare the distribution of text-level occurrence rates in the two corpora, we note that while the texts in corpus A form a dense pile, the occurrence rates in corpus B are more widely spread out. At this level of description, then, it is the data from corpus B that show greater “dispersion”. In the statistical literature on count regression, the term dispersion is used in this sense, i.e.&nbsp;to refer to the variability of unit-specific (i.e.&nbsp;text-level) occurrence rates <span class="citation" data-cites="Long1997 Gelman_etal2021">(e.g. <a href="#ref-Long1997" role="doc-biblioref">Long 1997, 221</a>; <a href="#ref-Gelman_etal2021" role="doc-biblioref">Gelman 2021, 264–68</a>)</span>. An awareness of the different meanings of “dispersion” will prove helpful for corpus linguists (and lexicographers) when engaging with the statistical literature on count data modeling.</p>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Key takeaways
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>The term “dispersion” is used differently in corpus linguistics and statistics</li>
+<li>The difference in meaning reflects a difference in perspective</li>
+<li>Corpus linguists picture the corpus as a sequence of words and understand the term as characterizing the spatial distribution of an item</li>
+<li>In the statistical literature on count data modeling, the term describes the spread of a distribution of counts or occurrence rates</li>
+</ul>
 </div>
 </div>
 
 
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{sönning2023,
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-Cameron_Trivedi2013" class="csl-entry" role="listitem">
+Cameron, A. Colin, and Pravin K. Trivedi. 2013. <em>Regression Analysis of Count Data</em>. Second edition. New York: Cambridge <span>U</span>niversity <span>P</span>ress.
+</div>
+<div id="ref-Church_Gale1995" class="csl-entry" role="listitem">
+Church, Kenneth W., and William A. Gale. 1995. <span>“Poisson Mixtures.”</span> <em>Natural Language Engineering</em> 1 (2): 163–90. <a href="https://doi.org/10.1017/S1351324900000139">https://doi.org/10.1017/S1351324900000139</a>.
+</div>
+<div id="ref-Gelman_etal2021" class="csl-entry" role="listitem">
+Gelman, Hill, Andrew. 2021. <em>Regression and Other Stories</em>. Cambridge: Cambridge <span>U</span>niversity <span>P</span>ress.
+</div>
+<div id="ref-Gries2008" class="csl-entry" role="listitem">
+Gries, Stefan Th. 2008. <span>“Dispersions and Adjusted Frequencies in Corpora.”</span> <em>International Journal of Corpus Linguistics</em> 13 (4): 403–37. <a href="https://doi.org/10.1075/ijcl.13.4.02gri">https://doi.org/10.1075/ijcl.13.4.02gri</a>.
+</div>
+<div id="ref-Gries2020" class="csl-entry" role="listitem">
+———. 2020. <span>“Analyzing Dispersion.”</span> In <em>A Practical Handbook of Corpus Linguistics</em>, 99–118. Springer. <a href="https://doi.org/10.1007/978-3-030-46216-1_5">https://doi.org/10.1007/978-3-030-46216-1_5</a>.
+</div>
+<div id="ref-Hilbe2014" class="csl-entry" role="listitem">
+Hilbe, Joseph M. 2014. <em>Modeling Count Data</em>. New York: Cambridge <span>U</span>niversity <span>P</span>ress.
+</div>
+<div id="ref-Long1997" class="csl-entry" role="listitem">
+Long, J. Scott. 1997. <em>Regression Models for Categorical and Limited Dependent Variables</em>. Thousand Oaks, CA: Sage.
+</div>
+<div id="ref-Mosteller_Wallace1984" class="csl-entry" role="listitem">
+Mosteller, Frederick, and David L. Wallace. 1984. <em>Applied Bayesian Inference: The Case of the Federalist Papers</em>. New York: Springer.
+</div>
+<div id="ref-Winter_Buerkner2021" class="csl-entry" role="listitem">
+Winter, Bodo, and Paul‐Christian Bürkner. 2021. <span>“Poisson Regression for Linguists: A Tutorial Introduction to Modelling Count Data with Brms.”</span> <em>Language and Linguistics Compass</em> 15 (11). <a href="https://doi.org/10.1111/lnc3.12439">https://doi.org/10.1111/lnc3.12439</a>.
+</div>
+</div></section><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{sönning2023,
   author = {Sönning, Lukas},
   title = {“{Dispersion}” in Corpus Linguistics and Statistics},
-  date = {2023-01-18},
+  date = {2023-11-18},
   url = {https://lsoenning.github.io/posts/2023-01-18-dispersion_terminology/},
   langid = {en}
 }
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-sönning2023" class="csl-entry quarto-appendix-citeas" role="listitem">
 Sönning, Lukas. 2023. <span>“<span>‘Dispersion’</span> in Corpus
-Linguistics and Statistics.”</span> January 18, 2023. <a href="https://lsoenning.github.io/posts/2023-01-18-dispersion_terminology/">https://lsoenning.github.io/posts/2023-01-18-dispersion_terminology/</a>.
+Linguistics and Statistics.”</span> November 18, 2023. <a href="https://lsoenning.github.io/posts/2023-01-18-dispersion_terminology/">https://lsoenning.github.io/posts/2023-01-18-dispersion_terminology/</a>.
 </div></div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {

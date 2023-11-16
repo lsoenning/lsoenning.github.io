@@ -71,9 +71,9 @@ ul.task-list li input[type="checkbox"] {
     }
 
     const options = {
-      valueNames: ['listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
       
-      searchColumns: ["listing-categories"],
+      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description","listing-categories"],
     };
 
     window['quarto-listings'] = window['quarto-listings'] || {};
@@ -147,7 +147,7 @@ ul.task-list li input[type="checkbox"] {
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(0)</span></div></div></div>
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(1)</span></div><div class="category" data-category="corpus linguistics">corpus linguistics <span class="quarto-category-count">(1)</span></div><div class="category" data-category="dispersion">dispersion <span class="quarto-category-count">(1)</span></div><div class="category" data-category="statistics">statistics <span class="quarto-category-count">(1)</span></div><div class="category" data-category="terminology">terminology <span class="quarto-category-count">(1)</span></div></div></div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
@@ -174,7 +174,50 @@ ul.task-list li input[type="checkbox"] {
 
 <div class="quarto-listing quarto-listing-container-default" id="listing-listing">
 <div class="list quarto-listing-default">
+<div class="quarto-post image-right" data-index="0" data-categories="corpus linguistics,statistics,dispersion,terminology" data-listing-date-sort="1700262000000" data-listing-file-modified-sort="1700154640943" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8">
+<div class="thumbnail">
+<p><a href="./posts/2023-01-18_dispersion_terminology/index.html"> <p class="card-img-top"><img src="posts\2023-01-18_dispersion_terminology\index_files\figure-html\fig-1-1.png"  class="thumbnail-image card-img"/></p> </a></p>
+</div>
+<div class="body">
+<a href="./posts/2023-01-18_dispersion_terminology/index.html">
+<h3 class="no-anchor listing-title">
+‘Dispersion’ in corpus linguistics and statistics
+</h3>
+<div class="listing-subtitle">
 
+</div>
+</a>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('corpus linguistics'); return false;">
+corpus linguistics
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('statistics'); return false;">
+statistics
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('dispersion'); return false;">
+dispersion
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('terminology'); return false;">
+terminology
+</div>
+</div>
+<a href="./posts/2023-01-18_dispersion_terminology/index.html">
+<div class="listing-description">
+<p>This blog post clarifies the different ways in which the term <em>dispersion</em> is used in corpus linguistics and statistics.</p>
+</div>
+</a>
+</div>
+<div class="metadata">
+<a href="./posts/2023-01-18_dispersion_terminology/index.html">
+<div class="listing-date">
+Nov 18, 2023
+</div>
+<div class="listing-author">
+Lukas Sönning
+</div>
+</a>
+</div>
+</div>
 </div>
 <div class="listing-no-matching d-none">
 No matching items

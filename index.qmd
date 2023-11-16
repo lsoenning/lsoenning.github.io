@@ -1,30 +1,32 @@
 ---
 title: "Lukas Sönning"
+editor: source
 ---
 
-::: {style="float:right;position: relative;"}
+::: {.g-col-12 .g-col-md-6}
 <p><img src="files/lsoenning_photo.png" width="95" height="122"/></p>
 :::
 
 #### Post-doc in English linguistics at the University of Bamberg
 
-- [University of Bamberg](https://www.uni-bamberg.de/)
-- [Department of English Linguistics](https://www.uni-bamberg.de/eng-ling/)
+-   [University of Bamberg](https://www.uni-bamberg.de/)
+-   [Department of English Linguistics](https://www.uni-bamberg.de/eng-ling/)
+
 
 #### Contact
 
-- Address: An der Universität 9, D-96047 Bamberg
-- Office: U9/01.11
-- Phone: +49 (0)951/863-2267
-- Email: lukas\[dot\]soenning\[at\]uni-bamberg\[dot\]de
-- {{< ai orcid >}} [ORCID](https://orcid.org/0000-0002-2705-395X) 0000-0002-2705-395X
-- {{< ai osf >}} [OSF](https://osf.io/zcsjd)
+-   Address: An der Universität 9, D-96047 Bamberg
+-   Office: U9/01.11
+-   Phone: +49 (0)951/863-2267
+-   Email: lukas\[dot\]soenning\[at\]uni-bamberg\[dot\]de
+-   {{< ai orcid >}} [ORCID](https://orcid.org/0000-0002-2705-395X) 0000-0002-2705-395X
+-   {{< ai osf >}} [OSF](https://osf.io/zcsjd)
 
 #### Research interests
 
-- Statistical analysis of corpus data
-- Language variation and change
-- Grammatical alternations
-- German Learner English
-- L2 phonology
-- Data visualization
+-   Statistical analysis of corpus data
+-   Language variation and change
+-   Grammatical alternations
+-   German Learner English
+-   L2 phonology
+-   Data visualization
