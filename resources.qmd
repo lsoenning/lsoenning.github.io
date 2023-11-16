@@ -3,6 +3,7 @@ title: "Resources"
 editor: source
 ---
 
+
 ##### Plot templates for Microsoft Excel 
 
 Excel templates for some useful graph types can be found in the following {{< ai osf >}} [OSF project](https://osf.io/v37pw). 

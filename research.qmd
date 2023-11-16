@@ -3,6 +3,7 @@ title: "Research"
 editor: source
 ---
 
+
 #### Unpublished
 
 - **Sönning**, Lukas. (to appear). Drawing on principles of perception: The line plot. In Lukas Sönning & Ole Schützler (eds.) Data visualization in corpus linguistics: Reflections and future directions, VARIENG.   {{< ai psyarxiv >}} [Preprint](https://psyarxiv.com/tjfz5/) | {{< ai osf >}} [OSF](https://osf.io/ksr5a)

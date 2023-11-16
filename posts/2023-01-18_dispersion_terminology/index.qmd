@@ -4,7 +4,7 @@ description: "This blog post clarifies the different ways in which the term *dis
 date: 2023-11-18
 categories: [corpus linguistics, statistics, dispersion, terminology]
 citation: 
-  url: https://lsoenning.github.io/posts/2023-01-18-dispersion_terminology/ 
+  url: https://lsoenning.github.io/posts/2023-01-18_dispersion_terminology/
 draft: false
 ---
 
@@ -21,15 +21,14 @@ library(lattice)
 source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
 ```
 
+In corpus linguistics, the term *dispersion* is used to describe the distribution of an item or structure in a corpus [see @Gries2008; @Gries2020]. For most dispersion measures, a corpus must first be divided into units (or parts). These units commonly reflect the design of the corpus -- they can be text files, for instance, or text categories. A dispersion index then describes the distribution of an item across these units. There are two general classes of measures:
 
-In corpus linguistics, the term *dispersion* is used to describe the distribution of an item or structure in a corpus [see @Gries2008; @Gries2020]. For most dispersion measures, a corpus must first be divided into units (or parts). These units commonly reflect the design of the corpus -- they can be text files, for instance, or text categories. A dispersion index then describes the distribution of an item across these units. There are two general classes of measures: 
-
-- those measuring the *pervasiveness* of an item, which is reflected in the number of units that contain the item (Range and Text Dispersion, its proportional analog)
-- the much larger class of *evenness* measures, which express how evenly an item is distributed across the units (e.g. *D*, *D~2~*, *S*, *D~P~*, *D~A~*, *D~KL~*). 
+-   those measuring the *pervasiveness* of an item, which is reflected in the number of units that contain the item (Range and Text Dispersion, its proportional analog)
+-   the much larger class of *evenness* measures, which express how evenly an item is distributed across the units (e.g. *D*, *D~2~*, *S*, *D~P~*, *D~A~*, *D~KL~*).
 
 Most dispersion measures range between 0 and 1, where 1 indicates a perfectly even distribution, or the maximal degree of pervasiveness (i.e. the item occurs in every unit).
 
-From a statistical viewpoint, the input for the calculation of evenness measures would be considered a count variable, since it records the number of events (occurrences of the item) that are observed during a certain period of observation. In corpus linguistics, the "period of observation" is "text time", expressed as a word count. 
+From a statistical viewpoint, the input for the calculation of evenness measures would be considered a count variable, since it records the number of events (occurrences of the item) that are observed during a certain period of observation. In corpus linguistics, the "period of observation" is "text time", expressed as a word count.
 
 There is an extensive literature on the use of regression models for count variables [e.g. @Long1997; @Cameron_Trivedi2013; @Hilbe2014], and such models have seen some successful applications to word frequency data [e.g. @Mosteller_Wallace1984; @Church_Gale1995]; @Winter_Buerkner2021 provide an accessible introduction for linguists. In this literature, the term "dispersion" is also used, though with a different (apparently opposite) meaning.
 
@@ -142,15 +141,13 @@ xyplot(
     })
 ```
 
-If we compare the distribution of text-level occurrence rates in the two corpora, we note that while the texts in corpus A form a dense pile, the occurrence rates in corpus B are more widely spread out. At this level of description, then, it is the data from corpus B that show greater "dispersion". In the statistical literature on count regression, the term dispersion is used in this sense, i.e. to refer to the variability of unit-specific (i.e. text-level) occurrence rates [e.g. @Long1997, p. 221; @Gelman_etal2021, p. 264–268]. An awareness of the different meanings of “dispersion” will prove helpful for corpus linguists (and lexicographers) when engaging with the statistical literature on count data modeling.
+If we compare the distribution of text-level occurrence rates in the two corpora, we note that while the texts in corpus A form a dense pile, the occurrence rates in corpus B are more widely spread out. At this level of description, then, it is the data from corpus B that show greater "dispersion". In the statistical literature on count regression, the term dispersion is used in this sense, i.e. to refer to the variability of unit-specific (i.e. text-level) occurrence rates [e.g. @Long1997, p. 221; @Gelman_etal2021, p. 264--268]. An awareness of the different meanings of "dispersion" will prove helpful for corpus linguists (and lexicographers) when engaging with the statistical literature on count data modeling.
 
-::: {.callout-tip}
+::: callout-tip
 ## Key takeaways
 
-- The term "dispersion" is used differently in corpus linguistics and statistics
-- The difference in meaning reflects a difference in perspective
-- Corpus linguists picture the corpus as a sequence of words and understand the term as characterizing the spatial distribution of an item
-- In the statistical literature on count data modeling, the term describes the spread of a distribution of counts or occurrence rates
+-   The term "dispersion" is used differently in corpus linguistics and statistics
+-   The difference in meaning reflects a difference in perspective
+-   Corpus linguists picture the corpus as a sequence of words and understand the term as characterizing the spatial distribution of an item
+-   In the statistical literature on count data modeling, the term describes the spread of a distribution of counts or occurrence rates
 :::
-
-
