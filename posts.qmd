@@ -2,7 +2,7 @@
 title: "Blog"
 editor: source
 listing: 
-  contents: posts
+  contents: posts/**/*.qmd
   type: default
   sort: "date desc"
   categories: true
