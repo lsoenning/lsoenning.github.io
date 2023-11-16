@@ -3,6 +3,7 @@ title: "Lukas Sönning"
 editor: source
 ---
 
+
 ::: {.g-col-12 .g-col-md-6}
 <p><img src="files/lsoenning_photo.png" width="95" height="122"/></p>
 :::
