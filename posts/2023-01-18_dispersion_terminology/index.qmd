@@ -1,14 +1,12 @@
 ---
 title: "'Dispersion' in corpus linguistics and statistics"
 description: "This blog post clarifies the different ways in which the term *dispersion* is used in corpus linguistics and statistics."
-date: 2023-11-18
+date: 2023-11-16
 categories: [corpus linguistics, statistics, dispersion, terminology]
 citation: 
   url: https://lsoenning.github.io/posts/2023-01-18_dispersion_terminology/
 draft: false
 ---
-
-We start by loading the lattice package:
 
 ```{r}
 #| code-fold: true

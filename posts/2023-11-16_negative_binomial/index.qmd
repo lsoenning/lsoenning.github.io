@@ -1,0 +1,21 @@
+---
+title: "The negative binomial distribution: A graphical explanation"
+description: "This blog post uses a visual approach to explain the way in which the negative binomial distribution works    ."
+date: 2023-11-17
+categories: [distributions, count data, corpus linguistics, statistics, dispersion]
+citation: 
+  url: https://lsoenning.github.io/posts/2023-11-16_negative_binomial/
+editor: source
+draft: true
+---
+
+```{r}
+#| code-fold: true
+#| code-summary: "R setup"
+#| message: false
+#| warning: false
+
+library(lattice)
+
+source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
+```

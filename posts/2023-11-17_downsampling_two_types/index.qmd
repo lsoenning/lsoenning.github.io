@@ -1,0 +1,18 @@
+---
+title: "Two types of down-sampling in corpus-based work"
+description: "This short blog post contrasts the different ways in which the term *down-sampling* is used in corpus-based work."
+date: 2023-11-17
+categories: [corpus linguistics, methodology, down-sampling, terminology]
+citation: 
+  url: https://lsoenning.github.io/posts/2023-11-17_downsampling_two_types/
+editor: source
+draft: false
+---
+
+The data available from corpora are often too vast for certain types of linguistic analysis. Researchers are then forced to select a subset of the data, and this selection process can be referred to as "down-sampling". Currently, the term is used to refer to two very different types of down-sizing. 
+
+The first deals with lists of occurrences extracted from a corpus and is used in studies that start out with a corpus query and a body of hits (often in the form of concordance lines). If the structure of interest is relatively frequent and/or the source corpus large, the researcher may need to reduce the number of data points studied. In particular, this will be necessary in variationist-type research, which often involves considerable manual work (e.g. disambiguation and annotation). In this form of down-sampling, the selection of elements usually proceeds (to some extent) at random, i.e. it involves a chance component. Simple techniques are implemented in corpus software, which allows users to extract from a list of hits a random sample. In CQPweb [@Hardie2012], for instance, this option is referred to as "thinning". Depending on our research goals and the structure of our data, however, other strategies may be more efficient [e.g. structured down-sampling, see @Soenning_Krug2022].
+
+The second type of down-sampling is concerned with the selection of texts for close reading. Here, the objective is to pick from a corpus those texts that are likely to be most informative for a thorough qualitative analysis. This method, which @Gabrielatos_etal2012 refer to as “targeted down-sampling”, uses surface-level features (such as the occurrence rate of certain forms) to detect relevant documents for a critical discourse analysis [see also @Baker_etal2008, p. 285]. A procedure much in the same spirit is discussed in @Anthony_Baker2015, where prototypical exemplars, i.e. texts that are most representative of their corpus of origin, are selected based on keyword profiles. 
+
+It may therefore sometimes be helpful to distinguish the two types of down-sampling: We could call the first type "selection of concordance lines for annotation" and the second type "selection of texts for close reading".
