@@ -6,7 +6,7 @@ categories: [replication crisis, open science, reproducibility]
 citation: 
   url: https://lsoenning.github.io/posts/2023-11-19_replication_crisis_reflection/
 editor: source
-draft: true
+draft: false
 ---
 
 Since my research is almost exclusively quantitative, the methodological discourse surrounding the replication crisis has been directly relevant to my work. A recent invitation to take part in an online event by the *International Society for the Linguistics of English* (ISLE) on "Replication and Replicability" was an opportunity to reflect on the ways in which this "crisis" has affected how I do my job. In this blog post, I summarize these under three headings: (i) workflow and reproducibility, (2) open science, and (3) community discourse. 
