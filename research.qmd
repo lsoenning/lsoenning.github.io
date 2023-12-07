@@ -6,17 +6,13 @@ editor: source
 
 #### Unpublished
 
-- **Sönning**, Lukas. (to appear). Drawing on principles of perception: The line plot. In Lukas Sönning & Ole Schützler (eds.) Data visualization in corpus linguistics: Reflections and future directions, VARIENG.   {{< ai psyarxiv >}} [Preprint](https://psyarxiv.com/tjfz5/) | {{< ai osf >}} [OSF](https://osf.io/ksr5a)
+- **Sönning**, Lukas. (unpublished manuscript). Evaluation of text-level measures of lexical dispersion: Robustness and consistency.   {{< ai psyarxiv >}} [Working paper](https://psyarxiv.com/h9mvs/) | {{< ai dataverse >}} [Data](https://doi.org/10.18710/MNVB36) | {{< ai osf >}} [OSF](https://osf.io/rpfb8/) 
 
-- **Sönning**, Lukas & Ole Schützler (eds.). (to appear). Data visualization in corpus linguistics: Reflections and future directions, VARIENG.
+- **Sönning**, Lukas. (in review). Count regression models for keyness analysis.   {{< ai psyarxiv >}} [Working paper](https://psyarxiv.com/25mwj/) | {{< ai osf >}} [OSF](https://osf.io/mc26t/)
 
-- **Sönning**, Lukas. (unpublished manuscript). Evaluation of text-level measures of lexical dispersion: Robustness and consistency.   {{< ai psyarxiv >}} [Preprint](https://psyarxiv.com/h9mvs/) | {{< ai dataverse >}} [Data](https://doi.org/10.18710/MNVB36) | {{< ai osf >}} [OSF](https://osf.io/rpfb8/) 
+- **Sönning**, Lukas. (in review). Down-sampling from hierarchically structured corpus data.   {{< ai psyarxiv >}} [Working paper](https://psyarxiv.com/4vtja/) | {{< ai osf >}} [OSF](https://osf.io/7ernz/)
 
-- **Sönning**, Lukas. (in review). Count regression models for keyness analysis.   {{< ai psyarxiv >}} [Manuscript](https://psyarxiv.com/25mwj/) | {{< ai osf >}} [OSF](https://osf.io/mc26t/)
-
-- **Sönning**, Lukas. (in review). Down-sampling from hierarchically structured corpus data.   {{< ai psyarxiv >}} [Manuscript](https://psyarxiv.com/4vtja/) | {{< ai osf >}} [OSF](https://osf.io/7ernz/)
-
-- **Sönning**, Lukas. (in review). Advancing our understanding of dispersion measures in corpus research.    {{< ai psyarxiv >}} [Manuscript](https://psyarxiv.com/ns4q9/) | {{< ai osf >}} [OSF](https://osf.io/nhw2y/)
+- **Sönning**, Lukas. (in review). Advancing our understanding of dispersion measures in corpus research.    {{< ai psyarxiv >}} [Working paper](https://psyarxiv.com/ns4q9/) | {{< ai osf >}} [OSF](https://osf.io/nhw2y/)
 
 - **Sönning**, Lukas, Manfred Krug, Fabian Vetter, Anne Leucht, Timo Schmid & Paul Messer. (in review). Latent-variable modeling of ordinal outcomes in language data analysis.
 
@@ -43,12 +39,16 @@ Journal articles
   
 Edited volumes
 
+- **Sönning**, Lukas & Ole Schützler (eds.). 2023. *Data visualization in corpus linguistics: Reflections and future directions* (Studies in Variation, Contacts and Change in English; No. 22). University of Helsinki: VARIENG.  {{< ai 'open-access' >}}  [https://urn.fi/URN:NBN:fi:varieng:series-22](https://urn.fi/URN:NBN:fi:varieng:series-22)
+
 - **Sönning**, Lukas & Valentin Werner. 2021. The replication crisis: Implications for linguistics. Special issue in *Linguistics*.   {{< ai 'open-access' >}} [Open access](https://www.degruyter.com/journal/key/ling/59/5/html)  
 
 - Christ, Hanna, Daniel Klenovšak, Lukas **Sönning** & Valentin Werner (eds.). 2016. *A blend of MaLT: Selected contributions from the Methods and Linguistic Theories Symposium*. Bamberg: University of Bamberg Press.   {{< ai 'open-access' >}} [Open access](https://fis.uni-bamberg.de/bitstream/uniba/41360/1/BABEL15WernerMaLTopusse_A3a.pdf)
 
 
 Book chapters
+
+- **Sönning**, Lukas. 2023. Drawing on principles of perception: The line plot. In Lukas Sönning & Ole Schützler (eds.), *Data visualization in corpus linguistics: Reflections and future directions* (Studies in Variation, Contacts and Change in English; No. 22). University of Helsinki: VARIENG.  {{< ai 'open-access' >}}  [https://urn.fi/URN:NBN:fi:varieng:series-22-2](https://urn.fi/URN:NBN:fi:varieng:series-22-2)  {{< ai psyarxiv >}} [Preprint](https://psyarxiv.com/tjfz5/) | {{< ai osf >}} [OSF](https://osf.io/ksr5a)
 
 - **Sönning**, Lukas. 2023. (Re-)viewing the acquisition of rhythm in the light of L2 phonological theories. In Robert Fuchs (ed.), *Speech rhythm in learner and second language varieties of English*, 123–157. Singapore: Springer. https://doi.org/10.1007/978-981-19-8940-7_6  {{< ai psyarxiv >}} [Preprint](https://psyarxiv.com/x36jh/) | {{< ai dataverse >}} [Data](https://doi.org/10.18710/GTI2BR) | {{< ai osf >}} [OSF](https://osf.io/25kq4) 
 
