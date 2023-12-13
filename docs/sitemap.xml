@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://lsoenning.github.io/posts.html</loc>
-    <lastmod>2023-11-21T21:53:24.017Z</lastmod>
+    <lastmod>2023-12-13T15:54:10.829Z</lastmod>
   </url>
   <url>
     <loc>https://lsoenning.github.io/index.html</loc>
@@ -35,5 +35,13 @@
   <url>
     <loc>https://lsoenning.github.io/posts/2023-11-19_replication_crisis_reflection/index.html</loc>
     <lastmod>2023-11-21T21:53:28.437Z</lastmod>
+  </url>
+  <url>
+    <loc>https://lsoenning.github.io/posts/2023-12-11_computation_DA/index.html</loc>
+    <lastmod>2023-12-13T15:45:18.127Z</lastmod>
+  </url>
+  <url>
+    <loc>https://lsoenning.github.io/posts/2023-11-16_negative_binomial/index.html</loc>
+    <lastmod>2023-12-13T15:54:08.873Z</lastmod>
   </url>
 </urlset>

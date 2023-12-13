@@ -2,6 +2,9 @@
   {
     "listing": "/posts.html",
     "items": [
+      "/posts/2023-12-13_negative_binomial_parameterization/index.html",
+      "/posts/2023-11-16_negative_binomial/index.html",
+      "/posts/2023-12-11_computation_DA/index.html",
       "/posts/2023-11-19_replication_crisis_reflection/index.html",
       "/posts/2023-11-17_downsampling_implementation/index.html",
       "/posts/2023-11-17_downsampling_two_types/index.html",

@@ -7,10 +7,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Lukas Sönning">
-<meta name="dcterms.date" content="2023-11-17">
-<meta name="description" content="This blog post uses a visual approach to explain the way in which the negative binomial distribution works .">
+<meta name="dcterms.date" content="2023-12-12">
+<meta name="description" content="This blog post uses a visual approach to explain how the negative binomial distribution works.">
 
-<title>Lukas Sönning - The negative binomial distribution: A graphical explanation</title>
+<title>Lukas Sönning - The negative binomial distribution: A visual explanation</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -97,6 +97,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <link rel="stylesheet" href="../../styles.css">
 </head>
@@ -136,7 +138,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../../posts.html" rel="" target="">
- <span class="menu-text">Blog</span></a>
+ <span class="menu-text">Statistics for linguist(ic)s blog</span></a>
   </li>  
 </ul>
             <div class="quarto-navbar-tools ms-auto">
@@ -153,23 +155,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content page-columns page-full" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">The negative binomial distribution: A graphical explanation</h1>
+<h1 class="title">The negative binomial distribution: A visual explanation</h1>
   <div class="quarto-categories">
-    <div class="quarto-category">distributions</div>
     <div class="quarto-category">count data</div>
     <div class="quarto-category">corpus linguistics</div>
     <div class="quarto-category">statistics</div>
     <div class="quarto-category">dispersion</div>
+    <div class="quarto-category">negative binomial distribution</div>
   </div>
   </div>
 
 <div>
   <div class="description">
-    This blog post uses a visual approach to explain the way in which the negative binomial distribution works .
+    This blog post uses a visual approach to explain how the negative binomial distribution works.
   </div>
 </div>
 
@@ -193,7 +195,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">November 17, 2023</p>
+      <p class="date">December 12, 2023</p>
     </div>
   </div>
   
@@ -207,24 +209,385 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <details>
 <summary>R setup</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lattice)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gamlss)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
+<p>The negative binomial distribution is a useful device for modeling word counts. A typical setting for its application in corpus linguistics is the modeling of word frequency data – for instance, if we wish to summarize (or compare) occurrence rates of an item in a corpus (or across sub-corpora). Each text then contributes information about the frequency of the item in the form of (i) a <em>token count</em> (the number of times the word occurs in the text) and (ii) a <em>word count</em> (the length of the text). Based on the token and word count we can calculate an occurrence rate (or normalized frequency) for each text, and these rates are then directly comparable across texts.</p>
+<p>From a statistical perspective, word frequency would be considered as a <em>count variable</em>, which is observed at the level of the text and can take on non-negative integer values (i.e.&nbsp;0, 1, 2, 3, 4, …). The text length can be thought of as a period of observation (measured in text time, i.e.&nbsp;the number of running words), in which a tally is kept of the number of events (in this case the occurrence of the focal item). And this is the typical definition of a count variable.</p>
+<p>This blog post takes a closer look at the negative binomial distribution – how it works and why it is a useful device for modeling word frequency data. It is helpful to start with a concrete example: the frequency of <em>which</em> in the Brown Corpus. To keep things simple, we will stick to this data setting, where texts have (nearly) the same length. Note, however, that the negative binomial distribution (like the Poisson) readily extends to situations where texts have different lengths.</p>
+<section id="observed-and-expected-frequency-distributions" class="level4">
+<h4 class="anchored" data-anchor-id="observed-and-expected-frequency-distributions">Observed and expected frequency distributions</h4>
+<p>If we count the number of occurrences of <em>which</em> in each text and then look at the distribution of token counts, we obtain what is referred to as a <em>frequency distribution</em> or a <em>token distribution</em>. The frequency distribution for <em>which</em> in the Brown Corpus, which consists of 500 texts, appears in <a href="#fig-which">Figure&nbsp;1</a> a. It shows the distribution of token counts across texts: Each bar represents a specific token count, and the height of the bar is proportional to the number of texts that have this many instances of <em>which</em>. Token counts vary between 0 (<em>n</em> = 26 texts) and 40 (1 text), and the distribution is right-skewed, which is quite typical of count variables, since they have a lower bound at 0.</p>
+<div class="cell">
+<details>
+<summary>Load data</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># tdm &lt;- read_tsv("C:/Users/ba4rh5/Work Folders/My Files/R projects/_lsoenning.github.io/posts/2023-11-16_negative_binomial/data/brown_tdm.tsv")</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># str(tdm)</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># n_tokens &lt;- tdm[,which(colnames(tdm) == "which")]</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># saveRDS(n_tokens, "C:/Users/ba4rh5/Work Folders/My Files/R projects/_lsoenning.github.io/posts/2023-11-16_negative_binomial/data/frequency_distribution_which_Brown.rds")</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>n_tokens <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"C:/Users/ba4rh5/Work Folders/My Files/R projects/_lsoenning.github.io/posts/2023-11-16_negative_binomial/data/frequency_distribution_which_Brown.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details>
+<summary>Draw Figure 1</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Poisson model</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">glm</span>(n_tokens<span class="sc">$</span>which <span class="sc">~</span> <span class="dv">1</span>, <span class="at">family=</span><span class="st">"poisson"</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>poisson_mean <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="fu">coef</span>(m))</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>poisson_density <span class="ot">&lt;-</span> <span class="fu">dpois</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">40</span>, <span class="at">lambda =</span> poisson_mean)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>n_texts <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(<span class="fu">table</span>(n_tokens))</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>token_count <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(<span class="fu">names</span>(<span class="fu">table</span>(n_tokens)))</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  n_texts <span class="sc">~</span> token_count,</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings=</span>my_settings, <span class="at">axis=</span>axis_L, <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">53</span>), <span class="at">xlim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="fl">1.5</span>, <span class="cn">NA</span>),</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab.top =</span> <span class="st">"(a)</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales=</span><span class="fu">list</span>(<span class="at">y=</span><span class="fu">list</span>(<span class="at">at=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">20</span>,<span class="dv">40</span>,<span class="dv">60</span>,<span class="dv">80</span>))),</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">type=</span><span class="st">"h"</span>, <span class="at">lwd=</span><span class="dv">6</span>, <span class="at">lineend=</span><span class="st">"butt"</span>, <span class="at">col=</span><span class="st">"grey"</span>,</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">""</span>,</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab=</span><span class="st">"Observed</span><span class="sc">\n</span><span class="st">number of texts</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">panel=</span><span class="cf">function</span>(x,y,...){</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.xyplot</span>(x,y,...)</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x=</span><span class="dv">30</span>, <span class="at">y=</span><span class="dv">40</span>, <span class="at">label=</span><span class="st">"Observed frequency distribution"</span>, </span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>               <span class="at">col=</span><span class="st">"grey30"</span>, <span class="at">cex=</span>.<span class="dv">9</span>)</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  n_texts <span class="sc">~</span> token_count,</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings=</span>my_settings, <span class="at">axis=</span>axis_L, <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">85</span>), <span class="at">xlim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="fl">1.5</span>, <span class="cn">NA</span>),</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab.top =</span> <span class="st">"(b)</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales=</span><span class="fu">list</span>(<span class="at">y=</span><span class="fu">list</span>(<span class="at">at=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">20</span>,<span class="dv">40</span>,<span class="dv">60</span>,<span class="dv">80</span>))),</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">type=</span><span class="st">"h"</span>, <span class="at">lwd=</span><span class="dv">6</span>, <span class="at">lineend=</span><span class="st">"butt"</span>, <span class="at">col=</span><span class="st">"grey"</span>,</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Number of instances of which"</span>,</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab=</span><span class="st">"Expected</span><span class="sc">\n</span><span class="st">number of texts</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">panel=</span><span class="cf">function</span>(x,y,...){</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(<span class="at">x=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">40</span>, <span class="at">y=</span>poisson_density<span class="sc">*</span><span class="dv">500</span>, <span class="at">pch=</span><span class="dv">19</span>, <span class="at">col=</span><span class="dv">1</span>, <span class="at">cex=</span>.<span class="dv">8</span>)</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(<span class="at">x=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">40</span>, <span class="at">y=</span>poisson_density<span class="sc">*</span><span class="dv">500</span>, <span class="at">pch=</span><span class="dv">19</span>, <span class="at">col=</span><span class="dv">1</span>, <span class="at">type=</span><span class="st">"h"</span>)</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x=</span><span class="dv">30</span>, <span class="at">y=</span><span class="dv">60</span>, <span class="at">label=</span><span class="st">"Expected frequency distribution</span><span class="sc">\n</span><span class="st">(Poisson model)"</span>,</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>               <span class="at">col=</span><span class="st">"grey30"</span>, <span class="at">cex=</span>.<span class="dv">9</span>)</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-which" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="index_files/figure-html/fig-which-1.png" class="img-fluid figure-img" width="384"></p>
+<figcaption class="figure-caption">Figure&nbsp;1: <em>Which</em> in the Brown Corpus: (a) observed frequency distribution and (b) expected frequency distribution based on the Poisson model.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The most basic probability distribution that is available for modeling count variables is the <em>Poisson distribution</em>. In general, we can check the fit of a distribution to the observed token counts by comparing the observed distribution (<a href="#fig-which">Figure&nbsp;1</a> a) to the one expected under a Poisson model. The expected distribution appears in <a href="#fig-which">Figure&nbsp;1</a> b. We note a mismatch with the observed data: Its tails are too thin – that is, the observed token counts are more widely spread out; counts of 0 are severely underpredicted (or underrepresented).</p>
+<p>In fact, it is often the case that the Poisson distribution offers a poor fit to (language) data. This is because it rests on a simplistic assumption: It assumes that the expected frequency of <em>which</em> (or: the underlying probability of using <em>which</em>) is the same in every text. In our case, where we are dealing with texts of roughly 2,000 words in length, the expected number of instances of <em>which</em>, on average, is 7.1. Due to sampling variation, the actual number of instances per text will vary around this average. This sampling variation is accounted for in the Poisson distribution, giving it the (near-)bell-shaped appearance in <a href="#fig-which">Figure&nbsp;1</a> b.</p>
+<p>In linguistic terms, the model assumes that each text in the Brown Corpus, irrespective of genre or the idiosyncrasies of its author, has the same underlying probability of using <em>which</em> (i.e.&nbsp;about 7 in 2,000; or 3.5 per thousand words). Even for a function word such as <em>which</em>, this assumption seems difficult to defend. For instance, certain genres may use more postmodifying relative clauses, leading to a higher expected rate of <em>which</em> for texts in this category.</p>
+</section>
+<section id="poisson-mixture-distributions" class="level4 page-columns page-full">
+<h4 class="anchored" data-anchor-id="poisson-mixture-distributions">Poisson mixture distributions</h4>
+<p>To offer a more adequate abstraction (or representation) of the observed token distribution, the assumption of equal rates across texts needs to be relaxed. We want the model to be able to represent variation among texts, and to record the amount of variation suggested by the data. On linguistic grounds, for instance, we would expect function words to vary less from text to text than lexical words, which are more sensitive to register and topic. The idea is to have an additional parameter in the model that acts like a standard deviation, essentially capturing (and measuring) the text-to-text variability in occurrence rates.</p>
+<p>It is for this purpose that <em>Poisson mixture distributions</em> were invented. One such mixture distribution is the negative binomial distribution, which is also referred to as a Poisson-gamma mixture distribution. This is actually a more transparent label, as we will see shortly.</p>
+<p>The idea behind Poisson mixtures is rather simple. Since the Poisson distribution on its own fails to adequately embrace high and low counts, its mean is allowed to vary. By allowing the Poisson mean to vary, i.e.&nbsp;shift up and down the count scale (or left and right in <a href="#fig-which">Figure&nbsp;1</a>), the probability distribution is more flexible, which allows it to accommodate the tails of the distribution.</p>
+<p>Poisson mixtures therefore include an additional <em>dispersion parameter</em> (similar to a standard deviation) and the Poisson mean is replaced by a distribution of Poisson means. Note that the way in which the term “dispersion” is used here differs from the sense it has acquired in lexicography and corpus linguistics (the difference is explained in <a href="https://lsoenning.github.io/posts/2023-01-18_dispersion_terminology/">this blog post</a>).</p>
+<div class="cell">
+<details>
+<summary>Draw Figure 2</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1985</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>delta_sample <span class="ot">=</span> <span class="fu">rGA</span>(<span class="dv">20</span>, <span class="at">mu=</span><span class="dv">1</span>, <span class="at">sigma=</span>.<span class="dv">1</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>lambda_plot <span class="ot">=</span> <span class="dv">7</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>plot1 <span class="ot">=</span> <span class="fu">xyplot</span>(</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type=</span><span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">20</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>,.<span class="dv">2</span>),</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings=</span>my_settings, <span class="at">axis=</span>axis_L,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales=</span><span class="fu">list</span>(<span class="at">y=</span><span class="fu">list</span>(<span class="at">at=</span><span class="dv">0</span>), <span class="at">x=</span><span class="fu">list</span>(<span class="at">at=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">5</span>,<span class="dv">10</span>,<span class="dv">15</span>, <span class="dv">20</span>))),</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab=</span><span class="st">"Density"</span>, <span class="at">xlab=</span><span class="st">"Frequency"</span>,</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">panel=</span><span class="cf">function</span>(x,y,...){</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0=</span>lambda_plot, <span class="at">x1=</span>lambda_plot, <span class="at">y0=</span><span class="dv">0</span>, <span class="at">y1=</span>.<span class="dv">19</span>, <span class="at">col=</span><span class="st">"black"</span>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(delta_sample)){</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>      <span class="fu">panel.points</span>(<span class="at">x=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">20</span>, <span class="at">y=</span><span class="fu">dpois</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">20</span>, <span class="at">lambda=</span>lambda_plot<span class="sc">*</span>delta_sample[i]), </span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>                   <span class="at">type=</span><span class="st">"l"</span>, <span class="at">col=</span><span class="st">"black"</span>, <span class="at">alpha=</span>.<span class="dv">2</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>      <span class="fu">panel.points</span>(<span class="at">x=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">20</span>, <span class="at">y=</span><span class="fu">dpois</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">20</span>, <span class="at">lambda=</span>lambda_plot<span class="sc">*</span>delta_sample[i]), </span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>                   <span class="at">type=</span><span class="st">"p"</span>, <span class="at">col=</span><span class="st">"black"</span>, <span class="at">pch=</span><span class="dv">19</span>, <span class="at">alpha=</span>.<span class="dv">2</span>)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>delta_sample2 <span class="ot">=</span> <span class="fu">rGA</span>(<span class="dv">20</span>, <span class="at">mu=</span><span class="dv">1</span>, <span class="at">sigma=</span>.<span class="dv">25</span>)</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>lambda_plot <span class="ot">=</span> <span class="dv">7</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>plot2 <span class="ot">=</span> <span class="fu">xyplot</span>(</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type=</span><span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">20</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>,.<span class="dv">2</span>),</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings=</span>my_settings, <span class="at">axis=</span>axis_L,</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales=</span><span class="fu">list</span>(<span class="at">y=</span><span class="fu">list</span>(<span class="at">at=</span><span class="dv">0</span>), <span class="at">x=</span><span class="fu">list</span>(<span class="at">at=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">5</span>,<span class="dv">10</span>,<span class="dv">15</span>, <span class="dv">20</span>))),</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab=</span><span class="st">"Density"</span>, <span class="at">xlab=</span><span class="st">""</span>,</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">panel=</span><span class="cf">function</span>(x,y,...){</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0=</span>lambda_plot, <span class="at">x1=</span>lambda_plot, <span class="at">y0=</span><span class="dv">0</span>, <span class="at">y1=</span>.<span class="dv">19</span>, <span class="at">col=</span><span class="st">"black"</span>)</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x=</span><span class="dv">7</span>, <span class="at">y=</span>.<span class="dv">22</span>, <span class="at">label=</span><span class="st">"\u03BC = 7"</span>, <span class="at">col=</span><span class="st">"black"</span>)</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(delta_sample2)){</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>      <span class="fu">panel.points</span>(<span class="at">x=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">20</span>, <span class="at">y=</span><span class="fu">dpois</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">20</span>, <span class="at">lambda=</span>lambda_plot<span class="sc">*</span>delta_sample2[i]), </span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>                   <span class="at">type=</span><span class="st">"l"</span>, <span class="at">col=</span><span class="st">"black"</span>, <span class="at">alpha=</span>.<span class="dv">2</span>)</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>      <span class="fu">panel.points</span>(<span class="at">x=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">20</span>, <span class="at">y=</span><span class="fu">dpois</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">20</span>, <span class="at">lambda=</span>lambda_plot<span class="sc">*</span>delta_sample2[i]), </span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>                   <span class="at">type=</span><span class="st">"p"</span>, <span class="at">col=</span><span class="st">"black"</span>, <span class="at">pch=</span><span class="dv">19</span>, <span class="at">alpha=</span>.<span class="dv">2</span>)</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>    })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell page-columns page-full">
+
+<div class="no-row-height column-margin column-container"><div class="cell-output-display">
+<div id="fig-illustration-poisson-mixture" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="index_files/figure-html/fig-illustration-poisson-mixture-1.png" class="img-fluid figure-img" width="240"></p>
+<figcaption class="figure-caption">Figure&nbsp;2: Mixing Poisson distributions: Each panel shows a sample of 20 Poisson distributions whose means vary around the grand mean of 7. The variation among Poissons is greater in the top panel.</figcaption>
+</figure>
+</div>
+</div></div></div>
+<p>Poisson mixtures can be thought of as consisting of multiple Poisson distributions with different individual means. This is illustrated in <a href="#fig-illustration-poisson-mixture">Figure&nbsp;2</a>. To be able to show multiple distributions in one graph, we now leave out the spikes and connect the dots – a single distribution therefore appears as a bell-shaped profile that looks like a pearl necklace. Each panel shows 20 Poisson distributions, and each of these 20 distributions has a different mean. The means vary around 7, the overall mean of the Poisson mixture.</p>
+<p>The distributions in the upper panel are spread out more widely than in the lower panel, and it is the newly introduced <em>dispersion parameter</em> that expresses the amount of variation among Poisson means. This basic idea applies to all Poisson mixture distributions. They are called ‘mixture distributions’ because they mix two probability distributions: (i) the familiar Poisson distribution and (ii) an additional probability distribution which describes the variability in the Poisson means. Simplifying slightly, Poisson mixtures only differ in the probability distribution they employ to describe the distribution of the Poisson means.</p>
+</section>
+<section id="the-gamma-distribution-as-a-model-of-text-to-text-variation" class="level4 page-columns page-full">
+<h4 class="anchored" data-anchor-id="the-gamma-distribution-as-a-model-of-text-to-text-variation">The gamma distribution as a model of text-to-text variation</h4>
+<p>The <em>negative binomial</em> distribution, for instance, relies on the <em>gamma distribution</em> to describe the text-to-text variability in occurrence rates. It is therefore also called a <em>Poisson-gamma</em> mixture distribution. <a href="#fig-illustration-gamma">Figure&nbsp;3</a> shows the two gamma distributions that were used to create <a href="#fig-illustration-poisson-mixture">Figure&nbsp;2</a>. The dashed curve, which shows greater spread, belongs to the upper panel.</p>
+<div class="cell">
+<details>
+<summary>Draw Figure 3</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>lambda_plot <span class="ot">=</span> <span class="dv">7</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type=</span><span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">20</span><span class="sc">/</span><span class="dv">7</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="fl">4.5</span>),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings=</span>my_settings, <span class="at">axis=</span>axis_L,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab.top=</span><span class="st">"(a)</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales=</span><span class="fu">list</span>(<span class="at">y=</span><span class="fu">list</span>(<span class="at">at=</span><span class="dv">0</span>), <span class="at">x=</span><span class="fu">list</span>(<span class="at">at=</span><span class="fu">c</span>(<span class="dv">0</span>,.<span class="dv">5</span>,<span class="dv">1</span>,<span class="fl">1.5</span>, <span class="dv">2</span>, <span class="fl">2.5</span>))),</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab=</span><span class="st">"Density"</span>, <span class="at">xlab=</span><span class="st">"Multiplicative factor"</span>,</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">panel=</span><span class="cf">function</span>(x,y,...){</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="dv">1</span>, <span class="at">x1=</span><span class="dv">1</span>, <span class="at">y0=</span><span class="dv">0</span>, <span class="at">y1=</span><span class="fl">4.5</span>, <span class="at">col=</span><span class="dv">1</span>)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(<span class="at">x =</span> <span class="fu">seq</span>(.<span class="dv">01</span>, <span class="fl">2.8</span>, <span class="at">length=</span><span class="dv">1000</span>),</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y =</span> <span class="fu">dGA</span>(<span class="fu">seq</span>(.<span class="dv">01</span>, <span class="fl">2.8</span>, <span class="at">length=</span><span class="dv">1000</span>), <span class="at">mu=</span><span class="dv">1</span>, <span class="at">sigma=</span>.<span class="dv">1</span>),</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>                 <span class="at">type=</span><span class="st">"l"</span>)</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(<span class="at">x =</span> <span class="fu">seq</span>(.<span class="dv">01</span>, <span class="fl">2.8</span>, <span class="at">length=</span><span class="dv">1000</span>),</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y =</span> <span class="fu">dGA</span>(<span class="fu">seq</span>(.<span class="dv">01</span>, <span class="fl">2.8</span>, <span class="at">length=</span><span class="dv">1000</span>), <span class="at">mu=</span><span class="dv">1</span>, <span class="at">sigma=</span>.<span class="dv">25</span>),</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>                 <span class="at">type=</span><span class="st">"l"</span>, <span class="at">lty=</span><span class="st">"23"</span>, <span class="at">lineend=</span><span class="st">"square"</span>)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type=</span><span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">20</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="fl">4.5</span>),</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings=</span>my_settings, <span class="at">axis=</span>axis_L,</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab.top=</span><span class="st">"(b)</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales=</span><span class="fu">list</span>(<span class="at">y=</span><span class="fu">list</span>(<span class="at">at=</span><span class="dv">0</span>), <span class="at">x=</span><span class="fu">list</span>(<span class="at">at=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">5</span>,<span class="dv">10</span>,<span class="dv">15</span>, <span class="dv">20</span>))),</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab=</span><span class="st">"Density"</span>, <span class="at">xlab=</span><span class="fu">expression</span>(<span class="st">"Number of instances of "</span><span class="sc">~</span><span class="fu">italic</span>(which)),</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">panel=</span><span class="cf">function</span>(x,y,...){</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="dv">7</span>, <span class="at">x1=</span><span class="dv">7</span>, <span class="at">y0=</span><span class="dv">0</span>, <span class="at">y1=</span><span class="fl">4.5</span>, <span class="at">col=</span><span class="dv">1</span>)</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(<span class="at">x =</span> <span class="fu">seq</span>(.<span class="dv">01</span>, <span class="fl">2.8</span>, <span class="at">length=</span><span class="dv">1000</span>)<span class="sc">*</span><span class="dv">7</span>,</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y =</span> <span class="fu">dGA</span>(<span class="fu">seq</span>(.<span class="dv">01</span>, <span class="fl">2.8</span>, <span class="at">length=</span><span class="dv">1000</span>), <span class="at">mu=</span><span class="dv">1</span>, <span class="at">sigma=</span>.<span class="dv">1</span>),</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>                 <span class="at">type=</span><span class="st">"l"</span>)</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(<span class="at">x =</span> <span class="fu">seq</span>(.<span class="dv">01</span>, <span class="fl">2.8</span>, <span class="at">length=</span><span class="dv">1000</span>)<span class="sc">*</span><span class="dv">7</span>,</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y =</span> <span class="fu">dGA</span>(<span class="fu">seq</span>(.<span class="dv">01</span>, <span class="fl">2.8</span>, <span class="at">length=</span><span class="dv">1000</span>), <span class="at">mu=</span><span class="dv">1</span>, <span class="at">sigma=</span>.<span class="dv">25</span>),</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>                 <span class="at">type=</span><span class="st">"l"</span>, <span class="at">lty=</span><span class="st">"23"</span>, <span class="at">lineend=</span><span class="st">"square"</span>)</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>    })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell page-columns page-full">
+
+<div class="no-row-height column-margin column-container"><div class="cell-output-display">
+<div id="fig-illustration-gamma" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="index_files/figure-html/fig-illustration-gamma-1.png" class="img-fluid figure-img" width="240"></p>
+<figcaption class="figure-caption">Figure&nbsp;3: The gamma distribution describing the variability of text-to-text occurrence rates.</figcaption>
+</figure>
+</div>
+</div></div></div>
+<p><a href="#fig-illustration-gamma">Figure&nbsp;3</a> a shows the gamma distributions on their actual scale. These are spread out around a value of 1, because they indicate variability in Poisson means on a multiplicative scale. It makes sense to center the distribution around 1, since the overall occurrence rate (multiplied by 1) should be at the center. The x-axis therefore denotes factors, which means that variability between Poisson means is expressed as ratios. The dashed curve, for instance, ranges from roughly 0.5 to 1.5, which means that most Poisson means are found within ± 50% of the overall mean. Since this multiplicative factor cannot be smaller than 0, we need a probability distribution that is bounded at zero (like the gamma distribution).</p>
+<p>Panel (b) translates these distributions to the occurrence rate scale. To create this graph, the factors (i.e.&nbsp;the x-values) in panel (a) were simply multiplied by the overall mean of 7. Now we see that, for the dashed curve, most occurrence rates vary between 4 and 11 instances per text.</p>
+</section>
+<section id="negative-binomial-distribution-applied-to-which" class="level4 page-columns page-full">
+<h4 class="anchored" data-anchor-id="negative-binomial-distribution-applied-to-which">Negative binomial distribution applied to <em>which</em></h4>
+<p>Let us now apply the negative binomial distribution to the data for <em>which</em> in the Brown Corpus. We first check the fit of this new model to the data. <a href="#fig-which-nb">Figure&nbsp;4</a> shows that it provides a much closer approximation to the observed token distribution. It accomodates low and high counts and there seems to be no systematic lack of fit.</p>
+<div class="cell">
+<details>
+<summary>Fit negative binomial model in R</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">gamlss</span>(n_tokens<span class="sc">$</span>which <span class="sc">~</span> <span class="dv">1</span>, <span class="at">family=</span><span class="st">"NBI"</span>, <span class="at">trace =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>nb_density <span class="ot">&lt;-</span> <span class="fu">dNBI</span>(</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="dv">0</span><span class="sc">:</span><span class="dv">40</span>, </span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">mu =</span> <span class="fu">exp</span>(<span class="fu">coef</span>(m, <span class="at">what =</span> <span class="st">"mu"</span>)),</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">sigma =</span> <span class="fu">exp</span>(<span class="fu">coef</span>(m, <span class="at">what =</span> <span class="st">"sigma"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details>
+<summary>Draw Figure 4</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xyplot</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  n_texts <span class="sc">~</span> token_count,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings=</span>my_settings, <span class="at">axis=</span>axis_L, <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">77</span>), <span class="at">xlim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="fl">1.5</span>, <span class="cn">NA</span>),</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales=</span><span class="fu">list</span>(<span class="at">y=</span><span class="fu">list</span>(<span class="at">at=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">20</span>,<span class="dv">40</span>,<span class="dv">60</span>,<span class="dv">80</span>))),</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">type=</span><span class="st">"h"</span>, <span class="at">lwd=</span><span class="dv">6</span>, <span class="at">lineend=</span><span class="st">"butt"</span>, <span class="at">col=</span><span class="st">"grey"</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="fu">expression</span>(<span class="st">"Number of instances of "</span><span class="sc">~</span><span class="fu">italic</span>(which)),</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab=</span><span class="st">"Number of texts"</span>,</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">panel=</span><span class="cf">function</span>(x,y,...){</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.xyplot</span>(x,y,...)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x=</span><span class="dv">10</span>, <span class="at">y=</span><span class="dv">60</span>, <span class="at">label=</span><span class="st">"Poisson"</span>, </span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>               <span class="at">col=</span><span class="st">"grey30"</span>, <span class="at">cex=</span>.<span class="dv">9</span>, <span class="at">adj=</span><span class="dv">0</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x=</span><span class="dv">20</span>, <span class="at">y=</span><span class="dv">12</span>, <span class="at">label=</span><span class="st">"Negative binomial"</span>, </span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>               <span class="at">col=</span><span class="dv">1</span>, <span class="at">cex=</span>.<span class="dv">9</span>, <span class="at">adj=</span><span class="dv">0</span>)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(<span class="at">x=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">40</span>, <span class="at">y=</span>poisson_density<span class="sc">*</span><span class="dv">500</span>, <span class="at">pch=</span><span class="dv">19</span>, <span class="at">col=</span><span class="st">"grey30"</span>, <span class="at">cex=</span>.<span class="dv">8</span>)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(<span class="at">x=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">40</span>, <span class="at">y=</span>poisson_density<span class="sc">*</span><span class="dv">500</span>, <span class="at">pch=</span><span class="dv">19</span>, <span class="at">col=</span><span class="st">"grey30"</span>, <span class="at">type=</span><span class="st">"l"</span>)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(<span class="at">x=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">40</span>, <span class="at">y=</span>nb_density<span class="sc">*</span><span class="dv">500</span>, <span class="at">pch=</span><span class="dv">19</span>, <span class="at">col=</span><span class="dv">1</span>, <span class="at">cex=</span>.<span class="dv">8</span>)</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(<span class="at">x=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">40</span>, <span class="at">y=</span>nb_density<span class="sc">*</span><span class="dv">500</span>, <span class="at">pch=</span><span class="dv">19</span>, <span class="at">col=</span><span class="dv">1</span>, <span class="at">type=</span><span class="st">"l"</span>)</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-which-nb" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="index_files/figure-html/fig-which-nb-1.png" class="img-fluid figure-img" width="384"></p>
+<figcaption class="figure-caption">Figure&nbsp;4: <em>Which</em> in the Brown Corpus: Observed token distribution compared against the Poisson and the negative binomial model.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Let us consider the gamma distribution that describes the text-to-text variability in occurrence rates. Its density appears in <a href="#fig-which-gamma">Figure&nbsp;5</a>, which includes two x-axes: A multiplicative scale (bottom) and a scale showing the expected number of instances in a 2,000-word text (the average text length in Brown). The gamma distribution is centered at 1 (multiplicative scale) and 7.1 occurrences (number of instances of <em>which</em>).</p>
+<div class="cell">
+<details>
+<summary>Draw Figure 5</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type=</span><span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">21</span><span class="sc">/</span><span class="dv">7</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="fl">1.4</span>),</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings=</span>my_settings, <span class="at">axis=</span>axis_L,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales=</span><span class="fu">list</span>(<span class="at">y=</span><span class="fu">list</span>(<span class="at">at=</span><span class="dv">0</span>), <span class="at">x=</span><span class="fu">list</span>(<span class="at">at=</span><span class="fu">c</span>(<span class="dv">0</span>,.<span class="dv">5</span>,<span class="dv">1</span>,<span class="fl">1.5</span>, <span class="dv">2</span>, <span class="fl">2.5</span>))),</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab=</span><span class="st">"Density"</span>, <span class="at">xlab=</span><span class="st">"Multiplicative factor"</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">panel=</span><span class="cf">function</span>(x,y,...){</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.polygon</span>(<span class="at">x =</span> <span class="fu">c</span>(<span class="fu">seq</span>(.<span class="dv">01</span>, <span class="fl">2.8</span>, <span class="at">length=</span><span class="dv">100</span>), (<span class="fu">seq</span>(.<span class="dv">01</span>, <span class="fl">2.8</span>, <span class="at">length=</span><span class="dv">100</span>))),</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y =</span> <span class="fu">c</span>(<span class="fu">dGA</span>(<span class="fu">seq</span>(.<span class="dv">01</span>, <span class="fl">2.8</span>, <span class="at">length=</span><span class="dv">100</span>), <span class="at">mu=</span><span class="dv">1</span>, <span class="at">sigma=</span><span class="fu">exp</span>(<span class="fu">coef</span>(m, <span class="at">what =</span> <span class="st">"sigma"</span>))),</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">rep</span>(<span class="dv">0</span>,<span class="dv">100</span>)),</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>                 <span class="at">col=</span><span class="st">"lightgrey"</span>, <span class="at">border=</span>F)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="dv">1</span>, <span class="at">x1=</span><span class="dv">1</span>, <span class="at">y0=</span><span class="dv">0</span>, <span class="at">y1=</span><span class="fl">1.4</span>, <span class="at">col=</span><span class="dv">1</span>)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">x0 =</span> <span class="fu">c</span>(<span class="fu">qGA</span>(.<span class="dv">25</span>, <span class="at">mu=</span><span class="dv">1</span>, <span class="at">sigma=</span><span class="fu">exp</span>(<span class="fu">coef</span>(m, <span class="at">what =</span> <span class="st">"sigma"</span>))),</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>             <span class="fu">qGA</span>(.<span class="dv">75</span>, <span class="at">mu=</span><span class="dv">1</span>, <span class="at">sigma=</span><span class="fu">exp</span>(<span class="fu">coef</span>(m, <span class="at">what =</span> <span class="st">"sigma"</span>)))),</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>      <span class="at">x1 =</span> <span class="fu">c</span>(<span class="fu">qGA</span>(.<span class="dv">25</span>, <span class="at">mu=</span><span class="dv">1</span>, <span class="at">sigma=</span><span class="fu">exp</span>(<span class="fu">coef</span>(m, <span class="at">what =</span> <span class="st">"sigma"</span>))),</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>             <span class="fu">qGA</span>(.<span class="dv">75</span>, <span class="at">mu=</span><span class="dv">1</span>, <span class="at">sigma=</span><span class="fu">exp</span>(<span class="fu">coef</span>(m, <span class="at">what =</span> <span class="st">"sigma"</span>)))),</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>      <span class="at">y0 =</span> <span class="dv">0</span>, <span class="at">y1 =</span> <span class="fl">1.3</span>,  <span class="at">lwd=</span><span class="dv">2</span>, <span class="at">col=</span><span class="dv">1</span>, <span class="at">lineend=</span><span class="st">"butt"</span>, <span class="at">alpha=</span>.<span class="dv">5</span>)</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">x0 =</span> <span class="fu">c</span>(<span class="fu">qGA</span>(.<span class="dv">05</span>, <span class="at">mu=</span><span class="dv">1</span>, <span class="at">sigma=</span><span class="fu">exp</span>(<span class="fu">coef</span>(m, <span class="at">what =</span> <span class="st">"sigma"</span>))),</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>             <span class="fu">qGA</span>(.<span class="dv">95</span>, <span class="at">mu=</span><span class="dv">1</span>, <span class="at">sigma=</span><span class="fu">exp</span>(<span class="fu">coef</span>(m, <span class="at">what =</span> <span class="st">"sigma"</span>)))),</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>      <span class="at">x1 =</span> <span class="fu">c</span>(<span class="fu">qGA</span>(.<span class="dv">05</span>, <span class="at">mu=</span><span class="dv">1</span>, <span class="at">sigma=</span><span class="fu">exp</span>(<span class="fu">coef</span>(m, <span class="at">what =</span> <span class="st">"sigma"</span>))),</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>             <span class="fu">qGA</span>(.<span class="dv">95</span>, <span class="at">mu=</span><span class="dv">1</span>, <span class="at">sigma=</span><span class="fu">exp</span>(<span class="fu">coef</span>(m, <span class="at">what =</span> <span class="st">"sigma"</span>)))),</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>      <span class="at">y0 =</span> <span class="dv">0</span>, <span class="at">y1 =</span> <span class="fl">1.3</span>, <span class="at">lwd=</span>.<span class="dv">5</span>, <span class="at">col=</span><span class="dv">1</span>, <span class="at">lineend=</span><span class="st">"butt"</span>, <span class="at">alpha=</span>.<span class="dv">5</span>)</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>                      </span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(<span class="at">x =</span> <span class="fu">seq</span>(.<span class="dv">01</span>, <span class="fl">2.8</span>, <span class="at">length=</span><span class="dv">1000</span>),</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y =</span> <span class="fu">dGA</span>(<span class="fu">seq</span>(.<span class="dv">01</span>, <span class="fl">2.8</span>, <span class="at">length=</span><span class="dv">1000</span>), <span class="at">mu=</span><span class="dv">1</span>, </span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>                         <span class="at">sigma=</span><span class="fu">exp</span>(<span class="fu">coef</span>(m, <span class="at">what =</span> <span class="st">"sigma"</span>))),</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>                 <span class="at">type=</span><span class="st">"l"</span>)</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="sc">-</span>.<span class="dv">05</span>, <span class="at">x1=</span><span class="dv">21</span><span class="sc">/</span><span class="dv">7</span>, <span class="at">y0=</span><span class="fl">1.3</span>, <span class="at">y1=</span><span class="fl">1.3</span>)</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">20</span>,<span class="dv">5</span>)<span class="sc">/</span><span class="fu">exp</span>(<span class="fu">coef</span>(m, <span class="at">what =</span> <span class="st">"mu"</span>)), </span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>                   <span class="at">x1=</span><span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">20</span>,<span class="dv">5</span>)<span class="sc">/</span><span class="fu">exp</span>(<span class="fu">coef</span>(m, <span class="at">what =</span> <span class="st">"mu"</span>)), <span class="at">y0=</span><span class="fl">1.3</span>, <span class="at">y1=</span><span class="fl">1.38</span>)</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x=</span><span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">20</span>,<span class="dv">5</span>)<span class="sc">/</span><span class="fu">exp</span>(<span class="fu">coef</span>(m, <span class="at">what =</span> <span class="st">"mu"</span>)), <span class="at">y=</span><span class="fl">1.6</span>,</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>               <span class="at">label=</span><span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">20</span>,<span class="dv">5</span>), <span class="at">cex=</span>.<span class="dv">8</span>)</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x=</span><span class="fl">1.5</span>, <span class="at">y=</span><span class="dv">2</span>, <span class="at">label=</span><span class="fu">expression</span>(<span class="st">"Number of instances of "</span><span class="sc">~</span><span class="fu">italic</span>(which)))</span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>    })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell page-columns page-full">
+
+<div class="no-row-height column-margin column-container"><div class="cell-output-display">
+<div id="fig-which-gamma" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="index_files/figure-html/fig-which-gamma-1.png" class="img-fluid figure-img" width="240"></p>
+<figcaption class="figure-caption">Figure&nbsp;5: The gamma distribution describing the variability of text-to-text occurrence rates of <em>which</em> in the Brown Corpus.</figcaption>
+</figure>
+</div>
+</div></div></div>
+<p>The gamma distribution represents a set of values, which specify the deviation of Poisson means from their overall mean in relative terms, as factors. For example, if the gamma distribution is restricted to the range [0.6; 1.7], the Poisson means will vary by a factor of 0.6 to 1.7 around their overall average. For a grand mean of 7, the Poisson means are then spread out between 7 <span class="math inline">\(\times\)</span> 0.6 = 4.2 and 7 <span class="math inline">\(\times\)</span> 1.7 = 11.9.</p>
+<p>The grey vertical lines facilitate interpretation of the distribution: They show where the middle 50% of the texts (thick lines) and the middle 90% of the texts (thin lines) lie. Thus, half of the texts have an underlying expected number of occurrences between roughly 5 and 9; 90% of texts have expected counts between 2.5 and 14. This gives us a good idea of the underlying text-to-text variation in the Brown Corpus.</p>
+</section>
+<section id="graphical-derivation-of-the-negative-binomial-distribution" class="level4 page-columns page-full">
+<h4 class="anchored" data-anchor-id="graphical-derivation-of-the-negative-binomial-distribution">Graphical derivation of the negative binomial distribution</h4>
+<p>To get a better understanding of the negative binomial distribution shown in <a href="#fig-which-nb">Figure&nbsp;4</a>, let us now build one from scratch. Recall that the gamma distribution that is built into the negative binomial model provides us with a set of values with mean 1. We will refer to scores generated from this kind of gamma distribution as <span class="math inline">\(\delta\)</span> scores. To spread out the Poisson means, the overall mean is multiplied by the <span class="math inline">\(\delta\)</span> scores drawn from the gamma distribution. Since the <span class="math inline">\(\delta\)</span> scores are centered at 1, the overall mean is still 7. A gamma distribution that is spread out more widely produces more widely dispersed Poisson means.</p>
+<p>Essentially, then, a negative binomial distribution represents a batch of Poisson distributions whose individual means are spread out around the overall mean. This conceptual explanation of the negative binomial distribution illustrates the role of the gamma distribution and its auxiliary parameter <span class="math inline">\(\phi\)</span>. We can translate this illustration into a simple simulation experiment. If we average over a large number of Poisson distributions produced by this procedure, we should arrive at the corresponding negative binomial distribution.</p>
+<p>This is illustrated in <a href="#fig-simulation-NB">Figure&nbsp;6</a>, which was constructed in the following way:</p>
+<div class="cell page-columns page-full">
+<details>
+<summary>Draw Figure 6</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1985</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>set_nu <span class="ot">=</span> <span class="dv">2</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>delta_s <span class="ot">=</span> <span class="fu">rGA</span>(<span class="dv">1000</span>, <span class="at">mu=</span><span class="dv">1</span>, <span class="at">sigma=</span><span class="fu">sqrt</span>(<span class="dv">1</span><span class="sc">/</span>set_nu))</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>lambda_p <span class="ot">=</span> <span class="dv">7</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>poisson_pool <span class="ot">=</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, <span class="at">nrow=</span><span class="dv">1000</span>, <span class="at">ncol=</span><span class="dv">21</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">1000</span>){</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  poisson_pool[i,] <span class="ot">=</span> <span class="fu">dpois</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">20</span>, <span class="at">lambda=</span>lambda_p<span class="sc">*</span>delta_s[i])</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type=</span><span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">20</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>,.<span class="dv">45</span>),</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings=</span>my_settings, <span class="at">axis=</span>axis_L,</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales=</span><span class="fu">list</span>(<span class="at">y=</span><span class="fu">list</span>(<span class="at">at=</span><span class="dv">0</span>), <span class="at">x=</span><span class="fu">list</span>(<span class="at">at=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">5</span>,<span class="dv">10</span>,<span class="dv">15</span>, <span class="dv">20</span>))),</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab=</span><span class="st">"Density"</span>, <span class="at">xlab=</span><span class="st">"Frequency"</span>,</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">panel=</span><span class="cf">function</span>(x,y){</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0=</span>lambda_p, <span class="at">x1=</span>lambda_p, <span class="at">y0=</span><span class="dv">0</span>, <span class="at">y1=</span>.<span class="dv">25</span>, <span class="at">col=</span><span class="st">"black"</span>)</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x=</span><span class="dv">7</span>, <span class="at">y=</span>.<span class="dv">3</span>, <span class="at">label=</span><span class="st">"\u03BC = 7"</span>, <span class="at">col=</span><span class="st">"black"</span>)</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(delta_s)){</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>      <span class="fu">panel.points</span>(<span class="at">x=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">20</span>, <span class="at">y=</span><span class="fu">dpois</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">20</span>, <span class="at">lambda=</span>lambda_p<span class="sc">*</span>delta_s[i]), </span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>                   <span class="at">col=</span><span class="st">"black"</span>, <span class="at">type=</span><span class="st">"l"</span>, <span class="at">alpha=</span>.<span class="dv">03</span>)</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>      <span class="fu">panel.points</span>(<span class="at">x=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">20</span>, <span class="at">y=</span><span class="fu">dpois</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">20</span>, <span class="at">lambda=</span>lambda_p<span class="sc">*</span>delta_s[i]), </span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>                   <span class="at">col=</span><span class="st">"black"</span>, <span class="at">pch=</span><span class="dv">16</span>, <span class="at">cex=</span>.<span class="dv">4</span>, <span class="at">alpha=</span>.<span class="dv">03</span>)</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># panel.points(x=0:20, y=colMeans(poisson_pool), type="l", col="white", lwd=4)</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># panel.points(x=0:20, y=dNBI(0:20, mu=lambda_p, sigma=1/set_nu), </span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>    <span class="co">#              type="l", col="white", lwd=4)</span></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(<span class="at">x=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">20</span>, <span class="at">y=</span><span class="fu">dNBI</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">20</span>, <span class="at">mu=</span>lambda_p, <span class="at">sigma=</span><span class="dv">1</span><span class="sc">/</span>set_nu), </span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>                 <span class="at">type=</span><span class="st">"l"</span>, <span class="at">col=</span><span class="st">"white"</span>, <span class="at">lwd=</span><span class="dv">2</span>)</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(<span class="at">x=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">20</span>, <span class="at">y=</span><span class="fu">colMeans</span>(poisson_pool), <span class="at">type=</span><span class="st">"l"</span>, <span class="at">col=</span><span class="dv">1</span>, <span class="at">lty=</span><span class="st">"22"</span>, <span class="at">lineend=</span><span class="st">"butt"</span>)</span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1, <span class="at">position=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,.<span class="dv">95</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+
+<div class="no-row-height column-margin column-container"><div class="cell-output-display">
+<div id="fig-simulation-NB" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="index_files/figure-html/fig-simulation-NB-1.png" class="img-fluid figure-img" width="240"></p>
+<figcaption class="figure-caption">Figure&nbsp;6: Graphical derivation of the NB2 distribution: The blue curve shows the approximation based on averaging over 1,000 Poisson distributions whose means are random draws from a gamma distribution with <span class="math inline">\(\small{\phi^{-1}}\)</span> = 0.25. The red curve shows the actual negative binomial distribution with <span class="math inline">\(\small{\phi^{-1}}\)</span> = 0.25.</figcaption>
+</figure>
+</div>
+</div></div></div>
+<ol type="1">
+<li>Set the overall mean to 7, and the negative binomial dispersion parameter (here: the scale parameter) <span class="math inline">\(\phi^{-1}\)</span> to 0.5 (which is close to the value obtained for <em>which</em> in the Brown Corpus).</li>
+<li>Take 1,000 random draws from a gamma distribution defined by <span class="math inline">\(\mu\)</span> = 1 and <span class="math inline">\(\phi^{-1}\)</span> = 0.5. We refer to these draws as <span class="math inline">\(\delta\)</span> scores. The average of these scores is 1.</li>
+<li>Multiply 7 by these 1,000 <span class="math inline">\(\delta\)</span> scores. This produces 1,000 Poisson means, and hence 1,000 Poisson distributions.</li>
+<li>Graph these 1,000 Poisson distributions as pearl necklaces, adding transparency to avoid a cluttered display.</li>
+<li>Determine the average probability for each count (0, 1, 2, etc.) by averaging over the 1,000 Poisson probabilities for each specific count. These averages should then resemble a negative binomial distribution with <span class="math inline">\(\mu\)</span> = 7 and <span class="math inline">\(\phi^{-1}\)</span> = 0.5.</li>
+</ol>
+<p>Figure <a href="#fig-simulation-NB">Figure&nbsp;6</a> shows the result of this simulation: The actual negative binomial distribution for these data is shown as a white trace, and the results of our simulation, i.e.&nbsp;average probability across the 1,000 simulated Poisson distributions, is shown as a dashed profile. The match is pretty good.</p>
+</section>
+<section id="different-parameterizations-of-the-negative-binomial-distribution" class="level4">
+<h4 class="anchored" data-anchor-id="different-parameterizations-of-the-negative-binomial-distribution">Different parameterizations of the negative binomial distribution</h4>
+<p>One complication that arises when working with the negative binomial distribution is the fact that it can be written down in two ways. These different parameterizations have consequences for our interpretation of the negative binomial dispersion parameter returned by an analysis. This means that if we are interested in the dispersion parameter, we must know which parameterization our analysis is using. For an overview of which R packages/functions rely on which version of the negative binomial distribution, see <a href="https://lsoenning.github.io/posts/2023-12-13_negative_binomial_parameterization/">this blog post</a></p>
 
 
+</section>
 
 <div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{sönning2023,
   author = {Sönning, Lukas},
-  title = {The Negative Binomial Distribution: {A} Graphical
-    Explanation},
-  date = {2023-11-17},
+  title = {The Negative Binomial Distribution: {A} Visual Explanation},
+  date = {2023-12-12},
   url = {https://lsoenning.github.io/posts/2023-11-16_negative_binomial/},
   langid = {en}
 }
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-sönning2023" class="csl-entry quarto-appendix-citeas" role="listitem">
 Sönning, Lukas. 2023. <span>“The Negative Binomial Distribution: A
-Graphical Explanation.”</span> November 17, 2023. <a href="https://lsoenning.github.io/posts/2023-11-16_negative_binomial/">https://lsoenning.github.io/posts/2023-11-16_negative_binomial/</a>.
+Visual Explanation.”</span> December 12, 2023. <a href="https://lsoenning.github.io/posts/2023-11-16_negative_binomial/">https://lsoenning.github.io/posts/2023-11-16_negative_binomial/</a>.
 </div></div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
