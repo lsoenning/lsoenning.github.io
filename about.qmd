@@ -34,12 +34,12 @@ University courses
 
 Workshops
 
-- 2023 (META-LING conference, Bamberg) *Data publication using TROLLing* {{< ai osf >}} [OSF](https://osf.io/j38b2/)
-- 2023 (University of Würzburg) *Basics of data analysis using R and RStudio* {{< ai osf >}} [OSF](https://osf.io/j43v9/) \| [slides part 1](resources_pages/slides_part_1.html){target="_blank"} \| [slides part 3](resources_pages/slides_part_3.html){target="_blank"}
-- 2022 (University of Würzburg) *Basic statistical methods for TEFL research* {{< ai osf >}} [OSF](https://osf.io/v37pw/)
-- 2019 (FJUEL conference, Bayreuth): *Using "statistics" to learn about language: What matters (and what doesn't)* {{< ai osf >}} [OSF](https://osf.io/jafbz/)
-- 2019 (BICLCE conference, Bamberg): *The replication crisis in science: Challenges and chances for linguistics* {{< ai osf >}} [OSF](https://osf.io/dhbce/)
-- 2018 (Uppsala University, Sweden) *Statistical inference using estimation: Methods for corpus linguistics* [slides](https://osf.io/qrv5k)
+- 2023 (META-LING conference, Bamberg) *Data publication using TROLLing* {{< ai osf >}} [OSF](https://osf.io/j38b2/){target="_blank"} 
+- 2023 (University of Würzburg) *Basics of data analysis using R and RStudio* {{< ai osf >}} [OSF](https://osf.io/j43v9/){target="_blank"}  \| [slides part 1](resources_pages/slides_part_1.html){target="_blank"} \| [slides part 3](resources_pages/slides_part_3.html){target="_blank"}
+- 2022 (University of Würzburg) *Basic statistical methods for TEFL research* {{< ai osf >}} [OSF](https://osf.io/v37pw/){target="_blank"} 
+- 2019 (FJUEL conference, Bayreuth): *Using "statistics" to learn about language: What matters (and what doesn't)* {{< ai osf >}} [OSF](https://osf.io/jafbz/){target="_blank"} 
+- 2019 (BICLCE conference, Bamberg): *The replication crisis in science: Challenges and chances for linguistics* {{< ai osf >}} [OSF](https://osf.io/dhbce/){target="_blank"} 
+- 2018 (Uppsala University, Sweden) *Statistical inference using estimation: Methods for corpus linguistics* [slides](https://osf.io/qrv5k){target="_blank"} 
 - 2014 (EmMeth conference, Bamberg): *Data visualization with R*
 - 2014 (FJUEL conference, Bamberg): *Workshop on statistical methods*
 

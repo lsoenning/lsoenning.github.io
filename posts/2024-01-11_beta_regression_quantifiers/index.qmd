@@ -1,0 +1,398 @@
+---
+title: "Modeling the interpretation of quantifiers using beta regression"
+description: "This blog post shows how to use beta regression to model the proportional interpretation of the quantifiers *few*, *some*, *many*, and *most*."
+date: 2024-01-11
+categories: [beta regression, regression, distributional modeling]
+citation: 
+  url: https://lsoenning.github.io/posts/2024-01-11_beta_regression_quantifiers/
+editor: source
+draft: true
+---
+
+```{r}
+#| code-fold: true
+#| code-summary: "R setup"
+#| message: false
+#| warning: false
+
+library(tidyverse)
+library(betareg)
+library(lattice)
+
+source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
+```
+
+A long-term project The BSLVC is a large-scale survey on the use of various lexical and grammatical structures in different varieties of English. In what follows, we will use data from the grammar part of the questionnaire (see Web Appendix 2 for an illustration), which asks respondents to indicate, on a 6-point rating scale, how prevalent a specific feature is in their home country or region. Ratings are elicited for two usage contexts, speech and writing, and each sentence is therefore presented in two modes (auditorily and in writing). Participants are asked to give an estimate of how many speakers in their home country use this kind of structure. The ordinal response scale is fully verbalized and consists of the following sequence of labels: no-one, few, some, many, most, everyone. 
+
+#### Experimental work on the perception of quantifiers
+
+The meaning of the quantifiers *few*, *some*, *many*, and *most* can be expressed as a relative frequency, e.g. as a proportion (ranging between 0 and 1). A few studies have looked at how speakers interpret these expressions [@Newstead_etal1987; @Borges_Sawyers1974; @Stateva_etal2019; @vanTiel_etal2021]. Proportional estimates for the quantifiers few, some, many, and most appear in @fig-quantifiers-literature. For more information on the corresponding studies, please refer to [@Soenning2024]. 
+
+While estimates for the individual items show some variation across studies (and experiments within studies), they allow us to roughly pin down the quantitative meaning of the expression. If we take a weighted average across the studies, where the weight of the individual percentages is proportional to the number of subjects, we obtain the following means: 
+
+- *few* (10%)
+- *some* (27%)
+- *many* (67%)
+- *most* (83%)
+
+```{r}
+#| code-fold: true
+#| code-summary: "Draw Figure 1"
+#| message: false
+#| warning: false
+
+d <- readxl::read_xlsx("C:/Users/ba4rh5/Work Folders/My Files/R projects/_lsoenning.github.io/posts/2024-01-11_beta_regression_quantifiers/data/quantifier_survey.xlsx")
+
+p1 <- d |> ggplot(aes(x=percentage)) +
+  geom_dotplot(method="histodot", binwidth = 2, dotsize = .95, stackratio = 1.2) + 
+  facet_grid(reorder(verbal_label, -percentage, median) ~ ., switch="both") +
+  xlab("Percentage") +
+  coord_cartesian(clip = "off") +
+  scale_y_continuous(expand = c(.1,.05)) +
+  scale_x_continuous(limits=c(0,100), expand=c(0,0), breaks = c(0,20,40,60,80,100),
+                     labels=c("0", "20", "40", "60", "80", "100  ")) +
+  theme_dotplot() +
+  theme(strip.clip = "off",
+        strip.text = element_text(face="italic"),
+        axis.line.x = element_line(color="transparent"),
+        panel.border = element_rect(color="grey", fill = "transparent", linewidth = .4),
+        panel.grid.major.x = element_line(color="grey", linewidth = .4),
+        panel.grid.minor.x = element_line(color="lightgrey", linewidth = .2),
+        panel.spacing = unit(0, "lines"))
+```
+
+```{r fig.height=1.3, fig.width=2.5}
+#| label: fig-quantifiers-literature
+#| echo: false
+#| fig-cap: "Literature summary: The perception of quantifiers, expressed as a percentage."
+#| fig-height: 1.3
+#| fig-width: 2.5
+
+p1
+```
+
+
+#### Data
+
+I collected additional data on the perception of these quantifiers, using as participants university students and colleagues that took part in the English Linguistics research seminar in the winter term of 2023. I obtained data from 20 individuals (around 2/3 being students) by handing out paper slips with the following instructions:
+
+![Survey task](survey_task.png){width=70%}
+
+Participants were given two minutes to complete the task. I then colected the paper sheets and later entered the data into a spreadsheet:
+
+```{r}
+dat <- readxl::read_xlsx("C:/Users/ba4rh5/Work Folders/My Files/R projects/_lsoenning.github.io/posts/2024-01-11_beta_regression_quantifiers/data/data_quantifiers.xlsx")
+dat
+```
+Our first step is to rearrange these data (from wide to long format) and to translate percentages into proportions, as this is the scale on which beta regression operates:
+
+```{r}
+d <- dat |> 
+  gather(
+    few:most, 
+    key = quantifier, 
+    value = percentage) |> 
+  mutate(
+    proportion = percentage/100
+  ) 
+```
+
+We start by looking at the distribution of our ratings:
+
+```{r fig.height=2.5, fig.width=2.2}
+#| code-fold: true
+#| code-summary: "Draw Figure 2"
+#| message: false
+#| warning: false
+
+p2 <- d |> 
+  ggplot(aes(x=proportion)) +
+  geom_dotplot(method = "histodot", binwidth = .025, dotsize = 1.2) +
+  facet_wrap(reorder(quantifier, -proportion) ~ ., 
+             ncol=1, scales="free", strip.position = "right") +
+  scale_x_continuous(limits=c(0,1), breaks=c(0, .25, .5, .75, 1), 
+                     expand=c(0,0), labels=c("0", "", ".50", "", "1")) +
+  xlab("Proportion") +
+  theme_dotplot() +
+  coord_cartesian(clip = 'off') +
+  theme(strip.text = element_text(face = "italic"))
+```
+
+```{r fig.height=2.25, fig.width=2.2}
+#| label: fig-quantifiers-survey
+#| echo: false
+#| fig-cap: "Ratings collected by 20 informants."
+#| fig-height: 1.3
+#| fig-width: 2.5
+
+cowplot::plot_grid(NULL, p2, ncol=1, rel_heights=c(1,12))
+```
+
+#### Beta regression
+
+For background on the beta distribution and beta regression, please refer to [this excellent blog post](https://www.andrewheiss.com/blog/2021/11/08/beta-regression-guide/) [@Heiss2021].
+
+
+```{r}
+m <- betareg(
+  proportion ~ -1 + quantifier | -1 + quantifier, 
+  data = d, 
+  link = "logit")
+
+summary(m)
+
+```
+
+```{r}
+est_mu <- plogis(coef(m)[1:4])
+est_phi <- exp(coef(m)[5:8])
+
+ci_mu <- plogis(confint(m)[1:4,])
+
+# est_mu <- plogis(coef(m)[1:4] %*% t(cbind(1, contr.treatment(4))))
+# est_phi <- exp(coef(m)[5:8] %*% t(cbind(1, contr.treatment(4))))
+```
+
+
+
+```{r}
+muphi_to_shapes <- function(mu, phi) {
+  shape1 <- mu * phi
+  shape2 <- (1 - mu) * phi
+  return(list(shape1 = shape1, shape2 = shape2))
+}
+```
+
+```{r}
+est_shape1 <- muphi_to_shapes(est_mu, est_phi)$shape1
+est_shape2 <- muphi_to_shapes(est_mu, est_phi)$shape2
+```
+
+```{r fig.height=2, fig.width=3.5}
+p1 <- xyplot(
+  1~1, type="n", xlim=c(0,1), ylim=c(0, 16),
+  par.settings=my_settings, axis=axis_bottom,
+  scales=list(x=list(at=c(0,.2,.4,.6,.8,1),
+                     labels=c("0","20","40","60","80","100  "))),
+  xlab="Estimated percentage", ylab="Density               ",
+  panel=function(x,y){
+    panel.polygon(x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
+                  y = c(dbeta(seq(0,1,length=100), shape1 = est_shape1[1], shape2 = est_shape2[1]),
+                        rep(0, 100)),
+                  col=1, alpha=.1)
+    panel.polygon(x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
+                  y = c(dbeta(seq(0,1,length=100), shape1 = est_shape1[2], shape2 = est_shape2[2]),
+                        rep(0, 100)),
+                  col=1, alpha=.1)
+    panel.polygon(x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
+                  y = c(dbeta(seq(0,1,length=100), shape1 = est_shape1[3], shape2 = est_shape2[3]),
+                        rep(0, 100)),
+                  col=1, alpha=.1)
+    panel.polygon(x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
+                  y = c(dbeta(seq(0,1,length=100), shape1 = est_shape1[4], shape2 = est_shape2[4]),
+                        rep(0, 100)),
+                  col=1, alpha=.1)
+    panel.points(
+      x = seq(0,1,length=100),
+      y = dbeta(seq(0,1,length=100), shape1 = est_shape1[1], shape2 = est_shape2[1]),
+      type="l")
+    panel.points(
+      x = seq(0,1,length=100),
+      y = dbeta(seq(0,1,length=100), shape1 = est_shape1[2], shape2 = est_shape2[2]),
+      type="l")
+    panel.points(
+      x = seq(0,1,length=100),
+      y = dbeta(seq(0,1,length=100), shape1 = est_shape1[3], shape2 = est_shape2[3]),
+      type="l")
+    panel.points(
+      x = seq(0,1,length=100),
+      y = dbeta(seq(0,1,length=100), shape1 = est_shape1[4], shape2 = est_shape2[4]),
+      type="l")
+    panel.points(x=est_mu, y=13, pch=19, cex=1.25)
+    panel.arrows(x0=ci_mu[,1], x1=ci_mu[,2], y0=13, y1=13, code=3, angle=90, length=.02)
+    panel.text(x=est_mu, y=11, label=paste0(round(est_mu*100), "%"))
+    panel.text(x=est_mu, y=15.5, label=c("few", "many", "most", "some"), font=3)
+    })
+
+p1
+```
+
+
+
+#### Bayesian model
+
+
+```{r}
+library(brms)
+
+m_b <- brm(
+  bf(proportion ~ -1 + quantifier,
+     phi ~ -1 + quantifier),
+  data = d,
+  family = Beta(),
+  chains = 4, iter = 2000, warmup = 1000, cores = 4,
+  backend = "cmdstanr",
+  file = "C:/Users/ba4rh5/Work Folders/My Files/R projects/_lsoenning.github.io/posts/2024-01-11_beta_regression_quantifiers/m_b"
+)
+```
+
+```{r}
+m_b2 <- brm(
+  bf(proportion ~ -1 + quantifier + (1|subject),
+     phi ~ -1 + quantifier),
+  data = d,
+  family = Beta(),
+  chains = 4, iter = 2000, warmup = 1000, cores = 4,
+  backend = "cmdstanr",
+  file = "C:/Users/ba4rh5/Work Folders/My Files/R projects/_lsoenning.github.io/posts/2024-01-11_beta_regression_quantifiers/m_b2"
+)
+```
+
+
+```{r}
+muphi_to_shapes <- function(mu, phi) {
+  shape1 <- mu * phi
+  shape2 <- (1 - mu) * phi
+  return(list(shape1 = shape1, shape2 = shape2))
+}
+```
+
+No random intercepts
+
+```{r}
+est_mu <- plogis(fixef(m_b)[1:4,1])
+est_phi <- exp(fixef(m_b)[5:8,1])
+
+ci_mu <- plogis(fixef(m_b)[1:4,3:4])
+
+# est_mu <- plogis(coef(m)[1:4] %*% t(cbind(1, contr.treatment(4))))
+# est_phi <- exp(coef(m)[5:8] %*% t(cbind(1, contr.treatment(4))))
+```
+
+
+```{r}
+est_shape1 <- muphi_to_shapes(est_mu, est_phi)$shape1
+est_shape2 <- muphi_to_shapes(est_mu, est_phi)$shape2
+```
+
+```{r fig.height=2, fig.width=3.5}
+p1 <- xyplot(
+  1~1, type="n", xlim=c(0,1), ylim=c(0, 16),
+  par.settings=my_settings, axis=axis_bottom,
+  scales=list(x=list(at=c(0,.2,.4,.6,.8,1),
+                     labels=c("0","20","40","60","80","100  "))),
+  xlab="Estimated percentage", ylab="Density               ",
+  panel=function(x,y){
+    panel.polygon(x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
+                  y = c(dbeta(seq(0,1,length=100), shape1 = est_shape1[1], shape2 = est_shape2[1]),
+                        rep(0, 100)),
+                  col=1, alpha=.1)
+    panel.polygon(x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
+                  y = c(dbeta(seq(0,1,length=100), shape1 = est_shape1[2], shape2 = est_shape2[2]),
+                        rep(0, 100)),
+                  col=1, alpha=.1)
+    panel.polygon(x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
+                  y = c(dbeta(seq(0,1,length=100), shape1 = est_shape1[3], shape2 = est_shape2[3]),
+                        rep(0, 100)),
+                  col=1, alpha=.1)
+    panel.polygon(x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
+                  y = c(dbeta(seq(0,1,length=100), shape1 = est_shape1[4], shape2 = est_shape2[4]),
+                        rep(0, 100)),
+                  col=1, alpha=.1)
+    panel.points(
+      x = seq(0,1,length=100),
+      y = dbeta(seq(0,1,length=100), shape1 = est_shape1[1], shape2 = est_shape2[1]),
+      type="l")
+    panel.points(
+      x = seq(0,1,length=100),
+      y = dbeta(seq(0,1,length=100), shape1 = est_shape1[2], shape2 = est_shape2[2]),
+      type="l")
+    panel.points(
+      x = seq(0,1,length=100),
+      y = dbeta(seq(0,1,length=100), shape1 = est_shape1[3], shape2 = est_shape2[3]),
+      type="l")
+    panel.points(
+      x = seq(0,1,length=100),
+      y = dbeta(seq(0,1,length=100), shape1 = est_shape1[4], shape2 = est_shape2[4]),
+      type="l")
+    panel.points(x=est_mu, y=13, pch=19, cex=1.25)
+    panel.arrows(x0=ci_mu[,1], x1=ci_mu[,2], y0=13, y1=13, code=3, angle=90, length=.02)
+    panel.text(x=est_mu, y=11, label=paste0(round(est_mu*100), "%"))
+    panel.text(x=est_mu, y=15.5, label=c("few", "many", "most", "some"), font=3)
+    })
+
+p1
+```
+
+
+With ranodom intercepts
+
+```{r}
+
+est_mu <- plogis(fixef(m_b2)[1:4,1])
+est_phi <- exp(fixef(m_b2)[5:8,1])
+
+ci_mu <- plogis(fixef(m_b2)[1:4,3:4])
+```
+
+```{r}
+est_shape1 <- muphi_to_shapes(est_mu, est_phi)$shape1
+est_shape2 <- muphi_to_shapes(est_mu, est_phi)$shape2
+```
+
+```{r fig.height=2, fig.width=3.5}
+p1 <- xyplot(
+  1~1, type="n", xlim=c(0,1), ylim=c(0, 16),
+  par.settings=my_settings, axis=axis_bottom,
+  scales=list(x=list(at=c(0,.2,.4,.6,.8,1),
+                     labels=c("0","20","40","60","80","100  "))),
+  xlab="Estimated percentage", ylab="Density               ",
+  panel=function(x,y){
+    panel.polygon(x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
+                  y = c(dbeta(seq(0,1,length=100), shape1 = est_shape1[1], shape2 = est_shape2[1]),
+                        rep(0, 100))*.6,
+                  col=1, alpha=.1)
+    panel.polygon(x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
+                  y = c(dbeta(seq(0,1,length=100), shape1 = est_shape1[2], shape2 = est_shape2[2]),
+                        rep(0, 100))*.6,
+                  col=1, alpha=.1)
+    panel.polygon(x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
+                  y = c(dbeta(seq(0,1,length=100), shape1 = est_shape1[3], shape2 = est_shape2[3]),
+                        rep(0, 100))*.6,
+                  col=1, alpha=.1)
+    panel.polygon(x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
+                  y = c(dbeta(seq(0,1,length=100), shape1 = est_shape1[4], shape2 = est_shape2[4]),
+                        rep(0, 100))*.6,
+                  col=1, alpha=.1)
+    panel.points(
+      x = seq(0,1,length=100),
+      y = dbeta(seq(0,1,length=100), shape1 = est_shape1[1], shape2 = est_shape2[1])*.6,
+      type="l")
+    panel.points(
+      x = seq(0,1,length=100),
+      y = dbeta(seq(0,1,length=100), shape1 = est_shape1[2], shape2 = est_shape2[2])*.6,
+      type="l")
+    panel.points(
+      x = seq(0,1,length=100),
+      y = dbeta(seq(0,1,length=100), shape1 = est_shape1[3], shape2 = est_shape2[3])*.6,
+      type="l")
+    panel.points(
+      x = seq(0,1,length=100),
+      y = dbeta(seq(0,1,length=100), shape1 = est_shape1[4], shape2 = est_shape2[4])*.6,
+      type="l")
+    panel.points(x=est_mu, y=13, pch=19, cex=1.25)
+    panel.arrows(x0=ci_mu[,1], x1=ci_mu[,2], y0=13, y1=13, code=3, angle=90, length=.02)
+    panel.text(x=est_mu, y=11, label=paste0(round(est_mu*100), "%"))
+    panel.text(x=est_mu, y=15.5, label=c("few", "many", "most", "some"), font=3)
+    })
+
+p1
+```
+
+
+
+
+
+
+
+

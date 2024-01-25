@@ -10,8 +10,8 @@ editor: source
 
 #### Post-doc in English linguistics at the University of Bamberg
 
--   [University of Bamberg](https://www.uni-bamberg.de/)
--   [Department of English Linguistics](https://www.uni-bamberg.de/eng-ling/)
+-   [University of Bamberg](https://www.uni-bamberg.de/){target="_blank"} 
+-   [Department of English Linguistics](https://www.uni-bamberg.de/eng-ling/){target="_blank"} 
 
 
 #### Contact
@@ -20,14 +20,15 @@ editor: source
 -   Office: U9/01.11
 -   Phone: +49 (0)951/863-2267
 -   Email: lukas\[dot\]soenning\[at\]uni-bamberg\[dot\]de
--   {{< ai orcid >}} [ORCID](https://orcid.org/0000-0002-2705-395X) 0000-0002-2705-395X
--   {{< ai osf >}} [OSF](https://osf.io/zcsjd)
+-   {{< ai orcid >}} [ORCID](https://orcid.org/0000-0002-2705-395X){target="_blank"}  0000-0002-2705-395X
+-   {{< ai osf >}} [OSF](https://osf.io/zcsjd){target="_blank"} 
 
 #### Research interests
 
--   Statistical analysis of corpus data
+-   Statistical analysis of language data
+-   Corpus linguistics
 -   Language variation and change
--   Grammatical alternations
+-   Data visualization
 -   German Learner English
 -   L2 phonology
--   Data visualization
+

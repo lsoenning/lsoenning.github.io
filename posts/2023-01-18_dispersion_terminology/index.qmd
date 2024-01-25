@@ -110,6 +110,7 @@ Note how each corpus is divided into 8 texts, which are shown in @fig-1 using gr
 #| fig-width: 3.5
 #| code-fold: true
 #| code-summary: "R code: Figure 2"
+#| classes: preview-image
 
 xyplot(
   1~1, type="n", xlim=c(-1,7.5), ylim=c(-.35,2.3),
