@@ -1,12 +1,12 @@
 ---
 title: "Modeling the interpretation of quantifiers using beta regression"
-description: "This blog post shows how to use beta regression to model the proportional interpretation of the quantifiers *few*, *some*, *many*, and *most*."
-date: 2024-01-11
+description: "This blog post shows how to use beta regression to model the proportional interpretation of the quantifiers *few*, *some*, *many*, and *most*. We consider variable-dispersion and mixed-effects structures as well as diagnostics for frequentist and Bayesian models."
+date: 2024-02-29
 categories: [beta regression, regression, distributional modeling]
 citation: 
   url: https://lsoenning.github.io/posts/2024-01-11_beta_regression_quantifiers/
 editor: source
-draft: true
+draft: false
 ---
 
 ```{r}
@@ -18,39 +18,52 @@ draft: true
 library(tidyverse)
 library(betareg)
 library(lattice)
+library(brms)
+library(knitr)
+library(tidybayes)
+library(kableExtra)
+library(sjPlot)
+library(lmtest)
 
 source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
+
+directory_path <- "C:/Users/ba4rh5/Work Folders/My Files/R projects/_lsoenning.github.io/posts/2024-01-11_beta_regression_quantifiers/"
+
 ```
 
-A long-term project The BSLVC is a large-scale survey on the use of various lexical and grammatical structures in different varieties of English. In what follows, we will use data from the grammar part of the questionnaire (see Web Appendix 2 for an illustration), which asks respondents to indicate, on a 6-point rating scale, how prevalent a specific feature is in their home country or region. Ratings are elicited for two usage contexts, speech and writing, and each sentence is therefore presented in two modes (auditorily and in writing). Participants are asked to give an estimate of how many speakers in their home country use this kind of structure. The ordinal response scale is fully verbalized and consists of the following sequence of labels: no-one, few, some, many, most, everyone. 
+The purpose of this blog post is to show how to model proportions using beta regression. This procedure is particularly suitable for outcome variables that assume values in the interval (0, 1) -- but excluding 0 and 1 --, and which do not summarize underlying raw counts (e.g. .30 for 3 out of 10 "successes"), in which case they could be handled using logistic regression. Examples are proportions, rates, and other indices such as corpus-linguistic dispersion measures. 
+
+Our illustrative data represent such a fractional variable: How speakers interpret the quantifiers *few*, *some*, *many*, and *most* on the percentage (or proportion) scale. *Few*, for instance, may be understood as referring to about 10% of the total. A critical feature of our data is that they do not include proportions of 0 and 1. And this is in fact a requirement of beta regression, which does not work if the outcome includes values of 0 and/or 1.
+
+We will start by introducing our illustrative data, and then model them using different beta regression models.
+
+
+#### Linguistic research context
+
+The need to model the perception of quantifiers arose in the context of the *Bamberg Survey of Language Variation and Change* [see @Krug_Sell2013], a large-scale survey on the use of various lexical and grammatical structures in varieties of English. The grammar part of the questionnaire is designed to permit estimates of the prevalence of a broad variety of (morpho-)syntactic features in two registers (speech vs. writing). To this end, respondents are asked to indicate, on a 6-point scale, how prevalent a specific feature is in their home country or region. Each sentence is presented in two modes (auditorily and in writing) and participants indicate how many speakers use this kind of structure by choosing from the following options: *no-one*, *few*, *some*, *many*, *most*, *everyone.* 
+
+The analysis and interpretation of these data can profit from the fact that these quantifiers can be understood as relative frequencies. When analyzing the data, we can assign sensible numeric scores to the ordered categories and then interpret the resulting quantities as approximate estimates of the prevalence of a specific feature. For more background on this approach and its measurement-theoretic and statistical drawbacks see @Soenning2024.
+
 
 #### Experimental work on the perception of quantifiers
 
-The meaning of the quantifiers *few*, *some*, *many*, and *most* can be expressed as a relative frequency, e.g. as a proportion (ranging between 0 and 1). A few studies have looked at how speakers interpret these expressions [@Newstead_etal1987; @Borges_Sawyers1974; @Stateva_etal2019; @vanTiel_etal2021]. Proportional estimates for the quantifiers few, some, many, and most appear in @fig-quantifiers-literature. For more information on the corresponding studies, please refer to [@Soenning2024]. 
-
-While estimates for the individual items show some variation across studies (and experiments within studies), they allow us to roughly pin down the quantitative meaning of the expression. If we take a weighted average across the studies, where the weight of the individual percentages is proportional to the number of subjects, we obtain the following means: 
-
-- *few* (10%)
-- *some* (27%)
-- *many* (67%)
-- *most* (83%)
+A few studies have looked at how speakers interpret the quantifiers *few*, *some*, *many*, and *most* [@Newstead_etal1987; @Borges_Sawyers1974; @Stateva_etal2019; @vanTiel_etal2021]. Proportional estimates from the literature are collected in @fig-quantifiers-literature. For more information on the corresponding studies, please refer to @Soenning2024.
 
 ```{r}
-#| code-fold: true
-#| code-summary: "Draw Figure 1"
+#| echo: false
 #| message: false
 #| warning: false
 
-d <- readxl::read_xlsx("C:/Users/ba4rh5/Work Folders/My Files/R projects/_lsoenning.github.io/posts/2024-01-11_beta_regression_quantifiers/data/quantifier_survey.xlsx")
+d_survey <- readxl::read_xlsx(paste0(directory_path, "data/quantifier_survey.xlsx"))
 
-p1 <- d |> ggplot(aes(x=percentage)) +
-  geom_dotplot(method="histodot", binwidth = 2, dotsize = .95, stackratio = 1.2) + 
+p1 <- d_survey |> ggplot(aes(x=percentage/100)) +
+  geom_dotplot(method="histodot", binwidth = .02, dotsize = .95, stackratio = 1.2) + 
   facet_grid(reorder(verbal_label, -percentage, median) ~ ., switch="both") +
-  xlab("Percentage") +
+  xlab("Proportion") +
   coord_cartesian(clip = "off") +
   scale_y_continuous(expand = c(.1,.05)) +
-  scale_x_continuous(limits=c(0,100), expand=c(0,0), breaks = c(0,20,40,60,80,100),
-                     labels=c("0", "20", "40", "60", "80", "100  ")) +
+  scale_x_continuous(limits=c(0,1), expand=c(0,0), breaks = c(0,.2, .4, .6, .8, 1),
+                     labels=c("0", ".20", ".40", ".60", ".80", "1")) +
   theme_dotplot() +
   theme(strip.clip = "off",
         strip.text = element_text(face="italic"),
@@ -61,30 +74,48 @@ p1 <- d |> ggplot(aes(x=percentage)) +
         panel.spacing = unit(0, "lines"))
 ```
 
-```{r fig.height=1.3, fig.width=2.5}
+```{r}
 #| label: fig-quantifiers-literature
 #| echo: false
 #| fig-cap: "Literature summary: The perception of quantifiers, expressed as a percentage."
 #| fig-height: 1.3
 #| fig-width: 2.5
+#| column: margin
 
 p1
 ```
 
+While estimates for the individual items show some variation across studies (and experiments within studies), they allow us to roughly pin down the quantitative meaning of these expressions. If we take a weighted average across the studies, where the weight of the individual percentages is proportional to the number of subjects, we obtain the following means: 
 
-#### Data
+- *few* (.11, or 11%)
+- *some* (.27, or 27%)
+- *many* (.67, or 67%)
+- *most* (.83, or 83%)
 
-I collected additional data on the perception of these quantifiers, using as participants university students and colleagues that took part in the English Linguistics research seminar in the winter term of 2023. I obtained data from 20 individuals (around 2/3 being students) by handing out paper slips with the following instructions:
 
-![Survey task](survey_task.png){width=70%}
 
-Participants were given two minutes to complete the task. I then colected the paper sheets and later entered the data into a spreadsheet:
+#### Illustrative data: The perception of quantifiers
+
+I collected additional data on the perception of these expressions, using as participants university students and colleagues that took part in the English Linguistics research seminar at the University of Bamberg in the winter term of 2023. I obtained data from 20 individuals (around 2/3 being students) by handing out paper slips with the following instructions:
+
+![Survey task: Paper slips with instructions used for data collection](survey_task.png){width=60%}
+
+Participants were given two minutes to complete the task. I then collected the paper sheets and (later) entered the data into a spreadsheet (in wide format):
 
 ```{r}
-dat <- readxl::read_xlsx("C:/Users/ba4rh5/Work Folders/My Files/R projects/_lsoenning.github.io/posts/2024-01-11_beta_regression_quantifiers/data/data_quantifiers.xlsx")
-dat
+dat <- readxl::read_xlsx(paste0(directory_path, "data/data_quantifiers.xlsx"))
 ```
-Our first step is to rearrange these data (from wide to long format) and to translate percentages into proportions, as this is the scale on which beta regression operates:
+
+```{r}
+#| echo: false
+
+kable(dat) |>  
+ scroll_box(width = "500px", height = "200px")
+```
+
+\  
+ 
+Our first step is to rearrange these data from wide to long form, and to translate percentages into proportions, as this is the scale on which beta regression operates. We also change the order of the quantifiers (from the default alphabetical arrangement) based on the relative frequency they express (see @fig-quantifiers-literature). 
 
 ```{r}
 d <- dat |> 
@@ -95,19 +126,21 @@ d <- dat |>
   mutate(
     proportion = percentage/100
   ) 
+
+d$quantifier <- factor(
+  d$quantifier, 
+  levels = c("few", "some", "many", "most"),
+  ordered = TRUE)
 ```
 
-We start by looking at the distribution of our ratings:
-
-```{r fig.height=2.5, fig.width=2.2}
-#| code-fold: true
-#| code-summary: "Draw Figure 2"
+```{r}
 #| message: false
 #| warning: false
+#| echo: false
 
 p2 <- d |> 
   ggplot(aes(x=proportion)) +
-  geom_dotplot(method = "histodot", binwidth = .025, dotsize = 1.2) +
+  geom_dotplot(method = "histodot", binwidth = .025, dotsize = 1) +
   facet_wrap(reorder(quantifier, -proportion) ~ ., 
              ncol=1, scales="free", strip.position = "right") +
   scale_x_continuous(limits=c(0,1), breaks=c(0, .25, .5, .75, 1), 
@@ -115,284 +148,1248 @@ p2 <- d |>
   xlab("Proportion") +
   theme_dotplot() +
   coord_cartesian(clip = 'off') +
-  theme(strip.text = element_text(face = "italic"))
+  theme(strip.text = element_text(face = "italic", size=10))
 ```
 
-```{r fig.height=2.25, fig.width=2.2}
+```{r}
 #| label: fig-quantifiers-survey
 #| echo: false
-#| fig-cap: "Ratings collected by 20 informants."
-#| fig-height: 1.3
-#| fig-width: 2.5
+#| fig-cap: "Ratings collected from 20 informants."
+#| fig-height: 2.3
+#| fig-width: 2.3
+#| column: margin
 
 cowplot::plot_grid(NULL, p2, ncol=1, rel_heights=c(1,12))
 ```
+Let us start by looking at the distribution of the responses for each quantifier using a dot diagram. @fig-quantifiers-survey shows that there is some variation among subjects with regard to the perceived meaning of these expressions. For *many* and *most*, in particular, there is one unusually low estimate.
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+p1 <- d |> 
+  ggplot(aes(y=proportion, x=quantifier, group=subject)) +
+  geom_point(size=1, alpha=.5) +
+  geom_line(alpha=.5) +
+  scale_y_continuous(limits=c(0,1), breaks=c(0, .25, .5, .75, 1), 
+                     expand=c(0,0), labels=c("0", "", ".50", "", "1")) +
+  scale_x_discrete(expand=c(.03,.03)) +
+  ylab("Proportion") +
+  theme_light()
+```
+
+```{r}
+#| label: fig-quantifiers-survey-lineplot
+#| echo: false
+#| fig-cap: "Line plot linking the ratings provided by the same informant."
+#| fig-height: 2.3
+#| fig-width: 2.3
+#| column: margin
+
+p1
+```
+
+To check whether these outliers are responses from the same individual, we look at the data using a line plot that links observations from the same subject. In @fig-quantifiers-survey-lineplot, each profile represent a subject. The two unusually low responses for *many* and *most* are indeed due to the same individual, who also provided relatively (though not unusually) low ratings for *few* and *some*.
+
+Apart from the fact that this respondent provides relatively low estimates for all quantifiers, there is no immediate reason why their data should be excluded from the analysis. We will therefore start by using the full data set and then rely on model diagnostics to see whether the data and model suggest that this informant be excluded from the analysis.
+
 
 #### Beta regression
 
-For background on the beta distribution and beta regression, please refer to [this excellent blog post](https://www.andrewheiss.com/blog/2021/11/08/beta-regression-guide/) [@Heiss2021].
+We now look at how to use beta regression to model these data. First, however, let us be clear about the purpose of our analysis -- i.e. the kind of information we wish to extract from the data. Our goals are descriptive and we will use beta regression to summarize the data. The following quantitative features of the data will be of interest: 
 
+(i) Averaging over the speakers in our sample, what is the typical proportional interpretation of each quantifier?
+(ii) Seeing that we are dealing with a rather small sample of speakers, what is the statistical uncertainty surrounding these typical values?
+(iii) How much do speakers vary in their interpretation of the individual expressions, i.e. how dispersed are their perceptions around the typical interpretation?
+
+Beta regression can address these questions by providing (i) typical values (average proportions) for each quantifier (e.g. .12, or 12%, for *few*), (ii) a confidence (or posterior) interval for these estimates (e.g. 95% CI [.10; .14]), and (iii) a distributional summary of the dot diagrams we saw in @fig-quantifiers-survey. To this end, the beta distribution serves as an abstraction of the observed distribution of responses and it allows us to make statements about, say, the share of speakers who interpret *few* as denoting a relative frequency of .05 or less. This kind of information is essential when we are interested in the stability (or consistency) of interpretations across speakers.
+
+Our main focus will be on how to run beta regression using R. We therefore only include a few essentials on the beta distribution and beta regression; for more background on both, please refer to [this excellent blog post](https://www.andrewheiss.com/blog/2021/11/08/beta-regression-guide/) [@Heiss2021a].
+
+
+#### The beta distribution
+
+The beta distribution is a probability distribution bounded between (but excluding) 0 and 1. It is defined by two **shape parameters**, $a$ and $b$. @fig-beta-a-b shows two beta distributions with the same mean but different spreads. Note how, for each distribution, $a$ is .30 (or 30%) of the sum of $a$ and $b$. In fact, $a/(a+b)$ denotes the mean of the distribution. Further, we note that the spread of the distribution is related to the sum of $a$ and $b$: The greater the sum, the "tighter", or more peaked, the beta distribution.
+
+```{r fig.height=2, fig.width=3.5}
+#| echo: false
+#| message: false
+#| warning: false
+
+p1 <- xyplot(
+  1~1, type="n", xlim=c(0,1), ylim=c(0, 11),
+  par.settings=my_settings, axis=axis_bottom,
+  scales=list(x=list(at=c(0,.2,.4,.6,.8,1),
+                     labels=c("0",".20",".40",".60",".80","1"))),
+  xlab="Proportion", ylab="Density               ",
+  panel=function(x,y){
+    panel.polygon(x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
+                  y = c(dbeta(seq(0,1,length=100), 
+                              shape1 = 3, 
+                              shape2 = 7),
+                        rep(0, 100)),
+                  col=1, alpha=.2)
+    
+    panel.polygon(x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
+                  y = c(dbeta(seq(0,1,length=100), 
+                              shape1 = 30, 
+                              shape2 = 70),
+                        rep(0, 100)),
+                  col=1, alpha=.2)
+    panel.points(
+      x = seq(0,1,length=100),
+      y = dbeta(seq(0,1,length=100), 
+                shape1 = 3,
+                shape2 = 7),
+      type="l")
+    
+    panel.points(
+      x = seq(0,1,length=100),
+      y = dbeta(seq(0,1,length=100), 
+                shape1 = 30,
+                shape2 = 70),
+      type="l")
+    panel.text(x=.5, y=2.5, label="Beta(a = 3, b = 7)", adj=0, col="grey30")
+    panel.text(x=.3, y=10, label="Beta(a = 30, b = 70)", col="grey30")
+    })
+
+```
+
+```{r fig.height=1.5, fig.width=3.5}
+#| label: fig-beta-a-b
+#| echo: false
+#| fig-cap: "The shape parameters $a$ and $b$ define the beta distribution."
+#| fig-height: 2
+#| fig-width: 3.5
+
+p1
+```
+
+As explained in much more detail by @Heiss2021a in his [blog post](https://www.andrewheiss.com/blog/2021/11/08/beta-regression-guide/), the beta distribution can alternatively be written down using its **mean** $\mu$ and **precision** $\phi$. We have already encountered the mean, which is $a/(a+b)$. The precision is simply $(a+b)$, and it is reflected in the spread of the distribution (see @fig-beta-a-b): The greater the precision, the tighter the distribution of proportions about their mean. We can go back and forth between the two parameterization of the beta distribution as follows:
+
+\begin{align}
+\mu &= a/(a+b) \\
+\phi &= a+b \\
+\\
+
+a &= \mu\phi \\
+b &= (1-\mu)\phi
+\end{align}
+
+
+We need to be able to switch between these parameterizations. The reason is that regression models work with $\mu$ and $\phi$. The parameter $\mu$ answers questions (i) and (ii). To be able to draw a beta distribution, however, and use it to summarize variation in the perception of a specific quantifier in a population of speakers, we need the shape parameters $a$ and $b$. We therefore use code provided by @Heiss2021a to write a function that allow us to switch from the $\mu$-$\phi$ to the $a$-$b$ parameterization:
 
 ```{r}
-m <- betareg(
-  proportion ~ -1 + quantifier | -1 + quantifier, 
+muphi_to_shapes <- function(mu, phi) {
+  shape1 <- mu * phi
+  shape2 <- (1 - mu) * phi
+  return(list(shape1 = shape1, shape2 = shape2))
+}
+```
+
+
+#### Overview of regression models
+
+We will run a series of regression models, which differ in structure. We will start with frequentist models, using the `{betareg}` package [@Cribari-Neto_Zeileis2010] and then move on to Bayesian regression with the `{brms}` package [@brms_package] to be able to incorporate by-subject random intercepts into our model. 
+
+The following table gives an overview of the series of models we are about to fit. Each model allows the outcome variable to vary by quantifier and therefore returns an estimate of $\mu$ for each expression. Model I assumes that quantifiers are interpreted with the same precision $\phi$, so it estimates only one $\phi$ parameter. This means that each quantifier has the same stability of interpretation in the populations of speakers represented by our sample. In contrast, Model II allows the precision to vary across quantifiers. This means that the model provides leeway for expressions to differ in the level of stability (or consistency) with which they are interpreted. A separate $\phi$ parameter is therefore estimated for each. This type of model has been referred to as a *variable dispersion beta regression model* [see @Cribari-Neto_Zeileis2010]. Finally, for Model III we will switch to the `{brms}` package (and Bayesian inference), to be able to include random effects into our model.
+
+```{r}
+#| code-fold: true
+#| echo: false
+#| message: false
+#| warning: false
+
+data.frame(
+  model = c("I", "II", "III"),
+  precision = c("Yes","No", "Yes"),
+  random_intercepts = c("No", "No", "Yes"),
+  package = c("betareg", "betareg", "brms")
+) |> kable(col.names = c("Model", "Constant precision", "Random intercepts", "Package"))
+```
+
+
+
+#### Model I
+
+We start with a frequentist model (using `{betareg}`) that allows $\mu$ to vary across quantifiers but assumes a constant precision $\phi$. We model $\mu$ on the log-odds (i.e. logit) scale. We also drop the intercept from the model to directly obtain logits for each quantifier:
+
+```{r}
+m1 <- betareg(
+  proportion ~ -1 + quantifier, 
   data = d, 
   link = "logit")
 
-summary(m)
+print(m1)
+```
 
+Before we turn to the estimates returned by the model, let's look at a number of diagnostic plots, which are shown in @fig-m1-diagnostics [see Chapter 6 in @Faraway2015 for more background]:
+
+(a) When graphing residuals against fitted values, we usually look for indications of heteroskedasticity, i.e. whether the spread of residuals increases with the fitted values. This is not the case for our data and model. However, the residuals surrounding the fitted values for *many* and *most* each include a large negative residual, i.e. a response that is unusually low for these quantifiers.
+(b) The quantile-quantile plot checks for normality of residuals. We have added a dot diagram at the right margin, which gives a more intuitive impression of the shape of the distribution and potential outliers. Both arrangements indicate that the residuals are negatively skewed (rather than normal), with two unusually large negative deviations.
+(c) Cook's distance expresses the influence individual observations have on the regression coefficients. There are are two data points that appear to be particularly influential (number 41 and 61).
+(d) Since the factor Subject is so far not included in the analysis, our model does not know about the fact that responses are clustered. This may induce non-independence and lead to correlated errors, because we would expect responses by the same subject to be similar. The graph shows residuals grouped by Subject. If responses were independent, the residuals should not correlate within the factor Subject. This means that residuals should not vary systematically across subjects. If correlated errors (and hence non-independence in the data) were indeed no concern, the 20 sets (of four residuals each) would look like they represent random draws from the dot diagram shown in panel (b). However, we observe that responses by the same subject in fact tend to be alike. Subjects 1, 4, and 11, for instance, have consistently negative residuals, indicating that they gave responses that were, overall, systematically lower compared to those of the other subjects.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Draw figure"
+#| message: false
+#| warning: false
+
+m_diagnostics <- d
+m_diagnostics$subj_index <- as.numeric(factor(d$subject))
+m_diagnostics$fitted <- qlogis(fitted(m1))
+m_diagnostics$residual <- residuals(m1, type = "sweighted2")
+m_diagnostics$leverage <- hatvalues(m1)
+m_diagnostics$cooks_distance <- cooks.distance(m1)
+
+p1 <- xyplot(residual ~ fitted, data=m_diagnostics,
+       axis=axis_L, par.settings=my_settings,
+       xlab="Fitted values (logit scale)",
+       ylab="Std. weighted residuals 2",
+       xlab.top="(a) Constant variance\n",
+       scales=list(x=list(at=c(-2,-1,0,1),
+                          labels=c("\u22122","\u22121","0","1")),
+                   y=list(at=c(-4,-2,0,2),
+                          labels=c("\u22124","\u22122","0","2"))),
+       ylim=c(-5, 2.5),
+       panel=function(x,y,...){
+         panel.abline(h=0, col="grey")
+         panel.points(x,y,...)
+         panel.text(x=m1$coefficients$mean, y=-4.3,
+                    label = c("few", "some", "many", "most"),
+                    col = "grey30", font = "italic")
+       })
+
+normal_quantiles <- (1:nrow(m_diagnostics) - 1/2)/nrow(m_diagnostics)
+
+p2 <- qqmath(~residual, data = m_diagnostics,
+              axis=axis_L, par.settings=my_settings,
+       xlab="Normal quantiles    ",
+       ylab="Std. weighted residuals 2",
+       xlab.top="(b) Normality of residuals\n",
+       xlim=c(NA, 4),
+              panel = function(x, ...) {
+          panel.qqmathline(x, ...)
+          panel.qqmath(x, ...)
+          panel.dotdiagram(m_diagnostics$residual, x_anchor = 3.1,
+                           set_cex = .8, set_col="grey30", 
+                           n_bins = 40, scale_y = .1, vertical = TRUE)
+          panel.rect(xleft=2.8, xright=4.2, ytop=-3.6, ybottom=-4.5,
+                     border=FALSE, fill="white")
+       })
+
+p3 <- xyplot(cooks_distance ~ 1:nrow(m_diagnostics), data=m_diagnostics, 
+       type="h", col=1,
+       axis=axis_L, par.settings=my_settings,
+       scales=list(y=list(at=c(0, .1, .2, .3)),
+                   x=list(at=c(1, 20, 40, 60, 80))),
+       xlab="Observation number",
+       ylab="Cook's distance",
+       xlab.top="(c) Influential observations\n",
+       ylim=c(0, NA), xlim=c(-1, 81))
+
+subj_resid <- m_diagnostics |> 
+  group_by(subject) |> 
+  dplyr::summarize(
+    min_resid = min(residual),
+    max_resid = max(residual)
+  )
+
+p4 <- xyplot(residual ~ subj_index, data=m_diagnostics,
+       axis=axis_L, par.settings=my_settings,
+       xlab="Subject ID",
+       ylab="Std. weighted residuals 2",
+       xlab.top="(d) Correlated errors\n",
+       scales=list(y=list(at=c(-2,0,2),
+                          labels=c("\u22122","0","2")),
+                   x=list(at=c(1, 5, 10, 15, 20))),
+       panel=function(x,y,...){
+         panel.abline(h=0, col="grey")
+         panel.xyplot(x,y,...)
+         panel.segments(x0=1:20, x1=1:20, y0=subj_resid$min_resid, y1=subj_resid$max_resid)
+       })
 ```
 
 ```{r}
-est_mu <- plogis(coef(m)[1:4])
-est_phi <- exp(coef(m)[5:8])
+#| label: fig-m1-diagnostics
+#| echo: false
+#| fig-cap: "Diagnostic plots for Model I."
+#| fig-height: 5
+#| fig-width: 6
 
-ci_mu <- plogis(confint(m)[1:4,])
-
-# est_mu <- plogis(coef(m)[1:4] %*% t(cbind(1, contr.treatment(4))))
-# est_phi <- exp(coef(m)[5:8] %*% t(cbind(1, contr.treatment(4))))
+cowplot::plot_grid(
+  p1, NULL, p2, 
+  NULL, NULL, NULL, 
+  p3, NULL, p4, 
+  nrow = 3, rel_widths = c(10,1,10), rel_heights = c(10,1,10))
 ```
 
+Our diagnostic plots reveal two things:
+
+- There are two unusual (and influential) data points
+- The residuals are not independent but correlated with the factor Subject.
+
+It turns out that the two unusual and influential data points are from subject 1. These are the responses for *many* and *most*, which already stood out above in @fig-quantifiers-survey-lineplot. We will remove subject 1 from the data. As for the non-independence of errors, Model III will include by-subjects random intercepts, to account for the correlation of residuals with the factor Subject.
+
+Let us remove subject 1, refit Model I, and again draw diagnostic plots:
+
+```{r}
+d_19 <- subset(d, subject != "subj_01")
+
+m1 <- betareg(
+  proportion ~ -1 + quantifier, 
+  data = d_19, 
+  link = "logit")
+
+```
 
 
 ```{r}
-muphi_to_shapes <- function(mu, phi) {
-  shape1 <- mu * phi
-  shape2 <- (1 - mu) * phi
-  return(list(shape1 = shape1, shape2 = shape2))
-}
+#| code-fold: true
+#| code-summary: "Draw figure"
+#| message: false
+#| warning: false
+
+m_diagnostics <- d_19
+m_diagnostics$subj_index <- as.numeric(factor(d_19$subject))
+m_diagnostics$fitted <- qlogis(fitted(m1))
+m_diagnostics$residual <- residuals(m1, type = "sweighted2")
+m_diagnostics$leverage <- hatvalues(m1)
+m_diagnostics$cooks_distance <- cooks.distance(m1)
+
+p1 <- xyplot(residual ~ fitted, data=m_diagnostics,
+       axis=axis_L, par.settings=my_settings,
+       xlab="Fitted values (logit scale)",
+       ylab="Std. weighted residuals 2",
+       xlab.top="(a) Constant variance\n",
+       scales=list(x=list(at=c(-2,-1,0,1),
+                          labels=c("\u22122","\u22121","0","1")),
+                   y=list(at=c(-4,-2,0,2),
+                          labels=c("\u22124","\u22122","0","2"))),
+       ylim=c(-5, 2.5),
+       panel=function(x,y,...){
+         panel.abline(h=0, col="grey")
+         panel.points(x,y,...)
+         panel.text(x=m1$coefficients$mean, y=-4.3,
+                    label = c("few", "some", "many", "most"),
+                    col = "grey30", font = "italic")
+       })
+
+normal_quantiles <- (1:nrow(m_diagnostics) - 1/2)/nrow(m_diagnostics)
+
+p2 <- qqmath(~residual, data = m_diagnostics,
+              axis=axis_L, par.settings=my_settings,
+       xlab="Normal quantiles    ",
+       ylab="Std. weighted residuals 2",
+       xlab.top="(b) Normality of residuals\n",
+       xlim=c(NA, 4.2),
+              panel = function(x, ...) {
+          panel.qqmathline(x, ...)
+          panel.qqmath(x, ...)
+          panel.dotdiagram(m_diagnostics$residual, x_anchor = 3.1,
+                           set_cex = .8, set_col="grey30", 
+                           n_bins = 40, scale_y = .1, vertical = TRUE)
+          panel.rect(xleft=2.8, xright=4.2, ytop=-3, ybottom=-4.5,
+                     border=FALSE, fill="white")
+       })
+
+p3 <- xyplot(cooks_distance ~ 1:nrow(m_diagnostics), data=m_diagnostics, 
+       type="h", col=1,
+       axis=axis_L, par.settings=my_settings,
+       scales=list(y=list(at=c(0, .05)),
+                   x=list(at=c(1, 20, 40, 60))),
+       xlab="Observation number",
+       ylab="Cook's distance",
+       xlab.top="(c) Influential observations\n",
+       ylim=c(0, NA), xlim=c(-1, 77))
+
+subj_resid <- m_diagnostics |> 
+  group_by(subject) |> 
+  dplyr::summarize(
+    min_resid = min(residual),
+    max_resid = max(residual)
+  )
+
+p4 <- xyplot(residual ~ subj_index, data=m_diagnostics,
+       axis=axis_L, par.settings=my_settings,
+       xlab="Subject ID",
+       ylab="Std. weighted residuals 2",
+       xlab.top="(d) Correlated errors\n",
+       scales=list(y=list(at=c(-2,0,2),
+                          labels=c("\u22122","0","2")),
+                   x=list(at=c(1, 5, 10, 15))),
+       panel=function(x,y,...){
+         panel.abline(h=0, col="grey")
+         panel.xyplot(x,y,...)
+         panel.segments(x0=1:19, x1=1:19, y0=subj_resid$min_resid, y1=subj_resid$max_resid)
+       })
 ```
 
 ```{r}
-est_shape1 <- muphi_to_shapes(est_mu, est_phi)$shape1
-est_shape2 <- muphi_to_shapes(est_mu, est_phi)$shape2
+#| label: fig-m1-diagnostics-new
+#| echo: false
+#| fig-cap: "Diagnostic plots for Model I, after exclusion of subject 1."
+#| fig-height: 5
+#| fig-width: 6
+
+cowplot::plot_grid(
+  p1, NULL, p2, 
+  NULL, NULL, NULL, 
+  p3, NULL, p4, 
+  nrow = 3, rel_widths = c(10,1,10), rel_heights = c(10,1,10))
 ```
 
-```{r fig.height=2, fig.width=3.5}
+@fig-m1-diagnostics-new looks much better: 
+
+(a) There are no clear outliers when looking at residuals by quantifier.
+(b) The residuals are more nearly normally distributed.
+(c) There are no influential data points.
+
+As panel (d) shows, however, errors are still correlated with Subject. We will address this issue further below, in Model III.
+
+Let us now use our model to address our descriptive objectives. To answer question (i), we need to consider the $\mu$ coefficients. These are on the logit scale, so we need to back-transform them to proportions using the function `plogis()`:
+
+```{r}
+mu_m1 <- plogis(coef(m1)[1:4])
+phi_m1 <- coef(m1)[5]
+
+round(mu_m1, 2)
+```
+
+To answer question (ii), we obtain 95% confidence intervals for these using the function `confint()`, keeping in mind that we again need to translate logits back into proportions. We collect estimates in @tbl-estimates-model-I.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Construct table of estimates"
+#| message: false
+#| warning: false
+#| column: margin
+#| label: tbl-estimates-model-I
+#| tbl-cap: "Typical values and 95% confidence intervals based on Model I."
+
+ci_mu_m1 <- plogis(confint(m1)[1:4,])
+
+
+m1_estimates <- cbind(
+  Quantifier = c("few", "some", "many", "most"),
+  numformat(mu_m1), 
+  paste0("[", numformat(ci_mu_m1[,1]), "; ", numformat(ci_mu_m1[,2]), "]"))
+
+rownames(m1_estimates) <- NULL
+colnames(m1_estimates)[2:3] <- c("Mean", "95% CI")
+
+m1_estimates |> kable()
+
+```
+
+The following code uses the `{sjPlot}` package to print a similar table (output not shown):
+
+```{r}
+#| eval: false
+
+tab_model(m1, transform = "plogis")
+```
+
+To be able to make statements about the stability of interpretations across speakers, we need the shape parameters of the beta distributions. Consider, as an example, the quantifier *few*. The estimates returned by our model are the average proportion $\mu =$ `r round(mu_m1[1], 2)` and the precision $\phi =$ `r round(phi_m1[1], 1)`. We can use the function defined above to translate these into the shape parameters $a$ and $b$:
+
+```{r}
+shape1_m1 <- muphi_to_shapes(mu_m1, phi_m1)$shape1
+shape2_m1 <- muphi_to_shapes(mu_m1, phi_m1)$shape2
+```
+
+These shape parameters define the beta distribution that describes the spread of responses, i.e. the variation among subjects in the relative-frequency interpretation of *few*. The percentages reported in @tbl-estimates-model-I are averages over subjects. To obtain information on the distribution of responses around these typical values, we need to look at the associated beta density, which appears in @fig-few-beta-distribution. This distribution is a model-based estimate of the variability in the responses across individuals in the population of speakers represented by the subjects in our sample. It shows us how stable (or consistent) the interpretation of *few* is across speakers.
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+p1 <- xyplot(
+  1~1, type="n", xlim=c(0,.35), ylim=c(0, 8),
+  par.settings=my_settings, axis=axis_bottom,
+  scales=list(x=list(
+    at=c(0,.1,.2,.3,.4, .5, .6),
+    labels=c("0", ".10", ".20", ".30",".40",".50", ".60"))),
+  xlab="Proportion", ylab="Density",
+  panel=function(x,y){
+    panel.polygon(
+      x = seq(0,.35, length=200), rev(seq(0,.35,length=200)),
+      y = c(dbeta(seq(0,.35,length=200), 
+                  shape1 = shape1_m1[1], 
+                  shape2 = shape2_m1[1]),
+            rep(0, 200)), col=1, alpha=.2)
+    panel.points(
+      x = seq(0,.35,length=200),
+      y = dbeta(seq(0,.35,length=200), 
+                shape1 = shape1_m1[1], 
+                shape2 = shape2_m1[1]),
+      type="l")
+    })
+```
+
+
+```{r}
+#| label: fig-few-beta-distribution
+#| echo: false
+#| fig-cap: "The beta density for *few*, based on model I."
+#| fig-height: 1.2
+#| fig-width: 2.5
+#| column: margin
+
+p1
+```
+
+We can summarize the information provided by such beta densities using informative quantiles; these can be located with the function `qbeta()`. A quantile is an x-value (here: a proportion/percentage) below which a certain portion of the probability mass lies. The .25 quantile, for instance, marks the x-value that cuts off the lower tail of the distribution that contains 25% of the mass. 
+
+In @fig-few-quantiles, two intervals are marked using grey shading. The darker shade denotes the interval covering the central 50% of the subjects. It extends from the .25 quantile to the .75 quantile. The lighter shades denote the region where the middle 80% of the subjects are found. These quantiles tell us something about the speaker-to-speaker variability in the interpretation of *few*. While the population average is estimated at .12 (or 12%), speakers vary around this value: the central 50% of the speakers give estimates between .07 and .16, the central 80% of the population are found between .05 and .21. We will refer to these as **coverage intervals**.
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+q_10 <- qbeta(.10, shape1 = shape1_m1[1], shape2 = shape2_m1[1])
+q_25 <- qbeta(.25, shape1 = shape1_m1[1], shape2 = shape2_m1[1])
+q_75 <- qbeta(.75, shape1 = shape1_m1[1], shape2 = shape2_m1[1])
+q_90 <- qbeta(.90, shape1 = shape1_m1[1], shape2 = shape2_m1[1])
+
+p1 <- xyplot(
+  1~1, type="n", xlim=c(0,.38), ylim=c(0, 12),
+  par.settings=my_settings, axis=axis_bottom,
+  scales=list(x=list(at=c(0,.1,.2,.3,.4, .5, .6),
+                     labels=c("0", "10", "20", "30","40","50", "60"))),
+  xlab="Estimated percentage", ylab="Density          ",
+  panel=function(x,y){
+    panel.polygon(
+      x = c(seq(q_10, q_90, length=100), rev(seq(q_10, q_90, length=100))),
+      y = c(dbeta(seq(q_10, q_90, length=100), 
+                  shape1 = shape1_m1[1], shape2 = shape2_m1[1]), rep(0, 100)),
+      col=1, alpha=.2)
+    
+    panel.polygon(
+      x = c(seq(q_25, q_75, length=100), rev(seq(q_25, q_75, length=100))),
+      y = c(dbeta(seq(q_25, q_75, length=100), 
+                  shape1=shape1_m1[1], shape2=shape2_m1[1]), rep(0, 100)),
+      col=1, alpha=.2)
+
+    panel.points(
+      x = seq(0,1,length=100),
+      y = dbeta(seq(0,1,length=100), shape1=shape1_m1[1], shape2=shape2_m1[1]),
+      type="l")
+    panel.segments(x0=c(q_10, q_25, q_75, q_90),
+                   x1=c(q_10, q_25, q_75, q_90),
+                   y0=0, y1=dbeta(c(q_10, q_25, q_75, q_90),
+                                  shape1=shape1_m1[1], shape2=shape2_m1[1]))
+    
+    panel.segments(x0=q_10, x1=q_90, y0=8.5, y1=8.5)
+    panel.segments(x0=q_25, x1=q_75, y0=11, y1=11)
+    
+    panel.segments(x0=c(q_10, q_90), x1=c(q_10, q_90), y0=0, y1=8.5, lty=3, lineend="butt")
+    panel.segments(x0=c(q_25, q_75), x1=c(q_25, q_75), y0=0, y1=10.5, lty=3, lineend="butt")
+    
+    panel.segments(x0=c(q_10, q_90), x1=c(q_10, q_90), y0=8, y1=8.5)
+    panel.segments(x0=c(q_25, q_75), x1=c(q_25, q_75), y0=11, y1=10.5)
+    
+    panel.text(x=q_75+.02, y=11, adj=0, label="50% of speakers", cex=.9)
+    panel.text(x=q_90+.02, y=8.5, adj=0, label="80% of speakers", cex=.9)
+    })
+```
+
+
+```{r}
+#| label: fig-few-quantiles
+#| echo: false
+#| fig-cap: "The beta distribution for *few*, including informative quantiles and coverage intervals; based on model I."
+#| fig-height: 1.7
+#| fig-width: 3.5
+
+p1
+```
+
+@tbl-quantiles-model-I reports these quantiles, i.e. the central 50% and 80% coverage intervals for all quantifiers.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Construct table with quantiles"
+#| message: false
+#| warning: false
+#| column: margin
+#| label: tbl-quantiles-model-I
+#| tbl-cap: "50% and 80% coverage intervals, based on Model I."
+
+beta_quantiles_m1 <- rbind(
+  numformat(qbeta(c(.1,.25,.75,.9), shape1=shape1_m1[1], shape2=shape2_m1[1])),
+  numformat(qbeta(c(.1,.25,.75,.9), shape1=shape1_m1[2], shape2=shape2_m1[2])),
+  numformat(qbeta(c(.1,.25,.75,.9), shape1=shape1_m1[3], shape2=shape2_m1[3])),
+  numformat(qbeta(c(.1,.25,.75,.9), shape1=shape1_m1[4], shape2=shape2_m1[4])))
+
+beta_quantiles_m1 <- cbind(c("few", "some", "many", "most"),
+                        beta_quantiles_m1)
+
+colnames(beta_quantiles_m1) <- c("Quantifier", "[80%", "[50%", "50%]", "80%]")
+beta_quantiles_m1 |> kable()
+```
+
+
+We can now draw a graph based on Model I that gives a visual summary of the data: @fig-model-I shows the typical values for each quantifier (average proportions), along with their 95% confidence interval and the associated beta density. Since Model I assumes constant precision across quantifiers, the visual spread of the beta distributions is constrained to be constant across these. The differences in spread that are evident from @fig-model-I reflect boundary effects, as the variability of proportions is naturally constrained near the scale endpoints. 
+
+```{r}
+#| code-fold: true
+#| code-summary: "Draw figure"
+#| message: false
+#| warning: false
+
 p1 <- xyplot(
   1~1, type="n", xlim=c(0,1), ylim=c(0, 16),
   par.settings=my_settings, axis=axis_bottom,
   scales=list(x=list(at=c(0,.2,.4,.6,.8,1),
-                     labels=c("0","20","40","60","80","100  "))),
-  xlab="Estimated percentage", ylab="Density               ",
+                     labels=c("0",".20",".40",".60",".80","1"))),
+  xlab="Proporiton", ylab="Density               ",
+  xlab.top="Model I\n",
   panel=function(x,y){
-    panel.polygon(x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
-                  y = c(dbeta(seq(0,1,length=100), shape1 = est_shape1[1], shape2 = est_shape2[1]),
-                        rep(0, 100)),
-                  col=1, alpha=.1)
-    panel.polygon(x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
-                  y = c(dbeta(seq(0,1,length=100), shape1 = est_shape1[2], shape2 = est_shape2[2]),
-                        rep(0, 100)),
-                  col=1, alpha=.1)
-    panel.polygon(x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
-                  y = c(dbeta(seq(0,1,length=100), shape1 = est_shape1[3], shape2 = est_shape2[3]),
-                        rep(0, 100)),
-                  col=1, alpha=.1)
-    panel.polygon(x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
-                  y = c(dbeta(seq(0,1,length=100), shape1 = est_shape1[4], shape2 = est_shape2[4]),
-                        rep(0, 100)),
-                  col=1, alpha=.1)
+    panel.polygon(
+      x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
+      y = c(dbeta(seq(0,1,length=100), shape1=shape1_m1[1], shape2=shape2_m1[1]),
+            rep(0, 100)), col=1, alpha=.2)
+    panel.polygon(
+      x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
+      y = c(dbeta(seq(0,1,length=100), shape1=shape1_m1[2], shape2=shape2_m1[2]),
+            rep(0, 100)), col=1, alpha=.2)
+    panel.polygon(
+      x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
+      y = c(dbeta(seq(0,1,length=100), shape1=shape1_m1[3], shape2=shape2_m1[3]),
+            rep(0, 100)), col=1, alpha=.2)
+    panel.polygon(
+      x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
+      y = c(dbeta(seq(0,1,length=100), shape1=shape1_m1[4], shape2=shape2_m1[4]),
+            rep(0, 100)), col=1, alpha=.2)
     panel.points(
       x = seq(0,1,length=100),
-      y = dbeta(seq(0,1,length=100), shape1 = est_shape1[1], shape2 = est_shape2[1]),
+      y = dbeta(seq(0,1,length=100), shape1=shape1_m1[1], shape2=shape2_m1[1]),
       type="l")
     panel.points(
       x = seq(0,1,length=100),
-      y = dbeta(seq(0,1,length=100), shape1 = est_shape1[2], shape2 = est_shape2[2]),
+      y = dbeta(seq(0,1,length=100), shape1=shape1_m1[2], shape2=shape2_m1[2]),
       type="l")
     panel.points(
       x = seq(0,1,length=100),
-      y = dbeta(seq(0,1,length=100), shape1 = est_shape1[3], shape2 = est_shape2[3]),
+      y = dbeta(seq(0,1,length=100), shape1=shape1_m1[3], shape2=shape2_m1[3]),
       type="l")
     panel.points(
       x = seq(0,1,length=100),
-      y = dbeta(seq(0,1,length=100), shape1 = est_shape1[4], shape2 = est_shape2[4]),
+      y = dbeta(seq(0,1,length=100), shape1=shape1_m1[4], shape2=shape2_m1[4]),
       type="l")
-    panel.points(x=est_mu, y=13, pch=19, cex=1.25)
-    panel.arrows(x0=ci_mu[,1], x1=ci_mu[,2], y0=13, y1=13, code=3, angle=90, length=.02)
-    panel.text(x=est_mu, y=11, label=paste0(round(est_mu*100), "%"))
-    panel.text(x=est_mu, y=15.5, label=c("few", "many", "most", "some"), font=3)
+    panel.points(x=mu_m1, y=13, pch=19, cex=1.25)
+    panel.segments(x0=ci_mu_m1[,1], x1=ci_mu_m1[,2], y0=13, y1=13)
+    panel.text(x=mu_m1, y=11, label=numformat(mu_m1))
+    panel.text(x=mu_m1, y=15.5, label=c("few", "many", "most", "some"), font=3)
     })
+```
+
+
+```{r}
+#| label: fig-model-I
+#| echo: false
+#| fig-cap: "Visual summary of Model I: Typical values, confidence intervals and the underlying beta distributions."
+#| fig-height: 2
+#| fig-width: 3.5
 
 p1
 ```
 
 
 
-#### Bayesian model
+#### Model II
+
+Next we fit a model that allows the precision $\phi$ to vary across quantifiers; $\phi$ is now modeled on the natural log scale. We again drop the intercept from the model to directly obtain logits ($\mu$) and natural logs ($\phi$) for each quantifier:
+
+```{r}
+m2 <- betareg(
+  proportion ~ -1 + quantifier | -1 + quantifier, 
+  data = d_19, 
+  link = "logit")
+
+print(m2)
+```
+
+The precision parameters (`Phi coefficients` in the printed output) are quite similar across quantifiers. Let us therefore formally compare models I and II to see whether the added complexity is needed to adequately describe the observed data. As illustrated by @Cribari-Neto_Zeileis2010, the function `lrtest()`, which compares nested models using a likelihood-ratio test, may be used to this end:
+
+```{r}
+lrtest(m1, m2)
+```
+
+We note that there is little evidence from the data that the quantifiers are interpreted with different precision. Instead, the variability of responses around the typical value for each quantifier appears to be rather stable (on the logit scale) across expressions.
+
+For illustrative purposes, we nevertheless stick to this model to extract relevant quantities. We start by back-transforming the logit-scaled coefficients and confidence intervals for $\mu$ using the function `plogis()` and collect the estimates and their confidence intervals in @tbl-estimates-model-II. To summarize the beta distributions, we present informative quantiles in @tbl-quantiles-model-II.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Construct table of estimates"
+#| message: false
+#| warning: false
+#| column: margin
+#| label: tbl-estimates-model-II
+#| tbl-cap: "Typical values and 95% confidence intervals based on Model II."
+
+mu_m2 <- plogis(coef(m2)[1:4])
+ci_mu_m2 <- plogis(confint(m2)[1:4,])
+phi_m2 <- exp(coef(m2)[5:8])
+
+shape1_m2 <- muphi_to_shapes(mu_m2, phi_m2)$shape1
+shape2_m2 <- muphi_to_shapes(mu_m2, phi_m2)$shape2
+
+m2_estimates <- cbind(
+  Quantifier = c("few", "some", "many", "most"),
+  numformat(mu_m2), 
+  paste0("[", numformat(ci_mu_m2[,1]), "; ", numformat(ci_mu_m2[,2]), "]"))
+
+rownames(m2_estimates) <- NULL
+colnames(m2_estimates)[2:3] <- c("Mean", "95% CI")
+
+m2_estimates |> kable()
+```
+
+```{r}
+#| code-fold: true
+#| code-summary: "Construct table of quantiles"
+#| message: false
+#| warning: false
+#| column: margin
+#| label: tbl-quantiles-model-II
+#| tbl-cap: "50% and 80% coverage intervals, based on Model II."
+
+beta_quantiles_m2 <- rbind(
+  numformat(qbeta(c(.1,.25,.75,.9), shape1=shape1_m2[1], shape2=shape2_m2[1])),
+  numformat(qbeta(c(.1,.25,.75,.9), shape1=shape1_m2[2], shape2=shape2_m2[2])),
+  numformat(qbeta(c(.1,.25,.75,.9), shape1=shape1_m2[3], shape2=shape2_m2[3])),
+  numformat(qbeta(c(.1,.25,.75,.9), shape1=shape1_m2[4], shape2=shape2_m2[4])))
+
+beta_quantiles_m2 <- cbind(
+  c("few", "some", "many", "most"),
+  beta_quantiles_m2)
+
+colnames(beta_quantiles_m2) <- c("Quantifier", "[80%", "[50%", "50%]", "80%]")
+beta_quantiles_m2 |> kable()
+```
+
+A visual summary of Model II appears in @fig-model-II. We observe that the beta density for *few* is more peaked than in @fig-model-I. This information can also be read from the printed regression table, which shows that *few* has the highest precision. This is also reflected in the coverage intervals. Whereas in Model I, the 80% coverage intervals extended from .06 to .20, Model II suggests a slightly narrower 80% coverage interval, ranging from .07 to .18.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Draw figure"
+#| message: false
+#| warning: false
+
+p1 <- xyplot(
+  1~1, type="n", xlim=c(0,1), ylim=c(0, 16),
+  par.settings=my_settings, axis=axis_bottom,
+  scales=list(x=list(at=c(0,.2,.4,.6,.8,1),
+                     labels=c("0",".20",".40",".60",".80","1"))),
+  xlab="Proportion", ylab="Density               ",
+  xlab.top="Model II\n",
+  panel=function(x,y){
+    panel.polygon(
+      x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
+      y = c(dbeta(seq(0,1,length=100), shape1=shape1_m2[1], shape2=shape2_m2[1]),
+            rep(0, 100)), col=1, alpha=.2)
+    panel.polygon(
+      x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
+      y = c(dbeta(seq(0,1,length=100), shape1=shape1_m2[2], shape2=shape2_m2[2]),
+            rep(0, 100)), col=1, alpha=.2)
+    panel.polygon(
+      x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
+      y = c(dbeta(seq(0,1,length=100), shape1=shape1_m2[3], shape2=shape2_m2[3]),
+            rep(0, 100)), col=1, alpha=.2)
+    panel.polygon(
+      x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
+      y = c(dbeta(seq(0,1,length=100), shape1=shape1_m2[4], shape2=shape2_m2[4]),
+            rep(0, 100)), col=1, alpha=.2)
+    panel.points(
+      x = seq(0,1,length=100),
+      y = dbeta(seq(0,1,length=100), shape1=shape1_m2[1], shape2=shape2_m2[1]),
+      type="l")
+    panel.points(
+      x = seq(0,1,length=100),
+      y = dbeta(seq(0,1,length=100), shape1=shape1_m2[2], shape2=shape2_m2[2]),
+      type="l")
+    panel.points(
+      x = seq(0,1,length=100),
+      y = dbeta(seq(0,1,length=100), shape1=shape1_m2[3], shape2=shape2_m2[3]),
+      type="l")
+    panel.points(
+      x = seq(0,1,length=100),
+      y = dbeta(seq(0,1,length=100), shape1=shape1_m2[4], shape2=shape2_m2[4]),
+      type="l")
+    panel.points(x=mu_m2, y=13, pch=19, cex=1.25)
+    panel.segments(x0=ci_mu_m2[,1], x1=ci_mu_m2[,2], y0=13, y1=13)
+    panel.text(x=mu_m2, y=11, label=numformat(mu_m2))
+    panel.text(x=mu_m2, y=15.5, label=c("few", "many", "most", "some"), font=3)
+    })
+```
 
 
 ```{r}
-library(brms)
+#| label: fig-model-II
+#| echo: false
+#| fig-cap: "Visual summary of Model II: Estimates, confidence intervals and the underlying beta distributions."
+#| fig-height: 2
+#| fig-width: 3.5
 
-m_b <- brm(
-  bf(proportion ~ -1 + quantifier,
-     phi ~ -1 + quantifier),
+p1
+```
+
+
+#### Model III
+
+To address the issue of correlated errors (i.e. the non-independence of observations), we now add by-speaker random intercepts to our model. Since this feature is not implemented in the `{betareg}` package, we switch to Bayesian regression using the `{brms}` package. As we will now be explicitly modeling Speaker as a source of variation, let us give subject 1 a second chance. After all, the primary reason for excluding them from our analysis were the unusually low values given for *many* and *most*. We will then again look at diagnostic plots to see whether the data points from this speaker also appear problematic in the context of Model III.
+
+As can be seen from the following R code, using `{brms}` requires a change in model syntax. We will rely on the default priors.
+
+```{r}
+m3 <- brm(
+  proportion ~ -1 + quantifier + (1|subject),
   data = d,
   family = Beta(),
-  chains = 4, iter = 2000, warmup = 1000, cores = 4,
+  chains = 4, iter = 3000, warmup = 1000, cores = 4,
   backend = "cmdstanr",
-  file = "C:/Users/ba4rh5/Work Folders/My Files/R projects/_lsoenning.github.io/posts/2024-01-11_beta_regression_quantifiers/m_b"
+  file = paste0(directory_path, "m3")
 )
+
+m3 <- readRDS(paste0(directory_path, "m3.rds"))
+```
+
+Let us first draw some diagnostic plots. Since we are dealing with a Bayesian regression model, some of the quantities we use for plotting are different. Their meaning and interpretation, however, is very similar:
+
+- Instead of weighted residuals, we look at Pearson residuals. 
+- We will use Pareto *k* values as influence indicators (for more information on this, see [this paper](https://arxiv.org/abs/1507.04544) and [this video tutorial](https://www.youtube.com/watch?v=FUROJM3u5HQ)). For these, thresholds have been proposed to signal "good", "ok", "bad", and "very bad" Pareto *k* values.
+- Since correlated errors (within subject) should no longer be a concern, we will instead group influence measures (i.e. Pareto *k* values) by subject, to see if there are any influential individuals.
+
+The diagnostic plots appear in @fig-m3-diagnostics. We note the following:
+
+(a) There appear to be no outliers when looking at residuals by quantifier. This is because the random intercept for subject 1 now accomodates their unusually low responses.
+(b) The distribution of the Pearson residuals looks OK.
+(c) There is only one "bad" data point.
+(d) This "bad" observation stems from subject 16, whose responses sit less well with the model, on average. It turns out that the responses of subject 16 were drawn to the extremes: They gave relatively low responses to *few* (6%) and *some* (14%), but quite high responses to *many* (75%) and *most* (91%). This tendency towards the extremes is not captures by the random intercept for subject 16, since this parameter only represents their average response (46.5%), which is not particularly unusual.
+
+Overall, then, we are happy with Model III and welcome subject 1 back into the dataset.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Draw figure"
+#| message: false
+#| warning: false
+
+loo_m3 <- loo(m3)
+loo_m3_pointwise <- data.frame(loo_m3$pointwise)
+
+m3_diagnostics <- d
+m3_diagnostics$subj_index <- as.numeric(factor(d$subject))
+m3_diagnostics$fitted_with_random_intercepts <- qlogis(fitted(m3)[,1])
+m3_diagnostics$residual <- residuals(m3, type = "pearson")[,1]
+m3_diagnostics$influence_pareto_k <- loo_m3_pointwise$influence_pareto_k
+m3_diagnostics <- m3_diagnostics |> 
+  group_by(quantifier) |> 
+  mutate(
+    fitted_quantifier = mean(fitted_with_random_intercepts))
+
+
+p1 <- xyplot(residual ~ fitted_quantifier, data=m3_diagnostics,
+       axis=axis_L, par.settings=my_settings,
+       xlab="Fitted values (logit scale)",
+       ylab="Pearson residuals",
+       xlab.top="(a) Constant variance\n",
+       scales=list(x=list(at=c(-2,-1,0,1),
+                          labels=c("\u22122","\u22121","0","1")),
+                   y=list(at=c(-4,-2,0,2),
+                          labels=c("\u22124","\u22122","0","2"))),
+       ylim=c(-5, 2.5),
+       panel=function(x,y,...){
+         panel.abline(h=0, col="grey")
+         panel.points(x,y,...)
+         panel.text(x=m1$coefficients$mean, y=-4.3,
+                    label = c("few", "some", "many", "most"),
+                    col = "grey30", font = "italic")
+       })
+
+normal_quantiles <- (1:nrow(m3_diagnostics) - 1/2)/nrow(m3_diagnostics)
+
+p2 <- qqmath(~residual, data = m3_diagnostics,
+              axis=axis_L, par.settings=my_settings,
+       xlab="Normal quantiles    ",
+       ylab="Pearson residuals",
+       xlab.top="(b) Normality of residuals\n",
+       xlim=c(NA, 4),
+              panel = function(x, ...) {
+          panel.qqmathline(x, ...)
+          panel.qqmath(x, ...)
+          panel.dotdiagram(m3_diagnostics$residual, x_anchor = 3.1,
+                           set_cex = .8, set_col="grey30", 
+                           n_bins = 40, scale_y = .1, vertical = TRUE)
+          panel.rect(xleft=2.8, xright=4.2, ytop=-2, ybottom=-3,
+                     border=FALSE, fill="white")
+       })
+
+p3 <- xyplot(influence_pareto_k ~ 1:nrow(m3_diagnostics), data=m3_diagnostics, 
+       type="h", col=1,
+       axis=axis_L, par.settings=my_settings,
+       scales=list(y=list(at=c(0, .5, .7, 1)),
+                   x=list(at=c(1, 20, 40, 60, 80))),
+       xlab="Observation number",
+       ylab="Influence (Pareto k)",
+       xlab.top="(c) Influential observations\n",
+       ylim=c(0, NA), xlim=c(-1, 81),
+       panel=function(x,y,...){
+         panel.abline(h=.5, lty=3, lineend="butt", col="grey")
+         panel.abline(h=.7, lty=2, lineend="butt", col="grey")
+         panel.xyplot(x,y,...)
+         panel.text(x=-5, y=c(.25, .6, .8), label=c("good", "ok", "bad"), col="grey40", srt=90)
+       })
+
+subj_pareto_k <- m3_diagnostics |> 
+  group_by(subject) |> 
+  dplyr::summarize(
+    min_pareto_k = min(influence_pareto_k),
+    max_pareto_k = max(influence_pareto_k)
+  )
+
+p4 <- xyplot(influence_pareto_k ~ subj_index, data=m3_diagnostics,
+       axis=axis_L, par.settings=my_settings,
+       xlab="Subject ID",
+       ylab="Influence (Pareto k)",
+       xlab.top="(d) Influence by subject\n",
+       scales=list(y=list(at=c(0, .5, .7, 1)),
+                   x=list(at=c(1, 5, 10, 15, 20))),
+       panel=function(x,y,...){
+         panel.abline(h=.5, lty=3, lineend="butt", col="grey")
+         panel.abline(h=.7, lty=2, lineend="butt", col="grey")
+         panel.text(x=-1.35, y=c(.25, .6, .8), label=c("good", "ok", "bad"), col="grey40", srt=90)
+         panel.xyplot(x,y,...)
+         panel.segments(x0=1:20, x1=1:20, 
+                        y0=subj_pareto_k$min_pareto_k, 
+                        y1=subj_pareto_k$max_pareto_k)
+       })
 ```
 
 ```{r}
-m_b2 <- brm(
-  bf(proportion ~ -1 + quantifier + (1|subject),
-     phi ~ -1 + quantifier),
-  data = d,
-  family = Beta(),
-  chains = 4, iter = 2000, warmup = 1000, cores = 4,
-  backend = "cmdstanr",
-  file = "C:/Users/ba4rh5/Work Folders/My Files/R projects/_lsoenning.github.io/posts/2024-01-11_beta_regression_quantifiers/m_b2"
-)
+#| label: fig-m3-diagnostics
+#| echo: false
+#| fig-cap: "Diagnostic plots for Model III."
+#| fig-height: 5
+#| fig-width: 6
+
+cowplot::plot_grid(
+  p1, NULL, p2, 
+  NULL, NULL, NULL, 
+  p3, NULL, p4, 
+  nrow = 3, rel_widths = c(10,1,10), rel_heights = c(10,1,10))
 ```
 
+We now use Model III to address questions (i) and (ii). As described in more detail in the Marginal Effects Zoo [book](https://marginaleffects.com/vignettes/brms.html#random-effects-model) and in another fantastic [blog post](https://www.andrewheiss.com/blog/2021/11/10/ame-bayes-re-guide/) by @Heiss2021b, we use the `{tidybayes}` package to process the posterior distribution. 
+
+We use the model to generate posterior predictions and then summarize these. The kind of prediction we are interested in at the moment (for questions i and ii) are typical values, i.e. averages. These are sometimes referred to as **expected values**. We therefore use the function `epred_draws()`, which uses the full posterior distribution to generate expected predictions (`epred`) for conditions, i.e. (constellations of) predictor values. We need to specify the conditions of interest using the argument `newdata`. The additional argument `re_formula = NA` tells `epred_draws()` to disregard the by-subject random intercepts in this predictive task. After all, we are presently only concerned with the average across subjects. 
 
 ```{r}
-muphi_to_shapes <- function(mu, phi) {
-  shape1 <- mu * phi
-  shape2 <- (1 - mu) * phi
-  return(list(shape1 = shape1, shape2 = shape2))
-}
+m3_epred <- m3 |>  
+  epred_draws(
+    newdata = expand.grid(
+      quantifier = unique(d$quantifier)),
+    re_formula = NA)
 ```
 
-No random intercepts
+We then summarize the posterior distribution of these expected values using the median and the .025 and .975 quantiles, which provide uncertainty estimtes similar to the 95% CIs reported for the other models. 
 
 ```{r}
-est_mu <- plogis(fixef(m_b)[1:4,1])
-est_phi <- exp(fixef(m_b)[5:8,1])
+mu_m3 <- m3_epred |> group_by(quantifier) |> 
+  dplyr::summarize(
+    median = median(.epred)
+  )
 
-ci_mu <- plogis(fixef(m_b)[1:4,3:4])
-
-# est_mu <- plogis(coef(m)[1:4] %*% t(cbind(1, contr.treatment(4))))
-# est_phi <- exp(coef(m)[5:8] %*% t(cbind(1, contr.treatment(4))))
+ci_mu_m3 <- m3_epred |> group_by(quantifier) |> 
+  dplyr::summarize(
+    ci_lower = quantile(.epred, .025),
+    ci_upper = quantile(.epred, .975)
+  )
 ```
 
+We collect these point and interval estimates for the expected value (i.e. proportions) of each quantifier in @tbl-estimates-model-III.
 
 ```{r}
-est_shape1 <- muphi_to_shapes(est_mu, est_phi)$shape1
-est_shape2 <- muphi_to_shapes(est_mu, est_phi)$shape2
+#| code-fold: true
+#| code-summary: "Construct table of estimates"
+#| message: false
+#| warning: false
+#| column: margin
+#| label: tbl-estimates-model-III
+#| tbl-cap: "Typical values and 95% posterior intervals based on Model III."
+
+m3_estimates <- cbind(
+  Quantifier = c("few", "some", "many", "most"),
+  numformat(mu_m3$median), 
+  paste0("[", numformat(ci_mu_m3$ci_lower), "; ", numformat(ci_mu_m3$ci_upper), "]"))
+
+m3_estimates |> kable()
 ```
+
+
+Our next task is to obtain estimates for the variability of subjects' perceptions around these typical values. To this end, we also use posterior predictions from the model. We are no longer interested in the expected (or typical) value, however, but in the specific responses given by the speakers. We therefore use the function `predicted_draws()` which retains this variability in the distribution of responses.
+
+We must make sure, however, that the variability among subjects, which is captured by the random intercepts in our model, is worked into these predictions. Thus, in a model with random intercepts, the extraction of information about the beta distribution describing the variability of interpretations across subjects requires some care. This is because between-subjects variation is now absorbed by  this model component. If we fail to actively incorporate this source of variation into our model-based predictions, these do not answer question iii, which asks about the variation across subjects in the interpretation of quantifiers.
+
+For purposes of illustration, let us first (inappropriately) disregard the by-speaker random effects. This means that we use the expected predictions generated above to construct beta distributions. This yields @fig-model-III-wrong, which does not show beta densities with the intended meaning. Recall that our question (iii) concerned variability across speakers. In Model III, between-subjects variation is captured by the random intercept SD (or variance) in our model, and this parameter is not built into the graph. As a result, the beta distribution are not spread out enough.
+
+```{r}
+m3_pred_wrong <- m3 |> 
+  predicted_draws(
+    newdata = expand.grid(
+      quantifier = unique(d$quantifier)),
+    re_formula = NA)
+```
+
 
 ```{r fig.height=2, fig.width=3.5}
+#| code-fold: true
+#| code-summary: "Draw figure"
+#| message: false
+#| warning: false
+
+p1 <- xyplot(
+  1~1, type="n", xlim=c(0,1), ylim=c(0, 16),
+  par.settings=my_settings, axis=axis_bottom,
+  scales=list(x=list(at=c(0,.2,.4,.6,.8,1),
+                     labels=c("0",".20",".40",".60",".80","1"))),
+  xlab="Proportion", ylab="Density               ",
+  xlab.top="Model III\n",
+  panel=function(x,y){
+    panel.densityplot(x = subset(m3_pred_wrong, quantifier == "few")$.prediction, ref = FALSE, plot.points = FALSE, col=1)
+    panel.densityplot(x = subset(m3_pred_wrong, quantifier == "some")$.prediction, ref = FALSE, plot.points = FALSE, col=1)
+    panel.densityplot(x = subset(m3_pred_wrong, quantifier == "many")$.prediction, ref = FALSE, plot.points = FALSE, col=1)
+    panel.densityplot(x = subset(m3_pred_wrong, quantifier == "most")$.prediction, ref = FALSE, plot.points = FALSE, col=1)
+
+    panel.points(x=mu_m3$median, y=13, pch=19, cex=1.25)
+    panel.segments(x0=ci_mu_m3$ci_lower, x1=ci_mu_m3$ci_upper, y0=13, y1=13)
+    panel.text(x=mu_m3$median, y=11, label=numformat(mu_m3$median))
+    panel.text(x=mu_m3$median, y=15.5, label=c("few", "many", "most", "some"), font=3)
+    panel.text(x=.5, y=7, label="Warning: Beta densities do not\nhave the intended meaning", 
+               col="darkred", alpha=.7, cex=.9, lineheight=.9)
+    })
+
+```
+
+
+```{r}
+#| label: fig-model-III-wrong
+#| echo: false
+#| fig-cap: "Wrong visual summary of Model III: Estimates, confidence intervals and the underlying beta distributions."
+#| fig-height: 2
+#| fig-width: 3.5
+
+p1
+```
+
+
+```{r}
+#| label: fig-by-speaker-averages
+#| echo: false
+#| warning: false
+#| message: false
+#| fig-cap: "Distribution of by-speaker averages on the proportion scale."
+#| fig-height: 1
+#| fig-width: 2
+#| column: margin
+
+d |> group_by(subject) |> 
+  dplyr::summarize(
+    mean_prop = mean(proportion)
+  ) |> ggplot(aes(x=mean_prop)) +
+  geom_dotplot() +
+  theme_dotplot() +
+  xlab("Speaker average (proportion)")
+```
+
+Before we go further, it is perhaps worth considering what kind of information the densities in @fig-model-III-wrong *do* show. They show the "residual" variation in perceived interpretation for each quantifier, after removing the model component that describes the between-speaker variability in the overall average response. Thus, the by-speaker random intercepts capture the extent to which subjects vary in their average response. To get a better understanding of the kind of variability represented by the random intercepts, @fig-by-speaker-averages shows the distribution of speaker averages. Most speakers vary between roughly .40 and .55. It is this kind of between-speaker variation that is captured by the random intercepts in the model. 
+
+```{r}
+#| code-fold: true
+#| code-summary: "Construct wrong table of quantiles"
+#| message: false
+#| warning: false
+#| column: margin
+#| label: tbl-quantiles-model-III-wrong
+#| tbl-cap: "50% and 80% coverage intervals, based on Model III (random intercept variation not included)."
+
+beta_quantiles_m3_wrong <- m3_pred_wrong |> group_by(quantifier) |> 
+  dplyr::summarize(
+    `[80%` = numformat(quantile(.prediction, .1)),
+    `[50%` = numformat(quantile(.prediction, .25)),
+    `50%]` = numformat(quantile(.prediction, .75)),
+    `80%]` = numformat(quantile(.prediction, .9))
+  )
+
+beta_quantiles_m3_wrong |> kable()
+```
+
+After removing this source of variation, responses will still vary, due to other sources of variation. One such source is measurement error -- speakers' response to our short survey may fluctuate (perhaps erratically) over time. If we handed the same paper slip to our 20 respondents one year later, they would probably give (slightly) different responses. Further, speakers may not only differ in their average response (as captured by the random intercepts), but also in their perception of the individual quantifiers. For instance, a speaker may have a systematically lower perception of the quantifier *few* compared to other speakers. In statistical terms, this would be referred to as a subject-by-quantifier interaction.
+
+@tbl-quantiles-model-III-wrong shows 50% and 80% coverage intervals for the beta distributions that do not contain the between-speaker variation.
+
+To get beta densities with the intended meaning, we need to factor in the random effect. This means that we form model-based predictions that also incorporate (or represent) between-subjects variability. This is sometimes referred to as "integrating out" the random effects. As explained in more detail in the Marginal Effects Zoo [book](https://marginaleffects.com/vignettes/brms.html#random-effects-model) and in this [blog post](https://www.andrewheiss.com/blog/2021/11/10/ame-bayes-re-guide/) by @Heiss2021b, this is done by sampling from a normal distribution representing the spread of random intercepts and factoring these deviations into the posterior predicted distribution.
+
+@tbl-quantiles-model-III shows 50% and 80% coverage intervals for the beta distributions that now contain the between-speaker variation. A visual summary of Model III with the appropriate densities appears in @fig-model-III.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Construct table of quantiles"
+#| message: false
+#| warning: false
+#| column: margin
+#| label: tbl-quantiles-model-III
+#| tbl-cap: "50% and 80% coverage intervals, based on Model III (random intercept variation included)."
+
+m3_pred <- m3 |> 
+  predicted_draws(
+    newdata = expand.grid(
+      quantifier = unique(d$quantifier),
+      subject = -1:-100),
+    allow_new_levels = TRUE,
+    sample_new_levels = "gaussian")
+
+beta_quantiles_m3 <- m3_pred |> group_by(quantifier) |> 
+  dplyr::summarize(
+    `[80%` = numformat(quantile(.prediction, .1)),
+    `[50%` = numformat(quantile(.prediction, .25)),
+    `50%]` = numformat(quantile(.prediction, .75)),
+    `80%]` = numformat(quantile(.prediction, .9))
+  )
+
+beta_quantiles_m3 |> kable()
+```
+
+
+```{r}
+#| code-fold: true
+#| code-summary: "Draw figure"
+#| message: false
+#| warning: false
+
 p1 <- xyplot(
   1~1, type="n", xlim=c(0,1), ylim=c(0, 16),
   par.settings=my_settings, axis=axis_bottom,
   scales=list(x=list(at=c(0,.2,.4,.6,.8,1),
                      labels=c("0","20","40","60","80","100  "))),
   xlab="Estimated percentage", ylab="Density               ",
+  xlab.top="Model III\n",
   panel=function(x,y){
-    panel.polygon(x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
-                  y = c(dbeta(seq(0,1,length=100), shape1 = est_shape1[1], shape2 = est_shape2[1]),
-                        rep(0, 100)),
-                  col=1, alpha=.1)
-    panel.polygon(x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
-                  y = c(dbeta(seq(0,1,length=100), shape1 = est_shape1[2], shape2 = est_shape2[2]),
-                        rep(0, 100)),
-                  col=1, alpha=.1)
-    panel.polygon(x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
-                  y = c(dbeta(seq(0,1,length=100), shape1 = est_shape1[3], shape2 = est_shape2[3]),
-                        rep(0, 100)),
-                  col=1, alpha=.1)
-    panel.polygon(x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
-                  y = c(dbeta(seq(0,1,length=100), shape1 = est_shape1[4], shape2 = est_shape2[4]),
-                        rep(0, 100)),
-                  col=1, alpha=.1)
-    panel.points(
-      x = seq(0,1,length=100),
-      y = dbeta(seq(0,1,length=100), shape1 = est_shape1[1], shape2 = est_shape2[1]),
-      type="l")
-    panel.points(
-      x = seq(0,1,length=100),
-      y = dbeta(seq(0,1,length=100), shape1 = est_shape1[2], shape2 = est_shape2[2]),
-      type="l")
-    panel.points(
-      x = seq(0,1,length=100),
-      y = dbeta(seq(0,1,length=100), shape1 = est_shape1[3], shape2 = est_shape2[3]),
-      type="l")
-    panel.points(
-      x = seq(0,1,length=100),
-      y = dbeta(seq(0,1,length=100), shape1 = est_shape1[4], shape2 = est_shape2[4]),
-      type="l")
-    panel.points(x=est_mu, y=13, pch=19, cex=1.25)
-    panel.arrows(x0=ci_mu[,1], x1=ci_mu[,2], y0=13, y1=13, code=3, angle=90, length=.02)
-    panel.text(x=est_mu, y=11, label=paste0(round(est_mu*100), "%"))
-    panel.text(x=est_mu, y=15.5, label=c("few", "many", "most", "some"), font=3)
+    panel.densityplot(x = subset(m3_pred, quantifier == "few")$.prediction, ref = FALSE, plot.points = FALSE, col=1)
+    panel.densityplot(x = subset(m3_pred, quantifier == "some")$.prediction, ref = FALSE, plot.points = FALSE, col=1)
+    panel.densityplot(x = subset(m3_pred, quantifier == "many")$.prediction, ref = FALSE, plot.points = FALSE, col=1)
+    panel.densityplot(x = subset(m3_pred, quantifier == "most")$.prediction, ref = FALSE, plot.points = FALSE, col=1)
+
+    panel.points(x=mu_m3$median, y=13, pch=19, cex=1.25)
+    panel.segments(x0=ci_mu_m3$ci_lower, x1=ci_mu_m3$ci_upper, y0=13, y1=13)
+    panel.text(x=mu_m3$median, y=11, label=numformat(mu_m3$median))
+    panel.text(x=mu_m3$median, y=15.5, label=c("few", "many", "most", "some"), font=3)
     })
+```
+
+
+```{r}
+#| label: fig-model-III
+#| echo: false
+#| fig-cap: "Visual summary of Model III: Estimates, confidence intervals and the underlying beta distributions."
+#| fig-height: 2
+#| fig-width: 3.5
 
 p1
 ```
 
 
-With ranodom intercepts
+#### Comparison of estimates
+
+Let us finally compare the quantities of interest across our models. @fig-model-comparison (a) shows estimates for the typical relative-frequency interpretation of the expressions. Difference between models are minor, but Model III returns slightly wider uncertainty intervals. This is mainly because the model has been informed that the sample size is 20 (rather than 80), but also because the model has (re)incorporated subject 1. 
+
+In panel (b), the 50% and 80% coverage intervals are shown. Two comparisons are particularly informative: 
+
+- Comparing models I and II, we note the effect of allowing precision to vary across quantifiers. For *few*, Model II returns tighter coverage intervals, since this expression is estimated to show a higher level of precision, i.e. a more stable interpretation across subjects. For *many*, the situation is the other way around. The differences between models I and II are minor, however, which is consistent with the results of the likelihood-ratio test reported above.
+- A comparison of the grey and red coverage intervals for Model III is also revealing: The red intervals are the ones that do not incorporate between-subject variability (as captured by the random intercepts). They therefore fail to answer question iii. The grey bands, on the other hand, do factor this source of variation into the predictions, and they therefore show us what we were looking for.
 
 ```{r}
+#| code-fold: true
+#| code-summary: "Draw figure"
+#| message: false
+#| warning: false
 
-est_mu <- plogis(fixef(m_b2)[1:4,1])
-est_phi <- exp(fixef(m_b2)[5:8,1])
-
-ci_mu <- plogis(fixef(m_b2)[1:4,3:4])
-```
-
-```{r}
-est_shape1 <- muphi_to_shapes(est_mu, est_phi)$shape1
-est_shape2 <- muphi_to_shapes(est_mu, est_phi)$shape2
-```
-
-```{r fig.height=2, fig.width=3.5}
 p1 <- xyplot(
-  1~1, type="n", xlim=c(0,1), ylim=c(0, 16),
+  1~1, type="n", xlim=c(0,1), ylim=c(-.2, 4.5),
   par.settings=my_settings, axis=axis_bottom,
   scales=list(x=list(at=c(0,.2,.4,.6,.8,1),
                      labels=c("0","20","40","60","80","100  "))),
-  xlab="Estimated percentage", ylab="Density               ",
+  xlab="Estimated percentage", ylab="",
+  xlab.top="(a) Typical values + uncertainty\n",
   panel=function(x,y){
-    panel.polygon(x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
-                  y = c(dbeta(seq(0,1,length=100), shape1 = est_shape1[1], shape2 = est_shape2[1]),
-                        rep(0, 100))*.6,
-                  col=1, alpha=.1)
-    panel.polygon(x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
-                  y = c(dbeta(seq(0,1,length=100), shape1 = est_shape1[2], shape2 = est_shape2[2]),
-                        rep(0, 100))*.6,
-                  col=1, alpha=.1)
-    panel.polygon(x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
-                  y = c(dbeta(seq(0,1,length=100), shape1 = est_shape1[3], shape2 = est_shape2[3]),
-                        rep(0, 100))*.6,
-                  col=1, alpha=.1)
-    panel.polygon(x = c(seq(0,1,length=100), rev(seq(0,1,length=100))),
-                  y = c(dbeta(seq(0,1,length=100), shape1 = est_shape1[4], shape2 = est_shape2[4]),
-                        rep(0, 100))*.6,
-                  col=1, alpha=.1)
-    panel.points(
-      x = seq(0,1,length=100),
-      y = dbeta(seq(0,1,length=100), shape1 = est_shape1[1], shape2 = est_shape2[1])*.6,
-      type="l")
-    panel.points(
-      x = seq(0,1,length=100),
-      y = dbeta(seq(0,1,length=100), shape1 = est_shape1[2], shape2 = est_shape2[2])*.6,
-      type="l")
-    panel.points(
-      x = seq(0,1,length=100),
-      y = dbeta(seq(0,1,length=100), shape1 = est_shape1[3], shape2 = est_shape2[3])*.6,
-      type="l")
-    panel.points(
-      x = seq(0,1,length=100),
-      y = dbeta(seq(0,1,length=100), shape1 = est_shape1[4], shape2 = est_shape2[4])*.6,
-      type="l")
-    panel.points(x=est_mu, y=13, pch=19, cex=1.25)
-    panel.arrows(x0=ci_mu[,1], x1=ci_mu[,2], y0=13, y1=13, code=3, angle=90, length=.02)
-    panel.text(x=est_mu, y=11, label=paste0(round(est_mu*100), "%"))
-    panel.text(x=est_mu, y=15.5, label=c("few", "many", "most", "some"), font=3)
+    panel.points(x=mu_m1, y=3, pch=19, cex=1.25)
+    panel.segments(x0=ci_mu_m1[,1], x1=ci_mu_m1[,2], y0=3, y1=3)
+
+    panel.points(x=mu_m2, y=2, pch=19, cex=1.25)
+    panel.segments(x0=ci_mu_m2[,1], x1=ci_mu_m2[,2], y0=2, y1=2)
+
+    panel.points(x=mu_m3$median, y=1, pch=19, cex=1.25)
+    panel.segments(x0=ci_mu_m3$ci_lower, x1=ci_mu_m3$ci_upper, y0=1, y1=1)
+
+    panel.text(x=mu_m1, y=4.25, label=c("few", "many", "most", "some"), font=3)
+    panel.text(x=-.3, y=3:1, label=c("Model I", "Model II", "Model III"), adj=0)
     })
 
-p1
+
+beta_quantiles_m3 <- data.frame(beta_quantiles_m3)
+beta_quantiles_m3_wrong <- data.frame(beta_quantiles_m3_wrong)
+
+p2 <- xyplot(
+  1~1, type="n", xlim=c(0,1), ylim=c(-.2,4.5),
+  par.settings=my_settings, axis=axis_bottom,
+  scales=list(x=list(at=c(0,.2,.4,.6,.8,1),
+                     labels=c("0","20","40","60","80","100  "))),
+  xlab="Estimated percentage", ylab="",
+  xlab.top="(b) 50% and 80% coverage intervals\n",
+  panel=function(x,y){
+    panel.segments(x0=as.numeric(beta_quantiles_m1[,2]), x1=as.numeric(beta_quantiles_m1[,5]), 
+                 y0=3+c(-.15, .15, -.15, .15), y1=3+c(-.15, .15, -.15, .15), lwd=4, col="grey80", lineend="butt")
+    panel.segments(x0=as.numeric(beta_quantiles_m1[,3]), x1=as.numeric(beta_quantiles_m1[,4]), 
+                 y0=3+c(-.15, .15, -.15, .15), y1=3+c(-.15, .15, -.15, .15), lwd=4, col="grey50", lineend="butt")
+    
+    panel.segments(x0=as.numeric(beta_quantiles_m2[,2]), x1=as.numeric(beta_quantiles_m2[,5]), 
+                 y0=2+c(-.15, .15, -.15, .15), y1=2+c(-.15, .15, -.15, .15), lwd=4, col="grey80", lineend="butt")
+    panel.segments(x0=as.numeric(beta_quantiles_m2[,3]), x1=as.numeric(beta_quantiles_m2[,4]), 
+                 y0=2+c(-.15, .15, -.15, .15), y1=2+c(-.15, .15, -.15, .15), lwd=4, col="grey50", lineend="butt")
+    
+    panel.segments(x0=as.numeric(beta_quantiles_m3[,2]), x1=as.numeric(beta_quantiles_m3[,5]), 
+                 y0=1+c(-.15, .15, -.15, .15), y1=1+c(-.15, .15, -.15, .15), lwd=4, col="grey80", lineend="butt")
+    panel.segments(x0=as.numeric(beta_quantiles_m3[,3]), x1=as.numeric(beta_quantiles_m3[,4]), 
+                 y0=1+c(-.15, .15, -.15, .15), y1=1+c(-.15, .15, -.15, .15), lwd=4, col="grey50", lineend="butt")
+    
+    
+    panel.segments(x0=as.numeric(beta_quantiles_m3_wrong[,2]), x1=as.numeric(beta_quantiles_m3_wrong[,5]), 
+                 y0=.25+c(-.15, .15, -.15, .15), y1=.25+c(-.15, .15, -.15, .15), lwd=4, col="darkred", lineend="butt", alpha=.25)
+    panel.segments(x0=as.numeric(beta_quantiles_m3_wrong[,3]), x1=as.numeric(beta_quantiles_m3_wrong[,4]), 
+                 y0=.25+c(-.15, .15, -.15, .15), y1=.25+c(-.15, .15, -.15, .15), lwd=4, col="darkred", lineend="butt", alpha=.25)
+    
+    panel.text(x=mu_m1, y=4.25, label=c("few", "many", "most", "some"), font=3)
+
+    })
 ```
 
+```{r}
+#| label: fig-model-comparison
+#| echo: false
+#| fig-cap: "Comparison of quantities across models: (a) typical values and their uncertainty, and (b) coverage intervals."
+#| fig-height: 1.8
+#| fig-width: 6
 
+print(p1, position=c(.06,0,.52,1), more=T)
+print(p2, position=c(.53,0,1,1))
+```
 
+#### Conclusion
 
-
-
-
-
+In this blog post, we have looked at how to model proportional data using beta regression. Our focus was on the typical (average) interpretation speakers assign to quantifiers and its statistical uncertainty. Apart from this, we considered how to use and summarize beta densities to obtain information about the variability of interpretations (or, more specifically, responses) across subjects to quantify the stability of interpretations in the population represented by our sample of informants. We also looked at how to use model diagnostics for a frequentist and a mixed-effects Bayesian regression model to detect problematic data points and/or speakers.

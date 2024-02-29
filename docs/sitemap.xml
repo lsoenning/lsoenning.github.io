@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://lsoenning.github.io/posts.html</loc>
-    <lastmod>2024-01-25T08:11:18.738Z</lastmod>
+    <lastmod>2024-02-29T13:32:18.201Z</lastmod>
   </url>
   <url>
     <loc>https://lsoenning.github.io/index.html</loc>
@@ -18,7 +18,7 @@
   </url>
   <url>
     <loc>https://lsoenning.github.io/research.html</loc>
-    <lastmod>2024-01-25T09:30:07.530Z</lastmod>
+    <lastmod>2024-02-29T13:29:43.407Z</lastmod>
   </url>
   <url>
     <loc>https://lsoenning.github.io/resources.html</loc>
@@ -43,5 +43,9 @@
   <url>
     <loc>https://lsoenning.github.io/posts/2023-11-16_negative_binomial/index.html</loc>
     <lastmod>2023-12-13T15:54:08.873Z</lastmod>
+  </url>
+  <url>
+    <loc>https://lsoenning.github.io/posts/2024-01-11_beta_regression_quantifiers/index.html</loc>
+    <lastmod>2024-02-29T13:32:26.678Z</lastmod>
   </url>
 </urlset>

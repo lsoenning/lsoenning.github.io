@@ -6,11 +6,11 @@ editor: source
 
 #### Unpublished
 
-- **Sönning**, Lukas. (accepted). Down-sampling from hierarchically structured corpus data. *International Journal of Corpus Linguistics* [Submitted manuscript](https://psyarxiv.com/4vtja/){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/7ernz/){target="_blank"} 
+- **Sönning**, Lukas. (accepted). Down-sampling from hierarchically structured corpus data. *International Journal of Corpus Linguistics*. doi: [10.1075/ijcl.23079.son](https://doi.org/10.1075/ijcl.23079.son)  | {{< ai psyarxiv >}} [Submitted manuscript](https://psyarxiv.com/4vtja/){target="_blank"}  | {{< ai dataverse >}} [Data]( https://doi.org/10.18710/5KCE4U){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/7ernz/){target="_blank"} 
 
-- **Sönning**, Lukas. (accepted). Advancing our understanding of dispersion measures in corpus research. *Corpora*  [Accepted manuscript](files/understanding_dispersion_accepted_manuscript.pdf){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/nhw2y/){target="_blank"} 
+- **Sönning**, Lukas. (accepted). Advancing our understanding of dispersion measures in corpus research. *Corpora*  [Accepted manuscript](files/understanding_dispersion_accepted_manuscript.pdf){target="_blank"} | {{< ai dataverse >}} [Data](https://doi.org/10.18710/FVHTFM){target="_blank"}   | {{< ai osf >}} [OSF](https://osf.io/nhw2y/){target="_blank"} 
 
-- **Sönning**, Lukas, Manfred Krug, Fabian Vetter, Anne Leucht, Timo Schmid & Paul Messer. (in review). Latent-variable modeling of ordinal outcomes in language data analysis. [Submitted manuscript](https://osf.io/vngp5){target="_blank"} | {{< ai osf >}} [OSF](https://osf.io/jnv27/){target="_blank"} 
+- **Sönning**, Lukas, Manfred Krug, Fabian Vetter, Anne Leucht, Timo Schmid & Paul Messer. (accepted). Latent-variable modeling of ordinal outcomes in language data analysis. *Journal of Quantitative Linguistics* [Submitted manuscript](https://osf.io/vngp5){target="_blank"} | {{< ai dataverse >}} [Data](https://doi.org/10.18710/WI9TEH){target="_blank"} | {{< ai osf >}} [OSF](https://osf.io/jnv27/){target="_blank"} 
 
 - **Sönning**, Lukas. (in review). Count regression models for keyness analysis.   {{< ai psyarxiv >}} [Working paper](https://psyarxiv.com/25mwj/){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/mc26t/){target="_blank"} 
 
@@ -22,18 +22,18 @@ editor: source
 
 Monograph
 
-- **Sönning**, Lukas. 2020. *Phonological variation in German Learner English*. University of Bamberg dissertation. DOI: 10.20378/irb-49135   {{< ai 'open-access' >}} [Open access](https://fis.uni-bamberg.de/bitstream/uniba/49135/3/fisba49135_A3a.pdf){target="_blank"}  | {{< ai dataverse >}} [Datasets](#data-diss){target="_blank"}  | {{< ai osf >}}  [OSF](https://osf.io/2pdh6/){target="_blank"} 
+- **Sönning**, Lukas. 2020. *Phonological variation in German Learner English*. University of Bamberg dissertation. doi: [10.20378/irb-49135](https://doi.org/10.20378/irb-49135) | {{< ai 'open-access' >}} [Open access](https://fis.uni-bamberg.de/bitstream/uniba/49135/3/fisba49135_A3a.pdf){target="_blank"}  | {{< ai dataverse >}} [Datasets](#data-diss){target="_blank"}  | {{< ai osf >}}  [OSF](https://osf.io/2pdh6/){target="_blank"} 
 
 
 Journal articles
 
-- **Sönning**, Lukas. 2023. Evaluation of keyness metrics: Performance and reliability. *Corpus Linguistics and Linguistic Theory*. https://doi.org/10.1515/cllt-2022-0116 {{< ai psyarxiv >}} [Preprint](https://psyarxiv.com/eb2n9/){target="_blank"}  | {{< ai dataverse >}} [Data](https://doi.org/10.18710/EUXSMW) | {{< ai osf >}} [OSF](https://osf.io/kcwus/){target="_blank"} 
+- **Sönning**, Lukas & Jason Grafmiller. 2024. Seeing the wood for the trees: Predictive margins for random forests. *Corpus Linguistics and Linguistic Theory* 20(1). 153-181. doi: [10.1515/cllt-2022-0083](https://doi.org/10.1515/cllt-2022-0083){target="_blank"} | {{< ai psyarxiv >}} [Submitted manuscript](https://psyarxiv.com/jr8yk/){target="_blank"}  | {{< ai dataverse >}} [Data](https://doi.org/10.18710/R7HM8J) | {{< ai osf >}} [OSF](https://osf.io/4tuv2){target="_blank"} 
 
-- **Sönning**, Lukas & Jason Grafmiller. 2023. Seeing the wood for the trees: Predictive margins for random forests. *Corpus Linguistics and Linguistic Theory*. https://doi.org/10.1515/cllt-2022-0083  {{< ai psyarxiv >}} [Preprint](https://psyarxiv.com/jr8yk/){target="_blank"}  | {{< ai dataverse >}} [Data](https://doi.org/10.18710/R7HM8J) | {{< ai osf >}} [OSF](https://osf.io/4tuv2){target="_blank"} 
+- **Sönning**, Lukas. 2023. Evaluation of keyness metrics: Performance and reliability. *Corpus Linguistics and Linguistic Theory*. doi: [10.1515/cllt-2022-0116](https://doi.org/10.1515/cllt-2022-0116){target="_blank"} | {{< ai psyarxiv >}} [Submitted manuscript](https://psyarxiv.com/eb2n9/){target="_blank"}  | {{< ai dataverse >}} [Data](https://doi.org/10.18710/EUXSMW) | {{< ai osf >}} [OSF](https://osf.io/kcwus/){target="_blank"} 
 
-- **Sönning**, Lukas & Valentin Werner. 2021. The replication crisis, scientific revolutions, and linguistics. *Linguistics* 59(5). 1179–1206. https://doi.org/10.1515/ling-2019-0045   {{< ai 'open-access' >}} [Open access](https://doi.org/10.1515/ling-2019-0045){target="_blank"}   
+- **Sönning**, Lukas & Valentin Werner. 2021. The replication crisis, scientific revolutions, and linguistics. *Linguistics* 59(5). 1179–1206. doi: [10.1515/ling-2019-0045](https://doi.org/10.1515/ling-2019-0045){target="_blank"}  |  {{< ai 'open-access' >}} [Open access](https://doi.org/10.1515/ling-2019-0045){target="_blank"}   
 
-- **Sönning**, Lukas. 2014. Unstressed vowels in German Learner English: An instrumental study. *Research in Language* 12(2). 163–173. https://doi.org/10.2478/rela-2014-0001   {{< ai 'open-access' >}} [Open access](https://digijournals.uni.lodz.pl/rela/vol12/iss2/4/){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/48ejg/){target="_blank"} 
+- **Sönning**, Lukas. 2014. Unstressed vowels in German Learner English: An instrumental study. *Research in Language* 12(2). 163–173. doi: [10.2478/rela-2014-0001](https://doi.org/10.2478/rela-2014-0001){target="_blank"}  |  {{< ai 'open-access' >}} [Open access](https://digijournals.uni.lodz.pl/rela/vol12/iss2/4/){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/48ejg/){target="_blank"} 
 
   
 Edited volumes
@@ -47,15 +47,15 @@ Edited volumes
 
 Book chapters
 
-- **Sönning**, Lukas. 2023. Drawing on principles of perception: The line plot. In Lukas Sönning & Ole Schützler (eds.), *Data visualization in corpus linguistics: Reflections and future directions* (Studies in Variation, Contacts and Change in English; No. 22). University of Helsinki: VARIENG.  {{< ai 'open-access' >}}  [https://urn.fi/URN:NBN:fi:varieng:series-22-2](https://urn.fi/URN:NBN:fi:varieng:series-22-2)  {{< ai psyarxiv >}} [Preprint](https://psyarxiv.com/tjfz5/){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/ksr5a){target="_blank"} 
+- **Sönning**, Lukas. 2023. Drawing on principles of perception: The line plot. In Lukas Sönning & Ole Schützler (eds.), *Data visualization in corpus linguistics: Reflections and future directions* (Studies in Variation, Contacts and Change in English; No. 22). University of Helsinki: VARIENG.  {{< ai 'open-access' >}}  [https://urn.fi/URN:NBN:fi:varieng:series-22-2](https://urn.fi/URN:NBN:fi:varieng:series-22-2)   | {{< ai psyarxiv >}} [Preprint](https://psyarxiv.com/tjfz5/){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/ksr5a){target="_blank"} 
 
-- **Sönning**, Lukas. 2023. (Re-)viewing the acquisition of rhythm in the light of L2 phonological theories. In Robert Fuchs (ed.), *Speech rhythm in learner and second language varieties of English*, 123–157. Singapore: Springer. https://doi.org/10.1007/978-981-19-8940-7_6  {{< ai psyarxiv >}} [Preprint](https://psyarxiv.com/x36jh/){target="_blank"}  | {{< ai dataverse >}} [Data](https://doi.org/10.18710/GTI2BR){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/25kq4){target="_blank"}  
+- **Sönning**, Lukas. 2023. (Re-)viewing the acquisition of rhythm in the light of L2 phonological theories. In Robert Fuchs (ed.), *Speech rhythm in learner and second language varieties of English*, 123–157. Singapore: Springer. doi: [10.1007/978-981-19-8940-7_6](https://doi.org/10.1007/978-981-19-8940-7_6){target="_blank"}  |  {{< ai psyarxiv >}} [Preprint](https://psyarxiv.com/x36jh/){target="_blank"}  | {{< ai dataverse >}} [Data](https://doi.org/10.18710/GTI2BR){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/25kq4){target="_blank"}  
 
-- **Sönning**, Lukas & Manfred Krug. 2022. Comparing study designs and down-sampling strategies in corpus analysis: The importance of speaker metadata in the BNCs of 1994 and 2014. In Ole Schützler & Julia Schlüter (eds.), *Data and methods in corpus linguistics: Comparative approaches*, 127–159. Cambridge: Cambridge University Press. DOI: 10.1017/9781108589314.006   {{< ai 'closed-access' >}} [Link](https://doi.org/10.1017/9781108589314.006){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/v3byq/){target="_blank"}  | {{< ai dataverse >}} [Data](https://doi.org/10.18710/A3SATC){target="_blank"} 
+- **Sönning**, Lukas & Manfred Krug. 2022. Comparing study designs and down-sampling strategies in corpus analysis: The importance of speaker metadata in the BNCs of 1994 and 2014. In Ole Schützler & Julia Schlüter (eds.), *Data and methods in corpus linguistics: Comparative approaches*, 127–159. Cambridge: Cambridge University Press. doi: [10.1017/9781108589314.006](https://doi.org/10.1017/9781108589314.006){target="_blank"} | {{< ai dataverse >}} [Data](https://doi.org/10.18710/A3SATC){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/v3byq/){target="_blank"}
 
-- **Sönning**, Lukas & Julia Schlüter. 2022. Comparing standard reference corpora and Google Books Ngrams: Strengths, limitations and synergies in the contrastive study of variable h- in British and American English. In Ole Schützler & Julia Schlüter (eds.), *Data and methods in corpus linguistics: Comparative approaches*, 17–45. Cambridge: Cambridge University Press. DOI: 10.1017/9781108589314.002   {{< ai 'closed-access' >}} [Link](https://doi.org/10.1017/9781108589314.002){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/47p6u/){target="_blank"}   
+- **Sönning**, Lukas & Julia Schlüter. 2022. Comparing standard reference corpora and Google Books Ngrams: Strengths, limitations and synergies in the contrastive study of variable h- in British and American English. In Ole Schützler & Julia Schlüter (eds.), *Data and methods in corpus linguistics: Comparative approaches*, 17–45. Cambridge: Cambridge University Press. doi: [10.1017/9781108589314.002](https://doi.org/10.1017/9781108589314.002){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/47p6u/){target="_blank"}   
 
-- Krug, Manfred & Lukas **Sönning**. 2018. Language change in Maltese English: The influence of age and parental languages. In: Patrizia Paggio & Albert Gatt (eds.), *The languages of Malta*, 247–270. Berlin: Language Science Press. DOI: 10.5281/zenodo.1181801   {{< ai 'open-access' >}} [Open access](https://doi.org/10.5281/zenodo.1181801){target="_blank"} 
+- Krug, Manfred & Lukas **Sönning**. 2018. Language change in Maltese English: The influence of age and parental languages. In: Patrizia Paggio & Albert Gatt (eds.), *The languages of Malta*, 247–270. Berlin: Language Science Press. doi: [10.5281/zenodo.1181801](https://doi.org/10.5281/zenodo.1181801){target="_blank"} | {{< ai 'open-access' >}} [Open access](https://doi.org/10.5281/zenodo.1181801){target="_blank"} 
 
 
 Proceedings
@@ -64,38 +64,40 @@ Proceedings
 
 - **Sönning**, Lukas. 2014. Developmental patterns in the reduction of unstressed vowels by German learners of English. In Ludmila Veselovská & Markéta Janebová (eds.), *Complex visibles out there: Proceedings of the Olomouc Linguistics Colloquium 2014: Language use and linguistic structure, vol. 4 Olomouc modern language series*, 765–778. Olomouc: Palacký University.   {{< ai 'open-access' >}} [Open access](https://osf.io/kn4gp) | {{< ai osf >}} [OSF](https://osf.io/v5hrb/){target="_blank"} 
 
-- **Sönning**, Lukas. 2013. Scrabble yourself to success: Methods in teaching transcription. In Joanna Przedlacka, John Maidment & Michael Ashby (eds.), *Proceedings of the Phonetics Teaching and Learning Conference, UCL, London, 8-10 August 2013*. London: Phonetics Teaching and Learning Conference, 87–90.  {{< ai 'open-access' >}} [Open access](https://fis.uni-bamberg.de/bitstream/uniba/2422/2/fisba2422.pdf){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/vxgmu/){target="_blank"}  | {{< ai dataverse >}} [Data](https://doi.org/10.18710/2UJHHU){target="_blank"}  
+- **Sönning**, Lukas. 2013. Scrabble yourself to success: Methods in teaching transcription. In Joanna Przedlacka, John Maidment & Michael Ashby (eds.), *Proceedings of the Phonetics Teaching and Learning Conference, UCL, London, 8-10 August 2013*. London: Phonetics Teaching and Learning Conference, 87–90.  {{< ai 'open-access' >}} [Open access](https://osf.io/uknmh){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/vxgmu/){target="_blank"}  | {{< ai dataverse >}} [Data](https://doi.org/10.18710/2UJHHU){target="_blank"}  
 
 \  
 
 #### Datasets
 
-- Sönning, Lukas. 2023. *Background data (adapted from Jenset & McGillivray 2017) for: Down-sampling from hierarchically structured corpus data*, [https://doi.org/10.18710/5KCE4U](https://doi.org/10.18710/5KCE4U){target="_blank"} , DataverseNO, V1.
+- Krug, Manfred, Fabian Vetter & Lukas Sönning. 2024. *Background data for: Latent-variable modeling of ordinal outcomes in language data analysis.* [https://doi.org/10.18710/WI9TEH](https://doi.org/10.18710/WI9TEH){target="_blank"}, DataverseNO, V1.
 
-- Sönning, Lukas. 2023. *Key verbs in academic writing: Dataset for "Evaluation of keyness metrics: Performance and reliability"*, [https://doi.org/10.18710/EUXSMW](https://doi.org/10.18710/EUXSMW){target="_blank"} , DataverseNO, V1.
+- Sönning, Lukas. 2023. *Background data (adapted from Jenset & McGillivray 2017) for: Down-sampling from hierarchically structured corpus data*, [https://doi.org/10.18710/5KCE4U](https://doi.org/10.18710/5KCE4U){target="_blank"}, DataverseNO, V1.
 
-- Sönning, Lukas. 2022. *Speech rhythm in German Learner English: Dataset for "(Re-)viewing the acquisition of rhythm in the light of L2 phonological theories"*, [https://doi.org/10.18710/GTI2BR](https://doi.org/10.18710/GTI2BR){target="_blank"} , DataverseNO, V1.
+- Sönning, Lukas. 2023. *Key verbs in academic writing: Dataset for "Evaluation of keyness metrics: Performance and reliability"*, [https://doi.org/10.18710/EUXSMW](https://doi.org/10.18710/EUXSMW){target="_blank"}, DataverseNO, V1.
 
-- Sönning, Lukas & Manfred Krug. 2021. *Actually in contemporary British speech: Data from the Spoken BNC corpora*, [https://doi.org/10.18710/A3SATC](https://doi.org/10.18710/A3SATC){target="_blank"} , DataverseNO, V1.
+- Sönning, Lukas. 2022. *Speech rhythm in German Learner English: Dataset for "(Re-)viewing the acquisition of rhythm in the light of L2 phonological theories"*, [https://doi.org/10.18710/GTI2BR](https://doi.org/10.18710/GTI2BR){target="_blank"}, DataverseNO, V1.
 
-- Sönning, Lukas. 2022. *Dataset for "Scrabble yourself to success: Methods in teaching transcription"*, [https://doi.org/10.18710/2UJHHU](https://doi.org/10.18710/2UJHHU){target="_blank"} , DataverseNO, V1.
+- Sönning, Lukas & Manfred Krug. 2021. *Actually in contemporary British speech: Data from the Spoken BNC corpora*, [https://doi.org/10.18710/A3SATC](https://doi.org/10.18710/A3SATC){target="_blank"}, DataverseNO, V1.
+
+- Sönning, Lukas. 2022. *Dataset for "Scrabble yourself to success: Methods in teaching transcription"*, [https://doi.org/10.18710/2UJHHU](https://doi.org/10.18710/2UJHHU){target="_blank"}, DataverseNO, V1.
 
 
 ####### Dissertation {#data-diss}
 
-- Sönning, Lukas. 2021. *The TRAP-DRESS contrast in German Learner English: Dataset for chapter 4 in "Phonological variation in German Learner English"*, [https://doi.org/10.18710/ATIRRV](https://doi.org/10.18710/ATIRRV){target="_blank"} , DataverseNO, V1.
+- Sönning, Lukas. 2021. *The TRAP-DRESS contrast in German Learner English: Dataset for chapter 4 in "Phonological variation in German Learner English"*, [https://doi.org/10.18710/ATIRRV](https://doi.org/10.18710/ATIRRV){target="_blank"}, DataverseNO, V1.
 
-- Sönning, Lukas. 2021. *Clear vs. dark /l/ in German Learner English: Dataset for chapter 5 in "Phonological variation in German Learner English"*, [https://doi.org/10.18710/G6PJ5F](https://doi.org/10.18710/G6PJ5F){target="_blank"} , DataverseNO, V1.
+- Sönning, Lukas. 2021. *Clear vs. dark /l/ in German Learner English: Dataset for chapter 5 in "Phonological variation in German Learner English"*, [https://doi.org/10.18710/G6PJ5F](https://doi.org/10.18710/G6PJ5F){target="_blank"}, DataverseNO, V1.
 
-- Sönning, Lukas, Graham Pascoe, Isabel Rank and Christina Wunder. 2021. *English /r/ in German Learner English: Dataset for chapter 6 in "Phonological variation in German Learner English"*, [https://doi.org/10.18710/YDKDFG](https://doi.org/10.18710/YDKDFG){target="_blank"} , DataverseNO, V1.
+- Sönning, Lukas, Graham Pascoe, Isabel Rank and Christina Wunder. 2021. *English /r/ in German Learner English: Dataset for chapter 6 in "Phonological variation in German Learner English"*, [https://doi.org/10.18710/YDKDFG](https://doi.org/10.18710/YDKDFG){target="_blank"}, DataverseNO, V1.
 
-- Sönning, Lukas, Graham Pascoe, Isabel Rank and Christina Wunder. 2021. *The labio-velar glide /w/ in German Learner English: Dataset for chapter 7 in "Phonological variation in German Learner English"*, [https://doi.org/10.18710/F1A34O](https://doi.org/10.18710/F1A34O){target="_blank"} , DataverseNO, V1.
+- Sönning, Lukas, Graham Pascoe, Isabel Rank and Christina Wunder. 2021. *The labio-velar glide /w/ in German Learner English: Dataset for chapter 7 in "Phonological variation in German Learner English"*, [https://doi.org/10.18710/F1A34O](https://doi.org/10.18710/F1A34O){target="_blank"}, DataverseNO, V1.
 
-- Sönning, Lukas & Isabel Rank. 2021. *The labiodental fricative /v/ in German Learner English: Dataset for chapter 8 in "Phonological variation in German Learner English"*, [https://doi.org/10.18710/B276ZX](https://doi.org/10.18710/B276ZX){target="_blank"} , DataverseNO, V1.
+- Sönning, Lukas & Isabel Rank. 2021. *The labiodental fricative /v/ in German Learner English: Dataset for chapter 8 in "Phonological variation in German Learner English"*, [https://doi.org/10.18710/B276ZX](https://doi.org/10.18710/B276ZX){target="_blank"}, DataverseNO, V1.
 
-- Sönning, Lukas, Graham Pascoe & Christina Wunder. 2021. *The voiced dental fricative in German Learner English: Dataset for chapter 9 in "Phonological variation in German Learner English"*, [https://doi.org/10.18710/DYAGZG](https://doi.org/10.18710/DYAGZG){target="_blank"} , DataverseNO, V1.
+- Sönning, Lukas, Graham Pascoe & Christina Wunder. 2021. *The voiced dental fricative in German Learner English: Dataset for chapter 9 in "Phonological variation in German Learner English"*, [https://doi.org/10.18710/DYAGZG](https://doi.org/10.18710/DYAGZG){target="_blank"}, DataverseNO, V1.
 
-- Sönning, Lukas & Graham Pascoe. 2021. *Final voiced obstruents in German Learner English: Dataset for chapter 10 in "Phonological variation in German Learner English"*, [https://doi.org/10.18710/DKIGE5](https://doi.org/10.18710/DKIGE5){target="_blank"} , DataverseNO, V1.
+- Sönning, Lukas & Graham Pascoe. 2021. *Final voiced obstruents in German Learner English: Dataset for chapter 10 in "Phonological variation in German Learner English"*, [https://doi.org/10.18710/DKIGE5](https://doi.org/10.18710/DKIGE5){target="_blank"}, DataverseNO, V1.
 
 
 
