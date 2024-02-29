@@ -936,6 +936,7 @@ p1 <- xyplot(
 #| fig-cap: "Visual summary of Model II: Estimates, confidence intervals and the underlying beta distributions."
 #| fig-height: 2
 #| fig-width: 3.5
+#| classes: preview-image
 
 p1
 ```
