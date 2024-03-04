@@ -1,0 +1,208 @@
+---
+title: "Custom scoring systems in ordinal data analysis: A tribute to Sharoff (2018)"
+description: "This blog post ..."
+date: 2024-02-29
+categories: [ordinal data, scoring system, rating scales]
+citation: 
+  url: https://lsoenning.github.io/posts/2024-03-01_sharoff_2018/
+editor: source
+draft: true
+---
+
+
+```{r}
+#| code-fold: true
+#| code-summary: "R setup"
+#| message: false
+#| warning: false
+
+library(tidyverse)
+library(lattice)
+
+source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
+
+directory_path <- "C:/Users/ba4rh5/Work Folders/My Files/R projects/_lsoenning.github.io/posts/2024-03-01_sharoff_2018/"
+
+```
+
+I recently did a literature survey on how ordinal rating scale data are handled in linguistic research [see @Soenning2024]. It included 4,441 publications from 16 linguistic journals (published between 2012 and 2022), covering a broad range of sub-disciplines. It turned out that a vast majority of researchers take a numeric-conversion approach: They translate the response categories into numeric scores and then analyze the data as though ratings were actually collected on a continuous scale. Further, almost all of these studies use a linear scoring system, i.e. equally-spaced integers, to analyze their data. The current blog post is devoted to @Sharoff2018, the only paper in our survey that used a custom set of scale values for the ordered response set.
+
+#### Numeric-conversion approach to ordinal data
+
+In what follows, we will use the term *scoring system* [see @Labovitz1967] to refer to the set of values that are used to represent the ordinal responses. Analyses based on scoring systems involve the calculation of averages or the use of ordinary (mixed-effects) regression. This practice, which is widespread in linguistics [see @Soenning_etal2024; @Soenning2024], has sparked heated methodological debates. The widely accepted belief that an interval-level analysis of ordinal data is inappropriate goes back to an influential paper by @Stevens1946, who proposed a taxonomy of scale types (nominal, ordinal, interval, and ratio) along with “permissible statistics” for each. Among the caveats of the numeric-conversion approach is the fact that distances between consecutive categories are usually unknown. In particular, when all scale points are verbalized, the perceived distance between categories will depend on how informants interpret the labels. It turns out that experimental research has produced insights into the perception of quantificational expressions that are frequently used to build graded scales.
+
+
+#### Psychometric research
+
+Psycholinguistic research on intensifiers, for instance, has shown that English native speakers recognize similar increments in intensity between *hardly*-*slightly* and *considerably*-*highly* [@Rohrmann2007]. Such insights can inform the design and analysis stage of a study. Earlier methodological work has mainly focused on scale construction, i.e. the selection of approximately equal-interval sequences [e.g. @Friedman_Amoo1999; @Rohrmann2007; @Beckstead2014]. As discussed in @Soenning2024, psychometric scale values can also suggest more appropriate scoring systems for data analysis. As our literature survey shows, custom scale values are virtually never used in current research, and only few methodological studies acknowledge this possibility [@Labovitz1967, p. 155; @Worcester_Burns1975, p. 191]. Instead, researchers almost universally assign equally-spaced integers to the categories. The only exception we have found in our survey is the study by @Sharoff2018.
+
+
+#### Sharoff (2018)
+
+The paper by @Sharoff2018, which appeared in the journal *Corpora*, presents an approach to classifying texts that appear in large web corpora into genres. To this end, a text-external framework relying on Functional Text Dimensions is used. Examples for such dimensions are ‘informative reporting’ or ‘argumentation’, and raters were asked to indicate the extent to which a text represents a certain functional category. To answer questions such as "To what extent does the text appear to be an informative report of events recent at the time of writing (for example, a news item)?", informants were provided with four response options:
+
+- "strongly or very much so"
+- "somewhat or partly"
+- "slightly"
+- "none or hardly at all"
+
+As @Sharoff2018 [p. 72] explains, the response scale was purposefully constructed to exhibit a notable gap between "strongly or very much so" and "somewhat or partly". The following custom scoring system was then used to analyze the data:
+
+- `2.0` "strongly or very much so"
+- `1.0` "somewhat or partly"
+- `0.5` "slightly"
+- `  0` "none or hardly at all"
+
+The step from “somewhat or partly” to “strongly or very much so” was made twice as large as the other steps, in line with the deliberate scale design. Seeing that the scale is essentially composed of intensifying adverbs (e.g. *strongly*, *somewhat*, *slightly*), let us compare this scoring system to experimental findings on the perception of these expressions.
+
+
+#### The psychometrics of intensifiers
+
+A number of studies have looked into how speakers interpret intensifying adverbs. Here, we bring together results from three studies that used similar methods to scale the meaning of relevant adverbs [@Matthews_etal1978; @Krsacok2001; @Rohrmann2007]. To measure the relative level of intensity assigned to a specific expression, subjects are typically asked to locate it on an equally-apportioned 11-point scale. We map this scale to the [0,10] interval. @fig-intensity gives an overview of and summarizes the findings reported in the three studies:
+
+- The grey dot diagrams indicate the ratings for four speaker groups (@Krsacok2001 studied two groups, male vs. female subjects).
+- The black dots denote the average across the groups, which is recorded at the left end of the graph.
+- The expressions used in @Sharoff2018 are highlighted in grey.
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+d <- readxl::read_xlsx(paste0(directory_path, "/data/intensity_survey.xlsx"))
+d$verbal_label <- tolower(d$adverb)
+
+d <- d |> group_by(verbal_label) |> 
+  mutate(
+    grand_mean = mean(mean_rating)
+  )
+
+d_subset <- d |> filter(
+  verbal_label %in% c("not", "hardly", "slightly", "somewhat", "partly", "very much")
+) |> group_by(verbal_label) |> 
+  dplyr::summarize(score_mean = mean(mean_rating)) |> 
+  arrange(score_mean)
+
+
+intensity_items_means <- sort(with(d, tapply(mean_rating, verbal_label, mean)))
+
+p1 <- d |> ggplot(aes(x=reorder(verbal_label, mean_rating), y=mean_rating)) +
+  geom_dotplot(method="histodot", binaxis="y", binwidth = .125, 
+               stackratio=.9, dotsize=.85, color="grey40", fill="grey40", stroke=.2) +
+  xlab(NULL) +
+  theme_minimal() +
+  scale_y_continuous(expand = c(0,0), breaks=c(0,2,4,6,8,10),  
+                     label=c("0","2","4","6","8","10"), limits=c(-.2, 10)) +
+  coord_cartesian(xlim=c(1,32), expand = c(0,0)) +
+  coord_flip(clip = "off") + 
+  ylab("Average score\n(Intensity on a scale from 0 to 10)") +
+    annotate("rect", ymin=0, ymax=10, xmin=c(2, 4, 6, 8, 10, 28)-.4, 
+           xmax=c(2, 4, 6, 8, 10, 28)+.4, fill ="grey", alpha=.5) +
+  annotate("point", y=intensity_items_means, x=(1:length(intensity_items_means))-.25,
+           shape=19, size=1, color="black") +
+  
+  annotate("segment", y=21, yend=25, 
+           x=1:length(intensity_items_means), xend=1:length(intensity_items_means), color="white") +
+ 
+  annotate("text", y=0, x=(1:length(intensity_items_means)), size=3, adj=1,
+          label=paste0(format(round(intensity_items_means, 1)), "     ")) +
+  theme(axis.ticks.length.y =unit(9,"mm"),
+        plot.subtitle = element_text(size=9, face="bold"),
+        axis.text.y = element_text(face="italic"),
+        axis.ticks.y = element_line(color="transparent"),
+        axis.title.x = element_text(size=9),
+        panel.grid.minor = element_blank(),
+        panel.grid.major = element_line(color="grey90", size=.3))
+  
+```
+
+```{r}
+#| label: fig-intensity
+#| warning: false
+#| message: false
+#| echo: false
+#| fig-cap: "Comparison of @Sharoff2018's scoring system to the psychometric spacing of relevant intensity adverbs"
+#| fig-height: 5
+#| fig-width: 4
+
+p1
+```
+
+
+#### Comparison of Sharoff's (2018) scoring system with experimental findings 
+
+We can make an attempt to roughly pin down the psychometric scale values that may be considered good approximations for @Sharoff2018's response categories. We start by locating the appropriate averages in @fig-intensity:
+
+- `8.7` *very much*
+- `3.5` *somewhat*
+- `3.5` *partly*
+- `2.4` *slightly*
+- `1.5` *hardly*
+- `0.4` *not*
+
+Then we average across double designations (e.g. *hardly*/*not*; *somewhat*/*partly*). This allows us to establish an empirically grounded spacing between the response options. @fig-sharoff compares these relative distances to the ones used by @Sharoff2018. It lends empirical support to the custom scores used in that study: Three (roughly) equally-spaced categories at the lower end of the scale, with a disproportionate gap to the highest response option. In fact, the psychometric evidence would have licensed a more pronounced numeric gap between *very much* and *somewhat*/*partly*, roughly:
+
+- `2.0` "strongly or very much so"
+- `0.7` "somewhat or partly"
+- `0.4` "slightly"
+- `  0` "none or hardly at all"
+
+More importantly, however, it is clear that it was appropriate for @Sharoff2018 to use a custom scoring system -- the default linear set (e.g. `0`, `1`, `2`, `3`) would have misrepresented the way speakers interpret the response labels.
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+p1 <- xyplot(score_mean ~ rep(2, 6), data=d_subset, pch=1, col=1, cex=1.5,
+       par.settings=my_settings, axis=axis_left, ylim=c(0,10), xlim=c(-5,13),
+       scales=list(y=list(at=c(0,5,10), cex=.9)),
+       ylab="Average score\n(on a scale from 0 to 10)\n", xlab=NULL,
+       panel=function(x,y,...){
+         panel.arrows(x0=c(2.5, 2.3, 2.3, 2.3), x1=8,
+                      y0=c(.95, 2.43, 3.52, 8.7), y1=c(.95, 2.43, 3.52, 8.7), col="grey",
+                      angle=10, length=.07)
+         
+         panel.text(y=d_subset$score_mean + c(0,0,0,-.3, .3, 0), x=1,
+                    label=d_subset$verbal_label, 
+                    font="italic", adj=c(1,NA), col="grey30")
+         
+         panel.segments(x0=9, x1=9, y0=.95, y1=8.7)
+         panel.segments(x0=9, x1=9.5, y0=c(.95, .95+1.9375, .95+1.9375+1.9375, 8.7),
+                        y1=c(.95, .95+1.9375, .95+1.9375+1.9375, 8.7))
+         
+         panel.segments(x0=2.5, x1=2.5, y0=.4, y1=1.5, col="grey")
+         panel.segments(x0=2.5, x1=2.05, y0=d_subset$score_mean[1:2], y1=d_subset$score_mean[1:2], col="grey")
+         
+         panel.xyplot(x,y,...)
+         panel.text(x=10, y=c(.95, .95+1.9375, .95+1.9375+1.9375, 8.7),
+                    label=c("0", "0.5", "1", "2"), adj=0, font="bold")
+         
+         panel.text(x=12, y=c(.95, .95+1.9375, .95+1.9375+1.9375, 8.7),
+                    label=c('"none or hardly at all"', '"slightly"', 
+                            '"somewhat or partly"', '"strongly or very much so"'),
+                    adj=0, font="italic")
+         
+         panel.text(x=17, y=11, label="Scoring system in Sharoff 2018")
+         panel.text(x=2, y=11, label="Psychometric scale values")
+       })
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: fig-sharoff
+#| fig-cap: "Comparison of @Sharoff2018's scoring system to the psychometric spacing of relevant intensity adverbs"
+#| fig-width: 4.6
+#| fig-height: 2.5
+
+print(p1, position=c(.02,-.12,.68,.9))
+
+```
+
+#### Conclusion
+
+We have seen how experimental findings may inform the arrangement of custom scoring systems for the analysis of ordinal rating scale data. The fact that researchers almost exclusively rely on equal-spaced integers is clearly unsatisfactory. Following the good example of @Sharoff2018, more frequent use should be made of custom scoring systems. This methodological topic is discussed much more detail in @Soenning2024, where further psychometric insights are summarized and the inherent limitations of the numeric-conversion approach to ordinal data are given due consideration. The paper discusses measurement-theoretic and statistical issues surrounding this strategy and clearly states their consequences for the analysis and interpretation of rating scale data. 
+
+
