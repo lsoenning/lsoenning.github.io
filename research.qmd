@@ -6,8 +6,6 @@ editor: source
 
 #### Unpublished
 
-- **Sönning**, Lukas. (accepted). Down-sampling from hierarchically structured corpus data. *International Journal of Corpus Linguistics*. doi: [10.1075/ijcl.23079.son](https://doi.org/10.1075/ijcl.23079.son)  | {{< ai psyarxiv >}} [Submitted manuscript](https://psyarxiv.com/4vtja/){target="_blank"}  | {{< ai dataverse >}} [Data]( https://doi.org/10.18710/5KCE4U){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/7ernz/){target="_blank"} 
-
 - **Sönning**, Lukas. (accepted). Advancing our understanding of dispersion measures in corpus research. *Corpora*  [Accepted manuscript](files/understanding_dispersion_accepted_manuscript.pdf){target="_blank"} | {{< ai dataverse >}} [Data](https://doi.org/10.18710/FVHTFM){target="_blank"}   | {{< ai osf >}} [OSF](https://osf.io/nhw2y/){target="_blank"} 
 
 - **Sönning**, Lukas, Manfred Krug, Fabian Vetter, Anne Leucht, Timo Schmid & Paul Messer. (accepted). Latent-variable modeling of ordinal outcomes in language data analysis. *Journal of Quantitative Linguistics* [Submitted manuscript](https://osf.io/vngp5){target="_blank"} | {{< ai dataverse >}} [Data](https://doi.org/10.18710/WI9TEH){target="_blank"} | {{< ai osf >}} [OSF](https://osf.io/jnv27/){target="_blank"} 
@@ -26,6 +24,8 @@ Monograph
 
 
 Journal articles
+
+- **Sönning**, Lukas. 2024. Down-sampling from hierarchically structured corpus data. *International Journal of Corpus Linguistics*. doi: [10.1075/ijcl.23079.son](https://doi.org/10.1075/ijcl.23079.son)  | {{< ai psyarxiv >}} [Submitted manuscript](https://psyarxiv.com/4vtja/){target="_blank"}  | {{< ai dataverse >}} [Data]( https://doi.org/10.18710/5KCE4U){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/7ernz/){target="_blank"} 
 
 - **Sönning**, Lukas & Jason Grafmiller. 2024. Seeing the wood for the trees: Predictive margins for random forests. *Corpus Linguistics and Linguistic Theory* 20(1). 153-181. doi: [10.1515/cllt-2022-0083](https://doi.org/10.1515/cllt-2022-0083){target="_blank"} | {{< ai psyarxiv >}} [Submitted manuscript](https://psyarxiv.com/jr8yk/){target="_blank"}  | {{< ai dataverse >}} [Data](https://doi.org/10.18710/R7HM8J) | {{< ai osf >}} [OSF](https://osf.io/4tuv2){target="_blank"} 
 
