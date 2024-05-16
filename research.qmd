@@ -6,11 +6,15 @@ editor: source
 
 #### Unpublished
 
+- **Sönning**, Lukas & Jesse Egbert. (in preparation). Sensitivity of dispersion measures to distributional patterns and corpus design.
+
+- **Sönning**, Lukas, Jason Grafmiller & Raquel Romasanta. (in preparation). Regression and random forests: Synergies for variationist corpus research.
+
+- **Sönning**, Lukas. (in preparation). Ordinal rating scales: Psychometric grounding for design and analysis.
+
 - **Sönning**, Lukas. (accepted). Advancing our understanding of dispersion measures in corpus research. *Corpora*  [Accepted manuscript](files/understanding_dispersion_accepted_manuscript.pdf){target="_blank"} | {{< ai dataverse >}} [Data](https://doi.org/10.18710/FVHTFM){target="_blank"}   | {{< ai osf >}} [OSF](https://osf.io/nhw2y/){target="_blank"} 
 
-- **Sönning**, Lukas, Manfred Krug, Fabian Vetter, Anne Leucht, Timo Schmid & Paul Messer. (accepted). Latent-variable modeling of ordinal outcomes in language data analysis. *Journal of Quantitative Linguistics* [Submitted manuscript](https://osf.io/vngp5){target="_blank"} | {{< ai dataverse >}} [Data](https://doi.org/10.18710/WI9TEH){target="_blank"} | {{< ai osf >}} [OSF](https://osf.io/jnv27/){target="_blank"} 
-
-- **Sönning**, Lukas. (in review). Count regression models for keyness analysis.   {{< ai psyarxiv >}} [Working paper](https://psyarxiv.com/25mwj/){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/mc26t/){target="_blank"} 
+- **Sönning**, Lukas. (unpublished manuscript). Count regression models for keyness analysis.   {{< ai psyarxiv >}} [Working paper](https://psyarxiv.com/25mwj/){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/mc26t/){target="_blank"} 
 
 - **Sönning**, Lukas. (unpublished manuscript). Evaluation of text-level measures of lexical dispersion: Robustness and consistency.   {{< ai psyarxiv >}} [Working paper](https://psyarxiv.com/h9mvs/){target="_blank"}  | {{< ai dataverse >}} [Data](https://doi.org/10.18710/MNVB36){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/rpfb8/){target="_blank"} 
 
@@ -25,11 +29,13 @@ Monograph
 
 Journal articles
 
+- **Sönning**, Lukas, Manfred Krug, Fabian Vetter, Anne Leucht, Timo Schmid & Paul Messer. 2024. Latent-variable modelling of ordinal outcomes in language data analysis. *Journal of Quantitative Linguistics* (ahead of print). doi: [10.1080/09296174.2024.2329448]( https://doi.org/10.1080/09296174.2024.2329448) | {{< ai osf >}} [Submitted manuscript](https://osf.io/vngp5){target="_blank"} | {{< ai dataverse >}} [Data](https://doi.org/10.18710/WI9TEH){target="_blank"} | {{< ai osf >}} [OSF](https://osf.io/jnv27/){target="_blank"} 
+
 - **Sönning**, Lukas. 2024. Down-sampling from hierarchically structured corpus data. *International Journal of Corpus Linguistics*. doi: [10.1075/ijcl.23079.son](https://doi.org/10.1075/ijcl.23079.son)  | {{< ai psyarxiv >}} [Submitted manuscript](https://psyarxiv.com/4vtja/){target="_blank"}  | {{< ai dataverse >}} [Data]( https://doi.org/10.18710/5KCE4U){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/7ernz/){target="_blank"} 
 
-- **Sönning**, Lukas & Jason Grafmiller. 2024. Seeing the wood for the trees: Predictive margins for random forests. *Corpus Linguistics and Linguistic Theory* 20(1). 153-181. doi: [10.1515/cllt-2022-0083](https://doi.org/10.1515/cllt-2022-0083){target="_blank"} | {{< ai psyarxiv >}} [Submitted manuscript](https://psyarxiv.com/jr8yk/){target="_blank"}  | {{< ai dataverse >}} [Data](https://doi.org/10.18710/R7HM8J) | {{< ai osf >}} [OSF](https://osf.io/4tuv2){target="_blank"} 
+- **Sönning**, Lukas. 2024. Evaluation of keyness metrics: Performance and reliability. *Corpus Linguistics and Linguistic Theory* 20(2). 263–288. doi: [10.1515/cllt-2022-0116](https://doi.org/10.1515/cllt-2022-0116){target="_blank"} | {{< ai psyarxiv >}} [Submitted manuscript](https://psyarxiv.com/eb2n9/){target="_blank"}  | {{< ai dataverse >}} [Data](https://doi.org/10.18710/EUXSMW) | {{< ai osf >}} [OSF](https://osf.io/kcwus/){target="_blank"} 
 
-- **Sönning**, Lukas. 2023. Evaluation of keyness metrics: Performance and reliability. *Corpus Linguistics and Linguistic Theory*. doi: [10.1515/cllt-2022-0116](https://doi.org/10.1515/cllt-2022-0116){target="_blank"} | {{< ai psyarxiv >}} [Submitted manuscript](https://psyarxiv.com/eb2n9/){target="_blank"}  | {{< ai dataverse >}} [Data](https://doi.org/10.18710/EUXSMW) | {{< ai osf >}} [OSF](https://osf.io/kcwus/){target="_blank"} 
+- **Sönning**, Lukas & Jason Grafmiller. 2024. Seeing the wood for the trees: Predictive margins for random forests. *Corpus Linguistics and Linguistic Theory* 20(1). 153–181. doi: [10.1515/cllt-2022-0083](https://doi.org/10.1515/cllt-2022-0083){target="_blank"} | {{< ai psyarxiv >}} [Submitted manuscript](https://psyarxiv.com/jr8yk/){target="_blank"}  | {{< ai dataverse >}} [Data](https://doi.org/10.18710/R7HM8J) | {{< ai osf >}} [OSF](https://osf.io/4tuv2){target="_blank"} 
 
 - **Sönning**, Lukas & Valentin Werner. 2021. The replication crisis, scientific revolutions, and linguistics. *Linguistics* 59(5). 1179–1206. doi: [10.1515/ling-2019-0045](https://doi.org/10.1515/ling-2019-0045){target="_blank"}  |  {{< ai 'open-access' >}} [Open access](https://doi.org/10.1515/ling-2019-0045){target="_blank"}   
 
