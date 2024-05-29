@@ -29,7 +29,7 @@ Monograph
 
 Journal articles
 
-- **Sönning**, Lukas, Manfred Krug, Fabian Vetter, Anne Leucht, Timo Schmid & Paul Messer. 2024. Latent-variable modelling of ordinal outcomes in language data analysis. *Journal of Quantitative Linguistics* (ahead of print). doi: [10.1080/09296174.2024.2329448]( https://doi.org/10.1080/09296174.2024.2329448) | {{< ai osf >}} [Submitted manuscript](https://osf.io/vngp5){target="_blank"} | {{< ai dataverse >}} [Data](https://doi.org/10.18710/WI9TEH){target="_blank"} | {{< ai osf >}} [OSF](https://osf.io/jnv27/){target="_blank"} 
+- **Sönning**, Lukas, Manfred Krug, Fabian Vetter, Timo Schmid, Anne Leucht & Paul Messer. 2024. Latent-variable modelling of ordinal outcomes in language data analysis. *Journal of Quantitative Linguistics* 31(2). 77–106. doi: [10.1080/09296174.2024.2329448]( https://doi.org/10.1080/09296174.2024.2329448) | {{< ai osf >}} [Submitted manuscript](https://osf.io/vngp5){target="_blank"} | {{< ai dataverse >}} [Data](https://doi.org/10.18710/WI9TEH){target="_blank"} | {{< ai osf >}} [OSF](https://osf.io/jnv27/){target="_blank"} 
 
 - **Sönning**, Lukas. 2024. Down-sampling from hierarchically structured corpus data. *International Journal of Corpus Linguistics*. doi: [10.1075/ijcl.23079.son](https://doi.org/10.1075/ijcl.23079.son)  | {{< ai psyarxiv >}} [Submitted manuscript](https://psyarxiv.com/4vtja/){target="_blank"}  | {{< ai dataverse >}} [Data]( https://doi.org/10.18710/5KCE4U){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/7ernz/){target="_blank"} 
 

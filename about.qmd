@@ -14,7 +14,7 @@ editor: source
 
 #### Awards
 
-- 2014 Best poster award, Olinco conferenece, Olomouc ("Vowel reduction in German Learner English: Developmental patterns")
+- 2014 Best poster award, Olinco conference, Olomouc ("Vowel reduction in German Learner English: Developmental patterns")
 - 2018 Best paper by an early career researcher, ICAME39, Tampere (John Sinclair bursary) ("Visual inference for corpus linguistics")
 
 #### Teaching
