@@ -6,9 +6,9 @@ editor: source
 
 #### Unpublished
 
-- **Sönning**, Lukas & Jesse Egbert. (in preparation). Sensitivity of dispersion measures to distributional patterns and corpus design.
+- **Sönning**, Lukas & Jesse Egbert. (in preparation). Sensitivity of dispersion measures to distributional patterns and corpus design. {{< ai psyarxiv >}} [Working paper](https://doi.org/10.31234/osf.io/rz8qn){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/mfjst/){target="_blank"} 
 
-- **Sönning**, Lukas, Jason Grafmiller & Raquel Romasanta. (in preparation). Regression and random forests: Synergies for variationist corpus research.
+- **Sönning**, Lukas, Jason Grafmiller & Raquel Romasanta. (in preparation). Regression and random forests: Synergies for variationist corpus research. {{< ai psyarxiv >}} [Working paper](https://doi.org/10.31234/osf.io/afuh9){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/5u8bt/){target="_blank"} 
 
 - **Sönning**, Lukas. (in preparation). Ordinal rating scales: Psychometric grounding for design and analysis.
 
