@@ -6,13 +6,19 @@ editor: source
 
 #### Unpublished
 
+- **Sönning**, Lukas. (in press). Ordinal response scales: Psychometric grounding for design and analysis. *Research Methods in Applied Linguistics* {{< ai psyarxiv >}} [Accepted manuscript](https://osf.io/preprints/psyarxiv/nc26v) | {{< ai osf >}} [OSF](https://osf.io/8f9q4/)
+
 - **Sönning**, Lukas. (in press). Advancing our understanding of dispersion measures in corpus research. *Corpora*  [Accepted manuscript](files/understanding_dispersion_accepted_manuscript.pdf){target="_blank"} | {{< ai dataverse >}} [Data](https://doi.org/10.18710/FVHTFM){target="_blank"}   | {{< ai osf >}} [OSF](https://osf.io/nhw2y/){target="_blank"} 
 
 - **Sönning**, Lukas, Jason Grafmiller & Raquel Romasanta. (under review). Regression and random forests: Synergies for variationist corpus research. {{< ai psyarxiv >}} [Working paper](https://doi.org/10.31234/osf.io/afuh9){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/5u8bt/){target="_blank"} 
 
-- **Sönning**, Lukas. (under review). Ordinal rating scales: Psychometric grounding for design and analysis. {{< ai psyarxiv >}} [Working paper](https://osf.io/preprints/psyarxiv/nc26v) | {{< ai osf >}} [OSF](https://osf.io/8f9q4/)
-
 - **Sönning**, Lukas & Jesse Egbert. (in preparation). Sensitivity of dispersion measures to distributional patterns and corpus design. {{< ai psyarxiv >}} [Working paper](https://doi.org/10.31234/osf.io/rz8qn){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/mfjst/){target="_blank"}
+
+- **Sönning**, Lukas, Ole Schützler, Manfred Krug & Fabian Vetter. (in preparation). The morpho-syntax of Scottish Standard English: Questionnaire-based insights. {{< ai osf >}} [OSF](https://osf.io/hykq5/){target="_blank"}
+
+- **Sönning**, Lukas. (in preparation). Down-sampling strategies in corpus phonology. {{< ai osf >}} [OSF](https://osf.io/67ya5/){target="_blank"}
+
+- **Sönning**, Lukas. (in preparation). Case-control down-sampling in corpus-based research. 
 
 - **Sönning**, Lukas. (unpublished manuscript). Count regression models for keyness analysis.   {{< ai psyarxiv >}} [Working paper](https://psyarxiv.com/25mwj/){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/mc26t/){target="_blank"} 
 
