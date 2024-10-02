@@ -6,6 +6,9 @@ editor: source
 
 ### Dr. Lukas Sönning
 
+I am a post-doctoral researcher at the Chair of English Linguistics, University of Bamberg (Germany). Following my PhD project, which looked at phonological features in German Learner English, my interest shifted to statistical aspects of corpus-linguistic methodology. I have worked on topics such as keyness analysis, dispersion, and down-sampling, and my habilitation (post-doc) project concentrates on the linguistically grounded use of mixed-effects models in variationist corpus research. I have made an active effort to promote open-science practices and have a passion for data visualization. Currently, I am also involved in a DFG-funded project on the analysis of high-dimensional survey data drawn from the BSLVC (*Bamberg Survey of Language Variation and Change*).
+
+
 #### Short academic CV
 
 - 2012–present Research and teaching assistant at the University of Bamberg
@@ -47,28 +50,33 @@ Workshops
 
 #### Talks
 
--	2023. Down-sampling from hierarchically structured corpus data. FJUEL 11, Erlangen, Germany.
--	2023. Text-level measures of lexical dispersion: Robustness analysis. Corpus Linguistics 2023. Lancaster, UK.
--	2023. Down-sampling from hierarchically structured corpus data: The case of third-person verb inflection in Early Modern English. Corpus Linguistics 2023. Lancaster, UK.
--	2022. Seeing the wood for the trees: Predictive margins for random forests. ICAME 43, London, UK. (with Jason Grafmiller)
--	2022. Keyword analysis: Progress through regression. ICAME 43, London, UK.
--	2019. The English comparative alternation revisited: A fresh look at theory and data. ICAME 40, Neuchatel, Switzerland. (with Stefan Hartmann)
--	2018. Frequency effects in the English comparative alternation: A reassessment. ISLE5, London, UK.
--	2018. A normalization procedure for auditory vowel descriptions: Method and application. ISLE5, London, UK. (with Ole Schützler)
--	2018. Drawing on principles of perception: The line plot. ICAME34, Tampere, Finland.
--	2018. Visual inference for corpus data analysis: Dot plots of effect sizes with confidence intervals. ICAME34, Tampere, Finland.
--	2018. A sociolinguistic study of actually in current spoken British English. ICAME34, Tampere, Finland.
--	2017. (Re-)viewing the acquisition of rhythm in the light of L2 phonological theories. BICLCE 7, Vigo, Spain.
--	2015. Developmental patterns in German Learner English: Vowel reduction and speech rhythm. Research seminar, University of Münster, Germany.
--	2015. Methods for corpus data analysis: Dot plots of effect sizes with confidence intervals. Methods and Linguistic Theories (MaLT), Bamberg, Germany.
--	2014. Vowel reduction in German Learner English: Developmental patterns. 47th Meeting of the Societas Linguistica Europaea (SLE 2014), Poznan, Poland.
--	2014. Normalverteilungsannahme und Ausreißerwerte: Nachteile klassischer Statistik und robuste Alternativen. IV. Diskussionsforum Linguistik in Bayern. Munich, Germany.
--	2014. [Poster] Vowel reduction in German Learner English: Developmental patterns. Olomouc Linguistics Colloquium (Olinco), Olomouc, Czeck Republic.
--	2014. Vowel reduction in German Learner English. Research seminar, University of Münster, Germany.
--	2014. The dot plot: A fine tool for data visualization. Advances in Visual Methods for Linguistics (AVML) 2014. Tübingen, Germany.
--	2013. An acoustic analysis of unstressed vowels in German Learner English. Accents 2013, Łódź, Poland.
--	2013. Vowel reduction in German Learner English. FJUEL 3, Regensburg, Germany.
--	2013. Scrabble yourself to success: Methods in teaching transcription. Phonetics Teaching and Learning Conference (PTLC) 2013, London, UK.
+-	2024 The morpho-syntax of Scottish Standard English: Questionnaire-based insights. BICLCE 10, Alicante, Spain. (with Ole Schützler and Manfred Krug)
+-	2024 Down-sampling strategies in corpus phonology. BICLCE 10, Alicante, Spain.
+-	2024 Ordinal response scales: Psychometric grounding for design and analysis. BICLCE 10, Alicante, Spain.
+-	2024 Sensitivity of dispersion measures to distributional patterns and corpus design. ICAME45, Vigo, Spain. (with Jesse Egbert)
+-	2024 Regression and random forests: Synergies for variationist corpus research. ICAME45, Vigo, Spain. (with Jason Grafmiller and Raquel Romasanta)
+-	2023 Down-sampling from hierarchically structured corpus data. FJUEL 11, Erlangen, Germany.
+-	2023 Text-level measures of lexical dispersion: Robustness analysis. Corpus Linguistics 2023. Lancaster, UK.
+-	2023 Down-sampling from hierarchically structured corpus data: The case of third-person verb inflection in Early Modern English. Corpus Linguistics 2023. Lancaster, UK.
+-	2022 Seeing the wood for the trees: Predictive margins for random forests. ICAME 43, London, UK. (with Jason Grafmiller)
+-	2022 Keyword analysis: Progress through regression. ICAME 43, London, UK.
+-	2019 The English comparative alternation revisited: A fresh look at theory and data. ICAME 40, Neuchatel, Switzerland. (with Stefan Hartmann)
+-	2018 Frequency effects in the English comparative alternation: A reassessment. ISLE5, London, UK.
+-	2018 A normalization procedure for auditory vowel descriptions: Method and application. ISLE5, London, UK. (with Ole Schützler)
+-	2018 Drawing on principles of perception: The line plot. ICAME34, Tampere, Finland.
+-	2018 Visual inference for corpus data analysis: Dot plots of effect sizes with confidence intervals. ICAME34, Tampere, Finland.
+-	2018 A sociolinguistic study of actually in current spoken British English. ICAME34, Tampere, Finland.
+-	2017 (Re-)viewing the acquisition of rhythm in the light of L2 phonological theories. BICLCE 7, Vigo, Spain.
+-	2015 Developmental patterns in German Learner English: Vowel reduction and speech rhythm. Research seminar, University of Münster, Germany.
+-	2015 Methods for corpus data analysis: Dot plots of effect sizes with confidence intervals. Methods and Linguistic Theories (MaLT), Bamberg, Germany.
+-	2014 Vowel reduction in German Learner English: Developmental patterns. 47th Meeting of the Societas Linguistica Europaea (SLE 2014), Poznan, Poland.
+-	2014 Normalverteilungsannahme und Ausreißerwerte: Nachteile klassischer Statistik und robuste Alternativen. IV. Diskussionsforum Linguistik in Bayern. Munich, Germany.
+-	2014 [Poster] Vowel reduction in German Learner English: Developmental patterns. Olomouc Linguistics Colloquium (Olinco), Olomouc, Czeck Republic.
+-	2014 Vowel reduction in German Learner English. Research seminar, University of Münster, Germany.
+-	2014 The dot plot: A fine tool for data visualization. Advances in Visual Methods for Linguistics (AVML) 2014. Tübingen, Germany.
+-	2013 An acoustic analysis of unstressed vowels in German Learner English. Accents 2013, Łódź, Poland.
+-	2013 Vowel reduction in German Learner English. FJUEL 3, Regensburg, Germany.
+-	2013 Scrabble yourself to success: Methods in teaching transcription. Phonetics Teaching and Learning Conference (PTLC) 2013, London, UK.
 
 
 
