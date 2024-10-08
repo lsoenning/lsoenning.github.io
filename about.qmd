@@ -37,7 +37,7 @@ University courses
 
 Workshops
 
-- 2024 (FJUEL conference, Bamberg) *Dynamic documents in R: Introduction to Quarto* \| [slides session 1](resources_pages/slides_fjuel_session_1.html){target="_blank"}
+- 2024 (FJUEL conference, Bamberg) *Dynamic documents in R: Introduction to Quarto* \| [slides session 1](docs/resources_pages/slides_fjuel_session_1.html){target="_blank"}
 - 2024 (University of Bamberg) *RStudio crash course for PhD students* \| [slides session 1](resources_pages/slides_session_1.html){target="_blank"} \| [slides session 2](resources_pages/slides_session_2.html){target="_blank"}
 - 2023 (META-LING conference, Bamberg) *Data publication using TROLLing* {{< ai osf >}} [OSF](https://osf.io/j38b2/){target="_blank"} 
 - 2023 (University of Würzburg) *Basics of data analysis using R and RStudio* {{< ai osf >}} [OSF](https://osf.io/j43v9/){target="_blank"}  \| [slides part 1](resources_pages/slides_part_1.html){target="_blank"} \| [slides part 3](resources_pages/slides_part_3.html){target="_blank"}

@@ -47,7 +47,7 @@ Excel templates for some useful graph types can be found in the following {{< ai
 
 ##### Speaker slides for workshop
 
-- FJUEL workshop, Bamberg: [speaker slides session 1](resources_pages/slides_fjuel_session_1-speaker.html){target="_blank"}
+- FJUEL workshop, Bamberg: [speaker slides session 1](docs/resources_pages/slides_fjuel_session_1-speaker.html){target="_blank"}
 - Bamberg: [speaker slides session 1](resources_pages/slides_session_1-speaker.html){target="_blank"} |  [speaker slides session 2](resources_pages/slides_session_2-speaker.html){target="_blank"}
 - Würzburg: [speaker slides part 1](resources_pages/slides_part_1-speaker.html){target="_blank"} | [speaker slides part 3](resources_pages/slides_part_3-speaker.html){target="_blank"} 
 
