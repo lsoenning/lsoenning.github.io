@@ -6,7 +6,7 @@ editor: source
 
 ##### Plot templates for Microsoft Excel 
 
-Excel templates for some useful graph types can be found in the following {{< ai osf >}} [OSF project](https://osf.io/v37pw){target="_blank"} . 
+Excel templates and instructions for some useful graph types can be found in the following {{< ai osf >}} [OSF project](https://osf.io/v37pw){target="_blank"} . 
 
 
 - Dot diagram   
@@ -43,7 +43,6 @@ Excel templates for some useful graph types can be found in the following {{< ai
 [template](https://osf.io/xajyk){target="_blank"}  | [instructions](https://osf.io/hkd4c){target="_blank"} 
 
 <center><img src="files/scatter_plot.png" /></center>
-
 
 
 
