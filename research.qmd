@@ -82,6 +82,8 @@ Proceedings
 
 #### Datasets
 
+- Sönning, Lukas. 2024. *Background data for: Ordinal response scales: Psychometric grounding for design and analysis*, [https://doi.org/10.18710/0VLSLW](https://doi.org/10.18710/0VLSLW){target="_blank"}, DataverseNO, V1
+
 - Krug, Manfred, Fabian Vetter & Lukas Sönning. 2024. *Background data for: Latent-variable modeling of ordinal outcomes in language data analysis.* [https://doi.org/10.18710/WI9TEH](https://doi.org/10.18710/WI9TEH){target="_blank"}, DataverseNO, V1.
 
 - Sönning, Lukas. 2023. *Background data (adapted from Jenset & McGillivray 2017) for: Down-sampling from hierarchically structured corpus data*, [https://doi.org/10.18710/5KCE4U](https://doi.org/10.18710/5KCE4U){target="_blank"}, DataverseNO, V1.
