@@ -6,8 +6,6 @@ editor: source
 
 #### Unpublished
 
-- **Sönning**, Lukas. (in press). Ordinal response scales: Psychometric grounding for design and analysis. *Research Methods in Applied Linguistics* {{< ai psyarxiv >}} [Accepted manuscript](https://osf.io/preprints/psyarxiv/nc26v) | {{< ai osf >}} [OSF](https://osf.io/8f9q4/)
-
 - **Sönning**, Lukas. (in press). Advancing our understanding of dispersion measures in corpus research. *Corpora*  [Accepted manuscript](files/understanding_dispersion_accepted_manuscript.pdf){target="_blank"} | {{< ai dataverse >}} [Data](https://doi.org/10.18710/FVHTFM){target="_blank"}   | {{< ai osf >}} [OSF](https://osf.io/nhw2y/){target="_blank"} 
 
 - **Sönning**, Lukas, Jason Grafmiller & Raquel Romasanta. (under review). Regression and random forests: Synergies for variationist corpus research. {{< ai psyarxiv >}} [Working paper](https://doi.org/10.31234/osf.io/afuh9){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/5u8bt/){target="_blank"} 
@@ -34,6 +32,8 @@ Monograph
 
 
 Journal articles
+
+- **Sönning**, Lukas. 2024. Ordinal response scales: Psychometric grounding for design and analysis. *Research Methods in Applied Linguistics* 3(3). 100156. doi: [10.1016/j.rmal.2024.100156]( https://doi.org/10.1016/j.rmal.2024.100156) | {{< ai 'open-access' >}} [Open access](https://doi.org/10.1016/j.rmal.2024.100156){target="_blank"} | {{< ai dataverse >}} [Data](https://doi.org/10.18710/0VLSLW){target="_blank"} | {{< ai osf >}} [OSF](https://osf.io/8f9q4/)
 
 - **Sönning**, Lukas, Manfred Krug, Fabian Vetter, Timo Schmid, Anne Leucht & Paul Messer. 2024. Latent-variable modelling of ordinal outcomes in language data analysis. *Journal of Quantitative Linguistics* 31(2). 77–106. doi: [10.1080/09296174.2024.2329448]( https://doi.org/10.1080/09296174.2024.2329448) | {{< ai osf >}} [Submitted manuscript](https://osf.io/jhv6b){target="_blank"} | {{< ai dataverse >}} [Data](https://doi.org/10.18710/WI9TEH){target="_blank"} | {{< ai osf >}} [OSF](https://osf.io/jnv27/){target="_blank"} 
 
