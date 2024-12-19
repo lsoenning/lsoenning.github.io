@@ -50,3 +50,13 @@ Excel templates and instructions for some useful graph types can be found in the
 
 - FJUEL workshop, Bamberg: [speaker slides session 1](resources_pages/slides_fjuel_session_1-speaker.html){target="_blank"} | [speaker slides session 2](resources_pages/slides_fjuel_session_2-speaker.html){target="_blank"} | [speaker slides session 3](resources_pages/slides_fjuel_session_3-speaker.html){target="_blank"}
 
+
+
+##### Extended notes: Ordinal regression models
+
+- [Section 1: Background](resources_pages/_ordinal_notes/01_ord_var.html){target="_blank"} 
+- [Section 2: Descriptive statistics](resources_pages/_ordinal_notes/02_describe.html){target="_blank"} 
+- [Section 3: Ordered regression models](resources_pages/_ordinal_notes/03_orm.html){target="_blank"} 
+- [Section 4: A latent-variable model](resources_pages/_ordinal_notes/04_lvm.html){target="_blank"} 
+- [Section 5: Methods of interpretation](resources_pages/_ordinal_notes/05_meth_int.html){target="_blank"} 
+- [Section 6: R workbench](resources_pages/_ordinal_notes/09_r_workbench.html){target="_blank"} 
