@@ -6,7 +6,7 @@ editor: source
 
 #### Unpublished
 
-- **Sönning**, Lukas. (in press). Advancing our understanding of dispersion measures in corpus research. *Corpora*. doi: [10.3366/cor.2025.0326](https://doi.org/10.3366/cor.2025.0326)  [Accepted manuscript](files/understanding_dispersion_accepted_manuscript.pdf){target="_blank"} | {{< ai dataverse >}} [Data](https://doi.org/10.18710/FVHTFM){target="_blank"}   | {{< ai osf >}} [OSF](https://osf.io/nhw2y/){target="_blank"} 
+- **Sönning**, Lukas. (in press). Advancing our understanding of dispersion measures in corpus research. *Corpora*. doi: [10.3366/cor.2025.0326](https://doi.org/10.3366/cor.2025.0326) | [Accepted manuscript](files/understanding_dispersion_accepted_manuscript.pdf){target="_blank"} | {{< ai dataverse >}} [Data](https://doi.org/10.18710/FVHTFM){target="_blank"}   | {{< ai osf >}} [OSF](https://osf.io/nhw2y/){target="_blank"} 
 
 - **Sönning**, Lukas. (in press). Count regression models for keyness analysis. Chapter for: Carolin Cholotta & Christine Renker (eds.), *META-LING 2023 - Methodological Exploration and Technological Advances in Linguistics*  {{< ai psyarxiv >}} [Accepted manuscript](https://doi.org/10.31234/osf.io/25mwj_v2){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/mc26t/){target="_blank"} 
 
@@ -18,7 +18,11 @@ editor: source
 
 - **Sönning**, Lukas. (in preparation). Down-sampling strategies in corpus phonology. Chapter for: Philipp Meer & Ulrike Gut (eds.) *English corpus phonetics and phonology: Current approaches and future directions* {{< ai osf >}} [OSF](https://osf.io/67ya5/){target="_blank"}
 
+-**Sönning**, Lukas. (in preparation). Dispersion analysis. In Hilary Nesi & Petar Milin (eds.), *International Encyclopedia of Language and Linguistics*, 3rd ed. Amsterdam: Elsevier.
+
 - **Sönning**, Lukas. (in preparation). Case-control down-sampling in corpus-based research. 
+
+- **Sönning**, Lukas. (in preparation). Random forests in corpus research: A systematic review. 
 
 - **Sönning**, Lukas. (unpublished manuscript). Evaluation of text-level measures of lexical dispersion: Robustness and consistency.   {{< ai psyarxiv >}} [Working paper](https://psyarxiv.com/h9mvs/){target="_blank"}  | {{< ai dataverse >}} [Data](https://doi.org/10.18710/MNVB36){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/rpfb8/){target="_blank"} 
 

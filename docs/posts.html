@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.450">
+<meta name="generator" content="quarto-1.5.57">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Lukas Sönning - Statistics for linguist(ic)s blog</title>
+<title>Statistics for linguist(ic)s blog – Lukas Sönning</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -47,7 +47,13 @@ ul.task-list li input[type="checkbox"] {
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -56,6 +62,7 @@ ul.task-list li input[type="checkbox"] {
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
@@ -91,8 +98,35 @@ ul.task-list li input[type="checkbox"] {
   })
   </script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -101,43 +135,43 @@ ul.task-list li input[type="checkbox"] {
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+      <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="./index.html">
     <span class="navbar-title">Lukas Sönning</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./index.html" rel="" target="">
- <span class="menu-text">Home</span></a>
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./about.html" rel="" target="">
- <span class="menu-text">About</span></a>
+    <a class="nav-link" href="./about.html"> 
+<span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./research.html" rel="" target="">
- <span class="menu-text">Research</span></a>
+    <a class="nav-link" href="./research.html"> 
+<span class="menu-text">Research</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="./resources.html" rel="" target="">
- <span class="menu-text">Resources</span></a>
+    <a class="nav-link" href="./resources.html"> 
+<span class="menu-text">Resources</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./posts.html" rel="" target="" aria-current="page">
- <span class="menu-text">Statistics for linguist(ic)s blog</span></a>
+    <a class="nav-link active" href="./posts.html" aria-current="page"> 
+<span class="menu-text">Statistics for linguist(ic)s blog</span></a>
   </li>  
 </ul>
-            <div class="quarto-navbar-tools ms-auto">
-</div>
           </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
       </div> <!-- /container-fluid -->
     </nav>
 </header>
@@ -147,7 +181,7 @@ ul.task-list li input[type="checkbox"] {
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(8)</span></div><div class="category" data-category="beta regression">beta regression <span class="quarto-category-count">(1)</span></div><div class="category" data-category="corpus linguistics">corpus linguistics <span class="quarto-category-count">(6)</span></div><div class="category" data-category="count data">count data <span class="quarto-category-count">(2)</span></div><div class="category" data-category="dispersion">dispersion <span class="quarto-category-count">(4)</span></div><div class="category" data-category="distributional modeling">distributional modeling <span class="quarto-category-count">(1)</span></div><div class="category" data-category="down-sampling">down-sampling <span class="quarto-category-count">(2)</span></div><div class="category" data-category="methodology">methodology <span class="quarto-category-count">(3)</span></div><div class="category" data-category="negative binomial distribution">negative binomial distribution <span class="quarto-category-count">(2)</span></div><div class="category" data-category="open science">open science <span class="quarto-category-count">(1)</span></div><div class="category" data-category="regression">regression <span class="quarto-category-count">(1)</span></div><div class="category" data-category="replication crisis">replication crisis <span class="quarto-category-count">(1)</span></div><div class="category" data-category="reproducibility">reproducibility <span class="quarto-category-count">(1)</span></div><div class="category" data-category="statistics">statistics <span class="quarto-category-count">(3)</span></div><div class="category" data-category="terminology">terminology <span class="quarto-category-count">(3)</span></div></div></div>
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(9)</span></div><div class="category" data-category="acoustic phonetics">acoustic phonetics <span class="quarto-category-count">(1)</span></div><div class="category" data-category="beta regression">beta regression <span class="quarto-category-count">(1)</span></div><div class="category" data-category="corpus linguistics">corpus linguistics <span class="quarto-category-count">(6)</span></div><div class="category" data-category="count data">count data <span class="quarto-category-count">(2)</span></div><div class="category" data-category="dispersion">dispersion <span class="quarto-category-count">(4)</span></div><div class="category" data-category="distributional modeling">distributional modeling <span class="quarto-category-count">(1)</span></div><div class="category" data-category="down-sampling">down-sampling <span class="quarto-category-count">(2)</span></div><div class="category" data-category="methodology">methodology <span class="quarto-category-count">(3)</span></div><div class="category" data-category="negative binomial distribution">negative binomial distribution <span class="quarto-category-count">(2)</span></div><div class="category" data-category="open science">open science <span class="quarto-category-count">(1)</span></div><div class="category" data-category="regression">regression <span class="quarto-category-count">(1)</span></div><div class="category" data-category="replication crisis">replication crisis <span class="quarto-category-count">(1)</span></div><div class="category" data-category="reproducibility">reproducibility <span class="quarto-category-count">(1)</span></div><div class="category" data-category="statistics">statistics <span class="quarto-category-count">(3)</span></div><div class="category" data-category="terminology">terminology <span class="quarto-category-count">(3)</span></div><div class="category" data-category="vowel normalization">vowel normalization <span class="quarto-category-count">(1)</span></div></div></div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
@@ -166,7 +200,9 @@ ul.task-list li input[type="checkbox"] {
   </div>
   
 
+
 </header>
+
 
 
 
@@ -174,19 +210,19 @@ ul.task-list li input[type="checkbox"] {
 
 <div class="quarto-listing quarto-listing-container-default" id="listing-listing">
 <div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="beta regression,regression,distributional modeling" data-listing-date-sort="1709161200000" data-listing-file-modified-sort="1709214691305" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="55">
+<div class="quarto-post image-right" data-index="0" data-categories="beta regression,regression,distributional modeling" data-listing-date-sort="1709161200000" data-listing-file-modified-sort="1709214691305" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="55" data-listing-word-count-sort="10922">
 <div class="thumbnail">
-<p><a href="./posts/2024-01-11_beta_regression_quantifiers/index.html"> <p class="card-img-top"><img src="posts\2024-01-11_beta_regression_quantifiers\index_files\figure-html\fig-model-II-1.png"  class="thumbnail-image card-img"/></p> </a></p>
+<p><a href="./posts/2024-01-11_beta_regression_quantifiers/index.html" class="no-external"></a></p><a href="./posts/2024-01-11_beta_regression_quantifiers/index.html" class="no-external">
+<p class="card-img-top"><img src="posts\2024-01-11_beta_regression_quantifiers\index_files\figure-html\fig-model-II-1.png"  class="thumbnail-image card-img"/></p>
+</a><p><a href="./posts/2024-01-11_beta_regression_quantifiers/index.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2024-01-11_beta_regression_quantifiers/index.html">
 <h3 class="no-anchor listing-title">
-Modeling the interpretation of quantifiers using beta regression
+<a href="./posts/2024-01-11_beta_regression_quantifiers/index.html" class="no-external">Modeling the interpretation of quantifiers using beta regression</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2024-01-11_beta_regression_quantifiers/index.html" class="no-external"></a>
 </div>
-</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('beta regression'); return false;">
 beta regression
@@ -198,14 +234,12 @@ regression
 distributional modeling
 </div>
 </div>
-<a href="./posts/2024-01-11_beta_regression_quantifiers/index.html">
 <div class="listing-description">
-<p>This blog post shows how to use beta regression to model the proportional interpretation of the quantifiers <em>few</em>, <em>some</em>, <em>many</em>, and <em>most</em>. We consider variable-dispersion and mixed-effects structures as well as diagnostics for frequentist and Bayesian models.</p>
+<a href="./posts/2024-01-11_beta_regression_quantifiers/index.html" class="no-external">This blog post shows how to use beta regression to model the proportional interpretation of the quantifiers <em>few</em>, <em>some</em>, <em>many</em>, and <em>most</em>. We consider variable-dispersion and mixed-effects structures as well as diagnostics for frequentist and Bayesian models.</a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2024-01-11_beta_regression_quantifiers/index.html">
+<a href="./posts/2024-01-11_beta_regression_quantifiers/index.html" class="no-external">
 <div class="listing-date">
 Feb 29, 2024
 </div>
@@ -215,19 +249,55 @@ Lukas Sönning
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="1" data-categories="count data,corpus linguistics,statistics,dispersion,negative binomial distribution" data-listing-date-sort="1702422000000" data-listing-file-modified-sort="1702482843772" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="9">
+<div class="quarto-post image-right" data-index="1" data-categories="acoustic phonetics,vowel normalization" data-listing-date-sort="1704582000000" data-listing-file-modified-sort="1736233888175" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="969">
 <div class="thumbnail">
-<p><a href="./posts/2023-12-13_negative_binomial_parameterization/index.html"> <p class="card-img-top"><img src="posts\2023-12-13_negative_binomial_parameterization\index_files\figure-html\fig-which-nb-1.png"  class="thumbnail-image card-img"/></p> </a></p>
+<p><a href="./posts/2024-01-07_modified_lobanov/index.html" class="no-external"></a></p><a href="./posts/2024-01-07_modified_lobanov/index.html" class="no-external">
+<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+</a><p><a href="./posts/2024-01-07_modified_lobanov/index.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2023-12-13_negative_binomial_parameterization/index.html">
 <h3 class="no-anchor listing-title">
-Different parameterizations of the negative binomial distribution
+<a href="./posts/2024-01-07_modified_lobanov/index.html" class="no-external">Vowel normalization using modified Lobanov</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2024-01-07_modified_lobanov/index.html" class="no-external"></a>
+</div>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('acoustic phonetics'); return false;">
+acoustic phonetics
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('vowel normalization'); return false;">
+vowel normalization
+</div>
+</div>
+<div class="listing-description">
+<a href="./posts/2024-01-07_modified_lobanov/index.html" class="no-external">This short blog post illustrates how to calculate modified Lovanov z-scores using R.</a>
+</div>
+</div>
+<div class="metadata">
+<a href="./posts/2024-01-07_modified_lobanov/index.html" class="no-external">
+<div class="listing-date">
+Jan 7, 2024
+</div>
+<div class="listing-author">
+Lukas Sönning
 </div>
 </a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="2" data-categories="count data,corpus linguistics,statistics,dispersion,negative binomial distribution" data-listing-date-sort="1702422000000" data-listing-file-modified-sort="1702482843772" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="9" data-listing-word-count-sort="1628">
+<div class="thumbnail">
+<p><a href="./posts/2023-12-13_negative_binomial_parameterization/index.html" class="no-external"></a></p><a href="./posts/2023-12-13_negative_binomial_parameterization/index.html" class="no-external">
+<p class="card-img-top"><img src="posts\2023-12-13_negative_binomial_parameterization\index_files\figure-html\fig-which-nb-1.png"  class="thumbnail-image card-img"/></p>
+</a><p><a href="./posts/2023-12-13_negative_binomial_parameterization/index.html" class="no-external"></a></p>
+</div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/2023-12-13_negative_binomial_parameterization/index.html" class="no-external">Different parameterizations of the negative binomial distribution</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/2023-12-13_negative_binomial_parameterization/index.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('count data'); return false;">
 count data
@@ -245,14 +315,12 @@ dispersion
 negative binomial distribution
 </div>
 </div>
-<a href="./posts/2023-12-13_negative_binomial_parameterization/index.html">
 <div class="listing-description">
-<p>This blog post discusses two different parameterizations of the negative binomial distribution and groups R packages (and functions) based on the version they implement.</p>
+<a href="./posts/2023-12-13_negative_binomial_parameterization/index.html" class="no-external">This blog post discusses two different parameterizations of the negative binomial distribution and groups R packages (and functions) based on the version they implement.</a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2023-12-13_negative_binomial_parameterization/index.html">
+<a href="./posts/2023-12-13_negative_binomial_parameterization/index.html" class="no-external">
 <div class="listing-date">
 Dec 13, 2023
 </div>
@@ -262,19 +330,19 @@ Lukas Sönning
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="2" data-categories="count data,corpus linguistics,statistics,dispersion,negative binomial distribution" data-listing-date-sort="1702335600000" data-listing-file-modified-sort="1702482830052" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="20">
+<div class="quarto-post image-right" data-index="3" data-categories="count data,corpus linguistics,statistics,dispersion,negative binomial distribution" data-listing-date-sort="1702335600000" data-listing-file-modified-sort="1702482830052" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="20" data-listing-word-count-sort="3944">
 <div class="thumbnail">
-<p><a href="./posts/2023-11-16_negative_binomial/index.html"> <p class="card-img-top"><img src="posts\2023-11-16_negative_binomial\index_files\figure-html\fig-which-1.png"  class="thumbnail-image card-img"/></p> </a></p>
+<p><a href="./posts/2023-11-16_negative_binomial/index.html" class="no-external"></a></p><a href="./posts/2023-11-16_negative_binomial/index.html" class="no-external">
+<p class="card-img-top"><img src="posts\2023-11-16_negative_binomial\index_files\figure-html\fig-which-1.png"  class="thumbnail-image card-img"/></p>
+</a><p><a href="./posts/2023-11-16_negative_binomial/index.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2023-11-16_negative_binomial/index.html">
 <h3 class="no-anchor listing-title">
-The negative binomial distribution: A visual explanation
+<a href="./posts/2023-11-16_negative_binomial/index.html" class="no-external">The negative binomial distribution: A visual explanation</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2023-11-16_negative_binomial/index.html" class="no-external"></a>
 </div>
-</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('count data'); return false;">
 count data
@@ -292,14 +360,12 @@ dispersion
 negative binomial distribution
 </div>
 </div>
-<a href="./posts/2023-11-16_negative_binomial/index.html">
 <div class="listing-description">
-<p>This blog post uses a visual approach to explain how the negative binomial distribution works.</p>
+<a href="./posts/2023-11-16_negative_binomial/index.html" class="no-external">This blog post uses a visual approach to explain how the negative binomial distribution works.</a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2023-11-16_negative_binomial/index.html">
+<a href="./posts/2023-11-16_negative_binomial/index.html" class="no-external">
 <div class="listing-date">
 Dec 12, 2023
 </div>
@@ -309,19 +375,19 @@ Lukas Sönning
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="3" data-categories="corpus linguistics,methodology,dispersion" data-listing-date-sort="1702249200000" data-listing-file-modified-sort="1702482409969" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5">
+<div class="quarto-post image-right" data-index="4" data-categories="corpus linguistics,methodology,dispersion" data-listing-date-sort="1702249200000" data-listing-file-modified-sort="1702482409969" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="969">
 <div class="thumbnail">
-<p><a href="./posts/2023-12-11_computation_DA/index.html"> <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div> </a></p>
+<p><a href="./posts/2023-12-11_computation_DA/index.html" class="no-external"></a></p><a href="./posts/2023-12-11_computation_DA/index.html" class="no-external">
+<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+</a><p><a href="./posts/2023-12-11_computation_DA/index.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2023-12-11_computation_DA/index.html">
 <h3 class="no-anchor listing-title">
-A computational shortcut for the dispersion measure <em>D<sub>A</sub></em>
+<a href="./posts/2023-12-11_computation_DA/index.html" class="no-external">A computational shortcut for the dispersion measure <em>D<sub>A</sub></em></a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2023-12-11_computation_DA/index.html" class="no-external"></a>
 </div>
-</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('corpus linguistics'); return false;">
 corpus linguistics
@@ -333,14 +399,12 @@ methodology
 dispersion
 </div>
 </div>
-<a href="./posts/2023-12-11_computation_DA/index.html">
 <div class="listing-description">
-<p>This short blog post draws attention to the computational shortcut given in Wilcox (1973) for calculating the dispersion measure <em>D<sub>A</sub></em>.</p>
+<a href="./posts/2023-12-11_computation_DA/index.html" class="no-external">This short blog post draws attention to the computational shortcut given in Wilcox (1973) for calculating the dispersion measure <em>D<sub>A</sub></em>.</a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2023-12-11_computation_DA/index.html">
+<a href="./posts/2023-12-11_computation_DA/index.html" class="no-external">
 <div class="listing-date">
 Dec 11, 2023
 </div>
@@ -350,19 +414,19 @@ Lukas Sönning
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="4" data-categories="replication crisis,open science,reproducibility" data-listing-date-sort="1700521200000" data-listing-file-modified-sort="1700603597013" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="17">
+<div class="quarto-post image-right" data-index="5" data-categories="replication crisis,open science,reproducibility" data-listing-date-sort="1700521200000" data-listing-file-modified-sort="1700603597013" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="17" data-listing-word-count-sort="3225">
 <div class="thumbnail">
-<p><a href="./posts/2023-11-19_replication_crisis_reflection/index.html"> <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div> </a></p>
+<p><a href="./posts/2023-11-19_replication_crisis_reflection/index.html" class="no-external"></a></p><a href="./posts/2023-11-19_replication_crisis_reflection/index.html" class="no-external">
+<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+</a><p><a href="./posts/2023-11-19_replication_crisis_reflection/index.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2023-11-19_replication_crisis_reflection/index.html">
 <h3 class="no-anchor listing-title">
-The replication crisis: Implications for myself
+<a href="./posts/2023-11-19_replication_crisis_reflection/index.html" class="no-external">The replication crisis: Implications for myself</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2023-11-19_replication_crisis_reflection/index.html" class="no-external"></a>
 </div>
-</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('replication crisis'); return false;">
 replication crisis
@@ -374,14 +438,12 @@ open science
 reproducibility
 </div>
 </div>
-<a href="./posts/2023-11-19_replication_crisis_reflection/index.html">
 <div class="listing-description">
-<p>In this blog post, I reflect on the ways in which learning about the replication crisis in science has affected my own work.</p>
+<a href="./posts/2023-11-19_replication_crisis_reflection/index.html" class="no-external">In this blog post, I reflect on the ways in which learning about the replication crisis in science has affected my own work.</a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2023-11-19_replication_crisis_reflection/index.html">
+<a href="./posts/2023-11-19_replication_crisis_reflection/index.html" class="no-external">
 <div class="listing-date">
 Nov 21, 2023
 </div>
@@ -391,19 +453,19 @@ Lukas Sönning
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="5" data-categories="corpus linguistics,methodology,down-sampling,terminology" data-listing-date-sort="1700262000000" data-listing-file-modified-sort="1700382607493" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="7">
+<div class="quarto-post image-right" data-index="6" data-categories="corpus linguistics,methodology,down-sampling,terminology" data-listing-date-sort="1700262000000" data-listing-file-modified-sort="1700382607493" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="7" data-listing-word-count-sort="1326">
 <div class="thumbnail">
-<p><a href="./posts/2023-11-17_downsampling_implementation/index.html"> <p class="card-img-top"><img src="posts\2023-11-17_downsampling_implementation\index_files\figure-html\fig-token-counts-1.png"  class="thumbnail-image card-img"/></p> </a></p>
+<p><a href="./posts/2023-11-17_downsampling_implementation/index.html" class="no-external"></a></p><a href="./posts/2023-11-17_downsampling_implementation/index.html" class="no-external">
+<p class="card-img-top"><img src="posts\2023-11-17_downsampling_implementation\index_files\figure-html\fig-token-counts-1.png"  class="thumbnail-image card-img"/></p>
+</a><p><a href="./posts/2023-11-17_downsampling_implementation/index.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2023-11-17_downsampling_implementation/index.html">
 <h3 class="no-anchor listing-title">
-Structured down-sampling: Implementation in R
+<a href="./posts/2023-11-17_downsampling_implementation/index.html" class="no-external">Structured down-sampling: Implementation in R</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2023-11-17_downsampling_implementation/index.html" class="no-external"></a>
 </div>
-</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('corpus linguistics'); return false;">
 corpus linguistics
@@ -418,14 +480,12 @@ down-sampling
 terminology
 </div>
 </div>
-<a href="./posts/2023-11-17_downsampling_implementation/index.html">
 <div class="listing-description">
-<p>This blog post shows how to implement structured down-sampling in R.</p>
+<a href="./posts/2023-11-17_downsampling_implementation/index.html" class="no-external">This blog post shows how to implement structured down-sampling in R.</a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2023-11-17_downsampling_implementation/index.html">
+<a href="./posts/2023-11-17_downsampling_implementation/index.html" class="no-external">
 <div class="listing-date">
 Nov 18, 2023
 </div>
@@ -435,19 +495,19 @@ Lukas Sönning
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="6" data-categories="corpus linguistics,methodology,down-sampling,terminology" data-listing-date-sort="1700175600000" data-listing-file-modified-sort="1700381640148" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2">
+<div class="quarto-post image-right" data-index="7" data-categories="corpus linguistics,methodology,down-sampling,terminology" data-listing-date-sort="1700175600000" data-listing-file-modified-sort="1700381640148" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="2" data-listing-word-count-sort="343">
 <div class="thumbnail">
-<p><a href="./posts/2023-11-17_downsampling_two_types/index.html"> <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div> </a></p>
+<p><a href="./posts/2023-11-17_downsampling_two_types/index.html" class="no-external"></a></p><a href="./posts/2023-11-17_downsampling_two_types/index.html" class="no-external">
+<div class="listing-item-img-placeholder card-img-top" >&nbsp;</div>
+</a><p><a href="./posts/2023-11-17_downsampling_two_types/index.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2023-11-17_downsampling_two_types/index.html">
 <h3 class="no-anchor listing-title">
-Two types of down-sampling in corpus-based work
+<a href="./posts/2023-11-17_downsampling_two_types/index.html" class="no-external">Two types of down-sampling in corpus-based work</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2023-11-17_downsampling_two_types/index.html" class="no-external"></a>
 </div>
-</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('corpus linguistics'); return false;">
 corpus linguistics
@@ -462,14 +522,12 @@ down-sampling
 terminology
 </div>
 </div>
-<a href="./posts/2023-11-17_downsampling_two_types/index.html">
 <div class="listing-description">
-<p>This short blog post contrasts the different ways in which the term <em>down-sampling</em> is used in corpus-based work.</p>
+<a href="./posts/2023-11-17_downsampling_two_types/index.html" class="no-external">This short blog post contrasts the different ways in which the term <em>down-sampling</em> is used in corpus-based work.</a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2023-11-17_downsampling_two_types/index.html">
+<a href="./posts/2023-11-17_downsampling_two_types/index.html" class="no-external">
 <div class="listing-date">
 Nov 17, 2023
 </div>
@@ -479,19 +537,19 @@ Lukas Sönning
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="7" data-categories="corpus linguistics,statistics,dispersion,terminology" data-listing-date-sort="1700089200000" data-listing-file-modified-sort="1705056089633" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8">
+<div class="quarto-post image-right" data-index="8" data-categories="corpus linguistics,statistics,dispersion,terminology" data-listing-date-sort="1700089200000" data-listing-file-modified-sort="1705056089633" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8" data-listing-word-count-sort="1435">
 <div class="thumbnail">
-<p><a href="./posts/2023-01-18_dispersion_terminology/index.html"> <p class="card-img-top"><img src="posts\2023-01-18_dispersion_terminology\index_files\figure-html\fig-2-1.png"  class="thumbnail-image card-img"/></p> </a></p>
+<p><a href="./posts/2023-01-18_dispersion_terminology/index.html" class="no-external"></a></p><a href="./posts/2023-01-18_dispersion_terminology/index.html" class="no-external">
+<p class="card-img-top"><img src="posts\2023-01-18_dispersion_terminology\index_files\figure-html\fig-2-1.png"  class="thumbnail-image card-img"/></p>
+</a><p><a href="./posts/2023-01-18_dispersion_terminology/index.html" class="no-external"></a></p>
 </div>
 <div class="body">
-<a href="./posts/2023-01-18_dispersion_terminology/index.html">
 <h3 class="no-anchor listing-title">
-‘Dispersion’ in corpus linguistics and statistics
+<a href="./posts/2023-01-18_dispersion_terminology/index.html" class="no-external">‘Dispersion’ in corpus linguistics and statistics</a>
 </h3>
 <div class="listing-subtitle">
-
+<a href="./posts/2023-01-18_dispersion_terminology/index.html" class="no-external"></a>
 </div>
-</a>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('corpus linguistics'); return false;">
 corpus linguistics
@@ -506,14 +564,12 @@ dispersion
 terminology
 </div>
 </div>
-<a href="./posts/2023-01-18_dispersion_terminology/index.html">
 <div class="listing-description">
-<p>This blog post clarifies the different ways in which the term <em>dispersion</em> is used in corpus linguistics and statistics.</p>
+<a href="./posts/2023-01-18_dispersion_terminology/index.html" class="no-external">This blog post clarifies the different ways in which the term <em>dispersion</em> is used in corpus linguistics and statistics.</a>
 </div>
-</a>
 </div>
 <div class="metadata">
-<a href="./posts/2023-01-18_dispersion_terminology/index.html">
+<a href="./posts/2023-01-18_dispersion_terminology/index.html" class="no-external">
 <div class="listing-date">
 Nov 16, 2023
 </div>
@@ -563,18 +619,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
     return false;
   }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -606,11 +651,50 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
-  function tippyHover(el, contentFn) {
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/lsoenning\.github\.io");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -620,8 +704,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -633,7 +726,130 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -677,6 +893,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -702,6 +919,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -762,6 +1005,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
+
 
 
 
