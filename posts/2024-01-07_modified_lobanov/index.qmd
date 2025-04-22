@@ -1,0 +1,149 @@
+---
+title: "Vowel normalization using modified Lobanov "
+description: "This short blog post illustrates how to calculate modified Lovanov z-scores using R."
+date: 2024-01-07
+categories: [acoustic phonetics, vowel normalization]
+citation: 
+  url: https://lsoenning.github.io/posts/2024-01-07_modified_lobanov/
+editor: source
+draft: false
+---
+
+
+```{r warning=F, message=F}
+#| code-fold: true
+#| code-summary: "R setup"
+#| message: false
+#| warning: false
+
+library(here)
+library(tidyverse)
+library(lattice)
+library(tictoc)
+library(knitr)
+library(kableExtra)
+
+source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
+```
+
+
+The dispersion measure *D~A~* was proposed by @Burch_etal2017 as a way of quantifying how evenly an item is distributed across the texts (or, more generally, the units) in a corpus. The authors attribute this measure to @Wilcox1973, a nice and very readable paper that compares different indices of qualitative variation, i.e. measures of variability for nominal-scale variables. While @Wilcox1973 focuses on categorical variables (with 10 or fewer levels), the measures discussed in that paper are also relevant for quantifying what lexicographers and corpus linguists refer to as "dispersion". Interestingly, as @Burch_etal2017 [p. 193] note, a measure equivalent to *DP* [@Gries2008] can be found in the 1973 paper (the *average deviation analog* ADA). The index on which *D~A~* is based appears in @Wilcox1973 as the *mean difference analog* (MDA). Both @Wilcox1973 and @Burch_etal2017 argue that *D~A~* (or MDA) has a number of advantages over *DP* (or ADA). An intuitive explanation of the rationale underlying *D~A~* can be found in @Soenning2023.
+
+@Gries2020 [p. 116] has pointed out, however, that *D~A~* is computationally expensive. This is because the measure relies on pairwise differences between texts. To calculate *D~A~*, we first obtain the occurrence rate (or normalized frequency) of a given item in each text. These occurrences rates can then be compared, to see how evenly the item is distributed across texts.  The basic formula for *D~A~* requires pairwise comparisons between all texts. If we have 10 texts, the number of pairwise comparisons is 45; for 20 texts, this number climbs to 190. In general, if there are *n* texts (or units), the number of pairwise comparisons is $(n(n-1))/2$. This number (and hence the computational task) grows exponentially: For 500 texts (e.g. ICE or Brown Corpus), 124,750 comparisons are involved. For the BNC2014, with 88,171 texts, there are almost 4 billion comparisons to compute.
+
+The purpose of this blog post is to draw attention to a shortcut formula @Wilcox1973 gives in the Appendix of his paper. There, he distinguishes between "basic formulas" and "computational formulas", which run faster. The formula we will use here is the one listed in the rightmost column (Computational Formulas: Proportions). We will give R code for both the basic and the computational procedure and then compare them in terms of speed.
+
+We start by writing two R functions:
+
+- `DA_basic()`, which uses the basic, slow formula; and 
+- `DA_quick()`, which implements the shortcut given in @Wilcox1973. 
+
+These functions also work if texts differ in length. They take two arguments:
+
+- `n_tokens`: A vector of length *n*, giving the number occurrences of the item in each of the *n* texts
+- `word_count`: A vector of length *n*, giving the length of each text (number of running words)
+
+For the rationale underlying the intermediate quantities `R_i` and `r_i`, please refer to @Soenning2023. We first define the basic formula:
+
+```{r}
+DA_basic <- function(n_tokens, word_count){
+  
+	R_i <- n_tokens / word_count
+	r_i <- R_i / sum(R_i)
+	k   <- length(n_tokens)
+
+	dist_r <- as.matrix(dist(r_i))
+	DA <- 1 - ( mean(dist_r[lower.tri(dist_r)]) / (2/k) )
+
+	names(DA) <- "DA"
+	return(DA)
+}
+```
+
+And now the computational formula:
+
+```{r}
+DA_quick <- function(n_tokens, word_count){
+  
+	R_i <- n_tokens / word_count
+	r_i <- R_i / sum(R_i)
+	k   <- length(n_tokens)
+
+	DA <- (2*sum((sort(r_i, decreasing=TRUE) * 1:k)) -1) / (k-1)
+
+	names(DA) <- "DA"
+	return(DA)
+}
+```
+
+Let's now compare them in two settings: 4,000 texts (about 8 million pairwise comparisons) and 20,000 texts (about 200 million comparisons). We will go directly to the results; to see the background code, click on the triangle below ("R code for comparison of computation time"), which unfolds the commented script. 
+
+```{r}
+#| code-fold: true
+#| code-summary: "R code for comparison of computation time"
+#| message: false
+#| warning: false
+#| results: false
+
+# We start by creating synthetic data. We use the Poisson distribution to 
+# generate tokens counts for the smaller corpus (n_tokens_4000) and the 
+# larger corpus (n_tokens_20000)
+
+set.seed(1)
+
+n_tokens_4000 <- rpois(n = 4000, lambda = 2)
+n_tokens_20000 <- rpois(n = 20000, lambda = 2)
+
+# Then we create corresponding vectors giving the length of the texts (each is 
+# 2,000 words long):
+
+word_count_4000 <- rep(2000, length(n_tokens_4000))
+word_count_20000  <- rep(2000, length(n_tokens_20000))
+
+# Next, we use the R package {tictoc} to compare the two functions (i.e. 
+# computational procedures) in terms of speed, starting with the 4,000-text 
+# setting. We start with the basic formula:
+
+tic()
+DA_basic_4000 <- DA_basic(n_tokens_4000, word_count_4000)
+time_basic_4000 <- toc()
+
+# And now we use the computational formula:
+
+tic()
+DA_quick_4000 <- DA_quick(n_tokens_4000, word_count_4000)
+time_quick_4000 <- toc()
+
+# Next, we compare the 20,000-text setting:
+
+tic()
+DA_basic_20000 <- DA_basic(n_tokens_20000, word_count_20000)
+time_basic_20000 <- toc()
+
+tic()
+DA_quick_20000 <- DA_quick(n_tokens_20000, word_count_20000)
+time_quick_20000 <- toc()
+```
+
+@tbl-time shows the results: let us first consider computation time. For 4,000 texts, the basic procedure takes `r time_basic_4000$toc - time_basic_4000$tic` seconds to run. The computational formula is quicker -- it completes the calculations in only `r time_quick_4000$toc - time_quick_4000$tic` seconds. For the 20,000-word corpus, the difference is much more dramatic: The basic formula takes `r time_basic_20000$toc - time_basic_20000$tic` seconds to run; the shortcut procedure, on the other hand, is done after `r time_quick_20000$toc - time_quick_20000$tic` seconds. This is an impressive improvement in efficiency. 
+
+```{r}
+#| label: tbl-time
+#| tbl-cap: Computation time (in seconds)
+#| code-fold: true
+#| code-summary: "R code for Table 1"
+
+tibble(
+  Formula = c("Basic", "Computational"),
+  `4,000 texts` = c((time_basic_4000$toc - time_basic_4000$tic), 
+                    (time_quick_4000$toc - time_quick_4000$tic)) ,
+  `20,000 texts` = c((time_basic_20000$toc - time_basic_20000$tic), 
+                     (time_quick_20000$toc - time_quick_20000$tic)),
+  `4,000 texts ` = round(c(DA_basic_4000, DA_quick_4000), 4) ,
+  `20,000 texts ` = round(c(DA_basic_20000, DA_quick_20000), 4)) |> 
+  kbl() |> 
+  add_header_above(c(" " = 1, "Time (seconds)" = 2, "Dispersion score" = 2))
+```
+
+@tbl-time also shows the dispersion scores that the functions return. We note that the two procedures do not yield identical results. However, the approximation offered by the computational shortcut is pretty good, especially considering the fact that dispersion measures are usually (and quite sensibly) reported to two decimal places only.
+
