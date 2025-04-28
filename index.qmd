@@ -21,6 +21,8 @@ editor: source
 -   Phone: +49 (0)951/863-2267
 -   Email: lukas\[dot\]soenning\[at\]uni-bamberg\[dot\]de
 -   {{< ai orcid >}} [ORCID](https://orcid.org/0000-0002-2705-395X){target="_blank"}  0000-0002-2705-395X
+-   {{< ai google-scholar >}} [Google scholar](https://scholar.google.de/citations?user=OtyzDs8AAAAJ&hl=de&oi=ao){target="_blank"}
+-   {{< iconify fa6-brands github >}} [Github](https://github.com/lsoenning){target="_blank"}
 -   {{< ai osf >}} [OSF](https://osf.io/zcsjd){target="_blank"} 
 
 #### Research interests

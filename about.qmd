@@ -38,6 +38,8 @@ University courses
 
 Workshops
 
+- 2025 (Ghent University, Belgium) *Random Forests in language data analysis: Tutorial* {{< ai osf >}} [OSF](https://osf.io/p749a/){target="_blank"} \| [slides](https://osf.io/ybxst)
+- 2024 (Ghent University, Belgium) *Tutorial: Latent-variable modeling of ordinal data* {{< ai osf >}} [OSF](https://osf.io/7ur98/){target="_blank"} \| [slides part I](https://osf.io/2gd49) \| [slides part II](https://osf.io/t2ce4) \| [slides part III](https://osf.io/kqp3g)
 - 2024 (FJUEL conference, Bamberg) *Dynamic documents in R: Introduction to Quarto* 
   + [slides session 1](resources_pages/slides_fjuel_session_1.html){target="_blank"} \| [slides session 2](resources_pages/slides_fjuel_session_2.html){target="_blank"} \| [slides session 3](resources_pages/slides_fjuel_session_3.html){target="_blank"}
   + [practice 1](resources_pages/practice_1.html){target="_blank"} \| [practice 2](resources_pages/practice_2.html) \| [practice 3](resources_pages/practice_3.html)
