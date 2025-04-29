@@ -14,7 +14,7 @@ We will consider, as an illustrative set of data, the frequency of modals in rec
 
 The following points are relevant for both text-linguistic and variationist research.
 
- The illustrative data used in this blog post is available from TROLLing .
+The illustrative data used in this blog post is available from TROLLing .
 
 ```{r}
 #| warning: false
@@ -36,7 +36,6 @@ library(gamlss)
 source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils.R")
 ```
 
-
 ```{r}
 #| code-fold: true
 #| code-summary: "Load and prepare data"
@@ -54,11 +53,6 @@ contrasts(d_modals$time_period) <- contr.sum(2)
 should_data <- subset(d_modals, modal=="should")
 should_Brown <- subset(d_modals, modal=="should" & corpus=="Brown")
 ```
-
-
-
-
-
 
 ```{r}
 m_poi <- glm(n_tokens ~ genre + offset(log(n_words)), data=should_Brown, family=poisson)
@@ -111,12 +105,11 @@ preds_conditions |>
   theme(legend.position = "none")
 ```
 
-
 #### Dealing with imbalances in the data: Simple vs. weighted averages
 
-Leech (2003: 228) looked at the frequency of different modals in the Brown family corpora. For *should* in Brown, he reports a raw frequency of 910 instances, which his consistent with the current output of CQPweb. Compared against the total number of words in Brown (1,148,454 words), this corresponds to a normalized frequency of 792 per million words (pmw). This occurrence rate is obtained in the following way: We divide the number of times *should* occurs in Brown (`r sum(should_Brown$n_tokens) `).
+Leech (2003: 228) looked at the frequency of different modals in the Brown family corpora. For *should* in Brown, he reports a raw frequency of 910 instances, which his consistent with the current output of CQPweb. Compared against the total number of words in Brown (1,148,454 words), this corresponds to a normalized frequency of 792 per million words (pmw). This occurrence rate is obtained in the following way: We divide the number of times *should* occurs in Brown (`r sum(should_Brown$n_tokens)`).
 
-Now let's assume we want to reproduce these figures using a regression model. Since we are dealing with count data, we use a Poisson model. And since we are interested in normalized occurrence rates (and since texts differ very slightly in length), we will use a rate model that includes an offset to account for the length of texts. The output of this model is not a count, but a rate (i.e. normalized frequency) of "per 1 word", i.e. a proportion. We can  multiply this rate by 1,000,000 to get our preferred rate (i.e. pmw). 
+Now let's assume we want to reproduce these figures using a regression model. Since we are dealing with count data, we use a Poisson model. And since we are interested in normalized occurrence rates (and since texts differ very slightly in length), we will use a rate model that includes an offset to account for the length of texts. The output of this model is not a count, but a rate (i.e. normalized frequency) of "per 1 word", i.e. a proportion. We can multiply this rate by 1,000,000 to get our preferred rate (i.e. pmw).
 
 This works:
 
@@ -134,20 +127,16 @@ m |> tbl_regression(
   estimate_fun = purrr::partial(style_ratio, digits = 6))
 ```
 
-
 ```{r}
 round(exp(coef(m))*1e6, 0)
 
 ```
-
-
 
 Next, we consider the frequency of should in the four broad genres.
 
 ```{r}
 should_Brown
 ```
-
 
 ```{r}
 genre_rates <- should_Brown |> 
@@ -170,6 +159,4 @@ genre_rates |> dplyr::select(c(Genre, Words, Tokens, Rate)) |>
   kable_paper("hover", full_width = F)
 ```
 
-
 ### Estimation: Averaging on the data vs. model scale
-

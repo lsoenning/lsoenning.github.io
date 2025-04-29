@@ -26,8 +26,8 @@ University courses
 
 - Forming (new) words: The morphological architecture of English
 - Applied data analysis for linguists
-- Investigating Lerner English
-- Second Language speech: Theory and practice
+- Investigating Learner English
+- Second language speech: Theory and practice
 - Measuring (your) foreign accent: The acoustic analysis of non-native speech
 - English phonetics & phonology
 - English grammar analysis

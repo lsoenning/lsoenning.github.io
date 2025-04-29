@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2024-01-07">
+<meta name="description" content="This blog post illustrates how the disproportionate representation of speakers in a corpus can lead to distorted results if the source of data points (i.e.&nbsp;the speaker ID) is not taken into account in the analysis.">
+
+<title>Distributional disproportions and their consequences: Speakers in the Spoken BNC2014 – Lukas Sönning</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Lukas Sönning</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../research.html"> 
+<span class="menu-text">Research</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../resources.html"> 
+<span class="menu-text">Resources</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts.html"> 
+<span class="menu-text">Statistics for linguist(ic)s blog</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#case-study-actually-in-the-spoken-bnc2014" id="toc-case-study-actually-in-the-spoken-bnc2014" class="nav-link active" data-scroll-target="#case-study-actually-in-the-spoken-bnc2014">Case study: <em>Actually</em> in the Spoken BNC2014</a></li>
+  <li><a href="#frequency-of-actually-data-summary" id="toc-frequency-of-actually-data-summary" class="nav-link" data-scroll-target="#frequency-of-actually-data-summary">Frequency of <em>actually</em>: Data summary</a></li>
+  <li><a href="#frequency-of-actually-statistical-modeling" id="toc-frequency-of-actually-statistical-modeling" class="nav-link" data-scroll-target="#frequency-of-actually-statistical-modeling">Frequency of <em>actually</em>: Statistical modeling</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Distributional disproportions and their consequences: Speakers in the Spoken BNC2014</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">acoustic phonetics</div>
+    <div class="quarto-category">vowel normalization</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    This blog post illustrates how the disproportionate representation of speakers in a corpus can lead to distorted results if the source of data points (i.e.&nbsp;the speaker ID) is not taken into account in the analysis.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">January 7, 2024</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="cell">
+<details class="code-fold">
+<summary>R setup</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lattice)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dataverse)       <span class="co"># for downloading data from TROLLing</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(marginaleffects) <span class="co"># to compute model-based estimates</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="case-study-actually-in-the-spoken-bnc2014" class="level3">
+<h3 class="anchored" data-anchor-id="case-study-actually-in-the-spoken-bnc2014">Case study: <em>Actually</em> in the Spoken BNC2014</h3>
+<p>Our illustrative dataset records the distribution of <em>actually</em> in the Spoken BNC2014 <span class="citation" data-cites="Love_etal2017">[@Love_etal2017]</span>, which was analyzed in <span class="citation" data-cites="Soenning_Krug2022">[@Soenning_Krug2022]</span>. The question ist whether and how the usage rate of <em>actually</em> in conversational speech varies by Age and Sex.</p>
+<section id="data-preparation" class="level4">
+<h4 class="anchored" data-anchor-id="data-preparation">Data preparation</h4>
+<p>For more information on the dataset, please refer to <span class="citation" data-cites="Krug_Soenning2021">[@Krug_Soenning2021]</span>. We start by downloading the data directly from TROLLing:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">get_dataframe_by_name</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">filename  =</span> <span class="st">"actually_data_2014.tab"</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">dataset   =</span> <span class="st">"10.18710/A3SATC"</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">server    =</span> <span class="st">"dataverse.no"</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">.f        =</span> read.csv,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">original  =</span> <span class="cn">TRUE</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This dataset includes 668 speakers in total. For each individual, the data frame includes:</p>
+<ul>
+<li>an ID (<code>speaker</code>)</li>
+<li>the number of times they used <em>actually</em> (<code>count</code>)</li>
+<li>their age in year, if provided in the metadata (<code>Exact_age</code>)</li>
+<li>the age range (<code>Age_range</code>)</li>
+<li>self-reported gender (<code>Gender</code>)</li>
+<li>the total number of words contributed to the corpus by the speaker (<code>total</code>), and</li>
+<li>a lightly aggregated version of Age range (<code>age_bins</code>)</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(dat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   668 obs. of  7 variables:
+ $ speaker  : chr  "S0001" "S0002" "S0003" "S0004" ...
+ $ count    : int  6 21 8 1 3 1 6 101 0 7 ...
+ $ Exact_age: int  32 NA NA NA NA NA NA 66 NA NA ...
+ $ Age_range: chr  "30-39" "19-29" "19-29" "30-39" ...
+ $ Gender   : chr  "Female" "Female" "Female" "Male" ...
+ $ total    : int  3000 8535 1893 3634 1449 4804 11276 139888 533 3105 ...
+ $ age_bins : chr  "30-39" "20-29" "20-29" "30-39" ...</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">subset</span>(dat, <span class="fu">is.na</span>(age_bins))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    speaker count Exact_age Age_range Gender total age_bins
+362   S0371     3        NA   Unknown   Male  6071     &lt;NA&gt;
+376   S0386     8        NA   Unknown   Male  3034     &lt;NA&gt;
+588   S0608     2        NA   Unknown   Male  1277     &lt;NA&gt;
+589   S0609     5        NA   Unknown Female  1738     &lt;NA&gt;
+592   S0612    17        NA   Unknown Female 10599     &lt;NA&gt;
+623   S0643     2        NA   Unknown   Male  2461     &lt;NA&gt;</code></pre>
+</div>
+</div>
+<p>In line with <span class="citation" data-cites="Soenning_Krug2022">[@Soenning_Krug2022]</span>, we remove speakers who contributed fewer than 100 words to the corpus, and for whom information on age is missing. This leaves us with <em>n</em> = 656 individuals.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> dat <span class="sc">|&gt;</span> </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(total <span class="sc">&gt;</span> <span class="dv">100</span>,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>         Age_range <span class="sc">!=</span> <span class="st">"Unknown"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Then we add a new variable to the data frame: the speaker-specific normalized frequency of <em>actually</em>, expressed as per million words:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>rate_pmw <span class="ot">&lt;-</span> (d<span class="sc">$</span>count <span class="sc">/</span> d<span class="sc">$</span>total) <span class="sc">*</span> <span class="dv">1000000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Finally, we reverse the order of the levels of the categorical variable <code>Age_range</code>, so that they are listed in decreasing order. This is because we will interpret differences between age groups (i.e.&nbsp;differences in apparent time) as indicating differences in real time. The new variable is called <code>age_group</code>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span> </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">age_group =</span> <span class="fu">factor</span>(</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>      Age_range, </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">levels =</span> <span class="fu">rev</span>(<span class="fu">sort</span>(<span class="fu">unique</span>(Age_range))),</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">ordered =</span> <span class="cn">TRUE</span>)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We reduce the data frame to the variables we need for analysis:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span> <span class="fu">select</span>(speaker, Gender, age_group, count, total, rate_pmw) <span class="sc">|&gt;</span> </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">gender =</span> Gender)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Inspect the data frame:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(d)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   656 obs. of  6 variables:
+ $ speaker  : chr  "S0001" "S0002" "S0003" "S0004" ...
+ $ gender   : chr  "Female" "Female" "Female" "Male" ...
+ $ age_group: Ord.factor w/ 10 levels "90-99"&lt;"80-89"&lt;..: 7 8 8 7 2 2 8 4 8 7 ...
+ $ count    : int  6 21 8 1 3 1 6 101 0 7 ...
+ $ total    : int  3000 8535 1893 3634 1449 4804 11276 139888 533 3105 ...
+ $ rate_pmw : num  2000 2460 4226 275 2070 ...</code></pre>
+</div>
+</div>
+</section>
+<section id="data-structure" class="level4">
+<h4 class="anchored" data-anchor-id="data-structure">Data structure</h4>
+<p>Let us start by looking at how speakers are distributed across the sociolinguistic categories:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ftable</span>(gender <span class="sc">~</span> age_group, d)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          gender Female Male
+age_group                   
+90-99                 1    3
+80-89                 8   11
+70-79                16   17
+60-69                29   36
+50-59                43   34
+40-49                43   32
+30-39                49   40
+19-29               148   99
+11-18                17   23
+0-10                  4    3</code></pre>
+</div>
+</div>
+<p>Next, we consider the distribution of speaker word counts, i.e.&nbsp;the number of words they contributed to the corpus. In the Spoken BNC2014, the total number of word tokens contributed by each speaker varies markedly across individuals. The following dot diagram shows the skew in this distribution: The word count ranges from 19 to 362,107 and 81% of the speakers contribute fewer than 20,000 words to the corpus.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Draw Figure</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> total)) <span class="sc">+</span> </span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_dotplot</span>(<span class="at">binwidth =</span> <span class="dv">1500</span>, <span class="at">stackratio =</span> .<span class="dv">75</span>, <span class="at">method =</span> <span class="st">"histodot"</span>) <span class="sc">+</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_dotplot</span>() <span class="sc">+</span> </span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_comma</span>(), <span class="at">expand =</span> <span class="fu">c</span>(.<span class="dv">01</span>, .<span class="dv">01</span>)) <span class="sc">+</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)) <span class="sc">+</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="dv">150000</span>, <span class="at">y =</span> .<span class="dv">5</span>, <span class="at">label =</span> <span class="st">"Each dot represents a speaker"</span>, <span class="at">color =</span> <span class="st">"grey30"</span>, <span class="at">size =</span> <span class="fl">3.5</span>) <span class="sc">+</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Number of word tokens contributed to the corpus"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: The `size` argument of `element_line()` is deprecated as of ggplot2 3.4.0.
+ℹ Please use the `linewidth` argument instead.</code></pre>
+</div>
+<div class="cell-output-display">
+<div id="fig-wordcount-speaker" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-wordcount-speaker-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-wordcount-speaker-1.png" class="img-fluid figure-img" width="864">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-wordcount-speaker-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Distribution of word counts across speakers in the Spoken BNC2014 (excluding speakers who contributed fewer than 100 words to the corpus).
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>What is quite interesting is that this distribution is nicely symmetric on the log scale.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Draw Figure</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> total)) <span class="sc">+</span> <span class="fu">geom_dotplot</span>(<span class="at">binwidth =</span> .<span class="dv">04</span>, <span class="at">method =</span> <span class="st">"histodot"</span>) <span class="sc">+</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_log10</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_comma</span>(), <span class="at">expand =</span> <span class="fu">c</span>(.<span class="dv">01</span>, .<span class="dv">01</span>)) <span class="sc">+</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)) <span class="sc">+</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_dotplot</span>() <span class="sc">+</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">xlab</span>(<span class="st">"Number of words per speaker (log-scaled)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-wordcount-speaker-log" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-wordcount-speaker-log-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-wordcount-speaker-log-1.png" class="img-fluid figure-img" width="288">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-wordcount-speaker-log-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Log-scaled distribution of word counts across speakers in the Spoken BNC2014 (excluding speakers who contributed fewer than 100 words to the corpus).
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="frequency-of-actually-data-summary" class="level3">
+<h3 class="anchored" data-anchor-id="frequency-of-actually-data-summary">Frequency of <em>actually</em>: Data summary</h3>
+<p>To obtain the corpus frequency of <em>actually</em>, we divide the total number of <em>actually</em>-tokens in the corpus by the corpus size. We multiply this rate by 1,000,000 to obtain a normalized frequency of per million words:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>n_tokens <span class="ot">&lt;-</span> <span class="fu">sum</span>(d<span class="sc">$</span>count)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>corpus_size <span class="ot">&lt;-</span> <span class="fu">sum</span>(d<span class="sc">$</span>total)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>((n_tokens <span class="sc">/</span> corpus_size) <span class="sc">*</span> <span class="dv">1000000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1537</code></pre>
+</div>
+</div>
+<p>This is very similar to the (normalized) corpus frequency reported in CQPweb <span class="citation" data-cites="Hardie2012">[@Hardie2012]</span>:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="cqpweb_corpus_frequency.png" class="img-fluid figure-img" style="width:100.0%"></p>
+<figcaption>Corpus frequency results in CQPweb</figcaption>
+</figure>
+</div>
+<p>Due to the skewed word count distribution across speaker, however, this corpus frequency is problematic. It turns out that the top 20 speakers (in terms of overall word count) account for 31% of the corpus size – together, they contribute around 350,000 words to the corpus. The corpus frequency is therefore potentially biased into the direction of the language use of these individuals.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(d<span class="sc">$</span>total <span class="sc">&gt;</span> <span class="dv">110000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 20</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(d<span class="sc">$</span>total[d<span class="sc">$</span>total <span class="sc">&gt;</span> <span class="dv">110000</span>]) <span class="sc">/</span> corpus_size</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.3081076</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(d<span class="sc">$</span>total[d<span class="sc">$</span>total <span class="sc">&gt;</span> <span class="dv">200000</span>]) <span class="sc">/</span> corpus_size</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.117284</code></pre>
+</div>
+</div>
+<p>We can consider each socio-demographic subgroup (i.e.&nbsp;age-by-gender combination) as a subcorpus and likewise calculate the (sub-)corpus frequency of <em>actually</em>. This means that we divide the total number of <em>actually</em>-tokens in the subcorpus by its size. We can visualize the resulting set of normalized subcorpus frequencies:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Draw Figure</summary>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> <span class="fu">group_by</span>(age_group, gender) <span class="sc">|&gt;</span> </span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">summarize</span>(</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">rate_pmw =</span> <span class="fu">round</span>((<span class="fu">sum</span>(count)<span class="sc">/</span><span class="fu">sum</span>(total))<span class="sc">*</span><span class="fl">1e6</span>)</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> age_group,</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> rate_pmw, </span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">color =</span> gender, </span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">group =</span> gender, </span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">linetype =</span> gender,</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">shape =</span> gender)) <span class="sc">+</span></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">bg =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_shape_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="dv">19</span>, <span class="dv">21</span>)) <span class="sc">+</span></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"black"</span>, <span class="st">"grey40"</span>)) <span class="sc">+</span></span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">3500</span>)) <span class="sc">+</span></span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic_ls</span>() <span class="sc">+</span></span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>, <span class="at">vjust =</span> <span class="fl">0.5</span>, <span class="at">hjust=</span><span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>    directlabels<span class="sc">::</span><span class="fu">geom_dl</span>(<span class="fu">aes</span>(<span class="at">label =</span> gender), <span class="at">method =</span> <span class="fu">list</span>(<span class="st">"smart.grid"</span>, <span class="at">cex =</span> .<span class="dv">75</span>, <span class="at">y =</span> <span class="fu">c</span>(<span class="fl">2.3</span>, <span class="fl">4.3</span>))) <span class="sc">+</span></span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Age in decreasing order"</span>) <span class="sc">+</span></span>
+<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Subcorpus frequency of</span><span class="sc">\n</span><span class="st">actually (pmw, log-scaled)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'age_group'. You can override using the
+`.groups` argument.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in geom_line(bg = "white"): Ignoring unknown parameters: `fill`</code></pre>
+</div>
+<div class="cell-output-display">
+<div id="fig-subcorpus-frequency" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-subcorpus-frequency-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-subcorpus-frequency-1.png" class="img-fluid figure-img" width="326">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-subcorpus-frequency-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Subcorpus frequency of <em>actually</em> in the socio-demographic subgroups.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Another way of estimating the average rate of <em>actually</em> in each subgroup is to consider the speaker-specific normalized frequencies (i.e.&nbsp;he variable <code>rate_pmw</code>) and average over these. <span class="citation" data-cites="Egbert_Burch2023">@Egbert_Burch2023 [p. 105]</span> refer to these two ways of measuring frequency as <em>corpus frequency</em> and <em>mean text frequency</em>. In the present context, we slightly adapt these labels to <em>subcorpus frequency</em> and <em>mean speaker frequency</em>.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Draw Figure</summary>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> <span class="fu">group_by</span>(age_group, gender) <span class="sc">|&gt;</span> </span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">summarize</span>(</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">rate_pmw =</span> <span class="fu">mean</span>(rate_pmw)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> age_group,</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> rate_pmw, </span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">color =</span> gender, </span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">group =</span> gender, </span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">linetype =</span> gender,</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">shape =</span> gender)) <span class="sc">+</span></span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">bg =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_shape_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="dv">19</span>, <span class="dv">21</span>)) <span class="sc">+</span></span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"black"</span>, <span class="st">"grey40"</span>)) <span class="sc">+</span></span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">3500</span>)) <span class="sc">+</span></span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic_ls</span>() <span class="sc">+</span></span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>, <span class="at">vjust =</span> <span class="fl">0.5</span>, <span class="at">hjust=</span><span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>    directlabels<span class="sc">::</span><span class="fu">geom_dl</span>(<span class="fu">aes</span>(<span class="at">label =</span> gender), <span class="at">method =</span> <span class="fu">list</span>(<span class="st">"smart.grid"</span>, <span class="at">cex =</span> .<span class="dv">75</span>, <span class="at">y =</span> <span class="fu">c</span>(<span class="fl">2.3</span>, <span class="fl">4.3</span>))) <span class="sc">+</span></span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Age in decreasing order"</span>) <span class="sc">+</span></span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Mean speaker frequency of</span><span class="sc">\n</span><span class="st">actually (pmw, log-scaled)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stderr">
+<pre><code>`summarise()` has grouped output by 'age_group'. You can override using the
+`.groups` argument.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in geom_line(bg = "white"): Ignoring unknown parameters: `fill`</code></pre>
+</div>
+<div class="cell-output-display">
+<div id="fig-mean-speaker-frequency" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-mean-speaker-frequency-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-mean-speaker-frequency-1.png" class="img-fluid figure-img" width="326">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-mean-speaker-frequency-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Mean speaker frequency of <em>actually</em> in the socio-demographic subgroups.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The frequency estimates differ considerably. Especially for 70-to-79-year-olds, the two methods yield very different usage rates. To understand why this is the case, we need to zoom in on the individual speakers. It helps to draw what is sometimes referred to as a bubble chart, where each speaker is drawn as a circle, and the size of the circles is proportional to the speaker-specific word count. The figure below arranges speakers by Gender (left panel: female speakers, right panel: male speakers) and by Age group within each panel. The y-axis shows the speaker-specific usage rate of <em>actually</em>, and the size of the circles reflects how many word the speaker contributed to the corpus. Note that the y-axis is log-scaled. To be able to include normalized frequencies of 0, we opted for a full scale break that is signaled by the grey horizontal lines.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Draw Figure</summary>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">rate_pmw_0_start =</span> <span class="fu">ifelse</span>(rate_pmw <span class="sc">==</span> <span class="dv">0</span>, <span class="dv">60</span>, rate_pmw)) <span class="sc">|&gt;</span> </span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> age_group, </span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> rate_pmw_0_start, </span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> count)) <span class="sc">+</span> </span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">shape =</span> <span class="dv">1</span>, <span class="at">alpha =</span> .<span class="dv">5</span>, <span class="at">width =</span> .<span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_grid</span>(. <span class="sc">~</span> gender) <span class="sc">+</span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>(<span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">60</span>, <span class="dv">100</span>, <span class="dv">1000</span>, <span class="dv">10000</span>),</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>                <span class="at">label =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">100</span>, <span class="dv">1000</span>, <span class="dv">10000</span>)) <span class="sc">+</span></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic_ls</span>() <span class="sc">+</span></span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>, <span class="at">vjust =</span> <span class="fl">0.5</span>, <span class="at">hjust=</span><span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_size_area</span>() <span class="sc">+</span></span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">80</span>, <span class="at">col =</span> <span class="st">"grey"</span>) <span class="sc">+</span></span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Age in decreasing order"</span>) <span class="sc">+</span></span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Normalized frequency of actually</span><span class="sc">\n</span><span class="st">(per million words, log-scaled)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-bubble-chart" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bubble-chart-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-bubble-chart-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bubble-chart-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Log-scaled normalized speaker frequency of <em>actually</em> by Age group and Gender, with symbol size reflecting the total number of words the speaker contributed to the corpus.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>We note that the subgroup of female speakers aged 70 to 79 includes a speaker with both a disproportionately high rate of <em>actually</em> and a disproportionately high word count. This speaker exert considerable influence on the subcorpus frequency, which is upwardly biased as a result. In the subgroup of male speakers aged 70 to 79, the speaker with the greatest word count (i.e.&nbsp;the largest circle) uses <em>actually</em> at a relatively low rate, which likewise distorts the subcorpus frequency of this group.</p>
+</section>
+<section id="frequency-of-actually-statistical-modeling" class="level3">
+<h3 class="anchored" data-anchor-id="frequency-of-actually-statistical-modeling">Frequency of <em>actually</em>: Statistical modeling</h3>
+<p>Let us also consider how usage rate estimates can be formed using regression modeling. Using a statistical model allows us to obtain uncertainty intervals (e.g.&nbsp;95% CIs) for the subgroup estimates.</p>
+<p>The variable we are dealing with is a count variable. This is because it consists of non-negative integers that express the number of events (here: occurrences of actually) in a certain period of observation (here: text time, i.e.&nbsp;the number of running words). We therefore turn to the family of count regression models.</p>
+<p>The most basic version of this family is the Poisson model. It turns out that it returns the same frequency estimates as the subcorpus frequencies. This is because it ignores the fact that each subgroups consists of different speakers, who in turn (may) show different usage rates of <em>actually</em>. More specifically, is assumes that all speakers in a specific subgroup have the same underlying usage rate of <em>actually</em>. The assumed absence of individual variation (or inter-speaker differences) appears implausible on linguistic grounds and for the data at hand, <a href="#fig-bubble-chart" class="quarto-xref">Figure&nbsp;5</a> shows that this assumption is indeed not tenable for the data at hand.</p>
+<p>For a point of reference, we nevertheless start by fitting a Poisson model to the data. Since the total word count speakers differs across speakers (see <a href="#fig-wordcount-speaker" class="quarto-xref">Figure&nbsp;1</a>), a count regression model must include what is referred to as an offset. The idea is the same as when we calculate normalized frequencies. To be able to compare usage rates across speakers in the first place, these must be expressed in relative terms, i.e.&nbsp;divided by thetotal number of words produced by the speaker.</p>
+<p>We can fit a Poisson model using the base R function <code>glm()</code>, where the code chunk <code>offset(log(total))</code> represents the offset.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>m_poi <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>    count <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> <span class="fu">offset</span>(<span class="fu">log</span>(total)) <span class="sc">+</span> gender <span class="sc">*</span> age_group, </span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> d, </span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">family =</span> <span class="fu">poisson</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We skip regression tables and directly proceed to the calculation of model-based estimates. To this end, we use the <code>predictions()</code> function in the very helpful <code>{marginaleffects}</code> package <span class="citation" data-cites="ArelBundock_etal2024">[@ArelBundock_etal2024]</span>. We request estimates (i.e.&nbsp;predictions) for all combinations of Age (<code>age_group</code>) and Gender (<code>gender</code>), which means that we are not averaging over any predictor variables in the model. We specify these conditions (i.e.&nbsp;combinations of Age and Gender) using the <code>datagrid()</code> function. It creates a data frame of all predictor combinations of interest. Note that we must also supply a word count (<code>total</code>) to <code>datagrid()</code>; for model-based predictions, this variable controls the type of rate (or normalized frequency) returned by the <code>predictions()</code> function. We will stick to ‘per million words’ and therefore add <code>total = 1e6</code> to the <code>datagrid()</code> function. If you fail to specify a value for <code>total</code>, the <code>predictions()</code> function will press ahead and use the in-sample mean of this variable (17282.57) – clearly, this is <strong>not</strong> what we want.</p>
+<p>Two further argument require some explanation. Count regression models are generalized linear models that do not model the data on the original data scale (as is the case in ordinary linear regression). Instead, a link scale is used, similar to logistic regression models. For count regression models, the counts (or in our case: rates) are modeled on the log scale. For interpretation, however, we prefer the orginial data scale – in our case, normalized frequencies on the per-million-word scale. The <code>predictions()</code> function therefore includes an argumetn <code>type</code>, which allows us to specify the scale on which predictions should be returned. Specifying <code>type = 'response'</code> asks for predictions on the data scale (i.e.&nbsp;normalized frequencies). Unfortunately, this will also return uncertainty intervals that are computed on the data scale, i.e.&nbsp;after back-transformation. As you can check for yourself, this does not work well in the represent case, as some of the lower CI limits are negative (which is impossible). We therefore ask for predictions on the model scale (i.e.&nbsp;natural logarithms) using <code>type = 'link'</code> and then backtransform these to the data scale using <code>transform = exp</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>preds_poi <span class="ot">&lt;-</span> <span class="fu">predictions</span>(</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  m_poi, </span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">newdata =</span> <span class="fu">datagrid</span>(</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">age_group =</span> unique, </span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">gender =</span> unique,</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">total =</span> <span class="fl">1e6</span>),</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">"link"</span>,</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">transform =</span> exp) <span class="sc">|&gt;</span> </span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Here is the (shortened) content of the table:</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 20 × 6
+   estimate conf.low conf.high age_group gender   total
+      &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt; &lt;fct&gt;     &lt;chr&gt;    &lt;dbl&gt;
+ 1    1604.   1529.      1683. 30-39     Female 1000000
+ 2    1316.   1229.      1409. 30-39     Male   1000000
+ 3    1641.   1596.      1689. 19-29     Female 1000000
+ 4    1679.   1609.      1751. 19-29     Male   1000000
+ 5     326.    189.       561. 80-89     Female 1000000
+ 6    1364.   1131.      1646. 80-89     Male   1000000
+ 7    1438.   1330.      1556. 60-69     Female 1000000
+ 8     985.    910.      1065. 60-69     Male   1000000
+ 9    3478.   3232.      3742. 70-79     Female 1000000
+10     589.    516.       673. 70-79     Male   1000000
+11    1876.   1803.      1952. 40-49     Female 1000000
+12    1397.   1276.      1529. 40-49     Male   1000000
+13    1605.   1514.      1701. 50-59     Female 1000000
+14     965.    879.      1059. 50-59     Male   1000000
+15     167.     41.7      667. 90-99     Female 1000000
+16    1042.    832.      1305. 90-99     Male   1000000
+17    1810.   1666.      1968. 11-18     Female 1000000
+18    1007.    912.      1112. 11-18     Male   1000000
+19    1320.   1090.      1598. 0-10      Female 1000000
+20    1668.   1382.      2015. 0-10      Male   1000000</code></pre>
+</div>
+</div>
+<p>We go ahead and graph these estimates. The result is virtually identical to the descriptive <a href="#fig-subcorpus-frequency" class="quarto-xref">Figure&nbsp;3</a>. The error bars represent 95% CIs, and we note that the Poisson model return very confident estimates for most subgroups.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>preds_poi <span class="sc">|&gt;</span> <span class="fu">ggplot</span>(</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> age_group,</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> estimate, </span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">color =</span> gender, </span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">group =</span> gender, </span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">linetype =</span> gender,</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">shape =</span> gender)) <span class="sc">+</span></span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> conf.low, <span class="at">ymax =</span> conf.high), <span class="at">linetype =</span> <span class="dv">1</span>, <span class="at">width =</span> .<span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">bg =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_shape_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="dv">19</span>, <span class="dv">21</span>)) <span class="sc">+</span></span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"black"</span>, <span class="st">"grey40"</span>)) <span class="sc">+</span></span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">20</span>, <span class="dv">3500</span>)) <span class="sc">+</span></span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic_ls</span>() <span class="sc">+</span></span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
+<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>, <span class="at">vjust =</span> <span class="fl">0.5</span>, <span class="at">hjust=</span><span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a>    directlabels<span class="sc">::</span><span class="fu">geom_dl</span>(<span class="fu">aes</span>(<span class="at">label =</span> gender), <span class="at">method =</span> <span class="fu">list</span>(<span class="st">"smart.grid"</span>, <span class="at">cex =</span> .<span class="dv">75</span>, <span class="at">y =</span> <span class="fu">c</span>(<span class="fl">2.5</span>, <span class="fl">4.3</span>))) <span class="sc">+</span></span>
+<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Age in decreasing order"</span>) <span class="sc">+</span></span>
+<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Estimated average rate of</span><span class="sc">\n</span><span class="st">actually (pmw, log-scaled)"</span>) <span class="sc">+</span></span>
+<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="fl">10.5</span>, <span class="at">y =</span> <span class="dv">25</span>, <span class="at">label=</span><span class="st">"Error bars denote 95% CIs"</span>, <span class="at">size =</span> <span class="dv">3</span>, <span class="at">col =</span> <span class="st">"grey40"</span>, <span class="at">adj=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="326"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Poisson model can be extended to account for the structure of the data, and for the fact that the usage rate of <em>actually</em> may very well vary from speaker to speaker, even within the same socio-demographic subgroup. The result is sometimes referred to as a Poisson mixture model, and it includes an extra parameter that captures the amount of observed between-speaker variation. A frequently used Poisson mixture distribution is the negative binomial distribution. For a visual explanation of this distribution, see <a href="https://lsoenning.github.io/posts/2023-11-16_negative_binomial/">this blog post</a>. What matters for the present case study is the fact that this type of model knows about and adequately represents the structure of the data.</p>
+<p>Negative binomial model</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>m_nb <span class="ot">&lt;-</span> MASS<span class="sc">::</span><span class="fu">glm.nb</span>(</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>    count <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> <span class="fu">offset</span>(<span class="fu">log</span>(total)) <span class="sc">+</span> gender <span class="sc">*</span> age_group, </span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> d)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>preds_nb <span class="ot">&lt;-</span> <span class="fu">predictions</span>(</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  m_nb, </span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">newdata =</span> <span class="fu">datagrid</span>(</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">age_group =</span> unique, </span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">gender =</span> unique,</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">total =</span> <span class="fl">1e6</span>),</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">"link"</span>,</span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">transform =</span> exp) <span class="sc">|&gt;</span> </span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>preds_nb <span class="sc">|&gt;</span> <span class="fu">ggplot</span>(</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> age_group,</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> estimate, </span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">color =</span> gender, </span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">group =</span> gender, </span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">linetype =</span> gender,</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">shape =</span> gender)) <span class="sc">+</span></span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> conf.low, <span class="at">ymax =</span> conf.high), <span class="at">linetype =</span> <span class="dv">1</span>, <span class="at">width =</span> .<span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">bg =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_shape_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="dv">19</span>, <span class="dv">21</span>)) <span class="sc">+</span></span>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"black"</span>, <span class="st">"grey40"</span>)) <span class="sc">+</span></span>
+<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">20</span>, <span class="dv">3500</span>)) <span class="sc">+</span></span>
+<span id="cb39-14"><a href="#cb39-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic_ls</span>() <span class="sc">+</span></span>
+<span id="cb39-15"><a href="#cb39-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
+<span id="cb39-16"><a href="#cb39-16" aria-hidden="true" tabindex="-1"></a>        <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>, <span class="at">vjust =</span> <span class="fl">0.5</span>, <span class="at">hjust=</span><span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb39-17"><a href="#cb39-17" aria-hidden="true" tabindex="-1"></a>  directlabels<span class="sc">::</span><span class="fu">geom_dl</span>(<span class="fu">aes</span>(<span class="at">label =</span> gender), <span class="at">method =</span> <span class="fu">list</span>(<span class="st">"smart.grid"</span>, <span class="at">cex =</span> .<span class="dv">75</span>, <span class="at">y =</span> <span class="fu">c</span>(<span class="fl">2.75</span>, <span class="fl">4.3</span>))) <span class="sc">+</span></span>
+<span id="cb39-18"><a href="#cb39-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Age in decreasing order"</span>) <span class="sc">+</span></span>
+<span id="cb39-19"><a href="#cb39-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Estimated average rate of</span><span class="sc">\n</span><span class="st">actually (pmw, log-scaled)"</span>) <span class="sc">+</span></span>
+<span id="cb39-20"><a href="#cb39-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="fl">10.5</span>, <span class="at">y =</span> <span class="dv">25</span>, <span class="at">label=</span><span class="st">"Error bars denote 95% CIs"</span>, <span class="at">size =</span> <span class="dv">3</span>, <span class="at">col =</span> <span class="st">"grey40"</span>, <span class="at">adj=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="index_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid figure-img" width="326"></p>
+</figure>
+</div>
+</div>
+</div>
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{2024,
+  author = {},
+  title = {Distributional Disproportions and Their Consequences:
+    {Speakers} in the {Spoken} {BNC2014}},
+  date = {2024-01-07},
+  url = {https://lsoenning.github.io/posts/2025-04-28_disproportionate_representation_speaker/},
+  langid = {en}
+}
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-2024" class="csl-entry quarto-appendix-citeas" role="listitem">
+<span>“Distributional Disproportions and Their Consequences: Speakers in
+the Spoken BNC2014.”</span> 2024. January 7, 2024. <a href="https://lsoenning.github.io/posts/2025-04-28_disproportionate_representation_speaker/">https://lsoenning.github.io/posts/2025-04-28_disproportionate_representation_speaker/</a>.
+</div></div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/lsoenning\.github\.io");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

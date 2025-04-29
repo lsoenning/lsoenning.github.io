@@ -1,2 +1,6 @@
 /* css styles */
-$navbar-bg: grey
+
+.center{
+  margin: 0!important;
+  height: 20px;
+}
