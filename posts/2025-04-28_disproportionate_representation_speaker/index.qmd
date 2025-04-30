@@ -6,6 +6,7 @@ categories: [corpus linguistics, count data, data structure, negative binomial d
 citation: 
   url: https://lsoenning.github.io/posts/2025-04-28_disproportionate_representation_speaker/
 editor: source
+image: docs/posts/2025-04-28_disproportionate_representation_speaker/index_files/figure-html/fig-subcorpus-frequency-1.png
 draft: false
 ---
 
@@ -159,9 +160,10 @@ corpus_size <- sum(d$total)
 
 round((n_tokens / corpus_size) * 1000000)
 ```
+
 This is very similar to the (normalized) corpus frequency reported in CQPweb [@Hardie2012]:
 
-![](cqpweb_corpus_frequency.png){fig-align="center", width=80%}
+![](cqpweb_corpus_frequency.png){fig-align="center" width=80%}
 
 Due to the skewed word count distribution across speakers, however, this corpus frequency is potentially problematic. It turns out that the top 20 speakers (in terms of overall word count) together make up 31% of the corpus -- their word count adds to around 350,000. The corpus frequency is therefore potentially biased toward the language use of these individuals. 
 

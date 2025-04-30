@@ -35,11 +35,6 @@ Monograph
 
 - **Sönning**, Lukas. 2020. *Phonological variation in German Learner English*. University of Bamberg dissertation. doi: [10.20378/irb-49135](https://doi.org/10.20378/irb-49135) | {{< ai 'open-access' >}} [Open access](https://fis.uni-bamberg.de/bitstream/uniba/49135/3/fisba49135_A3a.pdf){target="_blank"}  | {{< ai dataverse >}} [Datasets](#data-diss){target="_blank"}  | {{< ai osf >}}  [OSF](https://osf.io/2pdh6/){target="_blank"} 
 
-Software
-
-- **Sönning**, Lukas. 2025. *tlda: Tools for language data analysis*. R package version  0.1.0. doi: [10.32614/CRAN.package.tlda](https://doi.org/10.32614/CRAN.package.tlda){target="_blank"} \| {{< iconify fa6-brands github >}} [Github](https://github.com/lsoenning/tlda){target="_blank"}
-  + Vignette on [dispersion analysis](https://cran.r-project.org/web/packages/tlda/vignettes/dispersion-analysis.html){target="_blank"} using the tlda package
-
 
 Journal articles
 
@@ -87,6 +82,12 @@ Proceedings
 - **Sönning**, Lukas. 2014. Developmental patterns in the reduction of unstressed vowels by German learners of English. In Ludmila Veselovská & Markéta Janebová (eds.), *Complex visibles out there: Proceedings of the Olomouc Linguistics Colloquium 2014: Language use and linguistic structure, vol. 4 Olomouc modern language series*, 765–778. Olomouc: Palacký University.   {{< ai 'open-access' >}} [Open access](https://osf.io/kn4gp) | {{< ai osf >}} [OSF](https://osf.io/v5hrb/){target="_blank"} 
 
 - **Sönning**, Lukas. 2013. Scrabble yourself to success: Methods in teaching transcription. In Joanna Przedlacka, John Maidment & Michael Ashby (eds.), *Proceedings of the Phonetics Teaching and Learning Conference, UCL, London, 8-10 August 2013*. London: Phonetics Teaching and Learning Conference, 87–90.  {{< ai 'open-access' >}} [Open access](https://osf.io/uknmh){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/vxgmu/){target="_blank"}  | {{< ai dataverse >}} [Data](https://doi.org/10.18710/2UJHHU){target="_blank"}  
+
+
+Software
+
+- **Sönning**, Lukas. 2025. *tlda: Tools for language data analysis*. R package version  0.1.0. doi: [10.32614/CRAN.package.tlda](https://doi.org/10.32614/CRAN.package.tlda){target="_blank"} \| {{< iconify fa6-brands github >}} [Github](https://github.com/lsoenning/tlda){target="_blank"}
+  + Vignette on [dispersion analysis](https://cran.r-project.org/web/packages/tlda/vignettes/dispersion-analysis.html){target="_blank"} using the tlda package
 
 \  
 

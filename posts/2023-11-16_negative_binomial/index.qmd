@@ -6,6 +6,7 @@ categories: [count data, corpus linguistics, statistics, dispersion, negative bi
 citation: 
   url: https://lsoenning.github.io/posts/2023-11-16_negative_binomial/
 editor: source
+image: docs/posts/2023-11-16_negative_binomial/index_files/figure-html/fig-which-nb-1.png
 draft: false
 ---
 

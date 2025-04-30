@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.433">
+<meta name="generator" content="quarto-1.5.57">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -10,7 +10,7 @@
 <meta name="dcterms.date" content="2023-12-12">
 <meta name="description" content="This blog post uses a visual approach to explain how the negative binomial distribution works.">
 
-<title>Lukas Sönning - The negative binomial distribution: A visual explanation</title>
+<title>The negative binomial distribution: A visual explanation – Lukas Sönning</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -25,7 +25,7 @@ ul.task-list li input[type="checkbox"] {
 }
 /* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -36,7 +36,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -82,7 +82,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -91,14 +97,42 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
   }
 }</script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../../styles.css">
 </head>
@@ -107,43 +141,43 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+      <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">Lukas Sönning</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../../index.html" rel="" target="">
- <span class="menu-text">Home</span></a>
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../about.html" rel="" target="">
- <span class="menu-text">About</span></a>
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../research.html" rel="" target="">
- <span class="menu-text">Research</span></a>
+    <a class="nav-link" href="../../research.html"> 
+<span class="menu-text">Research</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../resources.html" rel="" target="">
- <span class="menu-text">Resources</span></a>
+    <a class="nav-link" href="../../resources.html"> 
+<span class="menu-text">Resources</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../posts.html" rel="" target="">
- <span class="menu-text">Statistics for linguist(ic)s blog</span></a>
+    <a class="nav-link" href="../../posts.html"> 
+<span class="menu-text">Statistics for linguist(ic)s blog</span></a>
   </li>  
 </ul>
-            <div class="quarto-navbar-tools ms-auto">
-</div>
           </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
       </div> <!-- /container-fluid -->
     </nav>
 </header>
@@ -151,7 +185,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
         
     </div>
 <!-- main -->
@@ -182,12 +216,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div class="quarto-title-meta-contents">
     <p class="author"><a href="https://lsoenning.github.io/">Lukas Sönning</a> <a href="https://orcid.org/0000-0002-2705-395X" class="quarto-title-author-orcid"> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg=="></a></p>
   </div>
-    <div class="quarto-title-meta-contents">
+  <div class="quarto-title-meta-contents">
         <p class="affiliation">
             University of Bamberg
           </p>
       </div>
-    </div>
+  </div>
 
 <div class="quarto-title-meta">
 
@@ -203,10 +237,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </div>
   
 
+
 </header>
 
+
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>R setup</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lattice)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
@@ -220,9 +256,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>This blog post takes a closer look at the negative binomial distribution – how it works and why it is a useful device for modeling word frequency data. It is helpful to start with a concrete example: the frequency of <em>which</em> in the Brown Corpus. To keep things simple, we will stick to this data setting, where texts have (nearly) the same length. Note, however, that the negative binomial distribution (like the Poisson) readily extends to situations where texts have different lengths.</p>
 <section id="observed-and-expected-frequency-distributions" class="level4">
 <h4 class="anchored" data-anchor-id="observed-and-expected-frequency-distributions">Observed and expected frequency distributions</h4>
-<p>If we count the number of occurrences of <em>which</em> in each text and then look at the distribution of token counts, we obtain what is referred to as a <em>frequency distribution</em> or a <em>token distribution</em>. The frequency distribution for <em>which</em> in the Brown Corpus, which consists of 500 texts, appears in <a href="#fig-which">Figure&nbsp;1</a> a. It shows the distribution of token counts across texts: Each bar represents a specific token count, and the height of the bar is proportional to the number of texts that have this many instances of <em>which</em>. Token counts vary between 0 (<em>n</em> = 26 texts) and 40 (1 text), and the distribution is right-skewed, which is quite typical of count variables, since they have a lower bound at 0.</p>
+<p>If we count the number of occurrences of <em>which</em> in each text and then look at the distribution of token counts, we obtain what is referred to as a <em>frequency distribution</em> or a <em>token distribution</em>. The frequency distribution for <em>which</em> in the Brown Corpus, which consists of 500 texts, appears in <a href="#fig-which" class="quarto-xref">Figure&nbsp;1</a> a. It shows the distribution of token counts across texts: Each bar represents a specific token count, and the height of the bar is proportional to the number of texts that have this many instances of <em>which</em>. Token counts vary between 0 (<em>n</em> = 26 texts) and 40 (1 text), and the distribution is right-skewed, which is quite typical of count variables, since they have a lower bound at 0.</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Load data</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># tdm &lt;- read_tsv("C:/Users/ba4rh5/Work Folders/My Files/R projects/_lsoenning.github.io/posts/2023-11-16_negative_binomial/data/brown_tdm.tsv")</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
@@ -237,7 +273,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </details>
 </div>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Draw Figure 1</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Poisson model</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">glm</span>(n_tokens<span class="sc">$</span>which <span class="sc">~</span> <span class="dv">1</span>, <span class="at">family=</span><span class="st">"poisson"</span>)</span>
@@ -280,26 +316,30 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="cell">
 <div class="cell-output-display">
-<div id="fig-which" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure">
-<p><img src="index_files/figure-html/fig-which-1.png" class="img-fluid figure-img" width="384"></p>
-<figcaption class="figure-caption">Figure&nbsp;1: <em>Which</em> in the Brown Corpus: (a) observed frequency distribution and (b) expected frequency distribution based on the Poisson model.</figcaption>
+<div id="fig-which" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-which-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-which-1.png" class="img-fluid figure-img" width="384">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-which-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: <em>Which</em> in the Brown Corpus: (a) observed frequency distribution and (b) expected frequency distribution based on the Poisson model.
+</figcaption>
 </figure>
 </div>
 </div>
 </div>
-<p>The most basic probability distribution that is available for modeling count variables is the <em>Poisson distribution</em>. In general, we can check the fit of a distribution to the observed token counts by comparing the observed distribution (<a href="#fig-which">Figure&nbsp;1</a> a) to the one expected under a Poisson model. The expected distribution appears in <a href="#fig-which">Figure&nbsp;1</a> b. We note a mismatch with the observed data: Its tails are too thin – that is, the observed token counts are more widely spread out; counts of 0 are severely underpredicted (or underrepresented).</p>
-<p>In fact, it is often the case that the Poisson distribution offers a poor fit to (language) data. This is because it rests on a simplistic assumption: It assumes that the expected frequency of <em>which</em> (or: the underlying probability of using <em>which</em>) is the same in every text. In our case, where we are dealing with texts of roughly 2,000 words in length, the expected number of instances of <em>which</em>, on average, is 7.1. Due to sampling variation, the actual number of instances per text will vary around this average. This sampling variation is accounted for in the Poisson distribution, giving it the (near-)bell-shaped appearance in <a href="#fig-which">Figure&nbsp;1</a> b.</p>
+<p>The most basic probability distribution that is available for modeling count variables is the <em>Poisson distribution</em>. In general, we can check the fit of a distribution to the observed token counts by comparing the observed distribution (<a href="#fig-which" class="quarto-xref">Figure&nbsp;1</a> a) to the one expected under a Poisson model. The expected distribution appears in <a href="#fig-which" class="quarto-xref">Figure&nbsp;1</a> b. We note a mismatch with the observed data: Its tails are too thin – that is, the observed token counts are more widely spread out; counts of 0 are severely underpredicted (or underrepresented).</p>
+<p>In fact, it is often the case that the Poisson distribution offers a poor fit to (language) data. This is because it rests on a simplistic assumption: It assumes that the expected frequency of <em>which</em> (or: the underlying probability of using <em>which</em>) is the same in every text. In our case, where we are dealing with texts of roughly 2,000 words in length, the expected number of instances of <em>which</em>, on average, is 7.1. Due to sampling variation, the actual number of instances per text will vary around this average. This sampling variation is accounted for in the Poisson distribution, giving it the (near-)bell-shaped appearance in <a href="#fig-which" class="quarto-xref">Figure&nbsp;1</a> b.</p>
 <p>In linguistic terms, the model assumes that each text in the Brown Corpus, irrespective of genre or the idiosyncrasies of its author, has the same underlying probability of using <em>which</em> (i.e.&nbsp;about 7 in 2,000; or 3.5 per thousand words). Even for a function word such as <em>which</em>, this assumption seems difficult to defend. For instance, certain genres may use more postmodifying relative clauses, leading to a higher expected rate of <em>which</em> for texts in this category.</p>
 </section>
 <section id="poisson-mixture-distributions" class="level4 page-columns page-full">
 <h4 class="anchored" data-anchor-id="poisson-mixture-distributions">Poisson mixture distributions</h4>
 <p>To offer a more adequate abstraction (or representation) of the observed token distribution, the assumption of equal rates across texts needs to be relaxed. We want the model to be able to represent variation among texts, and to record the amount of variation suggested by the data. On linguistic grounds, for instance, we would expect function words to vary less from text to text than lexical words, which are more sensitive to register and topic. The idea is to have an additional parameter in the model that acts like a standard deviation, essentially capturing (and measuring) the text-to-text variability in occurrence rates.</p>
 <p>It is for this purpose that <em>Poisson mixture distributions</em> were invented. One such mixture distribution is the negative binomial distribution, which is also referred to as a Poisson-gamma mixture distribution. This is actually a more transparent label, as we will see shortly.</p>
-<p>The idea behind Poisson mixtures is rather simple. Since the Poisson distribution on its own fails to adequately embrace high and low counts, its mean is allowed to vary. By allowing the Poisson mean to vary, i.e.&nbsp;shift up and down the count scale (or left and right in <a href="#fig-which">Figure&nbsp;1</a>), the probability distribution is more flexible, which allows it to accommodate the tails of the distribution.</p>
+<p>The idea behind Poisson mixtures is rather simple. Since the Poisson distribution on its own fails to adequately embrace high and low counts, its mean is allowed to vary. By allowing the Poisson mean to vary, i.e.&nbsp;shift up and down the count scale (or left and right in <a href="#fig-which" class="quarto-xref">Figure&nbsp;1</a>), the probability distribution is more flexible, which allows it to accommodate the tails of the distribution.</p>
 <p>Poisson mixtures therefore include an additional <em>dispersion parameter</em> (similar to a standard deviation) and the Poisson mean is replaced by a distribution of Poisson means. Note that the way in which the term “dispersion” is used here differs from the sense it has acquired in lexicography and corpus linguistics (the difference is explained in <a href="https://lsoenning.github.io/posts/2023-01-18_dispersion_terminology/">this blog post</a>).</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Draw Figure 2</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1985</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -342,21 +382,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell page-columns page-full">
 
 <div class="no-row-height column-margin column-container"><div class="cell-output-display">
-<div id="fig-illustration-poisson-mixture" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure">
-<p><img src="index_files/figure-html/fig-illustration-poisson-mixture-1.png" class="img-fluid figure-img" width="240"></p>
-<figcaption class="figure-caption">Figure&nbsp;2: Mixing Poisson distributions: Each panel shows a sample of 20 Poisson distributions whose means vary around the grand mean of 7. The variation among Poissons is greater in the top panel.</figcaption>
+<div id="fig-illustration-poisson-mixture" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-illustration-poisson-mixture-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-illustration-poisson-mixture-1.png" class="img-fluid figure-img" width="240">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-illustration-poisson-mixture-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Mixing Poisson distributions: Each panel shows a sample of 20 Poisson distributions whose means vary around the grand mean of 7. The variation among Poissons is greater in the top panel.
+</figcaption>
 </figure>
 </div>
 </div></div></div>
-<p>Poisson mixtures can be thought of as consisting of multiple Poisson distributions with different individual means. This is illustrated in <a href="#fig-illustration-poisson-mixture">Figure&nbsp;2</a>. To be able to show multiple distributions in one graph, we now leave out the spikes and connect the dots – a single distribution therefore appears as a bell-shaped profile that looks like a pearl necklace. Each panel shows 20 Poisson distributions, and each of these 20 distributions has a different mean. The means vary around 7, the overall mean of the Poisson mixture.</p>
+<p>Poisson mixtures can be thought of as consisting of multiple Poisson distributions with different individual means. This is illustrated in <a href="#fig-illustration-poisson-mixture" class="quarto-xref">Figure&nbsp;2</a>. To be able to show multiple distributions in one graph, we now leave out the spikes and connect the dots – a single distribution therefore appears as a bell-shaped profile that looks like a pearl necklace. Each panel shows 20 Poisson distributions, and each of these 20 distributions has a different mean. The means vary around 7, the overall mean of the Poisson mixture.</p>
 <p>The distributions in the upper panel are spread out more widely than in the lower panel, and it is the newly introduced <em>dispersion parameter</em> that expresses the amount of variation among Poisson means. This basic idea applies to all Poisson mixture distributions. They are called ‘mixture distributions’ because they mix two probability distributions: (i) the familiar Poisson distribution and (ii) an additional probability distribution which describes the variability in the Poisson means. Simplifying slightly, Poisson mixtures only differ in the probability distribution they employ to describe the distribution of the Poisson means.</p>
 </section>
 <section id="the-gamma-distribution-as-a-model-of-text-to-text-variation" class="level4 page-columns page-full">
 <h4 class="anchored" data-anchor-id="the-gamma-distribution-as-a-model-of-text-to-text-variation">The gamma distribution as a model of text-to-text variation</h4>
-<p>The <em>negative binomial</em> distribution, for instance, relies on the <em>gamma distribution</em> to describe the text-to-text variability in occurrence rates. It is therefore also called a <em>Poisson-gamma</em> mixture distribution. <a href="#fig-illustration-gamma">Figure&nbsp;3</a> shows the two gamma distributions that were used to create <a href="#fig-illustration-poisson-mixture">Figure&nbsp;2</a>. The dashed curve, which shows greater spread, belongs to the upper panel.</p>
+<p>The <em>negative binomial</em> distribution, for instance, relies on the <em>gamma distribution</em> to describe the text-to-text variability in occurrence rates. It is therefore also called a <em>Poisson-gamma</em> mixture distribution. <a href="#fig-illustration-gamma" class="quarto-xref">Figure&nbsp;3</a> shows the two gamma distributions that were used to create <a href="#fig-illustration-poisson-mixture" class="quarto-xref">Figure&nbsp;2</a>. The dashed curve, which shows greater spread, belongs to the upper panel.</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Draw Figure 3</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>lambda_plot <span class="ot">=</span> <span class="dv">7</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -396,21 +440,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell page-columns page-full">
 
 <div class="no-row-height column-margin column-container"><div class="cell-output-display">
-<div id="fig-illustration-gamma" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure">
-<p><img src="index_files/figure-html/fig-illustration-gamma-1.png" class="img-fluid figure-img" width="240"></p>
-<figcaption class="figure-caption">Figure&nbsp;3: The gamma distribution describing the variability of text-to-text occurrence rates.</figcaption>
+<div id="fig-illustration-gamma" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-illustration-gamma-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-illustration-gamma-1.png" class="img-fluid figure-img" width="240">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-illustration-gamma-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: The gamma distribution describing the variability of text-to-text occurrence rates.
+</figcaption>
 </figure>
 </div>
 </div></div></div>
-<p><a href="#fig-illustration-gamma">Figure&nbsp;3</a> a shows the gamma distributions on their actual scale. These are spread out around a value of 1, because they indicate variability in Poisson means on a multiplicative scale. It makes sense to center the distribution around 1, since the overall occurrence rate (multiplied by 1) should be at the center. The x-axis therefore denotes factors, which means that variability between Poisson means is expressed as ratios. The dashed curve, for instance, ranges from roughly 0.5 to 1.5, which means that most Poisson means are found within ± 50% of the overall mean. Since this multiplicative factor cannot be smaller than 0, we need a probability distribution that is bounded at zero (like the gamma distribution).</p>
+<p><a href="#fig-illustration-gamma" class="quarto-xref">Figure&nbsp;3</a> a shows the gamma distributions on their actual scale. These are spread out around a value of 1, because they indicate variability in Poisson means on a multiplicative scale. It makes sense to center the distribution around 1, since the overall occurrence rate (multiplied by 1) should be at the center. The x-axis therefore denotes factors, which means that variability between Poisson means is expressed as ratios. The dashed curve, for instance, ranges from roughly 0.5 to 1.5, which means that most Poisson means are found within ± 50% of the overall mean. Since this multiplicative factor cannot be smaller than 0, we need a probability distribution that is bounded at zero (like the gamma distribution).</p>
 <p>Panel (b) translates these distributions to the occurrence rate scale. To create this graph, the factors (i.e.&nbsp;the x-values) in panel (a) were simply multiplied by the overall mean of 7. Now we see that, for the dashed curve, most occurrence rates vary between 4 and 11 instances per text.</p>
 </section>
 <section id="negative-binomial-distribution-applied-to-which" class="level4 page-columns page-full">
 <h4 class="anchored" data-anchor-id="negative-binomial-distribution-applied-to-which">Negative binomial distribution applied to <em>which</em></h4>
-<p>Let us now apply the negative binomial distribution to the data for <em>which</em> in the Brown Corpus. We first check the fit of this new model to the data. <a href="#fig-which-nb">Figure&nbsp;4</a> shows that it provides a much closer approximation to the observed token distribution. It accomodates low and high counts and there seems to be no systematic lack of fit.</p>
+<p>Let us now apply the negative binomial distribution to the data for <em>which</em> in the Brown Corpus. We first check the fit of this new model to the data. <a href="#fig-which-nb" class="quarto-xref">Figure&nbsp;4</a> shows that it provides a much closer approximation to the observed token distribution. It accomodates low and high counts and there seems to be no systematic lack of fit.</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Fit negative binomial model in R</summary>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">gamlss</span>(n_tokens<span class="sc">$</span>which <span class="sc">~</span> <span class="dv">1</span>, <span class="at">family=</span><span class="st">"NBI"</span>, <span class="at">trace =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -421,7 +469,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </details>
 </div>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Draw Figure 4</summary>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xyplot</span>(</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  n_texts <span class="sc">~</span> token_count,</span>
@@ -444,17 +492,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<div id="fig-which-nb" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure">
-<p><img src="index_files/figure-html/fig-which-nb-1.png" class="img-fluid figure-img" width="384"></p>
-<figcaption class="figure-caption">Figure&nbsp;4: <em>Which</em> in the Brown Corpus: Observed token distribution compared against the Poisson and the negative binomial model.</figcaption>
+<div id="fig-which-nb" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-which-nb-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-which-nb-1.png" class="img-fluid figure-img" width="384">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-which-nb-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: <em>Which</em> in the Brown Corpus: Observed token distribution compared against the Poisson and the negative binomial model.
+</figcaption>
 </figure>
 </div>
 </div>
 </div>
-<p>Let us consider the gamma distribution that describes the text-to-text variability in occurrence rates. Its density appears in <a href="#fig-which-gamma">Figure&nbsp;5</a>, which includes two x-axes: A multiplicative scale (bottom) and a scale showing the expected number of instances in a 2,000-word text (the average text length in Brown). The gamma distribution is centered at 1 (multiplicative scale) and 7.1 occurrences (number of instances of <em>which</em>).</p>
+<p>Let us consider the gamma distribution that describes the text-to-text variability in occurrence rates. Its density appears in <a href="#fig-which-gamma" class="quarto-xref">Figure&nbsp;5</a>, which includes two x-axes: A multiplicative scale (bottom) and a scale showing the expected number of instances in a 2,000-word text (the average text length in Brown). The gamma distribution is centered at 1 (multiplicative scale) and 7.1 occurrences (number of instances of <em>which</em>).</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Draw Figure 5</summary>
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type=</span><span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">21</span><span class="sc">/</span><span class="dv">7</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="fl">1.4</span>),</span>
@@ -501,10 +553,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell page-columns page-full">
 
 <div class="no-row-height column-margin column-container"><div class="cell-output-display">
-<div id="fig-which-gamma" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure">
-<p><img src="index_files/figure-html/fig-which-gamma-1.png" class="img-fluid figure-img" width="240"></p>
-<figcaption class="figure-caption">Figure&nbsp;5: The gamma distribution describing the variability of text-to-text occurrence rates of <em>which</em> in the Brown Corpus.</figcaption>
+<div id="fig-which-gamma" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-which-gamma-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-which-gamma-1.png" class="img-fluid figure-img" width="240">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-which-gamma-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: The gamma distribution describing the variability of text-to-text occurrence rates of <em>which</em> in the Brown Corpus.
+</figcaption>
 </figure>
 </div>
 </div></div></div>
@@ -513,11 +569,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="graphical-derivation-of-the-negative-binomial-distribution" class="level4 page-columns page-full">
 <h4 class="anchored" data-anchor-id="graphical-derivation-of-the-negative-binomial-distribution">Graphical derivation of the negative binomial distribution</h4>
-<p>To get a better understanding of the negative binomial distribution shown in <a href="#fig-which-nb">Figure&nbsp;4</a>, let us now build one from scratch. Recall that the gamma distribution that is built into the negative binomial model provides us with a set of values with mean 1. We will refer to scores generated from this kind of gamma distribution as <span class="math inline">\(\delta\)</span> scores. To spread out the Poisson means, the overall mean is multiplied by the <span class="math inline">\(\delta\)</span> scores drawn from the gamma distribution. Since the <span class="math inline">\(\delta\)</span> scores are centered at 1, the overall mean is still 7. A gamma distribution that is spread out more widely produces more widely dispersed Poisson means.</p>
+<p>To get a better understanding of the negative binomial distribution shown in <a href="#fig-which-nb" class="quarto-xref">Figure&nbsp;4</a>, let us now build one from scratch. Recall that the gamma distribution that is built into the negative binomial model provides us with a set of values with mean 1. We will refer to scores generated from this kind of gamma distribution as <span class="math inline">\(\delta\)</span> scores. To spread out the Poisson means, the overall mean is multiplied by the <span class="math inline">\(\delta\)</span> scores drawn from the gamma distribution. Since the <span class="math inline">\(\delta\)</span> scores are centered at 1, the overall mean is still 7. A gamma distribution that is spread out more widely produces more widely dispersed Poisson means.</p>
 <p>Essentially, then, a negative binomial distribution represents a batch of Poisson distributions whose individual means are spread out around the overall mean. This conceptual explanation of the negative binomial distribution illustrates the role of the gamma distribution and its auxiliary parameter <span class="math inline">\(\phi\)</span>. We can translate this illustration into a simple simulation experiment. If we average over a large number of Poisson distributions produced by this procedure, we should arrive at the corresponding negative binomial distribution.</p>
-<p>This is illustrated in <a href="#fig-simulation-NB">Figure&nbsp;6</a>, which was constructed in the following way:</p>
+<p>This is illustrated in <a href="#fig-simulation-NB" class="quarto-xref">Figure&nbsp;6</a>, which was constructed in the following way:</p>
 <div class="cell page-columns page-full">
-<details>
+<details class="code-fold">
 <summary>Draw Figure 6</summary>
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1985</span>)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -555,10 +611,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </details>
 
 <div class="no-row-height column-margin column-container"><div class="cell-output-display">
-<div id="fig-simulation-NB" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure">
-<p><img src="index_files/figure-html/fig-simulation-NB-1.png" class="img-fluid figure-img" width="240"></p>
-<figcaption class="figure-caption">Figure&nbsp;6: Graphical derivation of the NB2 distribution: The blue curve shows the approximation based on averaging over 1,000 Poisson distributions whose means are random draws from a gamma distribution with <span class="math inline">\(\small{\phi^{-1}}\)</span> = 0.25. The red curve shows the actual negative binomial distribution with <span class="math inline">\(\small{\phi^{-1}}\)</span> = 0.25.</figcaption>
+<div id="fig-simulation-NB" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-simulation-NB-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-simulation-NB-1.png" class="img-fluid figure-img" width="240">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-simulation-NB-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: Graphical derivation of the NB2 distribution: The blue curve shows the approximation based on averaging over 1,000 Poisson distributions whose means are random draws from a gamma distribution with <span class="math inline">\(\small{\phi^{-1}}\)</span> = 0.25. The red curve shows the actual negative binomial distribution with <span class="math inline">\(\small{\phi^{-1}}\)</span> = 0.25.
+</figcaption>
 </figure>
 </div>
 </div></div></div>
@@ -569,7 +629,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Graph these 1,000 Poisson distributions as pearl necklaces, adding transparency to avoid a cluttered display.</li>
 <li>Determine the average probability for each count (0, 1, 2, etc.) by averaging over the 1,000 Poisson probabilities for each specific count. These averages should then resemble a negative binomial distribution with <span class="math inline">\(\mu\)</span> = 7 and <span class="math inline">\(\phi^{-1}\)</span> = 0.5.</li>
 </ol>
-<p>Figure <a href="#fig-simulation-NB">Figure&nbsp;6</a> shows the result of this simulation: The actual negative binomial distribution for these data is shown as a white trace, and the results of our simulation, i.e.&nbsp;average probability across the 1,000 simulated Poisson distributions, is shown as a dashed profile. The match is pretty good.</p>
+<p>Figure <a href="#fig-simulation-NB" class="quarto-xref">Figure&nbsp;6</a> shows the result of this simulation: The actual negative binomial distribution for these data is shown as a white trace, and the results of our simulation, i.e.&nbsp;average probability across the 1,000 simulated Poisson distributions, is shown as a dashed profile. The match is pretty good.</p>
 </section>
 <section id="different-parameterizations-of-the-negative-binomial-distribution" class="level4">
 <h4 class="anchored" data-anchor-id="different-parameterizations-of-the-negative-binomial-distribution">Different parameterizations of the negative binomial distribution</h4>
@@ -578,7 +638,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{sönning2023,
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{sönning2023,
   author = {Sönning, Lukas},
   title = {The Negative Binomial Distribution: {A} Visual Explanation},
   date = {2023-12-12},
@@ -624,18 +684,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
     return false;
   }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -667,11 +716,50 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
-  function tippyHover(el, contentFn) {
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/lsoenning\.github\.io");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -681,8 +769,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -694,7 +791,130 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -738,6 +958,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -763,6 +984,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -823,6 +1070,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
+
 
 
 

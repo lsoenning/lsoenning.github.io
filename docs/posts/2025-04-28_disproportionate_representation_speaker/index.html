@@ -413,7 +413,11 @@ Figure&nbsp;2: Log-scaled distribution of word counts across speakers in the Spo
 </div>
 </div>
 <p>This is very similar to the (normalized) corpus frequency reported in CQPweb <span class="citation" data-cites="Hardie2012">(<a href="#ref-Hardie2012" role="doc-biblioref">Hardie 2012</a>)</span>:</p>
-<p><img src="cqpweb_corpus_frequency.png" class="img-fluid">{fig-align=“center”, width=80%}</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="cqpweb_corpus_frequency.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:80.0%"></p>
+</figure>
+</div>
 <p>Due to the skewed word count distribution across speakers, however, this corpus frequency is potentially problematic. It turns out that the top 20 speakers (in terms of overall word count) together make up 31% of the corpus – their word count adds to around 350,000. The corpus frequency is therefore potentially biased toward the language use of these individuals.</p>
 <p>We can consider each socio-demographic subgroup (i.e.&nbsp;age-by-gender combination) as a subcorpus and likewise calculate the (sub-)corpus frequency of <em>actually</em>. This means that we divide the total number of <em>actually</em>-tokens in the subcorpus by its size. We can visualize the resulting set of normalized subcorpus frequencies:</p>
 <div class="cell">
