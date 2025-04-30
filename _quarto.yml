@@ -12,10 +12,14 @@ website:
     left:
       - text: Home
         file: index.qmd
-      - about.qmd
-      - research.qmd
-      - resources.qmd
-      - posts.qmd
+      - text: About
+        file: about.qmd
+      - text: Research
+        file: research.qmd
+      - text: Resources
+        file: resources.qmd
+      - text: Blog
+        file: posts.qmd
 
 format:
   html:

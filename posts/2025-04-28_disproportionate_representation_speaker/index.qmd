@@ -6,7 +6,6 @@ categories: [corpus linguistics, count data, data structure, negative binomial d
 citation: 
   url: https://lsoenning.github.io/posts/2025-04-28_disproportionate_representation_speaker/
 editor: source
-image: docs/posts/2025-04-28_disproportionate_representation_speaker/index_files/figure-html/fig-subcorpus-frequency-1.png
 draft: false
 ---
 
@@ -178,6 +177,7 @@ We can consider each socio-demographic subgroup (i.e. age-by-gender combination)
 #| fig-cap: "Subcorpus frequency of *actually* in the socio-demographic subgroups."
 #| message: false
 #| warning: false
+#| classes: preview-image
 
 d |> group_by(age_group, gender) |> 
   dplyr::summarize(
@@ -357,7 +357,7 @@ preds_poi |> ggplot(
   annotate("text", x = 10.5, y = 25, label="Error bars denote 95% CIs", size = 3, col = "grey40", adj=1)
 ```
 
-The Poisson model can be extended to account for the structure of the data, and for the fact that the usage rate of *actually* may very well vary from speaker to speaker, even within the same socio-demographic subgroup. Such extensions are sometimes referred to as Poisson mixture models, which include an extra parameter that captures the amount of observed between-speaker variation. A frequently used Poisson mixture is the negative binomial distribution. For a visual explanation, see [this blog post](https://lsoenning.github.io/posts/2023-11-16_negative_binomial/). What matters for the present case study is the fact that this type of model knows about and adequately represents the structure of the data. 
+The Poisson model can be extended to account for the structure of the data, and for the fact that the usage rate of *actually* may very well vary from speaker to speaker, even within the same socio-demographic subgroup. Such extensions are sometimes referred to as Poisson mixture models, which include an extra parameter that captures the amount of observed between-speaker variation. A frequently used Poisson mixture is the negative binomial distribution. For a visual explanation, see [this blog post](https://lsoenning.github.io/posts/2023-11-16_negative_binomial/){target="_blank"}. What matters for the present case study is the fact that this type of model knows about and adequately represents the structure of the data. 
 
 We can fit a negative binomial regression model using the function `glm.nb()` in the `{MASS}` package [@Venables_Ripley2002]:
 

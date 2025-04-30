@@ -6,7 +6,6 @@ categories: [count data, corpus linguistics, statistics, dispersion, negative bi
 citation: 
   url: https://lsoenning.github.io/posts/2023-11-16_negative_binomial/
 editor: source
-image: docs/posts/2023-11-16_negative_binomial/index_files/figure-html/fig-which-nb-1.png
 draft: false
 ---
 
@@ -278,6 +277,7 @@ nb_density <- dNBI(
 #| fig-cap: "*Which* in the Brown Corpus: Observed token distribution compared against the Poisson and the negative binomial model."
 #| fig-height: 1.8
 #| fig-width: 4
+#| classes: preview-image
 
 xyplot(
   n_texts ~ token_count,

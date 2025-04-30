@@ -10,6 +10,8 @@ navbar:
       href: research.html
     - text: "Resources"
       href: resources.html
+    - text: "Blog"
+      href: posts.html
   right: 
     - icon: fa-github fa-lg
       href: http://github.com/lsoenning/

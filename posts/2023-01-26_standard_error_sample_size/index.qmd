@@ -6,7 +6,6 @@ categories: [corpus linguistics, statistics, dispersion, terminology] # self-def
 citation: 
   url: https://lsoenning.github.io/posts/2023-01-18-dispersion_terminology/ 
 draft: true
-
 ---
 
 We start by loading the lattice package:

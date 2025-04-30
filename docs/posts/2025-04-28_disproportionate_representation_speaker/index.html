@@ -163,7 +163,7 @@ div.csl-indent {
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../../posts.html"> 
-<span class="menu-text">Statistics for linguist(ic)s blog</span></a>
+<span class="menu-text">Blog</span></a>
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
@@ -420,7 +420,7 @@ Figure&nbsp;2: Log-scaled distribution of word counts across speakers in the Spo
 </div>
 <p>Due to the skewed word count distribution across speakers, however, this corpus frequency is potentially problematic. It turns out that the top 20 speakers (in terms of overall word count) together make up 31% of the corpus – their word count adds to around 350,000. The corpus frequency is therefore potentially biased toward the language use of these individuals.</p>
 <p>We can consider each socio-demographic subgroup (i.e.&nbsp;age-by-gender combination) as a subcorpus and likewise calculate the (sub-)corpus frequency of <em>actually</em>. This means that we divide the total number of <em>actually</em>-tokens in the subcorpus by its size. We can visualize the resulting set of normalized subcorpus frequencies:</p>
-<div class="cell">
+<div class="cell preview-image">
 <details class="code-fold">
 <summary>Draw Figure</summary>
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> <span class="fu">group_by</span>(age_group, gender) <span class="sc">|&gt;</span> </span>
@@ -631,7 +631,7 @@ Figure&nbsp;6: Log-scaled usage rate estimates based on a Poisson regression mod
 </div>
 </div>
 </div>
-<p>The Poisson model can be extended to account for the structure of the data, and for the fact that the usage rate of <em>actually</em> may very well vary from speaker to speaker, even within the same socio-demographic subgroup. Such extensions are sometimes referred to as Poisson mixture models, which include an extra parameter that captures the amount of observed between-speaker variation. A frequently used Poisson mixture is the negative binomial distribution. For a visual explanation, see <a href="https://lsoenning.github.io/posts/2023-11-16_negative_binomial/">this blog post</a>. What matters for the present case study is the fact that this type of model knows about and adequately represents the structure of the data.</p>
+<p>The Poisson model can be extended to account for the structure of the data, and for the fact that the usage rate of <em>actually</em> may very well vary from speaker to speaker, even within the same socio-demographic subgroup. Such extensions are sometimes referred to as Poisson mixture models, which include an extra parameter that captures the amount of observed between-speaker variation. A frequently used Poisson mixture is the negative binomial distribution. For a visual explanation, see <a href="https://lsoenning.github.io/posts/2023-11-16_negative_binomial/" target="_blank">this blog post</a>. What matters for the present case study is the fact that this type of model knows about and adequately represents the structure of the data.</p>
 <p>We can fit a negative binomial regression model using the function <code>glm.nb()</code> in the <code>{MASS}</code> package <span class="citation" data-cites="Venables_Ripley2002">(<a href="#ref-Venables_Ripley2002" role="doc-biblioref">Venables and Ripley 2002</a>)</span>:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>m_nb <span class="ot">&lt;-</span> MASS<span class="sc">::</span><span class="fu">glm.nb</span>(</span>

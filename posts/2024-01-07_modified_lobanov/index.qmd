@@ -6,7 +6,7 @@ categories: [acoustic phonetics, vowel normalization]
 citation: 
   url: https://lsoenning.github.io/posts/2024-01-07_modified_lobanov/
 editor: source
-draft: false
+draft: true
 ---
 
 
