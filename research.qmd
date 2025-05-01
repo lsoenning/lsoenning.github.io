@@ -6,8 +6,6 @@ editor: source
 
 #### Unpublished
 
-- **Sönning**, Lukas. (in press). Advancing our understanding of dispersion measures in corpus research. *Corpora*. doi: [10.3366/cor.2025.0326](https://doi.org/10.3366/cor.2025.0326) | [Accepted manuscript](files/understanding_dispersion_accepted_manuscript.pdf){target="_blank"} | {{< ai dataverse >}} [Data](https://doi.org/10.18710/FVHTFM){target="_blank"}   | {{< ai osf >}} [OSF](https://osf.io/nhw2y/){target="_blank"} 
-
 - **Sönning**, Lukas. (in press). Count regression models for keyness analysis. Chapter for: Carolin Cholotta & Christine Renker (eds.), *META-LING 2023 - Methodological Exploration and Technological Advances in Linguistics*  {{< ai psyarxiv >}} [Accepted manuscript](https://doi.org/10.31234/osf.io/25mwj){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/mc26t/){target="_blank"} 
 
 - **Sönning**, Lukas, Jason Grafmiller & Raquel Romasanta. (under review). Regression and random forests: Synergies for variationist corpus research. {{< ai psyarxiv >}} [Working paper](https://doi.org/10.31234/osf.io/afuh9){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/5u8bt/){target="_blank"} 
@@ -37,6 +35,8 @@ Monograph
 
 
 Journal articles
+
+- **Sönning**, Lukas. 2025. Advancing our understanding of dispersion measures in corpus research. *Corpora* 20(1). 3–35. doi: [10.3366/cor.2025.0326](https://doi.org/10.3366/cor.2025.0326) | {{< ai 'open-access' >}} [Open access](https://doi.org/10.3366/cor.2025.0326){target="_blank"} | {{< ai dataverse >}} [Data](https://doi.org/10.18710/FVHTFM){target="_blank"}   | {{< ai osf >}} [OSF](https://osf.io/nhw2y/){target="_blank"} 
 
 - **Sönning**, Lukas. 2024. Ordinal response scales: Psychometric grounding for design and analysis. *Research Methods in Applied Linguistics* 3(3). 100156. doi: [10.1016/j.rmal.2024.100156](https://doi.org/10.1016/j.rmal.2024.100156) | {{< ai 'open-access' >}} [Open access](https://doi.org/10.1016/j.rmal.2024.100156){target="_blank"} | {{< ai dataverse >}} [Data](https://doi.org/10.18710/0VLSLW){target="_blank"} | {{< ai osf >}} [OSF](https://osf.io/8f9q4/)
 

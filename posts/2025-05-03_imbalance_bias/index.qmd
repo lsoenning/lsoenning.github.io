@@ -1,0 +1,10 @@
+---
+title: "Imbalance across predictor levels affects data summaries"
+subtitle: "Obstacles to replication in corpus linguistics"
+description: "This blog post is part of a small series on obstacles to replication in corpus linguistics. It deals with problems that can arise if the observations drawn from a corpus are unbalanced across relevant subgroups in the data. I show how simple and comparative data summaries can vary depending on whether we (unintentionally) calculate weighted averages, or whether we adjust our estimates for imbalances by taking a simple average across subgroups. As these are two different estimands, the choice affects the comparability of studies -- including an original study and its direct replication."
+date: 2025-05-01
+categories: [corpus linguistics, replication, regression, bias, imbalance]
+citation: 
+  url: https://lsoenning.github.io/posts/2025-05-03-imbalance_bias/ 
+draft: true
+---

@@ -1,19 +1,15 @@
 ---
-title: "Some obstacles to replication in corpus linguistics"
-description: "This blog post includes a number of thoughts on replication."
-date: 2023-11-08
-categories: [corpus linguistics, statistics, replication, models]
+title: "Clustering in the data affects statistical uncertainty intervals"
+subtitle: "Obstacles to replication in corpus linguistics"
+description: "This blog post is part of a small series on obstacles to replication in corpus linguistics. It deals with a prevalent issue in corpus data analysis: the non-independence of data points that results from clustered (or hierarchical) data layouts. I show how an inadequate analysis can produce unduly narrow expectations of a replication study and therefore raise the bar too high."
+date: 2025-05-01
+categories: [corpus linguistics, replication, models]
 citation: 
   url: https://lsoenning.github.io/posts/2023-11-08-modals_replication/ 
 draft: true
 ---
 
 This blog post discusses two features of corpus data that make it more complicated to talk about replicability in corpus linguistics. The first one concerns the issue of non-independence of observations: Tokens extracted from a corpus are almost always clustered by source (author or speaker). The second one concerns the lack of balance in corpus data. In contrast to experiments, where the researcher has (almost) full control over the distribution of data points across the conditions of interest, the spread of corpus hits across the levels of relevant predictors is uneven.
-
-We will consider, as an illustrative set of data, the frequency of modals in recent British and American English. These make for an interesting case study, not only because they have generated an exchange on replicability in the recent literature [@Leech2003; @Millar2009] and they have been used by @McEnery_Brezina2022 to illustrate key ideas about replication. The data on which the following (selective) discussion is based are available from TROLLing [@Soenning2024], which should facilitate follow-up discussions.
-
-The following points are relevant for both text-linguistic and variationist research.
-
 
 ```{r}
 #| warning: false
@@ -25,24 +21,27 @@ library(tidyverse)       # for data wrangling and visualization
 library(dataverse)       # for downloading data from TROLLing
 library(marginaleffects) # to compute model-based estimates
 library(MASS)            # to fit a negative binomial regression model
-
+library(corpora)         # to calculate a log-likelihood score
 library(ggthemes)
-library(lattice)
-library(DescTools)
-library(here)
-library(kableExtra)
-library(gtsummary)
-library(gamlss)
+
 
 source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
 ```
 
-The illustrative data used in this blog post is available from TROLLing .
+### Case study: The frequency of *should* in written AmE of the 1960s and 1990s
+
+We will consider, as an illustrative set of data, the frequency of modals in recent British and American English. These make for an interesting case study, not only because they have generated an exchange on replicability in the recent literature [@Leech2003; @Millar2009] and they have been used by @McEnery_Brezina2022 to illustrate key ideas about replication. The data on which the following (selective) discussion is based are available from TROLLing [@Soenning2024], which should facilitate follow-up discussions.
 
 
-### Data
+The following questions guide our analysis:
 
-For more information on the dataset, please refer to @Soenning2024. We start by downloading the data from *TROLLing*:
+- What is the frequency of *should* in written American English of the 1960s and 1990s?
+- Has the frequency of *should* changed over time?
+
+
+#### Data
+
+The illustrative data used in this blog post is available from *TROLLing* [@Soenning2024]. We start by downloading the data directly from this archive:
 
 ```{r}
 #| message: false
@@ -83,14 +82,68 @@ should_learned <- subset(d_modals, modal=="should" & genre=="learned")
 should <- subset(d_modals, modal=="should")
 ```
 
+Brown and Frown each consist of 500 texts, which are sampled from four different genres. The following table shows the word count and number of texts for each genre:
 
-### Clustered data structure and statistical uncertainty intervals
+```{r}
+should_Brown |> 
+  group_by(genre) |> 
+  dplyr::summarize(
+    n_words = sum(n_words),
+    n_texts = n()) |> 
+  mutate(p_words = round(n_words/sum(n_words), 3),
+         p_texts = round(n_texts/sum(n_texts), 3)) |> 
+  transmute(
+    Genre = c("Fiction", "General prose", "Learned", "Press"),
+    Words = paste0(format(round(as.numeric(n_words), 0), nsmall=0, big.mark=","), " (", format(round(p_words*100, 1), nsmall = 1), "%)"),
+    Texts = paste0(n_texts, " (", format(round(p_texts*100, 1), nsmall = 1), "%)")) |> 
+  kbl() |> 
+  kable_paper("hover", full_width = F)
+```
+
+#### Crude answers to our research questions
+
+We may obtain a quick (and dirty) answer to our questions as follows. To measure the frequency of *should* in Brown, we divide the coprus frequency of the item by the size of the corpus. We can do the same for Frown. We will multiply these rates by 1,000, to get normalized frequencies 'per 1,000 words':
+
+```{r}
+freq_should_Brown <- sum(should_Brown$n_tokens) / sum(should_Brown$n_words) * 1000
+freq_should_Frown <- sum(should_Frown$n_tokens) / sum(should_Frown$n_words) * 1000
+
+round(freq_should_Brown, 2)
+round(freq_should_Frown, 2)
+```
+
+For Brown, we get a rate of 0.79 per thousand words, and for Frown the rate of occurrence is 0.68 per thousand words.
+
+To also get a quick answer to the second question, we divide the rate in Frown by that in Brown, which gives us a rate ratio of 0.86. This tells us that the frequency of *should* in the 1990s was only 86% as large as that in the 1960s:
+
+```{r}
+round(freq_should_Frown / freq_should_Brown, 2)
+```
+
+To see whether this frequency difference is "statistically significant", a likelihood-ratio statistic may be computed. This score is based on a simple 2x2 table, which contains the frequency of *should* in each corpus, and the number of words in each corpus. We use the function `keyness()` in the R package `{corpora}` [@Evert2023] to calculate a likelihood-ratio test:
+
+```{r}
+keyness(f1 = sum(should_Brown$n_tokens),
+        n1 = sum(should_Brown$n_words),
+        f2 = sum(should_Frown$n_tokens),
+        n2 = sum(should_Frown$n_words), 
+        measure = "G2")
+```
+
+This returns a log-likelihood score of 9.3, which is close to the one reported by @Leech2003 [p. 228] and indicates a "statistically significant" difference in normalized frequency between the two corpora.[^The difference in log-likelihood scores is most likely due to the different corpus sizes underlying these analyses. CQPweb reports larger corpus sizes.]
+
+These crude ways of assessing and testing frequencies and their differences in corpora are straightforward to carry out and therefore provide quick answers to our questions. We now look at how these estimates (and *p*-values) may be misleading, or may not answer the question we really had in mind. Before we go further, however, we should note that the following elaborations are not meant to discredit the work done by Geoffrey Leech in the early 2000s. In fact, @Leech2003 provides a balanced consideration of frequency changes in the English modal system. The diachronic patterns he observed were remarkably consistent across the 11 modal verbs he studied, which strengthened his conclusion. Further, when briefly referring to the log-likelihood scores for time differences, he explicitly noted that "too much
+should not be made of significance tests in comparative corpus studies" [-@Leech2003, p. 228].
+
+
+
+### Clustering in the data affects statistical uncertainty intervals
 
 Interest in corpus-based work often centers on the frequency of a structure in language use. This feature is usually expressed as a normalized frequency (or occurrence rate), expressed, say, as 'per million words'. Since any corpus is a sample of language use from the domain(s) of interest, these normalized frequencies are sample statistics, which in turn often serve as estimates of population parameters.
 
 #### Data structure
 
-The Brown corpus, for instance, contains a sample of written American English from the early 1960s, which represents a purposefully compiled list of genres and sub-genres. If we look at the frequency of *must* in the Brown corpus, it is unlikely that our linguistic interest is limited to the 500 texts (or text excerpts) that are found in Brown. Rather, we would consider this as a sample from the population of interest -- written American English in the 1960s.
+The Brown corpus, for instance, contains a sample of written American English from the early 1960s, which represents a purposefully compiled list of genres and sub-genres. If we look at the frequency of *should* in the Brown corpus, it is unlikely that our linguistic interest is limited to the 500 texts (or text excerpts) that are found in Brown. Rather, we would consider this as a sample from the population of interest -- written American English in the 1960s.
 
 When extrapolating to this underlying language variety, our sample size is 500 (the number of texts in the corpus) rather than 1 million (the number of word tokens in Brown). In the sampling literature, the 500 texts would be considered the primary sampling units, and the roughly 2,000 words per text file in turn constitute the secondary sampling units (if a text file represents an except from a longer text). The 1 million word tokens in Brown are therefore clustered, or structured hierarchically. They a grouped by text file.
 
@@ -370,7 +423,7 @@ We note that the Poisson model is much more consistent with the interpretation o
 
 
 
-### Imbalance across predictor levels and data summaries
+### Imbalance across predictor levels affects data summaries
 
 @Leech2003 [p. 228] looked at the frequency of different modals in the Brown family corpora. For *should* in Brown, he reports a raw frequency of 910 instances, which is consistent with the current output of CQPweb. Compared against the total number of words in Brown (1,148,454 words), this corresponds to a normalized frequency of 0.79 per thousand words (ptw). This occurrence rate is obtained in the following way: We divide the number of times *should* occurs in Brown by the total number of word tokens in the corpus, and then multiply by our preferred *N*, to express the rate as 'per *N* words'.
 
@@ -380,7 +433,7 @@ round(
   2)
 ```
 
-#### Corpus frequencies are weighted averages
+#### Frequency: Simple vs. weighted averages
 
 This kind of frequency estimate, which is widespread in corpus linguistics, is referred to as the *corpus frequency* of an item or structure. @Egbert_Burch2023 contrasts this with a different type of estimate, the *mean text frequency*, which is found by first calculating normalized frequencies at the text level, and then averaging over these. Since the 500 texts in Brown are all around 2,000 words long, the mean text frequency almost coincides with the corpus frequency:
 
@@ -437,7 +490,7 @@ For *should* in Brown, the *simple average* and the *weighted average* are very 
 Let's also look at *should* in Frown, starting with a tabular overview. The genres show the same representation in Frown, but the normalized frequencies of *should* differ from those in Brown.
 
 ```{r}
-genre_rates <- should_Brown |> 
+genre_rates <- should_Frown |> 
   mutate(rate_ptw = (n_tokens/n_words)*1e3) |> 
   group_by(genre) |> 
   dplyr::summarize(
@@ -471,10 +524,37 @@ round(
   2)
 ```
 
-In Frown, the discrepancy between these frequency estimates is greater. This is because the genres Learned and Press, which show relatively large occurrence rates of *should*, gain weight when calculating a simple (instead of a weighted) average.
+In Frown, the discrepancy between these frequency estimates is greater. This is because the genres Learned and Press, which show relatively large occurrence rates of *should*, gain weight when calculating a simple (instead of a weighted) average: The mass for Learned increases from .16 to .25, that for Press from .17 to .25. @fig-should-Frown-imbalance provides a visual illustration of the differential weights and frequencies.
+
+```{r}
+#| fig-width: 3
+#| fig-height: 2.3
+#| code-fold: true
+#| code-summary: "Draw Figure" 
+#| label: fig-should-Frown-imbalance
+#| fig-cap: "Estimated frequency of *should* in the genre Learned: Comparison of estimates based on a Poisson and a negative binomial model."
+#| message: false
+#| warning: false
+
+genre_rates$Genre_nice <- c("Fiction", "General\nprose", "Learned", "Press")
+
+genre_rates |> 
+  ggplot(aes(x = Genre_nice, y = as.numeric(ptw), size = n_words)) +
+  geom_point(shape = 1) +
+  theme_classic_ls() +
+  ylab("Normalized frequency\n(per 1,000 words)") +
+  xlab(NULL) +
+  scale_y_continuous(limits = c(0, 1.1), breaks = c(0, .5, 1), expand = c(0,0)) +
+  scale_size_area(max_size = 8) +
+  geom_hline(yintercept = .72) +
+  geom_hline(yintercept = .68, color = "grey40") +
+  annotate("text", x = 4.6, y = c(.79, .62), label = c("simple", "weighted"), size = 3, color = c("black", "grey40"), adj = 1) +
+  theme(legend.position = "none")
+```
 
 
-#### Model-based predictions: Simple vs. weighted averages
+
+#### Model-based frequency estimates
 
 When calculating model-based predictions, we can decide whether we want to form simple or weighted averages. The default behavior in the `{marginaleffects}` package is to use the in-sample distribution of predictor variables to calculate average predictions. This is to say that, unless explicitly tols to do otherwise, the functions in the package will average predictions over the cases in the estimation sample.
 
@@ -486,7 +566,7 @@ m_nb_Frown <- MASS::glm.nb(
 	data = should_Frown)
 ```
 
-The function `avg_predictions()` calculates average predictions. Its default behavior for the data at hand returns a frequency estimate that is unlikely to be of interest to us. This is because it uses the in-sample mean text length (`n_words`) to adjust the predicted rate. The estimate of 1.58 is therefore the expected frequency 'per 2309 words':
+The function `avg_predictions()` calculates average predictions. Its default behavior for the data at hand returns a frequency estimate that is unlikely to be of interest to us. This is because it uses the in-sample mean text length (`n_words`) to adjust the predicted rate. The estimate of 1.58 is therefore the expected frequency 'per 2,309 words':
 
 ```{r}
 avg_predictions(
@@ -513,7 +593,8 @@ avg_predictions(
 ```
 
 
-If we instead prefer a simple average, we can use the argument `newdata` to explicitly define the conditions to average over. This way we tell the function not to take the estimation sample as a basis for calculating predictions and weighting, but instead define the reference grid over which to average. The following code asks for a simple average over four conditions, which represent different genres but have the same length:
+If we instead prefer a simple average, we can use the argument `newdata` to explicitly define the conditions to average over. This way we tell the function not to take the estimation sample as a basis for calculating predictions and weighting, but instead define the reference grid over which to average. The following code asks for a simple average over four conditions, which represent different genres but have the same length. The result is close to the simple average we calculated above.
+
 
 ```{r}
 avg_predictions(
@@ -525,49 +606,189 @@ avg_predictions(
 
 ```
 
-This is close to the simple average we calculated above.
+This shows that imbalances in the data can have an effect on simple data summaries such as estimates of average normalized frequencies. This is sometimes referred to as *imbalance bias*, and in the present case, we could refer to it as genre imbalance bias. This kind of distortion can occur when (i) there is imbalance across subgroups in the data and (ii) the quantity of interest varies from subgroup to subgroup. We have seen how to adjust for this form of bias using model-based predictions.
 
 
-#### Simple vs weighted averages may yield different results
+#### Frequency differences: Simple vs. weighted averages
 
-Let us return to the 
+We have seen that imbalance bias can affect simple averages, such as frequency estimates. The same is true for frequency differences. Recall that a crude comparison of the corpora reveals that the frequency of *should* in Frown is only as high as 86% of that in Brown. Since this comparison is based on two corpus frequencies, each of which is potentially affected by imbalance bias, the comparison may likewise be driven into the direction of more strongly represented genres.
+
+@fig-should-imbalance-comparison shows the diachronic trends in the four genres. We note that while Press and Fiction show virtually no difference between Brown and Frown, a diachronic cline is apparent for Learned and General prose. Seeing that General prose is the most strongly represented genre, we would expect weighted differences to be pulled into its direction, meaning that a weighted frequency difference will be larger than a simple frequency difference, which would give the same weight to all genres. 
+
+```{r}
+#| fig-width: 3
+#| fig-height: 2.3
+#| code-fold: true
+#| code-summary: "Draw Figure" 
+#| label: fig-should-imbalance-comparison
+#| fig-cap: "Estimated frequency of *should* in the genre Learned: Comparison of estimates based on a Poisson and a negative binomial model."
+#| message: false
+#| warning: false
+
+
+should |> 
+  mutate(rate_ptw = (n_tokens/n_words)*1e3) |> 
+  group_by(corpus, genre) |> 
+  dplyr::summarize(
+    ptw = mean(rate_ptw),
+    n_words = sum(n_words)) |> 
+  ggplot(aes(x = corpus, y = ptw, size = n_words, group = genre, color = genre)) +
+  geom_point(shape = 1) +
+  geom_point(shape = 16, size = 1) +
+  geom_line(size = .5) +
+  scale_color_colorblind() +
+  theme_classic_ls() +
+  ylab("Normalized frequency\n(per 1,000 words)") +
+  xlab(NULL) +
+  scale_y_continuous(limits = c(0, 1.1), breaks = c(0, .5, 1), expand = c(0,0)) +
+  scale_size_area(max_size = 8) +
+  theme(legend.position = "none",
+        plot.margin = margin(.2, 2, .2, .2, "cm")) +
+  directlabels::geom_dl(aes(label = genre), method = list("last.points", cex = .75, x = 3.52, label = c("Fiction", "General prose", "Learned", "Press"))) +
+  coord_cartesian(clip="off")
+
+```
+
+
+We can calculate descriptive frequency comparisons according to the two schemes, i.e. by either weighting all genres equally, or in proportion to their representation in the data. This returns two slightly different estimates: A frequency decline by 11% (simple comparison) or by 13% (weighted comparison).
+
+```{r}
+should |> 
+  mutate(rate_ptw = (n_tokens/n_words)*1e3) |> 
+  group_by(corpus, genre) |> 
+  dplyr::summarize(
+    ptw = mean(rate_ptw),
+    n_words = sum(n_words)) |> 
+  ungroup() |> 
+  group_by(genre) |> 
+  dplyr::summarize(
+    freq_ratio_data = ptw[corpus == "Frown"]/ptw[corpus == "Brown"],
+    n_words_genre = sum(n_words)) |> 
+  mutate(
+    weight = n_words_genre/sum(n_words_genre)) |> 
+  dplyr::summarize(
+    simple_comparison = mean(freq_ratio),
+    weighted_comparison = weighted.mean(freq_ratio, w = weight)
+  ) |> round(2)
+```
+
+
+
+
+
+#### Model-based estimates of frequency differences 
+
+Let us again look at how to obtain these two types of comparisons using a regression model. We start by fitting a negative binomial model that includes two predictors, Corpus and Genre, as well as their interaction.
 
 ```{r}
 m_nb_corpus <- MASS::glm.nb(
-	n_tokens ~ corpus + genre + offset(log(n_words)), 
+	n_tokens ~ corpus * genre + offset(log(n_words)), 
 	data = should)
 ```
 
+This kind of model allows us to calculate frequency comparisons at the level of the individual genres (similar to what we saw in @fig-should-imbalance-comparison above). Alternatively, we may average over the four genres, to get a general estimat of how the frequency of *should* differs between the corpora. 
+
+For purposes of illustration, let's use the `{marginaleffects}` package to get genre-level frequency comparisons. We use the function `comparisons()` to do so. 
+
+- The argument `variables` specifies the focal variable(s), i.e. the one(s) whose levels are to be compared. In our case, this is the predictor Corpus. 
+- The argument `newdata` allows us to specify the location in the predictor space at which to make comparisons. This means that it allows us to take control over the levels of the non-focal variables. Since we want a comparisons for each genre, we specify all genres, and we also want to compare normalized frequencies 'per 1,000 words'.
+- Finally, by specifying `transform = exp`, we are asking `comparisons()` to exponentiate the log-scale differences, which yields rate ratios.
 
 ```{r}
 comparisons(
   m_nb_corpus,  
   variables = "corpus",
   newdata = datagrid(
-    genre = c("press", "general_prose", "learned", "fiction"),
+    genre = c("fiction", "general_prose", "learned", "press"),
     n_words = 1000),
+  transform = exp) |> 
+  tidy() |> 
+  select(genre, contrast, estimate, conf.low, conf.high) |> 
+    mutate(across(where(is.numeric), round, 2))
+```
+
+
+Try: Averaging on the model scale vs. the data scale
+
+```{r}
+comparisons(
+  m_nb_corpus,  
+  variables = "corpus",
+  newdata = datagrid(
+    genre = c("fiction", "general_prose", "learned", "press"),
+    n_words = 1000),
+  comparison = "difference") |> 
+  tidy() |> 
+  dplyr::summarize(
+    data_scale_simple = mean(exp(estimate)),
+    data_scale_weight = weighted.mean(exp(estimate), w = c(.26, .41, .16, .17)),
+    model_scale_simple = exp(mean(estimate)),
+    model_scale_weight = exp(weighted.mean(estimate, w = c(.26, .41, .16, .17)))) |> 
+    mutate(across(where(is.numeric), round, 3)) |> 
+  t()
+
+```
+
+
+
+
+#### Average comparisons
+
+Weighted average (model scale)
+
+```{r}
+avg_comparisons(
+  m_nb_corpus,  
+  variables = "corpus",
+  newdata = datagrid(
+    genre = c("fiction", "general_prose", "learned", "press"),
+    n_words = 1000),
+  wts = c(.26, .41, .16, .17),
+  comparison = "difference",
+  transform = exp)
+```
+
+Simple average (model scale)
+
+```{r}
+avg_comparisons(
+  m_nb_corpus,  
+  variables = "corpus",
+  newdata = datagrid(
+    genre = c("fiction", "general_prose", "learned", "press"),
+    n_words = 1000),
+  comparison = "difference",
   transform = exp)
 ```
 
 
+
 ```{r}
+comp_data_scale <- function(hi, lo){
+  mean(exp(hi - lo))
+}
+
 avg_comparisons(
   m_nb_corpus,  
   variables = "corpus",
   newdata = datagrid(
-    genre = c("press", "general_prose", "learned", "fiction"),
+    genre = c("fiction", "general_prose", "learned", "press"),
     n_words = 1000),
-  transform = exp)
+  comparison = comp_data_scale)
 ```
 
-
 ```{r}
+comp_data_scale_wtd <- function(hi, lo, wts = c(.26, .41, .16, .17)){
+  weighted.mean(exp(hi - lo), w = wts)
+}
+
 avg_comparisons(
   m_nb_corpus,  
   variables = "corpus",
   newdata = datagrid(
+    genre = c("fiction", "general_prose", "learned", "press"),
     n_words = 1000),
-  transform = exp)
+  comparison = comp_data_scale_wtd)
 ```
 
 
@@ -576,42 +797,12 @@ avg_comparisons(
   m_nb_corpus,  
   variables = "corpus",
   newdata = datagrid(
-    genre = c("press", "general_prose", "learned", "fiction"),
+    genre = c("fiction", "general_prose", "learned", "press"),
     n_words = 1000),
-  #transform = exp,
-  wts = c(.18, .41, .16, .26))
+  wts = c(.26, .41, .16, .17),
+  comparison = "ratio")
 ```
 
-```{r}
-avg_comparisons(
-  m_nb_corpus,  
-  variables = "corpus")
-
-```
-
-```{r}
-avg_comparisons(
-  m_nb_corpus,  
-  variables = "corpus",
-  newdata = datagrid(
-    n_words = 1000))
-```
-
-
-```{r}
-avg_comparisons(
-  m_nb_corpus,  
-  variables = "corpus",
-  newdata = "balanced")
-```
-
-
-```{r}
-avg_comparisons(
-  m_nb_corpus,  
-  variables = "corpus",
-  newdata = "balanced")
-```
 
 
 
