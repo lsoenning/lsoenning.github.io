@@ -8,3 +8,305 @@ citation:
   url: https://lsoenning.github.io/posts/2025-05-08-averaging_model_data_scale/ 
 draft: true
 ---
+
+
+
+```{r}
+#| warning: false
+#| message: false
+#| code-fold: true
+#| code-summary: "R setup"
+
+library(tidyverse)       # for data wrangling and visualization
+library(dataverse)       # for downloading data from TROLLing
+library(marginaleffects) # to compute model-based estimates
+library(MASS)            # to fit a negative binomial regression model
+library(corpora)         # to calculate a log-likelihood score
+library(ggthemes)        # for colorblind color theme
+library(kableExtra)      # for drawing html tables
+
+
+source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
+```
+
+### Terminology
+
+Before we get started, let me briefly note down how a number of terms are used in this blog post:
+
+-   *Original study*: The study whose results are subject to a replication effort
+-   *Replication study*: A study that uses new data to attempt to repeat the original work in the closest possible way, i.e. using the same research design and methods; this type of replication is often referred to as a *direct*/*close*/*exact*/*literal* replication.
+-   *Original/replication estimate*: The point estimate of the quantity of interest (sometimes referred to as an effect size) returned by the original/replication study
+
+### Interpretation of confidence intervals from a replication perspective
+
+The key point of this blog post is that an inadequate analysis of corpus data can produce unrealistic expectations of a replication study. As a result, the original and the replication estimate may be judged to be incompatible, and the replication study may be declares as having failed.
+
+We therefore start by considering what kind of information CIs give us about consistency and replication. It is important to clarify this because msconceptions about the meaning and interpretation of CIs are widespread.
+
+#### Interpreting CI overlap
+
+A common misconception when comparing 95% confidence intervals of two independent groups is to assume that if the error bars overlap, the difference between the groups is "not statistically significant". A nice paper by @Cumming2009 discusses this misconception. It turns out that even if the overlap is moderate, the *p*-value for the comparison would be *p* \< .05. For CIs that do not overlap, it would be *p* \< .01.
+
+The figure below illustrates a situation where the arms of two CIs overlap, Moderate overlap means that the amount of overlap is less than or equal to half of the average arm length. This means that you need to mentally approximate the average length of the overlapping arms. This is easy in the example below, because they have the same length. For the overlapping CIS, overlap amounts to exactly half of the average CI length.
+
+![](ci_overlap.png){fig-align="center" width="80%"}
+
+If we compare the CIs from an original and a replication study, this misconception may invite lax judgments of replication success. Thus, when the original and replication CIs overlap, we may be tempted to conclude that the replication result is statistically compatible with the original one. As we have just seen however, this interpretation requires overlap by at least the average arm length.
+
+#### Replication information provided by CIs
+
+Another misconception about CIs relevant to the present discussion concerns the information they provide about replication estimates. As @Cumming_etal2004 noted, many researchers think that, given a 95% CI, the probability that the replication estimate will fall within this interval is also 95%. @Cumming_etal2004 and @Cumming2005refer to this as the *average probability of capture* (APC): The probability that a CI will capture a future replication estimate.
+
+It turns out that the APC is smaller than the confidence level. In their appendix, @Cumming_etal2004 provide the mathematical background. To develop our intuition, we consider the APC for a number of frequently used confidence levels. The mapping in the table below shows that the average probability of capture for a 95% CI, for instance, is 83%.
+
+```{r}
+data.frame(
+  `Confidence level` = c("68.3% (SE)", "90%", "95%", "99%"),
+  APC = c(
+    paste0(round(1 - (1 - pnorm(qnorm((1 - .3173105/2)) / sqrt(2))) *2, 2)*100, "%"),
+    paste0(round(1 - (1 - pnorm(qnorm((1 - .10/2)) / sqrt(2))) *2, 2)*100, "%"),
+    paste0(round(1 - (1 - pnorm(qnorm((1 - .05/2)) / sqrt(2))) *2, 2)*100, "%"),
+    paste0(round(1 - (1 - pnorm(qnorm((1 - .01/2)) / sqrt(2))) *2, 2)*100, "%")
+  )
+) |> kable()
+
+```
+
+### Case study: The frequency of *should* in written AmE of the 1960s and 1990s
+
+We will consider, as an illustrative set of data, the frequency of *should* in written American English. This allows us to consider straightforward research questions on normalized frequencies and their comparison, which are also quite common in corpus work.
+
+Further, questions about diachronic trends in the frequency of modals have generated discussion on replicability in corpus-linguistics. Based on a comparison of the Brown and Frown corpus, @Leech2003 concluded that the frequency of English modal verbs declined in the latter half of the 20th century. This finding was challenged by @Millar2009, which in turn prompted a response by @Leech2011. @McEnery_Brezina2022 also used data on English modals as a case study for discussing and illustrating key ideas about replication in corpus linguistics.
+
+English modal verbs therefore have a special place in the corpus-linguistic discourse on replication and replicability. I therefore decided to set up a dedicated TROLLing post [@Soenning2024], which includes frequency information on the English modals from the Brown family of corpora. Perhaps this resource may be of value in future discussion on the topic. An excerpt from this dataset is used in the current series of blog posts, which concentrate on statistical issues that may get in the way of replication attempts in corpus-based work.
+
+We will concentrate on a subset of these data: the modal verb *should* in Brown and Frown, i.e. written American English. The following questions guide our analysis:
+
+-   What is the frequency of *should* in written American English of the early 1960s and early 1990s?
+-   Has its frequency changed over time?
+
+#### Data
+
+We start by downloading the data directly from the *TROLLing* archive:
+
+```{r}
+#| message: false
+#| warning: false
+
+dat <- get_dataframe_by_name(
+    filename  = "modals_freq_form.tsv",
+    dataset   = "10.18710/7LNWJX",
+    server    = "dataverse.no",
+    .f        = read_tsv,
+    original  = TRUE
+  )
+```
+
+The dataset we have downloaded contains text-level frequencies for nine modal verbs from six members of the Brown family (Brown, Frown, LOB, FLOB, BE06, AmE06). It includes the following variables:
+
+-   `text_id`: The text IDs used in the Brown family corpora ("A01", "A02", ...)
+-   `modal`: the modal verb
+-   `n_tokens`: number of occurrences of the modal verb in the text
+-   `corpus`: member of the Brown family
+-   `genre`: broad genre (Fiction, General prose, Learned, Press)
+-   `text_category`: subgenre
+-   `n_words`: length of the text (number of word tokens)
+-   `time_period`: time period represented by the corpus
+-   `variety`: variety of English represented by the corpus
+
+```{r}
+#| eval: false
+str(dat)
+```
+
+```{r}
+#| echo: false
+str(data.frame(dat))
+```
+
+Next, we extract the data for *should* in Brown and Frown and prepare the data for analysis.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Load and prepare data"
+ 
+d_modals <- subset(dat, corpus %in% c("Brown", "Frown"))
+
+d_modals$time_period <- factor(d_modals$time_period)
+d_modals$genre <- factor(d_modals$genre)
+
+contrasts(d_modals$genre) <- contr.sum(4)
+contrasts(d_modals$time_period) <- contr.sum(2)
+
+should_data <- subset(d_modals, modal=="should")
+should_Brown <- subset(d_modals, modal=="should" & corpus=="Brown")
+should_Frown <- subset(d_modals, modal=="should" & corpus=="Frown")
+should_learned <- subset(d_modals, modal=="should" & genre=="learned")
+```
+
+Brown and Frown each consist of 500 texts, which are sampled from four different genres. The following table shows the word count and number of texts for each genre:
+
+```{r}
+should_Brown |> 
+  group_by(genre) |> 
+  dplyr::summarize(
+    n_words = sum(n_words),
+    n_texts = n()) |> 
+  mutate(p_words = round(n_words/sum(n_words), 3),
+         p_texts = round(n_texts/sum(n_texts), 3)) |> 
+  transmute(
+    Genre = c("Fiction", "General prose", "Learned", "Press"),
+    Words = paste0(format(round(as.numeric(n_words), 0), nsmall=0, big.mark=","), " (", format(round(p_words*100, 1), nsmall = 1), "%)"),
+    Texts = paste0(n_texts, " (", format(round(p_texts*100, 1), nsmall = 1), "%)")) |> 
+  kbl()
+```
+
+#### Crude answers to our research questions
+
+We may obtain a quick (and dirty) answer to our questions as follows. To measure the frequency of *should* in Brown, we divide its corpus frequency by the size of the corpus. We can do the same for Frown. We will multiply these rates by 1,000, to get normalized frequencies 'per 1,000 words':
+
+```{r}
+freq_should_Brown <- sum(should_Brown$n_tokens) / sum(should_Brown$n_words) * 1000
+freq_should_Frown <- sum(should_Frown$n_tokens) / sum(should_Frown$n_words) * 1000
+
+round(freq_should_Brown, 2)
+round(freq_should_Frown, 2)
+```
+
+For Brown, we get a rate of 0.79 per thousand words, and for Frown the rate of occurrence is 0.68 per thousand words.
+
+To also get a quick answer to the second question, we divide the rate in Frown by that in Brown, which gives us a rate ratio of 0.86. This tells us that the frequency of *should* in the 1990s was only 86% as large as that in the 1960s:
+
+```{r}
+round(freq_should_Frown / freq_should_Brown, 2)
+```
+
+To see whether this frequency difference is "statistically significant", a likelihood-ratio statistic may be computed. This score is based on a simple 2x2 table, which contains the frequency of *should* in each corpus, and the number of words in each corpus. We use the function `keyness()` in the R package `{corpora}` [@Evert2023] to calculate a likelihood-ratio test:
+
+```{r}
+keyness(f1 = sum(should_Brown$n_tokens),
+        n1 = sum(should_Brown$n_words),
+        f2 = sum(should_Frown$n_tokens),
+        n2 = sum(should_Frown$n_words), 
+        measure = "G2")
+```
+
+This returns a log-likelihood score of 9.3, which is close to the one reported by @Leech2003 [p. 228] and indicates a "statistically significant" difference in normalized frequency between the two corpora.\[\^The difference in log-likelihood scores is most likely due to the different corpus sizes underlying these analyses. CQPweb reports larger corpus sizes.\]
+
+These crude ways of assessing and testing frequencies and their differences in corpora are straightforward to carry out and therefore provide quick answers to our questions. We now look at how these estimates (and *p*-values) may be misleading, or may not answer the question we really had in mind.
+
+Before we go further, however, we should note that the following elaborations are not meant to discredit the work done by Geoffrey Leech in the early 2000s. In fact, @Leech2003 provides a balanced assessment of frequency changes in the English modal system. The diachronic patterns he observed were remarkably consistent across the 11 modal verbs he studied, which strengthened the conclusion he drew. Further, when he referring to the log-likelihood scores for time differences, @Leech2003 explicitly noted that "too much should not be made of significance tests in comparative corpus studies" [-@Leech2003, p. 228].
+
+
+
+
+##### Model-based estimates
+
+Let us again look at how to obtain these two types of comparisons using a regression model. We start by fitting a negative binomial model that includes two predictors, Corpus and Genre, as well as their interaction.
+
+```{r}
+m_nb_corpus <- MASS::glm.nb(
+	n_tokens ~ corpus * genre + offset(log(n_words)), 
+	data = should_data)
+```
+
+This kind of model allows us to calculate frequency comparisons at the level of the individual genres (similar to what we saw in @fig-should-imbalance-comparison above). Alternatively, we may average over the four genres, to get a general estimate of how the frequency of *should* differs between the corpora.
+
+For purposes of illustration, let's use the `{marginaleffects}` package to get genre-level frequency comparisons. We use the function `comparisons()` to do so.
+
+-   The argument `variables` specifies the focal variable(s), i.e. the one(s) whose levels are to be compared. In our case, this is the predictor Corpus.
+-   The argument `newdata` allows us to specify the location in the predictor space at which to make comparisons. This means that it allows us to take control over the levels of the non-focal variables. Since we want a comparisons for each genre, we specify all genres, and we also want to compare normalized frequencies 'per 1,000 words'.
+-   Finally, by specifying `transform = exp`, we are asking `comparisons()` to exponentiate the log-scale differences, which yields rate ratios.
+
+```{r}
+comparisons(
+  m_nb_corpus,  
+  variables = "corpus",
+  newdata = datagrid(
+    genre = c("fiction", "general_prose", "learned", "press"),
+    n_words = 1000),
+  transform = exp) |> 
+  tidy() |> 
+  dplyr::select(genre, contrast, estimate, conf.low, conf.high) |> 
+    mutate(across(where(is.numeric), \(x) round(x, 2)))
+```
+
+
+
+Try: Averaging on the model scale vs. the data scale
+
+```{r}
+comparisons(
+  m_nb_corpus,  
+  variables = "corpus",
+  newdata = datagrid(
+    genre = c("fiction", "general_prose", "learned", "press"),
+    n_words = 1000),
+  comparison = "difference") |> 
+  tidy() |> 
+  dplyr::summarize(
+    data_scale_simple = mean(exp(estimate)),
+    data_scale_weight = weighted.mean(exp(estimate), w = c(.26, .41, .16, .17)),
+    model_scale_simple = exp(mean(estimate)),
+    model_scale_weight = exp(weighted.mean(estimate, w = c(.26, .41, .16, .17)))) |> 
+    mutate(across(where(is.numeric), round, 3)) |> 
+  t()
+
+```
+
+##### Average comparisons
+
+Weighted average (model scale)
+
+```{r}
+avg_comparisons(
+  m_nb_corpus,  
+  variables = "corpus",
+  newdata = datagrid(
+    genre = c("fiction", "general_prose", "learned", "press"),
+    n_words = 1000),
+  wts = c(.26, .41, .16, .17),
+  comparison = "difference",
+  transform = exp)
+```
+
+Simple average (model scale)
+
+```{r}
+avg_comparisons(
+  m_nb_corpus,  
+  variables = "corpus",
+  newdata = datagrid(
+    genre = c("fiction", "general_prose", "learned", "press"),
+    n_words = 1000),
+  comparison = "difference",
+  transform = exp)
+```
+
+```{r}
+comp_data_scale <- function(hi, lo){
+  mean(exp(hi - lo))
+}
+
+avg_comparisons(
+  m_nb_corpus,  
+  variables = "corpus",
+  newdata = datagrid(
+    genre = c("fiction", "general_prose", "learned", "press"),
+    n_words = 1000),
+  comparison = comp_data_scale)
+```
+
+```{r}
+comp_data_scale_wtd <- function(hi, lo, wts = c(.26, .41, .16, .17)){
+  weighted.mean(exp(hi - lo), w = wts)
+}
+
+avg_comparisons(
+  m_nb_corpus,  
+  variables = "corpus",
+  newdata = datagrid(
+    genre = c("fiction", "general_prose", "learned", "press"),
+    n_words = 1000),
+  comparison = comp_data_scale_wtd)
+```

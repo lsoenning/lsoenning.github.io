@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Lukas Sönning">
+<meta name="dcterms.date" content="2025-05-04">
+<meta name="description" content="This blog post is part of a small series on obstacles to replication in corpus linguistics. It deals with problems that can arise if the observations drawn from a corpus are unbalanced across relevant subgroups in the data. I show how simple and comparative data summaries can vary depending on whether we (unintentionally) calculate weighted averages, or adjust estimates for imbalances by taking a simple average across subgroups. As these are two different estimands, the choice affects the comparability of studies – including an original study and its direct replication.">
+
+<title>Imbalance across predictor levels affects data summaries – Lukas Sönning</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="../../site_libs/kePrint-0.0.1/kePrint.js"></script>
+
+<link href="../../site_libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+
+<meta name="quarto:status" content="draft">
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top"><div id="quarto-draft-alert" class="alert alert-warning"><i class="bi bi-pencil-square"></i>Draft</div>
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Lukas Sönning</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../research.html"> 
+<span class="menu-text">Research</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../resources.html"> 
+<span class="menu-text">Resources</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts.html"> 
+<span class="menu-text">Blog</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Imbalance across predictor levels affects data summaries</h1>
+<p class="subtitle lead">Obstacles to replication in corpus linguistics</p>
+  <div class="quarto-categories">
+    <div class="quarto-category">corpus linguistics</div>
+    <div class="quarto-category">replication</div>
+    <div class="quarto-category">regression</div>
+    <div class="quarto-category">bias</div>
+    <div class="quarto-category">imbalance</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    This blog post is part of a small series on obstacles to replication in corpus linguistics. It deals with problems that can arise if the observations drawn from a corpus are unbalanced across relevant subgroups in the data. I show how simple and comparative data summaries can vary depending on whether we (unintentionally) calculate weighted averages, or adjust estimates for imbalances by taking a simple average across subgroups. As these are two different estimands, the choice affects the comparability of studies – including an original study and its direct replication.
+  </div>
+</div>
+
+<div class="quarto-title-meta-author">
+  <div class="quarto-title-meta-heading">Author</div>
+  <div class="quarto-title-meta-heading">Affiliation</div>
+  
+    <div class="quarto-title-meta-contents">
+    <p class="author"><a href="https://lsoenning.github.io/">Lukas Sönning</a> <a href="https://orcid.org/0000-0002-2705-395X" class="quarto-title-author-orcid"> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg=="></a></p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            University of Bamberg
+          </p>
+      </div>
+  </div>
+
+<div class="quarto-title-meta">
+
+      
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">May 4, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Corpus data are often characterized by a lack of balance. In contrast to experiments, where the researcher has (almost) full control over the distribution of data points across the conditions of interest, the spread of observations across the levels of relevant predictor variables is virtually always uneven in observational research. When the data break down into subgroups, many quantities of interest essentially represent some kind of average over these conditions. When dealing with unbalanced data, the researcher should actively decide whether they want subgroups to influence this average in proportion to their size, or whether a simple average is preferred. These are two different estimands, and in order for the estimates based on an original and a replication study to be comparable, they need to target the same estimand.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>R setup</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)       <span class="co"># for data wrangling and visualization</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dataverse)       <span class="co"># for downloading data from TROLLing</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(marginaleffects) <span class="co"># to compute model-based estimates</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MASS)            <span class="co"># to fit a negative binomial regression model</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(corpora)         <span class="co"># to calculate a log-likelihood score</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggthemes)        <span class="co"># for colorblind color theme</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra)      <span class="co"># for drawing html tables</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggthemes)        <span class="co"># for color-blind palette</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="terminology" class="level4">
+<h4 class="anchored" data-anchor-id="terminology">Terminology</h4>
+<p>Before we get started, let me briefly clarify how a number of terms are used in this blog post:</p>
+<ul>
+<li><em>Original study</em>: The study whose results are subject to a replication effort</li>
+<li><em>Replication study</em>: A study that uses new data and repeats the original work in the closest possible way, i.e.&nbsp;using the same research design and methods; this type of replication is often referred to as a <em>direct</em>/<em>close</em>/<em>exact</em>/<em>literal</em> replication</li>
+<li><em>Original/replication estimate</em>: For the quantity of interest (sometimes referred to as an effect size), the point estimate returned by the original/replication study</li>
+</ul>
+</section>
+<section id="estimands-estimators-and-estimates" class="level4">
+<h4 class="anchored" data-anchor-id="estimands-estimators-and-estimates">Estimands, estimators, and estimates</h4>
+<p>In empirical work, the target of inquiry is sometimes referred to as the <em>estimand</em>. Estimands are formulated in substantive terms; in the language sciences, they represent the linguistic objectives of our research efforts.</p>
+<p>To obtain linguistic insights from corpus data, we apply statistical procedures to calculate numerical summaries. A specific procedure (e.g.&nbsp;a formula) is referred to as an <em>estimator</em>. Well-known examples of estimators are the arithmetic mean and the median, which offer different ways of characterizing the typical unit under study (the estimand).</p>
+<p>Finally, the specific value we obtain by applying an estimator to a set of data is referred to as an <em>estimate</em>. Note that while the estimand hinges on our research objectives and a corresponding estimator is chosen by the researcher, the estimate we obtain will depend on the data at hand and therefore vary from study to study.</p>
+<p>An excellent paper by <span class="citation" data-cites="Lundberg_etal2021">Lundberg, Johnson, and Stewart (<a href="#ref-Lundberg_etal2021" role="doc-biblioref">2021</a>)</span> discusses the importance of clearly defining the estimand of your study. While the authors go into much greater depth and consider the mapping between theoretical and empirical estimands, we will concentrate on what at first seems to be a rather superficial feature of estimands: The weight they give to different subgroups (or, more generally: conditions) in the data. It turns out, however, that this decision may not only affect the conclusions drawn from a study, but can also be challenging to motivate on linguistic grounds.</p>
+<p>Readers who are already familiar with <a href="https://lsoenning.github.io/posts/2025-05-01_clustering_uncertainty_intervals">this earlier blog post</a> may skip to the section titled “Vague estimands”.</p>
+<p>&nbsp;</p>
+</section>
+<section id="case-study-the-frequency-of-should-in-written-ame-of-the-1960s-and-1990s" class="level4">
+<h4 class="anchored" data-anchor-id="case-study-the-frequency-of-should-in-written-ame-of-the-1960s-and-1990s">Case study: The frequency of <em>should</em> in written AmE of the 1960s and 1990s</h4>
+<p>Our linguistic focus will be on the frequency of the modal verb <em>should</em> in written American English, and we will rely on data from the Brown and Frown Corpus. This allows us to work with straightforward research questions about normalized frequencies and their comparison, which are quite common in corpus work.</p>
+<p>Further, questions about diachronic trends in the frequency of modals have generated discussions about replicability in corpus linguistics. Based on a comparison of the Brown and Frown corpus, <span class="citation" data-cites="Leech2003">Leech (<a href="#ref-Leech2003" role="doc-biblioref">2003</a>)</span> concluded that the frequency of English modal verbs declined in the latter half of the 20<sup><code>th</code></sup> century. This finding was challenged by <span class="citation" data-cites="Millar2009">Millar (<a href="#ref-Millar2009" role="doc-biblioref">2009</a>)</span>, which in turn prompted a response by <span class="citation" data-cites="Leech2011">Leech (<a href="#ref-Leech2011" role="doc-biblioref">2011</a>)</span>. <span class="citation" data-cites="McEnery_Brezina2022">McEnery and Brezina (<a href="#ref-McEnery_Brezina2022" role="doc-biblioref">2022</a>)</span> also used data on English modals as a case study for discussing and illustrating key ideas about replication in corpus linguistics.</p>
+<p>English modal verbs therefore have a special place in the corpus-linguistic discourse on replication and replicability. I therefore decided to set up a dedicated <em>TROLLing</em> post <span class="citation" data-cites="Soenning2024">(<a href="#ref-Soenning2024" role="doc-biblioref">Sönning 2024</a>)</span>, which includes frequency information on the English modals from the Brown Family of corpora. Perhaps this resource may be of value in future discussion on the topic. An excerpt from this dataset is used in the current series of blog posts, which concentrate on statistical issues that may get in the way of replication attempts in corpus work.</p>
+<p>We will concentrate on a subset of these data: the modal verb <em>should</em> in Brown and Frown, i.e.&nbsp;written American English. The following questions guide our analysis:</p>
+<ul>
+<li>What is the frequency of <em>should</em> in written American English of the early 1960s and early 1990s?</li>
+<li>Has its frequency changed over time?</li>
+</ul>
+<p>&nbsp;</p>
+<section id="data" class="level5">
+<h5 class="anchored" data-anchor-id="data">Data</h5>
+<p>We start by downloading the data directly from the <em>TROLLing</em> archive:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">get_dataframe_by_name</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">filename  =</span> <span class="st">"modals_freq_form.tsv"</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">dataset   =</span> <span class="st">"10.18710/7LNWJX"</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">server    =</span> <span class="st">"dataverse.no"</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">.f        =</span> read_tsv,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">original  =</span> <span class="cn">TRUE</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The dataset we have downloaded contains text-level frequencies for nine modal verbs from six members of the Brown Family (Brown, Frown, LOB, FLOB, BE06, AmE06). It includes the following variables:</p>
+<ul>
+<li><code>text_id</code>: The text ID used in the Brown Family corpora (“A01”, “A02”, …)</li>
+<li><code>modal</code>: the modal verb</li>
+<li><code>n_tokens</code>: number of occurrences of the modal verb in the text</li>
+<li><code>corpus</code>: member of the Brown Family</li>
+<li><code>genre</code>: broad genre (Fiction, General prose, Learned, Press)</li>
+<li><code>text_category</code>: subgenre</li>
+<li><code>n_words</code>: length of the text (number of word tokens)</li>
+<li><code>time_period</code>: time period represented by the corpus</li>
+<li><code>variety</code>: variety of English represented by the corpus</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(dat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   27000 obs. of  9 variables:
+ $ text_id      : chr  "A01" "A01" "A01" "A01" ...
+ $ modal        : chr  "can" "could" "may" "might" ...
+ $ n_tokens     : num  1 0 1 1 3 0 6 14 9 4 ...
+ $ corpus       : chr  "Brown" "Brown" "Brown" "Brown" ...
+ $ genre        : chr  "press" "press" "press" "press" ...
+ $ text_category: chr  "press_reportage" "press_reportage" "press_reportage" "press_reportage" ...
+ $ n_words      : num  2206 2206 2206 2206 2206 ...
+ $ time_period  : num  1961 1961 1961 1961 1961 ...
+ $ variety      : chr  "AmE" "AmE" "AmE" "AmE" ...</code></pre>
+</div>
+</div>
+<p>Next, we extract the data for <em>should</em> in Brown and Frown and prepare them for analysis.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Load and prepare data</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>d_modals <span class="ot">&lt;-</span> <span class="fu">subset</span>(dat, corpus <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Brown"</span>, <span class="st">"Frown"</span>))</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>d_modals<span class="sc">$</span>time_period <span class="ot">&lt;-</span> <span class="fu">factor</span>(d_modals<span class="sc">$</span>time_period)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>d_modals<span class="sc">$</span>genre <span class="ot">&lt;-</span> <span class="fu">factor</span>(d_modals<span class="sc">$</span>genre)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="fu">contrasts</span>(d_modals<span class="sc">$</span>genre) <span class="ot">&lt;-</span> <span class="fu">contr.sum</span>(<span class="dv">4</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="fu">contrasts</span>(d_modals<span class="sc">$</span>time_period) <span class="ot">&lt;-</span> <span class="fu">contr.sum</span>(<span class="dv">2</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>should_data <span class="ot">&lt;-</span> <span class="fu">subset</span>(d_modals, modal<span class="sc">==</span><span class="st">"should"</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>should_Brown <span class="ot">&lt;-</span> <span class="fu">subset</span>(d_modals, modal<span class="sc">==</span><span class="st">"should"</span> <span class="sc">&amp;</span> corpus<span class="sc">==</span><span class="st">"Brown"</span>)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>should_Frown <span class="ot">&lt;-</span> <span class="fu">subset</span>(d_modals, modal<span class="sc">==</span><span class="st">"should"</span> <span class="sc">&amp;</span> corpus<span class="sc">==</span><span class="st">"Frown"</span>)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>should_learned <span class="ot">&lt;-</span> <span class="fu">subset</span>(d_modals, modal<span class="sc">==</span><span class="st">"should"</span> <span class="sc">&amp;</span> genre<span class="sc">==</span><span class="st">"learned"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Brown and Frown each consist of 500 texts, which are sampled from four different genres. The following table shows the word count and number of texts for each genre in Brown:</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Genre</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Words</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Texts</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Fiction</td>
+<td style="text-align: left;">295,779 (25.8%)</td>
+<td style="text-align: left;">126 (25.2%)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">General prose</td>
+<td style="text-align: left;">470,726 (41.0%)</td>
+<td style="text-align: left;">206 (41.2%)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Learned</td>
+<td style="text-align: left;">180,649 (15.7%)</td>
+<td style="text-align: left;">80 (16.0%)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Press</td>
+<td style="text-align: left;">201,300 (17.5%)</td>
+<td style="text-align: left;">88 (17.6%)</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+<p>&nbsp;</p>
+</section>
+</section>
+<section id="vague-estimands" class="level4">
+<h4 class="anchored" data-anchor-id="vague-estimands">Vague estimands</h4>
+<p>While the research questions we formulated above outline the general direction of our analysis, they leave considerable room for specifying an estimand. Thus, we may ask what exactly is meant by “the frequency of <em>should</em> in written American English of the early 1960s”.</p>
+<p>The focus in this blog post is on how the four genres are to be handled when calculating a frequency estimate. This question is relevant because of their differential size in the corpus. When measuring the frequency of <em>should</em> in Brown, the question would be whether the four genres should be weighted proportionally to their size, or whether they should be given equal weights. In other words, are we interested in the frequency of <em>should</em> in a population of written American English where each genre is equally important, or a population where the weights differ, perhaps reflecting their prevalence, or currency, in the linguistic community.</p>
+<p>The representation of the four genres in Brown is linguistically motivated. The <a href="http://korpus.uib.no/icame/manuals/BROWN/INDEX.HTM">manual</a> states: “The list of main categories and their subdivisions was drawn up at a conference held at Brown University in February 1963. The participants in the conference [John B. Carroll, W. Nelson Francis, Philip B. Gove, Henry Kucera, Patricia O’Connor, and Randolph Quirk.] also independently gave their opinions as to the number of samples there should be in each category. These figures were averaged to obtain the preliminary set of figures used.” While the manual does not specify the rationale underlying participants’ preferences for the number of text samples per text category, we may assume that the weighting is meant to reflect the currency of these subvarieties in written American English.</p>
+<p>Different estimands require different estimators: The currency-informed estimand of the normalized frequency weights genres in proportion to their representation in the corpus. This is equivalent to simply obtaining the corpus frequency of <em>should</em>: Divide the number of occurrences by the corpus size. The equal-importance estimand, on the other hand, requires a simple average over four occurrence rates, one for each genre.</p>
+</section>
+<section id="corpus-frequencies-are-weighted-averages" class="level4">
+<h4 class="anchored" data-anchor-id="corpus-frequencies-are-weighted-averages">Corpus frequencies are weighted averages</h4>
+<p>The typical way of answering the research questions we formulated above would be the following:</p>
+<ul>
+<li>Obtain the normalized corpus frequency of <em>should</em> in Brown and then in Frown</li>
+<li>Compare the two normalized frequencies, e.g.&nbsp;by dividing the Frown rate by the Brown rate.</li>
+</ul>
+<p>Here is how we could do this in R (with normalized frequencies expressed as ‘per thousand words’):</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>freq_should_Brown <span class="ot">&lt;-</span> <span class="fu">sum</span>(should_Brown<span class="sc">$</span>n_tokens) <span class="sc">/</span> <span class="fu">sum</span>(should_Brown<span class="sc">$</span>n_words) <span class="sc">*</span> <span class="dv">1000</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>freq_should_Frown <span class="ot">&lt;-</span> <span class="fu">sum</span>(should_Frown<span class="sc">$</span>n_tokens) <span class="sc">/</span> <span class="fu">sum</span>(should_Frown<span class="sc">$</span>n_words) <span class="sc">*</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>For Brown, we get a rate of 0.79 per thousand words, which is also what CQPweb returns:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(freq_should_Brown, <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.79</code></pre>
+</div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="should_brown.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:80.0%"></p>
+</figure>
+</div>
+<p>For Frown, we get a rate of 0.68 per thousand words, in line with the CQPweb report:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(freq_should_Frown, <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.68</code></pre>
+</div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="should_frown.png" class="img-fluid quarto-figure quarto-figure-center figure-img" style="width:80.0%"></p>
+</figure>
+</div>
+<p>Finally, the comparison of the normalized frequencies indicates that the Frown rate is 86% as large as that in Brown:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(freq_should_Frown <span class="sc">/</span> freq_should_Brown, <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.86</code></pre>
+</div>
+</div>
+<p>Corpus frequencies and their differences are weighted averages, which assign differential importance to the four genres. In the case of the Brown Family of corpora, where considerable thought has been given to the representation of the text categories, this differential weighting may be desirable. When working with other corpora, crude corpus frequencies may need to be treated more cautiously.</p>
+<p>A case in point are spoken corpora, where the word count (and implicit weight) may vary considerably across speakers and speaker groups. In written corpora, however, texts may also vary in length. In both cases (imbalance across speakers or texts), there are few situations in which differences in size reflect differences in importance. We would then like to avoid the implicit weighting implemented by plain corpus frequencies. As discussed by <span class="citation" data-cites="Egbert_Burch2023">Egbert and Burch (<a href="#ref-Egbert_Burch2023" role="doc-biblioref">2023</a>)</span>, a different type of estimator, the <em>mean text frequency</em>, may then be preferable. It first calculates normalized frequencies at the text (or speaker) level, and then averages over these.</p>
+<p>In the Brown Family, word counts are roughly balanced across texts, and we therefore need not worry about this kind of imbalance when measuring frequency. The mean text frequencies almost coincide with the corpus frequencies:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    (should_Brown<span class="sc">$</span>n_tokens <span class="sc">/</span> should_Brown<span class="sc">$</span>n_words) <span class="sc">*</span><span class="dv">1000</span>),</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.8</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    (should_Frown<span class="sc">$</span>n_tokens <span class="sc">/</span> should_Frown<span class="sc">$</span>n_words) <span class="sc">*</span><span class="dv">1000</span>),</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.69</code></pre>
+</div>
+</div>
+<p><a href="https://lsoenning.github.io/posts/2025-04-28_disproportionate_representation_speaker/" target="_blank">This blog post</a> discusses situations where corpus units (texts or speakers) differ in size, and how this can affect frequency estimates.</p>
+<p>As noted above, the Brown Family shows a different form of imbalance: The size of the four broad genres (Fiction, General Prose, Learned, Press) differs. <strong>?@tbl-imbalance-brown</strong> showed that the genre General prose accounts for 41% of the corpus size, while Learned and Press are relatively underrepresented. We now look at how this disproportion can affect estimates of frequencies and their differences.</p>
+</section>
+<section id="frequency" class="level4">
+<h4 class="anchored" data-anchor-id="frequency">Frequency</h4>
+<p>We first consider the estimation of normalized frequencies in Brown and Frown, which we will approach from two angles: We start with descriptive data summaries and then look at model-based estimates.</p>
+<section id="descriptive-data-summaries" class="level5">
+<h5 class="anchored" data-anchor-id="descriptive-data-summaries">Descriptive data summaries</h5>
+<p>When using descriptive statistics to summarize the data, the equal-importance estimand is obtained using a <em>simple average</em> over the genre-specific normalized frequencies. In R, we can use the <code>{dplyr}</code> package to calculate this simple average in two steps:</p>
+<ol type="1">
+<li>calculate genre-specific rates</li>
+<li>average over these</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>Brown_simple <span class="ot">&lt;-</span> should_Brown <span class="sc">|&gt;</span>                  <span class="co">#</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(genre) <span class="sc">|&gt;</span>                             <span class="co"># (1)</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(                                     <span class="co">#</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">rate_ptw =</span> <span class="fu">mean</span>(n_tokens <span class="sc">/</span> n_words)<span class="sc">*</span><span class="dv">1000</span>) <span class="sc">|&gt;</span> <span class="co">#</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="fu">mean</span>(rate_ptw))                      <span class="co"># (2)</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>Frown_simple <span class="ot">&lt;-</span> should_Frown <span class="sc">|&gt;</span>                  <span class="co">#</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(genre) <span class="sc">|&gt;</span>                             <span class="co"># (1)</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(                                     <span class="co">#</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">rate_ptw =</span> <span class="fu">mean</span>(n_tokens <span class="sc">/</span> n_words)<span class="sc">*</span><span class="dv">1000</span>) <span class="sc">|&gt;</span> <span class="co">#</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="fu">mean</span>(rate_ptw))                      <span class="co"># (2)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The currency-informed average, on the other hand, can be obtained using plain corpus frequencies (see above). An alternative procedure, which is more flexible, uses the same two-step approach but calculates a <em>weighted</em> average in step 2. For this, we need a set of weights that reflect the representation of these text categories in the Brown Family. We will calculate these on the basis of both corpora (Brown and Frown):</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>brown_family_weights <span class="ot">&lt;-</span> should_data <span class="sc">|&gt;</span> </span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(genre) <span class="sc">|&gt;</span> </span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_words_genre =</span> <span class="fu">sum</span>(n_words)</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">genre_weight =</span> n_words_genre <span class="sc">/</span> <span class="fu">sum</span>(n_words_genre)</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Here they are (in alphabetical order: Fiction, General prose, Learned, Press):</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  brown_family_weights<span class="sc">$</span>genre_weight, </span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.26 0.41 0.16 0.17</code></pre>
+</div>
+</div>
+<p>Now we can apply the two-step procedure:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>Brown_weighted <span class="ot">&lt;-</span> should_Brown <span class="sc">|&gt;</span>                <span class="co">#</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(genre) <span class="sc">|&gt;</span>                             <span class="co"># (1)</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(                                     <span class="co">#</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">rate_ptw =</span> <span class="fu">mean</span>(n_tokens <span class="sc">/</span> n_words)<span class="sc">*</span><span class="dv">1000</span>) <span class="sc">|&gt;</span> <span class="co">#</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="fu">weighted.mean</span>(                       <span class="co"># (2)</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    rate_ptw,                                    <span class="co">#</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">w =</span> brown_family_weights<span class="sc">$</span>genre_weight))      <span class="co">#</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>Frown_weighted <span class="ot">&lt;-</span> should_Frown <span class="sc">|&gt;</span>                <span class="co">#</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(genre) <span class="sc">|&gt;</span>                             <span class="co"># (1)</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(                                     <span class="co">#</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">rate_ptw =</span> <span class="fu">mean</span>(n_tokens <span class="sc">/</span> n_words)<span class="sc">*</span><span class="dv">1000</span>) <span class="sc">|&gt;</span> <span class="co">#</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="fu">weighted.mean</span>(                       <span class="co"># (2)</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>    rate_ptw,                                    <span class="co">#</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">w =</span> brown_family_weights<span class="sc">$</span>genre_weight))      <span class="co">#</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Note that we could have included the calculation of weights into the code above, which would have been more error-tight in the present case. The specification of “external” weights, however, gives us more flexibility when calculating weighted averages. For instance, we may decide to use custom weights, or weights based on the data distribution in a different (reference) corpus.</p>
+<p><a href="#fig-should-imbalance-frequency" class="quarto-xref">Figure&nbsp;1</a> compares these frequency estimates visually. Proportionally scaled circles are used to show the differential representation of the genres in the corpus. The weighted averages appear in grey, the simple ones in black.</p>
+<p>For Brown, the <em>simple average</em> (0.81 ptw) and the <em>weighted average</em> (0.80 ptw) are very similar, indicating that the imbalance of word counts across genres does not affect the frequency estimate much. In Frown, the discrepancy is greater, with a simple average of 0.72 ptw, and a weighted average of 0.69 ptw. This is because the genres Learned and Press, which show relatively large occurrence rates of <em>should</em>, gain weight when calculating a simple (instead of a weighted) average: The mass for Learned increases from .16 to .25, that for Press from .17 to .25.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Draw Figure</summary>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>Brown_simple <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(Brown_simple)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>Brown_weighted <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(Brown_weighted)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>Frown_simple <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(Frown_simple)</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>Frown_weighted <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(Frown_weighted)</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>should_data <span class="sc">|&gt;</span> </span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">rate_ptw =</span> (n_tokens<span class="sc">/</span>n_words)<span class="sc">*</span><span class="fl">1e3</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(corpus, genre) <span class="sc">|&gt;</span> </span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">summarize</span>(</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">ptw =</span> <span class="fu">mean</span>(rate_ptw),</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_words =</span> <span class="fu">sum</span>(n_words)) <span class="sc">|&gt;</span> </span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> corpus, <span class="at">y =</span> ptw, <span class="at">size =</span> n_words, <span class="at">group =</span> genre, <span class="at">color =</span> genre)) <span class="sc">+</span></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">shape =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">shape =</span> <span class="dv">16</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>  <span class="co">#geom_line(size = .5) +</span></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_colorblind</span>() <span class="sc">+</span></span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic_ls</span>() <span class="sc">+</span></span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Normalized frequency</span><span class="sc">\n</span><span class="st">(per 1,000 words)"</span>) <span class="sc">+</span></span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">1.1</span>), <span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">5</span>, <span class="dv">1</span>), <span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>)) <span class="sc">+</span></span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_discrete</span>(<span class="at">expand=</span><span class="fu">c</span>(.<span class="dv">2</span>,.<span class="dv">2</span>)) <span class="sc">+</span></span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_size_area</span>(<span class="at">max_size =</span> <span class="dv">8</span>) <span class="sc">+</span></span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a>        <span class="at">plot.margin =</span> <span class="fu">margin</span>(.<span class="dv">2</span>, <span class="dv">2</span>, .<span class="dv">2</span>, .<span class="dv">2</span>, <span class="st">"cm"</span>)) <span class="sc">+</span></span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a>  directlabels<span class="sc">::</span><span class="fu">geom_dl</span>(<span class="fu">aes</span>(<span class="at">label =</span> genre), <span class="at">method =</span> <span class="fu">list</span>(</span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>    <span class="st">"last.points"</span>, <span class="at">cex =</span> .<span class="dv">75</span>, <span class="at">x =</span> <span class="fl">3.52</span>, </span>
+<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"Fiction"</span>, <span class="st">"General prose"</span>, <span class="st">"Learned"</span>, <span class="st">"Press"</span>))) <span class="sc">+</span></span>
+<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"segment"</span>, <span class="at">x =</span> .<span class="dv">9</span>, <span class="at">xend =</span> <span class="fl">1.1</span>, <span class="at">y =</span> Brown_weighted, <span class="at">yend =</span> Brown_weighted, </span>
+<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a>           <span class="at">linewidth =</span> .<span class="dv">8</span>, <span class="at">color =</span> <span class="st">"grey50"</span>) <span class="sc">+</span></span>
+<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"segment"</span>, <span class="at">x =</span> .<span class="dv">9</span>, <span class="at">xend =</span> <span class="fl">1.1</span>, <span class="at">y =</span> Brown_simple, <span class="at">yend =</span> Brown_simple,</span>
+<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a>           <span class="at">linewidth =</span> .<span class="dv">8</span>) <span class="sc">+</span></span>
+<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"segment"</span>, <span class="at">x =</span> <span class="fl">1.9</span>, <span class="at">xend =</span> <span class="fl">2.1</span>, <span class="at">y =</span> Frown_weighted, <span class="at">yend =</span> Frown_weighted, </span>
+<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a>           <span class="at">linewidth =</span> .<span class="dv">8</span>, <span class="at">color =</span> <span class="st">"grey50"</span>) <span class="sc">+</span></span>
+<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"segment"</span>, <span class="at">x =</span> <span class="fl">1.9</span>, <span class="at">xend =</span> <span class="fl">2.1</span>, <span class="at">y =</span> Frown_simple, <span class="at">yend =</span> Frown_simple, </span>
+<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a>           <span class="at">linewidth =</span> .<span class="dv">8</span>) <span class="sc">+</span></span>
+<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"segment"</span>, <span class="at">x =</span> <span class="fl">1.1</span>, <span class="at">xend =</span> <span class="fl">1.9</span>, <span class="at">y =</span> Brown_weighted, <span class="at">yend =</span> Frown_weighted,</span>
+<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a>           <span class="at">linewidth =</span> .<span class="dv">3</span>, <span class="at">color =</span> <span class="st">"grey50"</span>) <span class="sc">+</span></span>
+<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"segment"</span>, <span class="at">x =</span> <span class="fl">1.1</span>, <span class="at">xend =</span> <span class="fl">1.9</span>, <span class="at">y =</span> Brown_simple, <span class="at">yend =</span> Frown_simple, </span>
+<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a>           <span class="at">linewidth =</span> .<span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb22-45"><a href="#cb22-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="fu">c</span>(<span class="fl">1.4</span>, <span class="fl">1.6</span>), <span class="at">y =</span> <span class="fu">c</span>(.<span class="dv">68</span>, .<span class="dv">85</span>), <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"weighted"</span>, <span class="st">"simple"</span>), </span>
+<span id="cb22-46"><a href="#cb22-46" aria-hidden="true" tabindex="-1"></a>           <span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="fu">c</span>(<span class="st">"grey50"</span>, <span class="st">"black"</span>)) <span class="sc">+</span></span>
+<span id="cb22-47"><a href="#cb22-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">clip=</span><span class="st">"off"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-should-imbalance-frequency" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-should-imbalance-frequency-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-should-imbalance-frequency-1.png" class="img-fluid figure-img" width="288">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-should-imbalance-frequency-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Estimated frequency of <em>should</em> in Brown and Frown: Comparison of simple and weighted averages across genres.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>&nbsp;</p>
+</section>
+<section id="model-based-estimates" class="level5">
+<h5 class="anchored" data-anchor-id="model-based-estimates">Model-based estimates</h5>
+<p>When calculating model-based predictions, we can likewise decide whether we want to form simple or weighted averages. The default behavior in the <code>{marginaleffects}</code> package is to use the in-sample distribution of predictor variables to calculate average predictions. This is to say that, unless explicitly told to do otherwise, the functions in the package will usually calculate weighted averages.</p>
+<p>Let’s take a look at how to produce simple and weighted averages using a negative binomial model of <em>should</em> in Frown. The first step is to fit the model:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>m_nb_Frown <span class="ot">&lt;-</span> MASS<span class="sc">::</span><span class="fu">glm.nb</span>(</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    n_tokens <span class="sc">~</span> genre <span class="sc">+</span> <span class="fu">offset</span>(<span class="fu">log</span>(n_words)), </span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> should_Frown)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The function <code>avg_predictions()</code> calculates average predictions. Its default behavior for the data at hand returns a frequency estimate that is unlikely to be of interest to us. This is because it uses the in-sample mean text length (<code>n_words</code>) to adjust the predicted rate. The estimate of 1.58 is therefore the expected frequency ‘per 2,309 words’:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">avg_predictions</span>(</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  m_nb_Frown)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ Estimate Std. Error    z Pr(&gt;|z|)     S 2.5 % 97.5 %
+     1.58     0.0899 17.6   &lt;0.001 227.7   1.4   1.76
+
+Type:  response </code></pre>
+</div>
+</div>
+<p>We must take control over the kind of normalized frequency we are getting. We prefer ‘per 1,000 words’ and therefore use the argument <code>variables</code> to specify <code>n_words = 1000</code>. Now we get a more interpretable estimate:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">avg_predictions</span>(</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  m_nb_Frown,</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="fu">list</span>(</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_words =</span> <span class="dv">1000</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ n_words Estimate Std. Error    z Pr(&gt;|z|)     S 2.5 % 97.5 %
+    1000    0.686     0.0391 17.6   &lt;0.001 227.2  0.61  0.763
+
+Type:  response </code></pre>
+</div>
+</div>
+<p>We note that this is close to the weighted mean we calculated above, which means that the genres are weighted in proportion to their size. This reflects the fact that the <code>{marginaleffects}</code> package by default averages over the estimation sample, and therefore propagates imbalances into the averages (which may be desirable or not). Specifically, the function <code>avg_predictions()</code> starts by calculating a model-based prediction for each text in the data, assuming it is 1,000 words long (as specified by <code>variables = list(n_words = 1000))</code>), and then averages over these 500 model-based estimates.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">avg_predictions</span>(</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  m_nb_Frown,</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="fu">list</span>(</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_words =</span> <span class="dv">1000</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ n_words Estimate Std. Error    z Pr(&gt;|z|)     S 2.5 % 97.5 %
+    1000    0.686     0.0391 17.6   &lt;0.001 227.2  0.61  0.763
+
+Type:  response </code></pre>
+</div>
+</div>
+<p>Another way of forming weighted predictions is to use the argument <code>datagrid()</code> to define the conditions over which we average, and then add another argument, <code>wts</code>, giving the weight of these conditions. This strategy is useful if we want to use an externally informed set of custom weights. The following returns (almost) the same results as the previous code:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">avg_predictions</span>(</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  m_nb_Frown,  </span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">newdata =</span> <span class="fu">datagrid</span>(</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">genre =</span> <span class="fu">c</span>(<span class="st">"fiction"</span>, <span class="st">"general_prose"</span>, <span class="st">"learned"</span>, <span class="st">"press"</span>),</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_words =</span> <span class="dv">1000</span>),</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">wts =</span> brown_family_weights<span class="sc">$</span>genre_weight)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ Estimate Std. Error    z Pr(&gt;|z|)     S 2.5 % 97.5 %
+    0.685     0.0389 17.6   &lt;0.001 227.7 0.608  0.761
+
+Type:  response </code></pre>
+</div>
+</div>
+<p>If we instead prefer a simple average, we can use the argument <code>newdata</code> to explicitly define the conditions to average over. This way we tell the function not to take the estimation sample as a basis for calculating predictions (and weighting), but instead define the reference grid over which to average. The following code asks for a simple average over four conditions, which represent different genres but have the same length. The result is close to the simple average we calculated above.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">avg_predictions</span>(</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  m_nb_Frown,  </span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">newdata =</span> <span class="fu">datagrid</span>(</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">genre =</span> <span class="fu">c</span>(<span class="st">"fiction"</span>, <span class="st">"general_prose"</span>, <span class="st">"learned"</span>, <span class="st">"press"</span>),</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_words =</span> <span class="dv">1000</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ Estimate Std. Error  z Pr(&gt;|z|)     S 2.5 % 97.5 %
+    0.715     0.0448 16   &lt;0.001 188.2 0.627  0.802
+
+Type:  response </code></pre>
+</div>
+</div>
+<p>This shows that imbalances in the data can have an effect on simple data summaries such as estimates of average normalized frequencies. This is sometimes referred to as <em>imbalance bias</em>, and in the present case, we could refer to it as genre imbalance bias. This kind of distortion can occur when (i) there is imbalance across subgroups in the data and (ii) the quantity of interest varies from subgroup to subgroup. We have seen how to adjust for this form of bias using model-based predictions. &nbsp;</p>
+</section>
+</section>
+<section id="frequency-differences" class="level4">
+<h4 class="anchored" data-anchor-id="frequency-differences">Frequency differences</h4>
+<p>In the same way, imbalance bias can affect frequency differences. Recall that a crude comparison of the corpora reveals that the frequency of <em>should</em> in Frown is only 86% as high as that in Brown. Since this comparison is based on two corpus frequencies, each of which is potentially affected by imbalance bias, the comparison may likewise be driven into the direction of more strongly represented genres.</p>
+<section id="descriptive-data-summaries-1" class="level5">
+<h5 class="anchored" data-anchor-id="descriptive-data-summaries-1">Descriptive data summaries</h5>
+<p><a href="#fig-should-imbalance-comparison" class="quarto-xref">Figure&nbsp;2</a> shows the diachronic trends in the four genres. We note that while Press and Fiction show virtually no difference between Brown and Frown, a diachronic cline is apparent for Learned and General prose. Seeing that General prose is the most strongly represented genre, we would expect weighted differences to be pulled into its direction, meaning that a weighted frequency difference will be larger than a simple frequency difference, which would give the same weight to all genres.</p>
+<div class="cell preview-image">
+<details class="code-fold">
+<summary>Draw Figure</summary>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>should_data <span class="sc">|&gt;</span> </span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">rate_ptw =</span> (n_tokens<span class="sc">/</span>n_words)<span class="sc">*</span><span class="fl">1e3</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(corpus, genre) <span class="sc">|&gt;</span> </span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">summarize</span>(</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">ptw =</span> <span class="fu">mean</span>(rate_ptw),</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_words =</span> <span class="fu">sum</span>(n_words)) <span class="sc">|&gt;</span> </span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> corpus, <span class="at">y =</span> ptw, <span class="at">size =</span> n_words, <span class="at">group =</span> genre, <span class="at">color =</span> genre)) <span class="sc">+</span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">shape =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">shape =</span> <span class="dv">16</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">size =</span> .<span class="dv">5</span>) <span class="sc">+</span></span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_colorblind</span>() <span class="sc">+</span></span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic_ls</span>() <span class="sc">+</span></span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Normalized frequency</span><span class="sc">\n</span><span class="st">(per 1,000 words)"</span>) <span class="sc">+</span></span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">1.1</span>), <span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">5</span>, <span class="dv">1</span>), <span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>)) <span class="sc">+</span></span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_size_area</span>(<span class="at">max_size =</span> <span class="dv">8</span>) <span class="sc">+</span></span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a>        <span class="at">plot.margin =</span> <span class="fu">margin</span>(.<span class="dv">2</span>, <span class="dv">2</span>, .<span class="dv">2</span>, .<span class="dv">2</span>, <span class="st">"cm"</span>)) <span class="sc">+</span></span>
+<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a>  directlabels<span class="sc">::</span><span class="fu">geom_dl</span>(<span class="fu">aes</span>(<span class="at">label =</span> genre), <span class="at">method =</span> <span class="fu">list</span>(<span class="st">"last.points"</span>, <span class="at">cex =</span> .<span class="dv">75</span>, <span class="at">x =</span> <span class="fl">3.52</span>, <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"Fiction"</span>, <span class="st">"General prose"</span>, <span class="st">"Learned"</span>, <span class="st">"Press"</span>))) <span class="sc">+</span></span>
+<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">clip=</span><span class="st">"off"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-should-imbalance-comparison" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-should-imbalance-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-should-imbalance-comparison-1.png" class="img-fluid figure-img" width="288">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-should-imbalance-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Diachronic trends by text category: Frequency of <em>should</em> in Frown vs.&nbsp;Brown, broken down by genre.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>We can calculate descriptive frequency comparisons according to the two schemes, i.e.&nbsp;by either weighting all genres equivalently, or in proportion to their representation in the data. This returns two slightly different estimates: A frequency decline by 11% (simple comparison) or by 13% (weighted comparison).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>should_data <span class="sc">|&gt;</span> </span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">rate_ptw =</span> (n_tokens<span class="sc">/</span>n_words)<span class="sc">*</span><span class="fl">1e3</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(corpus, genre) <span class="sc">|&gt;</span> </span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">summarize</span>(</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">ptw =</span> <span class="fu">mean</span>(rate_ptw),</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_words =</span> <span class="fu">sum</span>(n_words)) <span class="sc">|&gt;</span> </span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(genre) <span class="sc">|&gt;</span> </span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">summarize</span>(</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">freq_ratio_data =</span> ptw[corpus <span class="sc">==</span> <span class="st">"Frown"</span>]<span class="sc">/</span>ptw[corpus <span class="sc">==</span> <span class="st">"Brown"</span>],</span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_words_genre =</span> <span class="fu">sum</span>(n_words)) <span class="sc">|&gt;</span> </span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">weight =</span> n_words_genre<span class="sc">/</span><span class="fu">sum</span>(n_words_genre)) <span class="sc">|&gt;</span> </span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">summarize</span>(</span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">simple_comparison =</span> <span class="fu">mean</span>(freq_ratio_data),</span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">weighted_comparison =</span> <span class="fu">weighted.mean</span>(freq_ratio_data, <span class="at">w =</span> weight)</span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> <span class="fu">round</span>(<span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 2
+  simple_comparison weighted_comparison
+              &lt;dbl&gt;               &lt;dbl&gt;
+1              0.89                0.87</code></pre>
+</div>
+</div>
+<p>&nbsp;</p>
+</section>
+<section id="model-based-estimates-1" class="level5">
+<h5 class="anchored" data-anchor-id="model-based-estimates-1">Model-based estimates</h5>
+<p>Let us again look at how to obtain these two types of comparison using a regression model. We start by fitting a negative binomial model that includes two predictors, Corpus and Genre, as well as their interaction.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>m_nb_corpus <span class="ot">&lt;-</span> MASS<span class="sc">::</span><span class="fu">glm.nb</span>(</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>    n_tokens <span class="sc">~</span> corpus <span class="sc">*</span> genre <span class="sc">+</span> <span class="fu">offset</span>(<span class="fu">log</span>(n_words)), </span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> should_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This kind of model allows us to calculate frequency comparisons at the level of the individual genres (similar to what we saw in <a href="#fig-should-imbalance-comparison" class="quarto-xref">Figure&nbsp;2</a> above). Alternatively, we may average over the four genres, to get a general estimate of how the frequency of <em>should</em> differs between the corpora.</p>
+<p>For purposes of illustration, let’s use the <code>{marginaleffects}</code> package to get genre-level frequency comparisons. We use the function <code>comparisons()</code> to do so.</p>
+<ul>
+<li>The argument <code>variables</code> specifies the focal variable(s), i.e.&nbsp;the one(s) whose levels are to be compared. In our case, this is the predictor Corpus.</li>
+<li>The argument <code>newdata</code> allows us to specify the location in the predictor space at which to make comparisons. This means that it allows us to take control over the levels of the non-focal variables. Since we want a comparison for each genre, we specify all genres, and we also want to compare normalized frequencies ‘per 1,000 words’.</li>
+<li>Finally, by specifying <code>transform = exp</code>, we are asking <code>comparisons()</code> to exponentiate the log-scale differences, which yields rate ratios.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">comparisons</span>(</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  m_nb_corpus,  </span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"corpus"</span>,</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">newdata =</span> <span class="fu">datagrid</span>(</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">genre =</span> <span class="fu">c</span>(<span class="st">"fiction"</span>, <span class="st">"general_prose"</span>, <span class="st">"learned"</span>, <span class="st">"press"</span>),</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_words =</span> <span class="dv">1000</span>),</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">transform =</span> exp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 5
+  genre         contrast      estimate conf.low conf.high
+  &lt;fct&gt;         &lt;chr&gt;            &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1 fiction       Frown - Brown     0.98     0.84      1.16
+2 general_prose Frown - Brown     0.82     0.68      0.99
+3 learned       Frown - Brown     0.83     0.59      1.17
+4 press         Frown - Brown     1.03     0.75      1.42</code></pre>
+</div>
+</div>
+<p>We can use the function <code>avg_comparisons()</code> to average over the four genres. The simple average is obtained as follows. Note that the code is almost identical to the one we used above, apart from replacing the function name:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">avg_comparisons</span>(</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  m_nb_corpus,  </span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"corpus"</span>,</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">newdata =</span> <span class="fu">datagrid</span>(</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">genre =</span> <span class="fu">c</span>(<span class="st">"fiction"</span>, <span class="st">"general_prose"</span>, <span class="st">"learned"</span>, <span class="st">"press"</span>),</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_words =</span> <span class="dv">1000</span>),</span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">transform =</span> exp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ Estimate Pr(&gt;|z|)   S 2.5 % 97.5 %
+    0.911    0.168 2.6 0.797   1.04
+
+Term: corpus
+Type:  response 
+Comparison: Frown - Brown</code></pre>
+</div>
+</div>
+<p>Using a simple average over the genres, the model-based estimate of the rate ratio is 91%: The normalized frequency in Frown is 91% as large as that in Brown. The regression model also provides a 95% confidence interval for this estimate, which ranges from 90% to 104%.</p>
+<p>To obtain a model-based weighted average, we use the argument <code>wts = brown_family_weights$genre_weight</code> to specify the weights of the conditions in the reference grid. Our reference grid consists of four rows, so four weights are required, one for each genre.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">avg_comparisons</span>(</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  m_nb_corpus,  </span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"corpus"</span>,</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">newdata =</span> <span class="fu">datagrid</span>(</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">genre =</span> <span class="fu">c</span>(<span class="st">"fiction"</span>, <span class="st">"general_prose"</span>, <span class="st">"learned"</span>, <span class="st">"press"</span>),</span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_words =</span> <span class="dv">1000</span>),</span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">wts =</span> brown_family_weights<span class="sc">$</span>genre_weight,</span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">transform =</span> exp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ Estimate Pr(&gt;|z|)   S 2.5 % 97.5 %
+    0.895   0.0648 3.9 0.796   1.01
+
+Term: corpus
+Type:  response 
+Comparison: Frown - Brown</code></pre>
+</div>
+</div>
+<p>Using a weighted average over the genres, the model-based estimate of the rate ratio is 89%, with the 95% CI ranging from 80% to 101%.</p>
+<p>We observe that these model-based estimates differ from the descriptive ones reported above. <a href="#tbl-estimates-data-model-scale-comparison" class="quarto-xref">Table&nbsp;1</a> shows that the model-based estimates suggest slightly smaller differences between Brown and Frown. This is due to the fact that averaging was done on different scales: While the descriptive ratios were averaged on the data scale (i.e.&nbsp;ratios), the model-based estimates were averaged on the model scale (i.e.&nbsp;log ratios) and the average then back-transformed into a ratio. The discrepancy between these ways of forming averages will be discussed in a future blog post.</p>
+<div class="cell">
+<div id="tbl-estimates-data-model-scale-comparison" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-estimates-data-model-scale-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Distribution of words and texts across the four braod genres in the Brown Corpus.
+</figcaption>
+<div aria-describedby="tbl-estimates-data-model-scale-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Comparison</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Descriptive</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Model-based</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Simple</td>
+<td style="text-align: left;">89%</td>
+<td style="text-align: left;">91%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Weighted</td>
+<td style="text-align: left;">87%</td>
+<td style="text-align: left;">89%</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section>
+</section>
+<section id="relevance-for-replication" class="level4">
+<h4 class="anchored" data-anchor-id="relevance-for-replication">Relevance for replication</h4>
+<p>In order for the statistical results of an original and a replication study to be comparable, they need to be concerned with the same target quantity, or estimand. One issue that will always be relevant when working with observational data is the imbalance of observations across relevant subgroups, where “relevant” means that they show an association with the outcome variable. Corpus frequencies such as those reported in the CQPweb interface then represent weighted data summaries that reflect the disproportional representation of subgroups in the data.</p>
+<p>Due to the directly parallel design of Brown and Frown, we saw relatively minor differences between currency-based and equal-importance (i.e.&nbsp;weighted and simple) normalized frequencies. Nevertheless, the choice of estimand did have an effect on our estimates and statistical uncertainty intervals.</p>
+<p>This issue will be more serious when we compare results across corpora that differ in composition. It is then arguably negligent to work with plain corpus frequencies. When comparing the BNC and COCA, for instance, comparisons should be adjusted for differences in genre coverage and representation <span class="citation" data-cites="Soenning_Schlueter2022">(see <a href="#ref-Soenning_Schlueter2022" role="doc-biblioref">Sönning and Schlüter 2022, 29–31</a> for a worked example)</span>.</p>
+<p>In general, it is therefore necessary for any type of corpus analysis to think carefully about imbalances in the data and how these will propagate into the statistical results. If the disproportional representation of subgroups in the data is a meaningful feature of the population of interest, the researcher may wish to preserve it in their data summaries. A replication study, however, should be based on the same weighting scheme as the original study, which means that adjustments to the way in which weighted averages are formed will be necessary.</p>
+<p>This issue should prompt us to generally think more carefully about imbalances in corpus data. Here, we have dealt with a single variable, genre, whose distribution in the data can usually be recovered from the corpus documentation. The issue, however, applies to any predictor variable that (i) is relevant, i.e.&nbsp;shows an association with the outcome; and (ii) whose distribution in the data is out of balance. Whether adjustments should be made for imbalances then depends on whether distributional asymmetries reflect a meaningful feature of the population of interest, or rather a nuisance.</p>
+<p>We discuss the question of weighting model-based estimates in some more detail in <span class="citation" data-cites="Soenning_Grafmiller2024">Sönning and Grafmiller (<a href="#ref-Soenning_Grafmiller2024" role="doc-biblioref">2024, 163–69</a>)</span>, where we suggest that a useful default approach may be to retain sample-based weights for internal (or linguistic) variables in the data, whose distribution cannot be controlled during corpus compilation. External variables, on the other hand, which primarily reflect corpus design (e.g.&nbsp;characteristics of the speaker or text) may be considered as candidates for adjustment. Note that this does not necessarily mean that they are assigned equivalent weights.</p>
+</section>
+<section id="summmary" class="level4">
+<h4 class="anchored" data-anchor-id="summmary">Summmary</h4>
+<p>Due to their observational nature, corpus data are often unbalanced. If imbalances affect variables that show an association with the outcome, a study may target different estimands, depending on how imbalances are handled when summarizing the data. While weighted averages propagate imbalances into our summaries, simple averages assign equal weight (and importance) to subgroups. In this blog post, we used the Brown Family of corpora, which is unbalanced by design. Genres differ in size, and when measuring and comparing normalized frequencies, we need to decide how to work with this asymmetry. Importantly, corpus frequencies, which are reported in corpus analysis software, are always weighted averages reflecting the composition of the corpus. The choice of estimand is a linguistic decision – it depends on the nature of the (hypothetical) population we are interested in. In replication work, however, it is also a methodological decision: A replication study must ensure that it targets the same estimand as the original study.</p>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-Egbert_Burch2023" class="csl-entry" role="listitem">
+Egbert, Jesse, and Brent Burch. 2023. <span>“Which Words Matter Most? Operationalizing Lexical Prevalence for Rank-Ordered Word Lists.”</span> <em>Applied Linguistics</em> 44 (1): 103–26. <a href="https://doi.org/10.1093/applin/amac030">https://doi.org/10.1093/applin/amac030</a>.
+</div>
+<div id="ref-Leech2003" class="csl-entry" role="listitem">
+Leech, Geoffrey N. 2003. <span>“Modality on the Move: The English Modal Auxiliaries 1961-1992.”</span> In <em>Modality in Contemporary English</em>, 223–40. DE GRUYTER. <a href="https://doi.org/10.1515/9783110895339.223">https://doi.org/10.1515/9783110895339.223</a>.
+</div>
+<div id="ref-Leech2011" class="csl-entry" role="listitem">
+———. 2011. <span>“The Modals ARE Declining: Reply to Neil Millar’s <span>‘Modal Verbs in TIME: Frequency Changes 1923–2006,’</span> International Journal of Corpus Linguistics 14:2 (2009), 191–220.”</span> <em>International Journal of Corpus Linguistics</em> 16 (4): 547–64. <a href="https://doi.org/10.1075/ijcl.16.4.05lee">https://doi.org/10.1075/ijcl.16.4.05lee</a>.
+</div>
+<div id="ref-Lundberg_etal2021" class="csl-entry" role="listitem">
+Lundberg, Ian, Rebecca Johnson, and Brandon M. Stewart. 2021. <span>“What Is Your Estimand? Defining the Target Quantity Connects Statistical Evidence to Theory.”</span> <em>American Sociological Review</em> 86 (3): 532–65. <a href="https://doi.org/10.1177/00031224211004187">https://doi.org/10.1177/00031224211004187</a>.
+</div>
+<div id="ref-McEnery_Brezina2022" class="csl-entry" role="listitem">
+McEnery, Tony, and Vaclav Brezina. 2022. <em>Fundamental Principles of Corpus Linguistics</em>. Cambridge University Press. <a href="https://doi.org/10.1017/9781107110625">https://doi.org/10.1017/9781107110625</a>.
+</div>
+<div id="ref-Millar2009" class="csl-entry" role="listitem">
+Millar, Neil. 2009. <span>“Modal Verbs in TIME: Frequency Changes 1923–2006.”</span> <em>International Journal of Corpus Linguistics</em> 14 (2): 191–220. <a href="https://doi.org/10.1075/ijcl.14.2.03mil">https://doi.org/10.1075/ijcl.14.2.03mil</a>.
+</div>
+<div id="ref-Soenning2024" class="csl-entry" role="listitem">
+Sönning, Lukas. 2024. <span>“<span class="nocase">Background data for: Some obstacles to replication in corpus linguistics</span>.”</span> DataverseNO. <a href="https://doi.org/10.18710/7LNWJX">https://doi.org/10.18710/7LNWJX</a>.
+</div>
+<div id="ref-Soenning_Grafmiller2024" class="csl-entry" role="listitem">
+Sönning, Lukas, and Jason Grafmiller. 2024. <span>“Seeing the Wood for the Trees: Predictive Margins for Random Forests.”</span> <em>Corpus Linguistics and Linguistic Theory</em> 20 (1): 153–81. <a href="https://doi.org/10.1515/cllt-2022-0083">https://doi.org/10.1515/cllt-2022-0083</a>.
+</div>
+<div id="ref-Soenning_Schlueter2022" class="csl-entry" role="listitem">
+Sönning, Lukas, and Julia Schlüter. 2022. <span>“Comparing Standard Reference Corpora and Google Books Ngrams: Strengths, Limitations and Synergies in the Contrastive Study of Variable h- in British and American English.”</span> In <em>Data and Methods in Corpus Linguistics</em>, 17–45. Cambridge University Press. <a href="https://doi.org/10.1017/9781108589314.002">https://doi.org/10.1017/9781108589314.002</a>.
+</div>
+</div></section><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{sönning2025,
+  author = {Sönning, Lukas},
+  title = {Imbalance Across Predictor Levels Affects Data Summaries},
+  date = {2025-05-04},
+  url = {https://lsoenning.github.io/posts/2025-05-03-imbalance_bias/},
+  langid = {en}
+}
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-sönning2025" class="csl-entry quarto-appendix-citeas" role="listitem">
+Sönning, Lukas. 2025. <span>“Imbalance Across Predictor Levels Affects
+Data Summaries.”</span> May 4, 2025. <a href="https://lsoenning.github.io/posts/2025-05-03-imbalance_bias/">https://lsoenning.github.io/posts/2025-05-03-imbalance_bias/</a>.
+</div></div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/lsoenning\.github\.io");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

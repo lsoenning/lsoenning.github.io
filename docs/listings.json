@@ -2,6 +2,8 @@
   {
     "listing": "/posts.html",
     "items": [
+      "/posts/2025-05-03_imbalance_bias/index.html",
+      "/posts/2025-05-01_clustering_uncertainty_intervals/index.html",
       "/posts/2025-04-28_disproportionate_representation_speaker/index.html",
       "/posts/2024-01-11_beta_regression_quantifiers/index.html",
       "/posts/2023-12-13_negative_binomial_parameterization/index.html",
