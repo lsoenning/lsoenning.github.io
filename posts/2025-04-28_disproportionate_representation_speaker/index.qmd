@@ -2,7 +2,7 @@
 title: "Unbalanced distributions and their consequences: Speakers in the Spoken BNC2014"
 description: "This blog post illustrates how the disproportionate representation of speakers in a corpus can lead to distorted results if the source of data points (i.e. the speaker ID) is not taken into account in the analysis."
 date: 2025-04-29
-categories: [corpus linguistics, count data, data structure, negative binomial distribution, clustered data, imbalance]
+categories: [corpus linguistics, clustered data, negative binomial, clustered data, imbalance]
 citation: 
   url: https://lsoenning.github.io/posts/2025-04-28_disproportionate_representation_speaker/
 editor: source

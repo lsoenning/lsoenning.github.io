@@ -3,7 +3,7 @@ title: "Clustering in the data affects statistical uncertainty intervals"
 subtitle: "Obstacles to replication in corpus linguistics"
 description: "This blog post is part of a small series on obstacles to replication in corpus linguistics. It deals with a prevalent issue in corpus data analysis: the non-independence of data points that results from clustered (or hierarchical) data layouts. I show how an inadequate analysis can produce unduly narrow expectations of a replication study."
 date: 2025-05-02
-categories: [corpus linguistics, replication, regression, clustered data]
+categories: [corpus linguistics, replication crisis, regression, clustered data]
 citation: 
   url: https://lsoenning.github.io/posts/2025-05-01_clustering_uncertainty_intervals/ 
 ---
@@ -35,7 +35,7 @@ Before we get started, let me briefly clarify how a number of terms are used in 
 -   *Replication study*: A study that uses new data and repeats the original work in the closest possible way, i.e. using the same research design and methods; this type of replication is often referred to as a *direct*/*close*/*exact*/*literal* replication
 -   *Original/replication estimate*: For the quantity of interest (sometimes referred to as an effect size), the point estimate returned by the original/replication study
 
-\  
+ 
 
 #### Interpretation of confidence intervals from a replication perspective
 
@@ -76,7 +76,7 @@ tibble(
 
 We keep the overlap and the replication interpretation of confidence intervals in mind as we turn to our illustrative analysis task.
 
-\  
+ 
 
 #### Case study: The frequency of *should* in written AmE of the 1960s and 1990s
 
@@ -91,7 +91,7 @@ We will concentrate on a subset of these data: the modal verb *should* in Brown 
 -   What is the frequency of *should* in written American English of the early 1960s and early 1990s?
 -   Has its frequency changed over time?
 
-\  
+ 
 
 ##### Data
 
@@ -171,7 +171,7 @@ should_Brown |>
   kbl()
 ```
 
-\  
+ 
 
 ##### Crude answers to our research questions
 
@@ -213,7 +213,7 @@ These crude ways of assessing and testing frequencies and their differences in c
 
 Before we go further, however, I would like to should note that the following elaborations are not meant to discredit the work done by Geoffrey Leech in the early 2000s. In fact, @Leech2003 provides a balanced assessment of frequency changes in the English modal system. The diachronic patterns he observed were remarkably consistent across the 11 modal verbs, which strengthened the conclusion he drew. Further, his reference to log-likelihood scores for time differences explicitly noted that "too much should not be made of significance tests in comparative corpus studies" [-@Leech2003, p. 228].
 
-\  
+ 
 
 #### Clustering in the data affects statistical uncertainty intervals
 
@@ -286,7 +286,7 @@ d_modals |> filter(
   coord_flip()
 ```
 
-\  
+ 
 
 ##### Statistical modeling
 
@@ -320,7 +320,7 @@ m_nb <- MASS::glm.nb(
 	data = should_Brown)
 ```
 
-\  
+ 
 
 ##### Model-based predictions (i.e. estimates)
 

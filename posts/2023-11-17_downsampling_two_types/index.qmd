@@ -2,7 +2,7 @@
 title: "Two types of down-sampling in corpus-based work"
 description: "This short blog post contrasts the different ways in which the term *down-sampling* is used in corpus-based work."
 date: 2023-11-17
-categories: [corpus linguistics, methodology, down-sampling, terminology]
+categories: [corpus linguistics, down-sampling]
 citation: 
   url: https://lsoenning.github.io/posts/2023-11-17_downsampling_two_types/
 editor: source

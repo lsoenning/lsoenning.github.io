@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.450">
+<meta name="generator" content="quarto-1.5.57">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -10,7 +10,7 @@
 <meta name="dcterms.date" content="2024-02-29">
 <meta name="description" content="This blog post shows how to use beta regression to model the proportional interpretation of the quantifiers few, some, many, and most. We consider variable-dispersion and mixed-effects structures as well as diagnostics for frequentist and Bayesian models.">
 
-<title>Lukas Sönning - Modeling the interpretation of quantifiers using beta regression</title>
+<title>Modeling the interpretation of quantifiers using beta regression – Lukas Sönning</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -25,7 +25,7 @@ ul.task-list li input[type="checkbox"] {
 }
 /* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -36,7 +36,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -61,6 +61,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
+  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -101,7 +102,13 @@ div.csl-indent {
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -110,17 +117,46 @@ div.csl-indent {
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
   }
 }</script>
-
 <script src="../../site_libs/kePrint-0.0.1/kePrint.js"></script>
+
 <link href="../../site_libs/lightable-0.0.1/lightable.css" rel="stylesheet">
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../../styles.css">
 </head>
@@ -129,43 +165,43 @@ div.csl-indent {
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+      <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">Lukas Sönning</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../../index.html" rel="" target="">
- <span class="menu-text">Home</span></a>
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../about.html" rel="" target="">
- <span class="menu-text">About</span></a>
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../research.html" rel="" target="">
- <span class="menu-text">Research</span></a>
+    <a class="nav-link" href="../../research.html"> 
+<span class="menu-text">Research</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../resources.html" rel="" target="">
- <span class="menu-text">Resources</span></a>
+    <a class="nav-link" href="../../resources.html"> 
+<span class="menu-text">Resources</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../../posts.html" rel="" target="">
- <span class="menu-text">Statistics for linguist(ic)s blog</span></a>
+    <a class="nav-link" href="../../posts.html"> 
+<span class="menu-text">Blog</span></a>
   </li>  
 </ul>
-            <div class="quarto-navbar-tools ms-auto">
-</div>
           </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
       </div> <!-- /container-fluid -->
     </nav>
 </header>
@@ -173,7 +209,7 @@ div.csl-indent {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
         
     </div>
 <!-- main -->
@@ -183,7 +219,6 @@ div.csl-indent {
 <div class="quarto-title">
 <h1 class="title">Modeling the interpretation of quantifiers using beta regression</h1>
   <div class="quarto-categories">
-    <div class="quarto-category">beta regression</div>
     <div class="quarto-category">regression</div>
     <div class="quarto-category">distributional modeling</div>
   </div>
@@ -202,12 +237,12 @@ div.csl-indent {
     <div class="quarto-title-meta-contents">
     <p class="author"><a href="https://lsoenning.github.io/">Lukas Sönning</a> <a href="https://orcid.org/0000-0002-2705-395X" class="quarto-title-author-orcid"> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg=="></a></p>
   </div>
-    <div class="quarto-title-meta-contents">
+  <div class="quarto-title-meta-contents">
         <p class="affiliation">
             University of Bamberg
           </p>
       </div>
-    </div>
+  </div>
 
 <div class="quarto-title-meta">
 
@@ -223,10 +258,12 @@ div.csl-indent {
   </div>
   
 
+
 </header>
 
+
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>R setup</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(betareg)</span>
@@ -253,14 +290,18 @@ div.csl-indent {
 </section>
 <section id="experimental-work-on-the-perception-of-quantifiers" class="level4 page-columns page-full">
 <h4 class="anchored" data-anchor-id="experimental-work-on-the-perception-of-quantifiers">Experimental work on the perception of quantifiers</h4>
-<p>A few studies have looked at how speakers interpret the quantifiers <em>few</em>, <em>some</em>, <em>many</em>, and <em>most</em> <span class="citation" data-cites="Newstead_etal1987 Borges_Sawyers1974 Stateva_etal2019 vanTiel_etal2021">(<a href="#ref-Newstead_etal1987" role="doc-biblioref">Newstead, Pollard, and Riezebos 1987</a>; <a href="#ref-Borges_Sawyers1974" role="doc-biblioref">Borges and Sawyers 1974</a>; <a href="#ref-Stateva_etal2019" role="doc-biblioref">Stateva et al. 2019</a>; <a href="#ref-vanTiel_etal2021" role="doc-biblioref">Tiel, Franke, and Sauerland 2021</a>)</span>. Proportional estimates from the literature are collected in <a href="#fig-quantifiers-literature">Figure&nbsp;1</a>. For more information on the corresponding studies, please refer to <span class="citation" data-cites="Soenning2024">Sönning (<a href="#ref-Soenning2024" role="doc-biblioref">2024</a>)</span>.</p>
+<p>A few studies have looked at how speakers interpret the quantifiers <em>few</em>, <em>some</em>, <em>many</em>, and <em>most</em> <span class="citation" data-cites="Newstead_etal1987 Borges_Sawyers1974 Stateva_etal2019 vanTiel_etal2021">(<a href="#ref-Newstead_etal1987" role="doc-biblioref">Newstead, Pollard, and Riezebos 1987</a>; <a href="#ref-Borges_Sawyers1974" role="doc-biblioref">Borges and Sawyers 1974</a>; <a href="#ref-Stateva_etal2019" role="doc-biblioref">Stateva et al. 2019</a>; <a href="#ref-vanTiel_etal2021" role="doc-biblioref">Tiel, Franke, and Sauerland 2021</a>)</span>. Proportional estimates from the literature are collected in <a href="#fig-quantifiers-literature" class="quarto-xref">Figure&nbsp;1</a>. For more information on the corresponding studies, please refer to <span class="citation" data-cites="Soenning2024">Sönning (<a href="#ref-Soenning2024" role="doc-biblioref">2024</a>)</span>.</p>
 <div class="cell page-columns page-full">
 
 <div class="no-row-height column-margin column-container"><div class="cell-output-display">
-<div id="fig-quantifiers-literature" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure">
-<p><img src="index_files/figure-html/fig-quantifiers-literature-1.png" class="img-fluid figure-img" width="240"></p>
-<figcaption class="figure-caption">Figure&nbsp;1: Literature summary: The perception of quantifiers, expressed as a percentage.</figcaption>
+<div id="fig-quantifiers-literature" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-quantifiers-literature-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-quantifiers-literature-1.png" class="img-fluid figure-img" width="240">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-quantifiers-literature-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Literature summary: The perception of quantifiers, expressed as a percentage.
+</figcaption>
 </figure>
 </div>
 </div></div></div>
@@ -278,7 +319,7 @@ div.csl-indent {
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="survey_task.png" class="img-fluid figure-img" style="width:60.0%"></p>
-<figcaption class="figure-caption">Survey task: Paper slips with instructions used for data collection</figcaption>
+<figcaption>Survey task: Paper slips with instructions used for data collection</figcaption>
 </figure>
 </div>
 <p>Participants were given two minutes to complete the task. I then collected the paper sheets and (later) entered the data into a spreadsheet (in wide format):</p>
@@ -288,7 +329,7 @@ div.csl-indent {
 <div class="cell">
 <div class="cell-output-display">
 <div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:200px; overflow-x: scroll; width:500px; ">
-<table data-quarto-postprocess="true" class="table table-sm table-striped small">
+<table class="caption-top table table-sm table-striped small" data-quarto-postprocess="true">
 <thead>
 <tr class="header">
 <th data-quarto-table-cell-role="th" style="text-align: left; position: sticky; top: 0; background-color: #FFFFFF;">subject</th>
@@ -446,7 +487,7 @@ div.csl-indent {
 </div>
 </div>
 <p>&nbsp;</p>
-<p>Our first step is to rearrange these data from wide to long form, and to translate percentages into proportions, as this is the scale on which beta regression operates. We also change the order of the quantifiers (from the default alphabetical arrangement) based on the relative frequency they express (see <a href="#fig-quantifiers-literature">Figure&nbsp;1</a>).</p>
+<p>Our first step is to rearrange these data from wide to long form, and to translate percentages into proportions, as this is the scale on which beta regression operates. We also change the order of the quantifiers (from the default alphabetical arrangement) based on the relative frequency they express (see <a href="#fig-quantifiers-literature" class="quarto-xref">Figure&nbsp;1</a>).</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> dat <span class="sc">|&gt;</span> </span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gather</span>(</span>
@@ -465,25 +506,33 @@ div.csl-indent {
 <div class="cell page-columns page-full">
 
 <div class="no-row-height column-margin column-container"><div class="cell-output-display">
-<div id="fig-quantifiers-survey" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure">
-<p><img src="index_files/figure-html/fig-quantifiers-survey-1.png" class="img-fluid figure-img" width="220"></p>
-<figcaption class="figure-caption">Figure&nbsp;2: Ratings collected from 20 informants.</figcaption>
+<div id="fig-quantifiers-survey" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-quantifiers-survey-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-quantifiers-survey-1.png" class="img-fluid figure-img" width="220">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-quantifiers-survey-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Ratings collected from 20 informants.
+</figcaption>
 </figure>
 </div>
 </div></div></div>
-<p>Let us start by looking at the distribution of the responses for each quantifier using a dot diagram. <a href="#fig-quantifiers-survey">Figure&nbsp;2</a> shows that there is some variation among subjects with regard to the perceived meaning of these expressions. For <em>many</em> and <em>most</em>, in particular, there is one unusually low estimate.</p>
+<p>Let us start by looking at the distribution of the responses for each quantifier using a dot diagram. <a href="#fig-quantifiers-survey" class="quarto-xref">Figure&nbsp;2</a> shows that there is some variation among subjects with regard to the perceived meaning of these expressions. For <em>many</em> and <em>most</em>, in particular, there is one unusually low estimate.</p>
 <div class="cell page-columns page-full">
 
 <div class="no-row-height column-margin column-container"><div class="cell-output-display">
-<div id="fig-quantifiers-survey-lineplot" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure">
-<p><img src="index_files/figure-html/fig-quantifiers-survey-lineplot-1.png" class="img-fluid figure-img" width="220"></p>
-<figcaption class="figure-caption">Figure&nbsp;3: Line plot linking the ratings provided by the same informant.</figcaption>
+<div id="fig-quantifiers-survey-lineplot" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-quantifiers-survey-lineplot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-quantifiers-survey-lineplot-1.png" class="img-fluid figure-img" width="220">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-quantifiers-survey-lineplot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Line plot linking the ratings provided by the same informant.
+</figcaption>
 </figure>
 </div>
 </div></div></div>
-<p>To check whether these outliers are responses from the same individual, we look at the data using a line plot that links observations from the same subject. In <a href="#fig-quantifiers-survey-lineplot">Figure&nbsp;3</a>, each profile represent a subject. The two unusually low responses for <em>many</em> and <em>most</em> are indeed due to the same individual, who also provided relatively (though not unusually) low ratings for <em>few</em> and <em>some</em>.</p>
+<p>To check whether these outliers are responses from the same individual, we look at the data using a line plot that links observations from the same subject. In <a href="#fig-quantifiers-survey-lineplot" class="quarto-xref">Figure&nbsp;3</a>, each profile represent a subject. The two unusually low responses for <em>many</em> and <em>most</em> are indeed due to the same individual, who also provided relatively (though not unusually) low ratings for <em>few</em> and <em>some</em>.</p>
 <p>Apart from the fact that this respondent provides relatively low estimates for all quantifiers, there is no immediate reason why their data should be excluded from the analysis. We will therefore start by using the full data set and then rely on model diagnostics to see whether the data and model suggest that this informant be excluded from the analysis.</p>
 </section>
 <section id="beta-regression" class="level4">
@@ -494,23 +543,27 @@ div.csl-indent {
 <li>Seeing that we are dealing with a rather small sample of speakers, what is the statistical uncertainty surrounding these typical values?</li>
 <li>How much do speakers vary in their interpretation of the individual expressions, i.e.&nbsp;how dispersed are their perceptions around the typical interpretation?</li>
 </ol>
-<p>Beta regression can address these questions by providing (i) typical values (average proportions) for each quantifier (e.g.&nbsp;.12, or 12%, for <em>few</em>), (ii) a confidence (or posterior) interval for these estimates (e.g.&nbsp;95% CI [.10; .14]), and (iii) a distributional summary of the dot diagrams we saw in <a href="#fig-quantifiers-survey">Figure&nbsp;2</a>. To this end, the beta distribution serves as an abstraction of the observed distribution of responses and it allows us to make statements about, say, the share of speakers who interpret <em>few</em> as denoting a relative frequency of .05 or less. This kind of information is essential when we are interested in the stability (or consistency) of interpretations across speakers.</p>
+<p>Beta regression can address these questions by providing (i) typical values (average proportions) for each quantifier (e.g.&nbsp;.12, or 12%, for <em>few</em>), (ii) a confidence (or posterior) interval for these estimates (e.g.&nbsp;95% CI [.10; .14]), and (iii) a distributional summary of the dot diagrams we saw in <a href="#fig-quantifiers-survey" class="quarto-xref">Figure&nbsp;2</a>. To this end, the beta distribution serves as an abstraction of the observed distribution of responses and it allows us to make statements about, say, the share of speakers who interpret <em>few</em> as denoting a relative frequency of .05 or less. This kind of information is essential when we are interested in the stability (or consistency) of interpretations across speakers.</p>
 <p>Our main focus will be on how to run beta regression using R. We therefore only include a few essentials on the beta distribution and beta regression; for more background on both, please refer to <a href="https://www.andrewheiss.com/blog/2021/11/08/beta-regression-guide/">this excellent blog post</a> <span class="citation" data-cites="Heiss2021a">(<a href="#ref-Heiss2021a" role="doc-biblioref">Heiss 2021a</a>)</span>.</p>
 </section>
 <section id="the-beta-distribution" class="level4">
 <h4 class="anchored" data-anchor-id="the-beta-distribution">The beta distribution</h4>
-<p>The beta distribution is a probability distribution bounded between (but excluding) 0 and 1. It is defined by two <strong>shape parameters</strong>, <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span>. <a href="#fig-beta-a-b">Figure&nbsp;4</a> shows two beta distributions with the same mean but different spreads. Note how, for each distribution, <span class="math inline">\(a\)</span> is .30 (or 30%) of the sum of <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span>. In fact, <span class="math inline">\(a/(a+b)\)</span> denotes the mean of the distribution. Further, we note that the spread of the distribution is related to the sum of <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span>: The greater the sum, the “tighter”, or more peaked, the beta distribution.</p>
+<p>The beta distribution is a probability distribution bounded between (but excluding) 0 and 1. It is defined by two <strong>shape parameters</strong>, <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span>. <a href="#fig-beta-a-b" class="quarto-xref">Figure&nbsp;4</a> shows two beta distributions with the same mean but different spreads. Note how, for each distribution, <span class="math inline">\(a\)</span> is .30 (or 30%) of the sum of <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span>. In fact, <span class="math inline">\(a/(a+b)\)</span> denotes the mean of the distribution. Further, we note that the spread of the distribution is related to the sum of <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span>: The greater the sum, the “tighter”, or more peaked, the beta distribution.</p>
 <div class="cell">
 <div class="cell-output-display">
-<div id="fig-beta-a-b" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure">
-<p><img src="index_files/figure-html/fig-beta-a-b-1.png" class="img-fluid figure-img" width="336"></p>
-<figcaption class="figure-caption">Figure&nbsp;4: The shape parameters <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> define the beta distribution.</figcaption>
+<div id="fig-beta-a-b" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-beta-a-b-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-beta-a-b-1.png" class="img-fluid figure-img" width="336">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-beta-a-b-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: The shape parameters <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> define the beta distribution.
+</figcaption>
 </figure>
 </div>
 </div>
 </div>
-<p>As explained in much more detail by <span class="citation" data-cites="Heiss2021a">Heiss (<a href="#ref-Heiss2021a" role="doc-biblioref">2021a</a>)</span> in his <a href="https://www.andrewheiss.com/blog/2021/11/08/beta-regression-guide/">blog post</a>, the beta distribution can alternatively be written down using its <strong>mean</strong> <span class="math inline">\(\mu\)</span> and <strong>precision</strong> <span class="math inline">\(\phi\)</span>. We have already encountered the mean, which is <span class="math inline">\(a/(a+b)\)</span>. The precision is simply <span class="math inline">\((a+b)\)</span>, and it is reflected in the spread of the distribution (see <a href="#fig-beta-a-b">Figure&nbsp;4</a>): The greater the precision, the tighter the distribution of proportions about their mean. We can go back and forth between the two parameterization of the beta distribution as follows:</p>
+<p>As explained in much more detail by <span class="citation" data-cites="Heiss2021a">Heiss (<a href="#ref-Heiss2021a" role="doc-biblioref">2021a</a>)</span> in his <a href="https://www.andrewheiss.com/blog/2021/11/08/beta-regression-guide/">blog post</a>, the beta distribution can alternatively be written down using its <strong>mean</strong> <span class="math inline">\(\mu\)</span> and <strong>precision</strong> <span class="math inline">\(\phi\)</span>. We have already encountered the mean, which is <span class="math inline">\(a/(a+b)\)</span>. The precision is simply <span class="math inline">\((a+b)\)</span>, and it is reflected in the spread of the distribution (see <a href="#fig-beta-a-b" class="quarto-xref">Figure&nbsp;4</a>): The greater the precision, the tighter the distribution of proportions about their mean. We can go back and forth between the two parameterization of the beta distribution as follows:</p>
 <p><span class="math display">\[\begin{align}
 \mu &amp;= a/(a+b) \\
 \phi &amp;= a+b \\
@@ -534,13 +587,13 @@ b &amp;= (1-\mu)\phi
 <p>The following table gives an overview of the series of models we are about to fit. Each model allows the outcome variable to vary by quantifier and therefore returns an estimate of <span class="math inline">\(\mu\)</span> for each expression. Model I assumes that quantifiers are interpreted with the same precision <span class="math inline">\(\phi\)</span>, so it estimates only one <span class="math inline">\(\phi\)</span> parameter. This means that each quantifier has the same stability of interpretation in the populations of speakers represented by our sample. In contrast, Model II allows the precision to vary across quantifiers. This means that the model provides leeway for expressions to differ in the level of stability (or consistency) with which they are interpreted. A separate <span class="math inline">\(\phi\)</span> parameter is therefore estimated for each. This type of model has been referred to as a <em>variable dispersion beta regression model</em> <span class="citation" data-cites="Cribari-Neto_Zeileis2010">(see <a href="#ref-Cribari-Neto_Zeileis2010" role="doc-biblioref">Cribari-Neto and Zeileis 2010</a>)</span>. Finally, for Model III we will switch to the <code>{brms}</code> package (and Bayesian inference), to be able to include random effects into our model.</p>
 <div class="cell">
 <div class="cell-output-display">
-<table data-quarto-postprocess="true" class="table table-sm table-striped small">
+<table class="caption-top table table-sm table-striped small">
 <thead>
 <tr class="header">
-<th style="text-align: left;" data-quarto-table-cell-role="th">Model</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Constant precision</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Random intercepts</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Package</th>
+<th style="text-align: left;">Model</th>
+<th style="text-align: left;">Constant precision</th>
+<th style="text-align: left;">Random intercepts</th>
+<th style="text-align: left;">Package</th>
 </tr>
 </thead>
 <tbody>
@@ -564,8 +617,6 @@ b &amp;= (1-\mu)\phi
 </tr>
 </tbody>
 </table>
-
-
 </div>
 </div>
 </section>
@@ -593,7 +644,7 @@ Phi coefficients (precision model with identity link):
 23.61  </code></pre>
 </div>
 </div>
-<p>Before we turn to the estimates returned by the model, let’s look at a number of diagnostic plots, which are shown in <a href="#fig-m1-diagnostics">Figure&nbsp;5</a>:</p>
+<p>Before we turn to the estimates returned by the model, let’s look at a number of diagnostic plots, which are shown in <a href="#fig-m1-diagnostics" class="quarto-xref">Figure&nbsp;5</a>:</p>
 <ol type="a">
 <li>When graphing residuals against fitted values, we usually look for indications of heteroskedasticity, i.e.&nbsp;whether the spread of residuals increases with the fitted values. This is not the case for our data and model. However, the residuals surrounding the fitted values for <em>many</em> and <em>most</em> each include a large negative residual, i.e.&nbsp;a response that is unusually low for these quantifiers.</li>
 <li>The quantile-quantile plot checks for normality of residuals. We have added a dot diagram at the right margin, which gives a more intuitive impression of the shape of the distribution and potential outliers. Both arrangements indicate that the residuals are negatively skewed (rather than normal), with two unusually large negative deviations.</li>
@@ -601,7 +652,7 @@ Phi coefficients (precision model with identity link):
 <li>Since the factor Subject is so far not included in the analysis, our model does not know about the fact that responses are clustered. This may induce non-independence and lead to correlated errors, because we would expect responses by the same subject to be similar. The graph shows residuals grouped by Subject. If responses were independent, the residuals should not correlate within the factor Subject. This means that residuals should not vary systematically across subjects. If correlated errors (and hence non-independence in the data) were indeed no concern, the 20 sets (of four residuals each) would look like they represent random draws from the dot diagram shown in panel (b). However, we observe that responses by the same subject in fact tend to be alike. Subjects 1, 4, and 11, for instance, have consistently negative residuals, indicating that they gave responses that were, overall, systematically lower compared to those of the other subjects.</li>
 </ol>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Draw figure</summary>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>m_diagnostics <span class="ot">&lt;-</span> d</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>m_diagnostics<span class="sc">$</span>subj_index <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">factor</span>(d<span class="sc">$</span>subject))</span>
@@ -680,10 +731,14 @@ Phi coefficients (precision model with identity link):
 </div>
 <div class="cell">
 <div class="cell-output-display">
-<div id="fig-m1-diagnostics" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure">
-<p><img src="index_files/figure-html/fig-m1-diagnostics-1.png" class="img-fluid figure-img" width="576"></p>
-<figcaption class="figure-caption">Figure&nbsp;5: Diagnostic plots for Model I.</figcaption>
+<div id="fig-m1-diagnostics" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-m1-diagnostics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-m1-diagnostics-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-m1-diagnostics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Diagnostic plots for Model I.
+</figcaption>
 </figure>
 </div>
 </div>
@@ -693,7 +748,7 @@ Phi coefficients (precision model with identity link):
 <li>There are two unusual (and influential) data points</li>
 <li>The residuals are not independent but correlated with the factor Subject.</li>
 </ul>
-<p>It turns out that the two unusual and influential data points are from subject 1. These are the responses for <em>many</em> and <em>most</em>, which already stood out above in <a href="#fig-quantifiers-survey-lineplot">Figure&nbsp;3</a>. We will remove subject 1 from the data. As for the non-independence of errors, Model III will include by-subjects random intercepts, to account for the correlation of residuals with the factor Subject.</p>
+<p>It turns out that the two unusual and influential data points are from subject 1. These are the responses for <em>many</em> and <em>most</em>, which already stood out above in <a href="#fig-quantifiers-survey-lineplot" class="quarto-xref">Figure&nbsp;3</a>. We will remove subject 1 from the data. As for the non-independence of errors, Model III will include by-subjects random intercepts, to account for the correlation of residuals with the factor Subject.</p>
 <p>Let us remove subject 1, refit Model I, and again draw diagnostic plots:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>d_19 <span class="ot">&lt;-</span> <span class="fu">subset</span>(d, subject <span class="sc">!=</span> <span class="st">"subj_01"</span>)</span>
@@ -704,7 +759,7 @@ Phi coefficients (precision model with identity link):
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">link =</span> <span class="st">"logit"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Draw figure</summary>
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>m_diagnostics <span class="ot">&lt;-</span> d_19</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>m_diagnostics<span class="sc">$</span>subj_index <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">factor</span>(d_19<span class="sc">$</span>subject))</span>
@@ -783,15 +838,19 @@ Phi coefficients (precision model with identity link):
 </div>
 <div class="cell">
 <div class="cell-output-display">
-<div id="fig-m1-diagnostics-new" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure">
-<p><img src="index_files/figure-html/fig-m1-diagnostics-new-1.png" class="img-fluid figure-img" width="576"></p>
-<figcaption class="figure-caption">Figure&nbsp;6: Diagnostic plots for Model I, after exclusion of subject 1.</figcaption>
+<div id="fig-m1-diagnostics-new" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-m1-diagnostics-new-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-m1-diagnostics-new-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-m1-diagnostics-new-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: Diagnostic plots for Model I, after exclusion of subject 1.
+</figcaption>
 </figure>
 </div>
 </div>
 </div>
-<p><a href="#fig-m1-diagnostics-new">Figure&nbsp;6</a> looks much better:</p>
+<p><a href="#fig-m1-diagnostics-new" class="quarto-xref">Figure&nbsp;6</a> looks much better:</p>
 <ol type="a">
 <li>There are no clear outliers when looking at residuals by quantifier.</li>
 <li>The residuals are more nearly normally distributed.</li>
@@ -809,9 +868,9 @@ Phi coefficients (precision model with identity link):
           0.12           0.29           0.66           0.85 </code></pre>
 </div>
 </div>
-<p>To answer question (ii), we obtain 95% confidence intervals for these using the function <code>confint()</code>, keeping in mind that we again need to translate logits back into proportions. We collect estimates in <a href="#tbl-estimates-model-I">Table&nbsp;1</a>.</p>
+<p>To answer question (ii), we obtain 95% confidence intervals for these using the function <code>confint()</code>, keeping in mind that we again need to translate logits back into proportions. We collect estimates in <a href="#tbl-estimates-model-I" class="quarto-xref">Table&nbsp;1</a>.</p>
 <div class="cell page-columns page-full">
-<details>
+<details class="code-fold">
 <summary>Construct table of estimates</summary>
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>ci_mu_m1 <span class="ot">&lt;-</span> <span class="fu">plogis</span>(<span class="fu">confint</span>(m1)[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>,])</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -826,16 +885,20 @@ Phi coefficients (precision model with identity link):
 <span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>m1_estimates <span class="sc">|&gt;</span> <span class="fu">kable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div id="tbl-estimates-model-I" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-tbl figure page-columns page-full">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-estimates-model-I-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Typical values and 95% confidence intervals based on Model I.
+</figcaption>
+<div aria-describedby="tbl-estimates-model-I-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="page-columns page-full">
 
 <div class="no-row-height column-margin column-container"><div class="cell-output-display">
-<div id="tbl-estimates-model-I" class="anchored">
-<table data-quarto-postprocess="true" class="table table-sm table-striped small">
-<caption>Table&nbsp;1: Typical values and 95% confidence intervals based on Model I.</caption>
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
 <thead>
 <tr class="header">
-<th style="text-align: left;" data-quarto-table-cell-role="th">Quantifier</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Mean</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">95% CI</th>
+<th style="text-align: left;">Quantifier</th>
+<th style="text-align: left;">Mean</th>
+<th style="text-align: left;">95% CI</th>
 </tr>
 </thead>
 <tbody>
@@ -861,10 +924,10 @@ Phi coefficients (precision model with identity link):
 </tr>
 </tbody>
 </table>
-</div>
-
-
 </div></div></div>
+</figure>
+</div>
+</div>
 <p>The following code uses the <code>{sjPlot}</code> package to print a similar table (output not shown):</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tab_model</span>(m1, <span class="at">transform =</span> <span class="st">"plogis"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -874,32 +937,40 @@ Phi coefficients (precision model with identity link):
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>shape1_m1 <span class="ot">&lt;-</span> <span class="fu">muphi_to_shapes</span>(mu_m1, phi_m1)<span class="sc">$</span>shape1</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>shape2_m1 <span class="ot">&lt;-</span> <span class="fu">muphi_to_shapes</span>(mu_m1, phi_m1)<span class="sc">$</span>shape2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>These shape parameters define the beta distribution that describes the spread of responses, i.e.&nbsp;the variation among subjects in the relative-frequency interpretation of <em>few</em>. The percentages reported in <a href="#tbl-estimates-model-I">Table&nbsp;1</a> are averages over subjects. To obtain information on the distribution of responses around these typical values, we need to look at the associated beta density, which appears in <a href="#fig-few-beta-distribution">Figure&nbsp;7</a>. This distribution is a model-based estimate of the variability in the responses across individuals in the population of speakers represented by the subjects in our sample. It shows us how stable (or consistent) the interpretation of <em>few</em> is across speakers.</p>
+<p>These shape parameters define the beta distribution that describes the spread of responses, i.e.&nbsp;the variation among subjects in the relative-frequency interpretation of <em>few</em>. The percentages reported in <a href="#tbl-estimates-model-I" class="quarto-xref">Table&nbsp;1</a> are averages over subjects. To obtain information on the distribution of responses around these typical values, we need to look at the associated beta density, which appears in <a href="#fig-few-beta-distribution" class="quarto-xref">Figure&nbsp;7</a>. This distribution is a model-based estimate of the variability in the responses across individuals in the population of speakers represented by the subjects in our sample. It shows us how stable (or consistent) the interpretation of <em>few</em> is across speakers.</p>
 <div class="cell page-columns page-full">
 
 <div class="no-row-height column-margin column-container"><div class="cell-output-display">
-<div id="fig-few-beta-distribution" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure">
-<p><img src="index_files/figure-html/fig-few-beta-distribution-1.png" class="img-fluid figure-img" width="240"></p>
-<figcaption class="figure-caption">Figure&nbsp;7: The beta density for <em>few</em>, based on model I.</figcaption>
+<div id="fig-few-beta-distribution" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-few-beta-distribution-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-few-beta-distribution-1.png" class="img-fluid figure-img" width="240">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-few-beta-distribution-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: The beta density for <em>few</em>, based on model I.
+</figcaption>
 </figure>
 </div>
 </div></div></div>
 <p>We can summarize the information provided by such beta densities using informative quantiles; these can be located with the function <code>qbeta()</code>. A quantile is an x-value (here: a proportion/percentage) below which a certain portion of the probability mass lies. The .25 quantile, for instance, marks the x-value that cuts off the lower tail of the distribution that contains 25% of the mass.</p>
-<p>In <a href="#fig-few-quantiles">Figure&nbsp;8</a>, two intervals are marked using grey shading. The darker shade denotes the interval covering the central 50% of the subjects. It extends from the .25 quantile to the .75 quantile. The lighter shades denote the region where the middle 80% of the subjects are found. These quantiles tell us something about the speaker-to-speaker variability in the interpretation of <em>few</em>. While the population average is estimated at .12 (or 12%), speakers vary around this value: the central 50% of the speakers give estimates between .07 and .16, the central 80% of the population are found between .05 and .21. We will refer to these as <strong>coverage intervals</strong>.</p>
+<p>In <a href="#fig-few-quantiles" class="quarto-xref">Figure&nbsp;8</a>, two intervals are marked using grey shading. The darker shade denotes the interval covering the central 50% of the subjects. It extends from the .25 quantile to the .75 quantile. The lighter shades denote the region where the middle 80% of the subjects are found. These quantiles tell us something about the speaker-to-speaker variability in the interpretation of <em>few</em>. While the population average is estimated at .12 (or 12%), speakers vary around this value: the central 50% of the speakers give estimates between .07 and .16, the central 80% of the population are found between .05 and .21. We will refer to these as <strong>coverage intervals</strong>.</p>
 <div class="cell">
 <div class="cell-output-display">
-<div id="fig-few-quantiles" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure">
-<p><img src="index_files/figure-html/fig-few-quantiles-1.png" class="img-fluid figure-img" width="336"></p>
-<figcaption class="figure-caption">Figure&nbsp;8: The beta distribution for <em>few</em>, including informative quantiles and coverage intervals; based on model I.</figcaption>
+<div id="fig-few-quantiles" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-few-quantiles-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-few-quantiles-1.png" class="img-fluid figure-img" width="336">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-few-quantiles-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8: The beta distribution for <em>few</em>, including informative quantiles and coverage intervals; based on model I.
+</figcaption>
 </figure>
 </div>
 </div>
 </div>
-<p><a href="#tbl-quantiles-model-I">Table&nbsp;2</a> reports these quantiles, i.e.&nbsp;the central 50% and 80% coverage intervals for all quantifiers.</p>
+<p><a href="#tbl-quantiles-model-I" class="quarto-xref">Table&nbsp;2</a> reports these quantiles, i.e.&nbsp;the central 50% and 80% coverage intervals for all quantifiers.</p>
 <div class="cell page-columns page-full">
-<details>
+<details class="code-fold">
 <summary>Construct table with quantiles</summary>
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>beta_quantiles_m1 <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">numformat</span>(<span class="fu">qbeta</span>(<span class="fu">c</span>(.<span class="dv">1</span>,.<span class="dv">25</span>,.<span class="dv">75</span>,.<span class="dv">9</span>), <span class="at">shape1=</span>shape1_m1[<span class="dv">1</span>], <span class="at">shape2=</span>shape2_m1[<span class="dv">1</span>])),</span>
@@ -913,18 +984,22 @@ Phi coefficients (precision model with identity link):
 <span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(beta_quantiles_m1) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Quantifier"</span>, <span class="st">"[80%"</span>, <span class="st">"[50%"</span>, <span class="st">"50%]"</span>, <span class="st">"80%]"</span>)</span>
 <span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>beta_quantiles_m1 <span class="sc">|&gt;</span> <span class="fu">kable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div id="tbl-quantiles-model-I" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-tbl figure page-columns page-full">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-quantiles-model-I-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: 50% and 80% coverage intervals, based on Model I.
+</figcaption>
+<div aria-describedby="tbl-quantiles-model-I-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="page-columns page-full">
 
 <div class="no-row-height column-margin column-container"><div class="cell-output-display">
-<div id="tbl-quantiles-model-I" class="anchored">
-<table data-quarto-postprocess="true" class="table table-sm table-striped small">
-<caption>Table&nbsp;2: 50% and 80% coverage intervals, based on Model I.</caption>
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
 <thead>
 <tr class="header">
-<th style="text-align: left;" data-quarto-table-cell-role="th">Quantifier</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">[80%</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">[50%</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">50%]</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">80%]</th>
+<th style="text-align: left;">Quantifier</th>
+<th style="text-align: left;">[80%</th>
+<th style="text-align: left;">[50%</th>
+<th style="text-align: left;">50%]</th>
+<th style="text-align: left;">80%]</th>
 </tr>
 </thead>
 <tbody>
@@ -958,13 +1033,13 @@ Phi coefficients (precision model with identity link):
 </tr>
 </tbody>
 </table>
-</div>
-
-
 </div></div></div>
-<p>We can now draw a graph based on Model I that gives a visual summary of the data: <a href="#fig-model-I">Figure&nbsp;9</a> shows the typical values for each quantifier (average proportions), along with their 95% confidence interval and the associated beta density. Since Model I assumes constant precision across quantifiers, the visual spread of the beta distributions is constrained to be constant across these. The differences in spread that are evident from <a href="#fig-model-I">Figure&nbsp;9</a> reflect boundary effects, as the variability of proportions is naturally constrained near the scale endpoints.</p>
+</figure>
+</div>
+</div>
+<p>We can now draw a graph based on Model I that gives a visual summary of the data: <a href="#fig-model-I" class="quarto-xref">Figure&nbsp;9</a> shows the typical values for each quantifier (average proportions), along with their 95% confidence interval and the associated beta density. Since Model I assumes constant precision across quantifiers, the visual spread of the beta distributions is constrained to be constant across these. The differences in spread that are evident from <a href="#fig-model-I" class="quarto-xref">Figure&nbsp;9</a> reflect boundary effects, as the variability of proportions is naturally constrained near the scale endpoints.</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Draw figure</summary>
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type=</span><span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">16</span>),</span>
@@ -1015,10 +1090,14 @@ Phi coefficients (precision model with identity link):
 </div>
 <div class="cell">
 <div class="cell-output-display">
-<div id="fig-model-I" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure">
-<p><img src="index_files/figure-html/fig-model-I-1.png" class="img-fluid figure-img" width="336"></p>
-<figcaption class="figure-caption">Figure&nbsp;9: Visual summary of Model I: Typical values, confidence intervals and the underlying beta distributions.</figcaption>
+<div id="fig-model-I" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-model-I-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-model-I-1.png" class="img-fluid figure-img" width="336">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-model-I-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9: Visual summary of Model I: Typical values, confidence intervals and the underlying beta distributions.
+</figcaption>
 </figure>
 </div>
 </div>
@@ -1063,9 +1142,9 @@ Model 2: proportion ~ -1 + quantifier | -1 + quantifier
 </div>
 </div>
 <p>We note that there is little evidence from the data that the quantifiers are interpreted with different precision. Instead, the variability of responses around the typical value for each quantifier appears to be rather stable (on the logit scale) across expressions.</p>
-<p>For illustrative purposes, we nevertheless stick to this model to extract relevant quantities. We start by back-transforming the logit-scaled coefficients and confidence intervals for <span class="math inline">\(\mu\)</span> using the function <code>plogis()</code> and collect the estimates and their confidence intervals in <a href="#tbl-estimates-model-II">Table&nbsp;3</a>. To summarize the beta distributions, we present informative quantiles in <a href="#tbl-quantiles-model-II">Table&nbsp;4</a>.</p>
+<p>For illustrative purposes, we nevertheless stick to this model to extract relevant quantities. We start by back-transforming the logit-scaled coefficients and confidence intervals for <span class="math inline">\(\mu\)</span> using the function <code>plogis()</code> and collect the estimates and their confidence intervals in <a href="#tbl-estimates-model-II" class="quarto-xref">Table&nbsp;3</a>. To summarize the beta distributions, we present informative quantiles in <a href="#tbl-quantiles-model-II" class="quarto-xref">Table&nbsp;4</a>.</p>
 <div class="cell page-columns page-full">
-<details>
+<details class="code-fold">
 <summary>Construct table of estimates</summary>
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>mu_m2 <span class="ot">&lt;-</span> <span class="fu">plogis</span>(<span class="fu">coef</span>(m2)[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>])</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>ci_mu_m2 <span class="ot">&lt;-</span> <span class="fu">plogis</span>(<span class="fu">confint</span>(m2)[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>,])</span>
@@ -1084,16 +1163,20 @@ Model 2: proportion ~ -1 + quantifier | -1 + quantifier
 <span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>m2_estimates <span class="sc">|&gt;</span> <span class="fu">kable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div id="tbl-estimates-model-II" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-tbl figure page-columns page-full">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-estimates-model-II-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;3: Typical values and 95% confidence intervals based on Model II.
+</figcaption>
+<div aria-describedby="tbl-estimates-model-II-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="page-columns page-full">
 
 <div class="no-row-height column-margin column-container"><div class="cell-output-display">
-<div id="tbl-estimates-model-II" class="anchored">
-<table data-quarto-postprocess="true" class="table table-sm table-striped small">
-<caption>Table&nbsp;3: Typical values and 95% confidence intervals based on Model II.</caption>
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
 <thead>
 <tr class="header">
-<th style="text-align: left;" data-quarto-table-cell-role="th">Quantifier</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Mean</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">95% CI</th>
+<th style="text-align: left;">Quantifier</th>
+<th style="text-align: left;">Mean</th>
+<th style="text-align: left;">95% CI</th>
 </tr>
 </thead>
 <tbody>
@@ -1119,12 +1202,12 @@ Model 2: proportion ~ -1 + quantifier | -1 + quantifier
 </tr>
 </tbody>
 </table>
-</div>
-
-
 </div></div></div>
+</figure>
+</div>
+</div>
 <div class="cell page-columns page-full">
-<details>
+<details class="code-fold">
 <summary>Construct table of quantiles</summary>
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>beta_quantiles_m2 <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">numformat</span>(<span class="fu">qbeta</span>(<span class="fu">c</span>(.<span class="dv">1</span>,.<span class="dv">25</span>,.<span class="dv">75</span>,.<span class="dv">9</span>), <span class="at">shape1=</span>shape1_m2[<span class="dv">1</span>], <span class="at">shape2=</span>shape2_m2[<span class="dv">1</span>])),</span>
@@ -1139,18 +1222,22 @@ Model 2: proportion ~ -1 + quantifier | -1 + quantifier
 <span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(beta_quantiles_m2) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Quantifier"</span>, <span class="st">"[80%"</span>, <span class="st">"[50%"</span>, <span class="st">"50%]"</span>, <span class="st">"80%]"</span>)</span>
 <span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>beta_quantiles_m2 <span class="sc">|&gt;</span> <span class="fu">kable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div id="tbl-quantiles-model-II" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-tbl figure page-columns page-full">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-quantiles-model-II-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4: 50% and 80% coverage intervals, based on Model II.
+</figcaption>
+<div aria-describedby="tbl-quantiles-model-II-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="page-columns page-full">
 
 <div class="no-row-height column-margin column-container"><div class="cell-output-display">
-<div id="tbl-quantiles-model-II" class="anchored">
-<table data-quarto-postprocess="true" class="table table-sm table-striped small">
-<caption>Table&nbsp;4: 50% and 80% coverage intervals, based on Model II.</caption>
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
 <thead>
 <tr class="header">
-<th style="text-align: left;" data-quarto-table-cell-role="th">Quantifier</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">[80%</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">[50%</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">50%]</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">80%]</th>
+<th style="text-align: left;">Quantifier</th>
+<th style="text-align: left;">[80%</th>
+<th style="text-align: left;">[50%</th>
+<th style="text-align: left;">50%]</th>
+<th style="text-align: left;">80%]</th>
 </tr>
 </thead>
 <tbody>
@@ -1184,13 +1271,13 @@ Model 2: proportion ~ -1 + quantifier | -1 + quantifier
 </tr>
 </tbody>
 </table>
-</div>
-
-
 </div></div></div>
-<p>A visual summary of Model II appears in <a href="#fig-model-II">Figure&nbsp;10</a>. We observe that the beta density for <em>few</em> is more peaked than in <a href="#fig-model-I">Figure&nbsp;9</a>. This information can also be read from the printed regression table, which shows that <em>few</em> has the highest precision. This is also reflected in the coverage intervals. Whereas in Model I, the 80% coverage intervals extended from .06 to .20, Model II suggests a slightly narrower 80% coverage interval, ranging from .07 to .18.</p>
+</figure>
+</div>
+</div>
+<p>A visual summary of Model II appears in <a href="#fig-model-II" class="quarto-xref">Figure&nbsp;10</a>. We observe that the beta density for <em>few</em> is more peaked than in <a href="#fig-model-I" class="quarto-xref">Figure&nbsp;9</a>. This information can also be read from the printed regression table, which shows that <em>few</em> has the highest precision. This is also reflected in the coverage intervals. Whereas in Model I, the 80% coverage intervals extended from .06 to .20, Model II suggests a slightly narrower 80% coverage interval, ranging from .07 to .18.</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Draw figure</summary>
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type=</span><span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">16</span>),</span>
@@ -1241,10 +1328,14 @@ Model 2: proportion ~ -1 + quantifier | -1 + quantifier
 </div>
 <div class="cell preview-image">
 <div class="cell-output-display">
-<div id="fig-model-II" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure">
-<p><img src="index_files/figure-html/fig-model-II-1.png" class="img-fluid figure-img" width="336"></p>
-<figcaption class="figure-caption">Figure&nbsp;10: Visual summary of Model II: Estimates, confidence intervals and the underlying beta distributions.</figcaption>
+<div id="fig-model-II" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-model-II-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-model-II-1.png" class="img-fluid figure-img" width="336">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-model-II-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10: Visual summary of Model II: Estimates, confidence intervals and the underlying beta distributions.
+</figcaption>
 </figure>
 </div>
 </div>
@@ -1272,7 +1363,7 @@ Model 2: proportion ~ -1 + quantifier | -1 + quantifier
 <li>We will use Pareto <em>k</em> values as influence indicators (for more information on this, see <a href="https://arxiv.org/abs/1507.04544">this paper</a> and <a href="https://www.youtube.com/watch?v=FUROJM3u5HQ">this video tutorial</a>). For these, thresholds have been proposed to signal “good”, “ok”, “bad”, and “very bad” Pareto <em>k</em> values.</li>
 <li>Since correlated errors (within subject) should no longer be a concern, we will instead group influence measures (i.e.&nbsp;Pareto <em>k</em> values) by subject, to see if there are any influential individuals.</li>
 </ul>
-<p>The diagnostic plots appear in <a href="#fig-m3-diagnostics">Figure&nbsp;11</a>. We note the following:</p>
+<p>The diagnostic plots appear in <a href="#fig-m3-diagnostics" class="quarto-xref">Figure&nbsp;11</a>. We note the following:</p>
 <ol type="a">
 <li>There appear to be no outliers when looking at residuals by quantifier. This is because the random intercept for subject 1 now accomodates their unusually low responses.</li>
 <li>The distribution of the Pearson residuals looks OK.</li>
@@ -1281,7 +1372,7 @@ Model 2: proportion ~ -1 + quantifier | -1 + quantifier
 </ol>
 <p>Overall, then, we are happy with Model III and welcome subject 1 back into the dataset.</p>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Draw figure</summary>
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>loo_m3 <span class="ot">&lt;-</span> <span class="fu">loo</span>(m3)</span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>loo_m3_pointwise <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(loo_m3<span class="sc">$</span>pointwise)</span>
@@ -1376,10 +1467,14 @@ Model 2: proportion ~ -1 + quantifier | -1 + quantifier
 </div>
 <div class="cell">
 <div class="cell-output-display">
-<div id="fig-m3-diagnostics" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure">
-<p><img src="index_files/figure-html/fig-m3-diagnostics-1.png" class="img-fluid figure-img" width="576"></p>
-<figcaption class="figure-caption">Figure&nbsp;11: Diagnostic plots for Model III.</figcaption>
+<div id="fig-m3-diagnostics" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-m3-diagnostics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-m3-diagnostics-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-m3-diagnostics-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11: Diagnostic plots for Model III.
+</figcaption>
 </figure>
 </div>
 </div>
@@ -1406,9 +1501,9 @@ Model 2: proportion ~ -1 + quantifier | -1 + quantifier
 <span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">ci_upper =</span> <span class="fu">quantile</span>(.epred, .<span class="dv">975</span>)</span>
 <span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>We collect these point and interval estimates for the expected value (i.e.&nbsp;proportions) of each quantifier in <a href="#tbl-estimates-model-III">Table&nbsp;5</a>.</p>
+<p>We collect these point and interval estimates for the expected value (i.e.&nbsp;proportions) of each quantifier in <a href="#tbl-estimates-model-III" class="quarto-xref">Table&nbsp;5</a>.</p>
 <div class="cell page-columns page-full">
-<details>
+<details class="code-fold">
 <summary>Construct table of estimates</summary>
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>m3_estimates <span class="ot">&lt;-</span> <span class="fu">cbind</span>(</span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Quantifier =</span> <span class="fu">c</span>(<span class="st">"few"</span>, <span class="st">"some"</span>, <span class="st">"many"</span>, <span class="st">"most"</span>),</span>
@@ -1417,16 +1512,20 @@ Model 2: proportion ~ -1 + quantifier | -1 + quantifier
 <span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>m3_estimates <span class="sc">|&gt;</span> <span class="fu">kable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div id="tbl-estimates-model-III" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-tbl figure page-columns page-full">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-estimates-model-III-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5: Typical values and 95% posterior intervals based on Model III.
+</figcaption>
+<div aria-describedby="tbl-estimates-model-III-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="page-columns page-full">
 
 <div class="no-row-height column-margin column-container"><div class="cell-output-display">
-<div id="tbl-estimates-model-III" class="anchored">
-<table data-quarto-postprocess="true" class="table table-sm table-striped small">
-<caption>Table&nbsp;5: Typical values and 95% posterior intervals based on Model III.</caption>
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
 <thead>
 <tr class="header">
-<th style="text-align: left;" data-quarto-table-cell-role="th">Quantifier</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th"></th>
-<th style="text-align: left;" data-quarto-table-cell-role="th"></th>
+<th style="text-align: left;">Quantifier</th>
+<th style="text-align: left;"></th>
+<th style="text-align: left;"></th>
 </tr>
 </thead>
 <tbody>
@@ -1452,13 +1551,13 @@ Model 2: proportion ~ -1 + quantifier | -1 + quantifier
 </tr>
 </tbody>
 </table>
-</div>
-
-
 </div></div></div>
+</figure>
+</div>
+</div>
 <p>Our next task is to obtain estimates for the variability of subjects’ perceptions around these typical values. To this end, we also use posterior predictions from the model. We are no longer interested in the expected (or typical) value, however, but in the specific responses given by the speakers. We therefore use the function <code>predicted_draws()</code> which retains this variability in the distribution of responses.</p>
 <p>We must make sure, however, that the variability among subjects, which is captured by the random intercepts in our model, is worked into these predictions. Thus, in a model with random intercepts, the extraction of information about the beta distribution describing the variability of interpretations across subjects requires some care. This is because between-subjects variation is now absorbed by this model component. If we fail to actively incorporate this source of variation into our model-based predictions, these do not answer question iii, which asks about the variation across subjects in the interpretation of quantifiers.</p>
-<p>For purposes of illustration, let us first (inappropriately) disregard the by-speaker random effects. This means that we use the expected predictions generated above to construct beta distributions. This yields <a href="#fig-model-III-wrong">Figure&nbsp;12</a>, which does not show beta densities with the intended meaning. Recall that our question (iii) concerned variability across speakers. In Model III, between-subjects variation is captured by the random intercept SD (or variance) in our model, and this parameter is not built into the graph. As a result, the beta distribution are not spread out enough.</p>
+<p>For purposes of illustration, let us first (inappropriately) disregard the by-speaker random effects. This means that we use the expected predictions generated above to construct beta distributions. This yields <a href="#fig-model-III-wrong" class="quarto-xref">Figure&nbsp;12</a>, which does not show beta densities with the intended meaning. Recall that our question (iii) concerned variability across speakers. In Model III, between-subjects variation is captured by the random intercept SD (or variance) in our model, and this parameter is not built into the graph. As a result, the beta distribution are not spread out enough.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>m3_pred_wrong <span class="ot">&lt;-</span> m3 <span class="sc">|&gt;</span> </span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">predicted_draws</span>(</span>
@@ -1467,7 +1566,7 @@ Model 2: proportion ~ -1 + quantifier | -1 + quantifier
 <span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">re_formula =</span> <span class="cn">NA</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Draw figure</summary>
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(</span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type=</span><span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">16</span>),</span>
@@ -1493,10 +1592,14 @@ Model 2: proportion ~ -1 + quantifier | -1 + quantifier
 </div>
 <div class="cell">
 <div class="cell-output-display">
-<div id="fig-model-III-wrong" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure">
-<p><img src="index_files/figure-html/fig-model-III-wrong-1.png" class="img-fluid figure-img" width="336"></p>
-<figcaption class="figure-caption">Figure&nbsp;12: Wrong visual summary of Model III: Estimates, confidence intervals and the underlying beta distributions.</figcaption>
+<div id="fig-model-III-wrong" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-model-III-wrong-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-model-III-wrong-1.png" class="img-fluid figure-img" width="336">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-model-III-wrong-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12: Wrong visual summary of Model III: Estimates, confidence intervals and the underlying beta distributions.
+</figcaption>
 </figure>
 </div>
 </div>
@@ -1504,16 +1607,20 @@ Model 2: proportion ~ -1 + quantifier | -1 + quantifier
 <div class="cell page-columns page-full">
 
 <div class="no-row-height column-margin column-container"><div class="cell-output-display">
-<div id="fig-by-speaker-averages" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure">
-<p><img src="index_files/figure-html/fig-by-speaker-averages-1.png" class="img-fluid figure-img" width="192"></p>
-<figcaption class="figure-caption">Figure&nbsp;13: Distribution of by-speaker averages on the proportion scale.</figcaption>
+<div id="fig-by-speaker-averages" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-by-speaker-averages-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-by-speaker-averages-1.png" class="img-fluid figure-img" width="192">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-by-speaker-averages-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;13: Distribution of by-speaker averages on the proportion scale.
+</figcaption>
 </figure>
 </div>
 </div></div></div>
-<p>Before we go further, it is perhaps worth considering what kind of information the densities in <a href="#fig-model-III-wrong">Figure&nbsp;12</a> <em>do</em> show. They show the “residual” variation in perceived interpretation for each quantifier, after removing the model component that describes the between-speaker variability in the overall average response. Thus, the by-speaker random intercepts capture the extent to which subjects vary in their average response. To get a better understanding of the kind of variability represented by the random intercepts, <a href="#fig-by-speaker-averages">Figure&nbsp;13</a> shows the distribution of speaker averages. Most speakers vary between roughly .40 and .55. It is this kind of between-speaker variation that is captured by the random intercepts in the model.</p>
+<p>Before we go further, it is perhaps worth considering what kind of information the densities in <a href="#fig-model-III-wrong" class="quarto-xref">Figure&nbsp;12</a> <em>do</em> show. They show the “residual” variation in perceived interpretation for each quantifier, after removing the model component that describes the between-speaker variability in the overall average response. Thus, the by-speaker random intercepts capture the extent to which subjects vary in their average response. To get a better understanding of the kind of variability represented by the random intercepts, <a href="#fig-by-speaker-averages" class="quarto-xref">Figure&nbsp;13</a> shows the distribution of speaker averages. Most speakers vary between roughly .40 and .55. It is this kind of between-speaker variation that is captured by the random intercepts in the model.</p>
 <div class="cell page-columns page-full">
-<details>
+<details class="code-fold">
 <summary>Construct wrong table of quantiles</summary>
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>beta_quantiles_m3_wrong <span class="ot">&lt;-</span> m3_pred_wrong <span class="sc">|&gt;</span> <span class="fu">group_by</span>(quantifier) <span class="sc">|&gt;</span> </span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">summarize</span>(</span>
@@ -1525,18 +1632,22 @@ Model 2: proportion ~ -1 + quantifier | -1 + quantifier
 <span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>beta_quantiles_m3_wrong <span class="sc">|&gt;</span> <span class="fu">kable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div id="tbl-quantiles-model-III-wrong" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-tbl figure page-columns page-full">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-quantiles-model-III-wrong-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;6: 50% and 80% coverage intervals, based on Model III (random intercept variation not included).
+</figcaption>
+<div aria-describedby="tbl-quantiles-model-III-wrong-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="page-columns page-full">
 
 <div class="no-row-height column-margin column-container"><div class="cell-output-display">
-<div id="tbl-quantiles-model-III-wrong" class="anchored">
-<table data-quarto-postprocess="true" class="table table-sm table-striped small">
-<caption>Table&nbsp;6: 50% and 80% coverage intervals, based on Model III (random intercept variation not included).</caption>
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
 <thead>
 <tr class="header">
-<th style="text-align: left;" data-quarto-table-cell-role="th">quantifier</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">[80%</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">[50%</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">50%]</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">80%]</th>
+<th style="text-align: left;">quantifier</th>
+<th style="text-align: left;">[80%</th>
+<th style="text-align: left;">[50%</th>
+<th style="text-align: left;">50%]</th>
+<th style="text-align: left;">80%]</th>
 </tr>
 </thead>
 <tbody>
@@ -1557,7 +1668,7 @@ Model 2: proportion ~ -1 + quantifier | -1 + quantifier
 <tr class="odd">
 <td style="text-align: left;">many</td>
 <td style="text-align: left;">.55</td>
-<td style="text-align: left;">.60</td>
+<td style="text-align: left;">.59</td>
 <td style="text-align: left;">.69</td>
 <td style="text-align: left;">.73</td>
 </tr>
@@ -1570,16 +1681,16 @@ Model 2: proportion ~ -1 + quantifier | -1 + quantifier
 </tr>
 </tbody>
 </table>
-</div>
-
-
 </div></div></div>
+</figure>
+</div>
+</div>
 <p>After removing this source of variation, responses will still vary, due to other sources of variation. One such source is measurement error – speakers’ response to our short survey may fluctuate (perhaps erratically) over time. If we handed the same paper slip to our 20 respondents one year later, they would probably give (slightly) different responses. Further, speakers may not only differ in their average response (as captured by the random intercepts), but also in their perception of the individual quantifiers. For instance, a speaker may have a systematically lower perception of the quantifier <em>few</em> compared to other speakers. In statistical terms, this would be referred to as a subject-by-quantifier interaction.</p>
-<p><a href="#tbl-quantiles-model-III-wrong">Table&nbsp;6</a> shows 50% and 80% coverage intervals for the beta distributions that do not contain the between-speaker variation.</p>
+<p><a href="#tbl-quantiles-model-III-wrong" class="quarto-xref">Table&nbsp;6</a> shows 50% and 80% coverage intervals for the beta distributions that do not contain the between-speaker variation.</p>
 <p>To get beta densities with the intended meaning, we need to factor in the random effect. This means that we form model-based predictions that also incorporate (or represent) between-subjects variability. This is sometimes referred to as “integrating out” the random effects. As explained in more detail in the Marginal Effects Zoo <a href="https://marginaleffects.com/vignettes/brms.html#random-effects-model">book</a> and in this <a href="https://www.andrewheiss.com/blog/2021/11/10/ame-bayes-re-guide/">blog post</a> by <span class="citation" data-cites="Heiss2021b">Heiss (<a href="#ref-Heiss2021b" role="doc-biblioref">2021b</a>)</span>, this is done by sampling from a normal distribution representing the spread of random intercepts and factoring these deviations into the posterior predicted distribution.</p>
-<p><a href="#tbl-quantiles-model-III">Table&nbsp;7</a> shows 50% and 80% coverage intervals for the beta distributions that now contain the between-speaker variation. A visual summary of Model III with the appropriate densities appears in <a href="#fig-model-III">Figure&nbsp;14</a>.</p>
+<p><a href="#tbl-quantiles-model-III" class="quarto-xref">Table&nbsp;7</a> shows 50% and 80% coverage intervals for the beta distributions that now contain the between-speaker variation. A visual summary of Model III with the appropriate densities appears in <a href="#fig-model-III" class="quarto-xref">Figure&nbsp;14</a>.</p>
 <div class="cell page-columns page-full">
-<details>
+<details class="code-fold">
 <summary>Construct table of quantiles</summary>
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>m3_pred <span class="ot">&lt;-</span> m3 <span class="sc">|&gt;</span> </span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">predicted_draws</span>(</span>
@@ -1599,18 +1710,22 @@ Model 2: proportion ~ -1 + quantifier | -1 + quantifier
 <span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>beta_quantiles_m3 <span class="sc">|&gt;</span> <span class="fu">kable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div id="tbl-quantiles-model-III" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-tbl figure page-columns page-full">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-quantiles-model-III-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;7: 50% and 80% coverage intervals, based on Model III (random intercept variation included).
+</figcaption>
+<div aria-describedby="tbl-quantiles-model-III-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="page-columns page-full">
 
 <div class="no-row-height column-margin column-container"><div class="cell-output-display">
-<div id="tbl-quantiles-model-III" class="anchored">
-<table data-quarto-postprocess="true" class="table table-sm table-striped small">
-<caption>Table&nbsp;7: 50% and 80% coverage intervals, based on Model III (random intercept variation included).</caption>
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small">
 <thead>
 <tr class="header">
-<th style="text-align: left;" data-quarto-table-cell-role="th">quantifier</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">[80%</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">[50%</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">50%]</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">80%]</th>
+<th style="text-align: left;">quantifier</th>
+<th style="text-align: left;">[80%</th>
+<th style="text-align: left;">[50%</th>
+<th style="text-align: left;">50%]</th>
+<th style="text-align: left;">80%]</th>
 </tr>
 </thead>
 <tbody>
@@ -1644,12 +1759,12 @@ Model 2: proportion ~ -1 + quantifier | -1 + quantifier
 </tr>
 </tbody>
 </table>
-</div>
-
-
 </div></div></div>
+</figure>
+</div>
+</div>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Draw figure</summary>
 <div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(</span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type=</span><span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">16</span>),</span>
@@ -1673,10 +1788,14 @@ Model 2: proportion ~ -1 + quantifier | -1 + quantifier
 </div>
 <div class="cell">
 <div class="cell-output-display">
-<div id="fig-model-III" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure">
-<p><img src="index_files/figure-html/fig-model-III-1.png" class="img-fluid figure-img" width="336"></p>
-<figcaption class="figure-caption">Figure&nbsp;14: Visual summary of Model III: Estimates, confidence intervals and the underlying beta distributions.</figcaption>
+<div id="fig-model-III" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-model-III-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-model-III-1.png" class="img-fluid figure-img" width="336">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-model-III-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;14: Visual summary of Model III: Estimates, confidence intervals and the underlying beta distributions.
+</figcaption>
 </figure>
 </div>
 </div>
@@ -1684,14 +1803,14 @@ Model 2: proportion ~ -1 + quantifier | -1 + quantifier
 </section>
 <section id="comparison-of-estimates" class="level4">
 <h4 class="anchored" data-anchor-id="comparison-of-estimates">Comparison of estimates</h4>
-<p>Let us finally compare the quantities of interest across our models. <a href="#fig-model-comparison">Figure&nbsp;15</a> (a) shows estimates for the typical relative-frequency interpretation of the expressions. Difference between models are minor, but Model III returns slightly wider uncertainty intervals. This is mainly because the model has been informed that the sample size is 20 (rather than 80), but also because the model has (re)incorporated subject 1.</p>
+<p>Let us finally compare the quantities of interest across our models. <a href="#fig-model-comparison" class="quarto-xref">Figure&nbsp;15</a> (a) shows estimates for the typical relative-frequency interpretation of the expressions. Difference between models are minor, but Model III returns slightly wider uncertainty intervals. This is mainly because the model has been informed that the sample size is 20 (rather than 80), but also because the model has (re)incorporated subject 1.</p>
 <p>In panel (b), the 50% and 80% coverage intervals are shown. Two comparisons are particularly informative:</p>
 <ul>
 <li>Comparing models I and II, we note the effect of allowing precision to vary across quantifiers. For <em>few</em>, Model II returns tighter coverage intervals, since this expression is estimated to show a higher level of precision, i.e.&nbsp;a more stable interpretation across subjects. For <em>many</em>, the situation is the other way around. The differences between models I and II are minor, however, which is consistent with the results of the likelihood-ratio test reported above.</li>
 <li>A comparison of the grey and red coverage intervals for Model III is also revealing: The red intervals are the ones that do not incorporate between-subject variability (as captured by the random intercepts). They therefore fail to answer question iii. The grey bands, on the other hand, do factor this source of variation into the predictions, and they therefore show us what we were looking for.</li>
 </ul>
 <div class="cell">
-<details>
+<details class="code-fold">
 <summary>Draw figure</summary>
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(</span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type=</span><span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span>.<span class="dv">2</span>, <span class="fl">4.5</span>),</span>
@@ -1754,10 +1873,14 @@ Model 2: proportion ~ -1 + quantifier | -1 + quantifier
 </div>
 <div class="cell">
 <div class="cell-output-display">
-<div id="fig-model-comparison" class="quarto-figure quarto-figure-center anchored">
-<figure class="figure">
-<p><img src="index_files/figure-html/fig-model-comparison-1.png" class="img-fluid figure-img" width="576"></p>
-<figcaption class="figure-caption">Figure&nbsp;15: Comparison of quantities across models: (a) typical values and their uncertainty, and (b) coverage intervals.</figcaption>
+<div id="fig-model-comparison" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-model-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-model-comparison-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-model-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;15: Comparison of quantities across models: (a) typical values and their uncertainty, and (b) coverage intervals.
+</figcaption>
 </figure>
 </div>
 </div>
@@ -1771,7 +1894,7 @@ Model 2: proportion ~ -1 + quantifier | -1 + quantifier
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
 <div id="ref-Borges_Sawyers1974" class="csl-entry" role="listitem">
 Borges, Marilyn A., and Barbara K. Sawyers. 1974. <span>“Common Verbal Quantifiers: <span>U</span>sage and Interpretation.”</span> <em>Journal of Experimental Psychology</em> 102 (2): 335–38. <a href="https://doi.org/10.1037/h0036023">https://doi.org/10.1037/h0036023</a>.
 </div>
@@ -1802,7 +1925,7 @@ Stateva, Penka, Arthur Stepanov, Viviane Déprez, Ludivine Emma Dupuy, and Anne 
 <div id="ref-vanTiel_etal2021" class="csl-entry" role="listitem">
 Tiel, Bob van, Michael Franke, and Uli Sauerland. 2021. <span>“Probabilistic Pragmatics Explains Gradience and Focality in Natural Language Quantification.”</span> <em>Proceedings of the National Academy of Sciences</em> 118 (9). <a href="https://doi.org/10.1073/pnas.2005453118">https://doi.org/10.1073/pnas.2005453118</a>.
 </div>
-</div></section><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{sönning2024,
+</div></section><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{sönning2024,
   author = {Sönning, Lukas},
   title = {Modeling the Interpretation of Quantifiers Using Beta
     Regression},
@@ -1849,18 +1972,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
     return false;
   }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -1892,11 +2004,50 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
-  function tippyHover(el, contentFn) {
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/lsoenning\.github\.io");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -1906,8 +2057,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -1919,7 +2079,130 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -1963,6 +2246,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -1988,6 +2272,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -2048,6 +2358,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
+
 
 
 

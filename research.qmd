@@ -15,7 +15,7 @@ editor: source
 - **Sönning**, Lukas, Ole Schützler, Manfred Krug & Fabian Vetter. (in preparation). The morpho-syntax of Scottish Standard English: Questionnaire-based insights. {{< ai osf >}} [OSF](https://osf.io/hykq5/){target="_blank"}
 
 
-- **Sönning**, Lukas. (in preparation). Dispersion analysis. In Hilary Nesi & Petar Milin (eds.), *International Encyclopedia of Language and Linguistics*, 3rd ed. Amsterdam: Elsevier. [Submitted manuscript](https://osf.io/preprints/osf/h3dyx){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/epvk2/){target="_blank"} 
+- **Sönning**, Lukas. (under review). Dispersion analysis. In Hilary Nesi & Petar Milin (eds.), *International Encyclopedia of Language and Linguistics*, 3rd ed. Amsterdam: Elsevier. [Submitted manuscript](https://osf.io/preprints/osf/h3dyx){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/epvk2/){target="_blank"} 
 
 - **Sönning**, Lukas. (in preparation). Down-sampling strategies in corpus phonology. Chapter for: Philipp Meer & Ulrike Gut (eds.) *English corpus phonetics and phonology: Current approaches and future directions* {{< ai osf >}} [OSF](https://osf.io/67ya5/){target="_blank"}
 

@@ -2,7 +2,7 @@
 title: "Different parameterizations of the negative binomial distribution"
 description: "This blog post discusses two different parameterizations of the negative binomial distribution and groups R packages (and functions) based on the version they implement."
 date: 2023-12-13
-categories: [count data, corpus linguistics, statistics, dispersion, negative binomial distribution]
+categories: [corpus linguistics, dispersion, negative binomial]
 citation: 
   url: https://lsoenning.github.io/posts/2023-12-13_negative_binomial_parameterization/
 editor: source

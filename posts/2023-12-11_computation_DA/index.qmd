@@ -2,7 +2,7 @@
 title: "A computational shortcut for the dispersion measure *D~A~*"
 description: "This short blog post draws attention to the computational shortcut given in Wilcox (1973) for calculating the dispersion measure *D~A~*."
 date: 2023-12-11
-categories: [corpus linguistics, methodology, dispersion]
+categories: [corpus linguistics, dispersion]
 citation: 
   url: https://lsoenning.github.io/posts/2023-12-11_computation_DA/
 editor: source

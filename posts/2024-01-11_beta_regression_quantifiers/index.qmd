@@ -2,7 +2,7 @@
 title: "Modeling the interpretation of quantifiers using beta regression"
 description: "This blog post shows how to use beta regression to model the proportional interpretation of the quantifiers *few*, *some*, *many*, and *most*. We consider variable-dispersion and mixed-effects structures as well as diagnostics for frequentist and Bayesian models."
 date: 2024-02-29
-categories: [beta regression, regression, distributional modeling]
+categories: [regression, distributional modeling]
 citation: 
   url: https://lsoenning.github.io/posts/2024-01-11_beta_regression_quantifiers/
 editor: source

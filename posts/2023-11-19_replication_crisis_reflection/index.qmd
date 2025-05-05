@@ -2,7 +2,7 @@
 title: "The replication crisis: Implications for myself"
 description: "In this blog post, I reflect on the ways in which learning about the replication crisis in science has affected my own work."
 date: 2023-11-21
-categories: [replication crisis, open science, reproducibility]
+categories: [replication crisis, open science]
 citation: 
   url: https://lsoenning.github.io/posts/2023-11-19_replication_crisis_reflection/
 editor: source
