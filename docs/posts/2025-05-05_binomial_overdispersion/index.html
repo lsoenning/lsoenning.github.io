@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Lukas Sönning">
+<meta name="dcterms.date" content="2025-05-09">
+<meta name="description" content="This blog post illustrates a number of strategies for modeling clustered binomial data. It describes how they handle the non-independence among observations and what kind of estimates they return.">
+
+<title>Modeling clustered binomial data – Lukas Sönning</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Lukas Sönning</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../research.html"> 
+<span class="menu-text">Research</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../resources.html"> 
+<span class="menu-text">Resources</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts.html"> 
+<span class="menu-text">Blog</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Modeling clustered binomial data</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">corpus linguistics</div>
+    <div class="quarto-category">regression</div>
+    <div class="quarto-category">clustered data</div>
+    <div class="quarto-category">binary data</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    This blog post illustrates a number of strategies for modeling clustered binomial data. It describes how they handle the non-independence among observations and what kind of estimates they return.
+  </div>
+</div>
+
+<div class="quarto-title-meta-author">
+  <div class="quarto-title-meta-heading">Author</div>
+  <div class="quarto-title-meta-heading">Affiliation</div>
+  
+    <div class="quarto-title-meta-contents">
+    <p class="author"><a href="https://lsoenning.github.io/">Lukas Sönning</a> <a href="https://orcid.org/0000-0002-2705-395X" class="quarto-title-author-orcid"> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg=="></a></p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            University of Bamberg
+          </p>
+      </div>
+  </div>
+
+<div class="quarto-title-meta">
+
+      
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">May 9, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>A typical feature of corpus data is their hierarchical layout. Observations are usually clustered, which is the case if multiple data points are from the same text (or speaker). Observations from the same source are usually more similar to one another, reflecting idiosyncracies of the author/speaker or particularities of the context of language use. For binary outcome variables, there are different options for modeling such data. This blog post builds on a paper by <span class="citation" data-cites="Anderson1988">Anderson (<a href="#ref-Anderson1988" role="doc-biblioref">1988</a>)</span> and contrasts approaches that differ in the way they represent (or account for) the non-independence of data points.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>R setup</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)         <span class="co"># for data wrangling and visualization</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(marginaleffects)   <span class="co"># to compute model-based estimates</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(corpora)           <span class="co"># for data on passives</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra)        <span class="co"># for drawing html tables</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lattice)           <span class="co"># for data visualization</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(likelihoodExplore) <span class="co"># for drawing the binomial likelihood</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gamlss)            <span class="co"># to fit a variant of the quasi-binomial model</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(aod)               <span class="co"># to fit a beta-binomial model</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(PropCIs)           <span class="co"># to calculate Wilson score CIs</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(doBy)              <span class="co"># to convert data from short to long format</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lme4)              <span class="co"># to fit mixed-effects regression models</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="data-passives-in-academic-writing" class="level4">
+<h4 class="anchored" data-anchor-id="data-passives-in-academic-writing">Data: Passives in academic writing</h4>
+<p>We use data on the frequency of the passive in the Brown Family of corpora, which is part of the <code>{corpora}</code> package <span class="citation" data-cites="Evert2023">(<a href="#ref-Evert2023" role="doc-biblioref">Evert 2023</a>)</span>. We concentrate on the genre Learned and consider texts from Brown and Frown.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> PassiveBrownFam <span class="sc">|&gt;</span> </span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    genre <span class="sc">==</span> <span class="st">"learned"</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    corpus <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Brown"</span>, <span class="st">"Frown"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, corpus, act, pass, verbs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This leaves us with 160 texts:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(d)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   160 obs. of  5 variables:
+ $ id    : chr  "brown_J01" "brown_J02" "brown_J03" "brown_J04" ...
+ $ corpus: Factor w/ 5 levels "BLOB","Brown",..: 2 2 2 2 2 2 2 2 2 2 ...
+ $ act   : int  88 66 134 117 119 65 95 108 40 192 ...
+ $ pass  : int  43 73 61 46 53 65 46 67 84 26 ...
+ $ verbs : int  131 139 195 163 172 130 141 175 124 218 ...</code></pre>
+</div>
+</div>
+<p>There is one row per text and the following variables are relevant for our analyses:</p>
+<ul>
+<li><code>id</code> text identifier</li>
+<li><code>corpus</code> source corpus (“Brown” vs.&nbsp;“Frown”)</li>
+<li><code>act</code> number of active verb phrases in the text</li>
+<li><code>pass</code> number of passive verb phrases in the text</li>
+<li><code>verbs</code> total number of verb phrases in the text</li>
+</ul>
+<p>For each text, the frequency of the passive can be expressed as a proportion: the proportion of verb phrases that are in the passive voice. We add this variable to the data frame:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>prop_passive <span class="ot">&lt;-</span> d<span class="sc">$</span>pass<span class="sc">/</span>d<span class="sc">$</span>verbs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We use a dot diagram to inspect the distribution of these proportions across the 160 texts. In <a href="#fig-dotdiagram" class="quarto-xref">Figure&nbsp;1</a>, each dot represents a text, and the scores reflect the share of passive verb phrases among all verb phrases in the text document. We will refer to this quantity as the <em>text-specific proportion of passive verb phrases</em>.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>draw figure</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> prop_passive)) <span class="sc">+</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_dotplot</span>(<span class="at">method =</span> <span class="st">"histodot"</span>, <span class="at">binwidth =</span> .<span class="dv">015</span>, <span class="at">dotsize=</span>.<span class="dv">8</span>) <span class="sc">+</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_dotplot</span>() <span class="sc">+</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>),</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">25</span>, .<span class="dv">5</span>, .<span class="dv">75</span>, <span class="dv">1</span>),</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">".25"</span>, <span class="st">".50"</span>, <span class="st">".75"</span>, <span class="st">"1"</span>)) <span class="sc">+</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Proportion of passive verb phrases"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-dotdiagram" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-dotdiagram-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-dotdiagram-1.png" class="img-fluid figure-img" width="336">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-dotdiagram-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Dot diagram showing the proportion of passive verb phrases in the 160 texts.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The 160 texts also differ in the number of verb phrases they contain, so let us also look at this distribution. <a href="#fig-dotdiagram-wordcount" class="quarto-xref">Figure&nbsp;2</a> shows that this count varies between roughly 100 and 250.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>draw figure</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> verbs)) <span class="sc">+</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_dotplot</span>(<span class="at">method =</span> <span class="st">"histodot"</span>, <span class="at">binwidth =</span> <span class="dv">3</span>, <span class="at">dotsize =</span> .<span class="dv">7</span>) <span class="sc">+</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_dotplot</span>() <span class="sc">+</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">xlab</span>(<span class="st">"Number of verb phrases"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-dotdiagram-wordcount" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-dotdiagram-wordcount-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-dotdiagram-wordcount-1.png" class="img-fluid figure-img" width="336">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-dotdiagram-wordcount-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Dot diagram showing the distirbution of the number of verb phrases per text file.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The 160 texts can be considered a sample of academic prose from the language variety of interest, written American English in the second half of the 20<sup>th</sup> century. In selecting (or sampling) these 160 academic texts, the corpus compilers essentially selected a set of authors, or speakers, of this language variety. In some sense, these individuals represent the primary sampling units: Our sample size for making inference about a larger population of speakers is 160.</p>
+<p>Each text in the Brown Family of corpora is around 2,000 words long. A text excerpt, and the verb phrases it contains, can be considered as a sample from a (hypothetical) population, the academic prose produced by a specific author. At this level, the language use (or writing style) of this individual is the population of interest. The 2,000 words, (or, e.g., 160 verb phrases) then represent the secondary sampling units.</p>
+<p>This means that we can use the information in the text to make inferences about the underlying propensity of the author(s) to use the passive voice in their academic writing. Texts with fewer verb phrases provide less information, and – due to sampling variation – we would expect smaller samples to yield more variable proportions <span class="citation" data-cites="Soenning_Schlueter2022">(see <a href="#ref-Soenning_Schlueter2022" role="doc-biblioref">Sönning and Schlüter 2022</a> for an illustration)</span>.</p>
+<p>This is indeed the case for the present data. The point cloud in the <a href="#fig-scatterplot-sampling-variation" class="quarto-xref">Figure&nbsp;3</a> below shows a trumpet-like shape: the highest proportions are from the texts with the fewest verb phrases. We should note, however, that other factors may contribute to this pattern: Thus, texts with fewer verb phrases necessarily feature longer (and presumably more elaborate) sentences, an indicator of abstract writing style that is also associated with passive usage.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>draw figure</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> verbs, <span class="at">y =</span> prop_passive)) <span class="sc">+</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>),</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">5</span>, <span class="dv">1</span>),</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">".5"</span>, <span class="st">"1"</span>)) <span class="sc">+</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Proportion of passives"</span>) <span class="sc">+</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Number of verb phrases in the text"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-scatterplot-sampling-variation" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-scatterplot-sampling-variation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-scatterplot-sampling-variation-1.png" class="img-fluid figure-img" width="288">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scatterplot-sampling-variation-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Scatterplot showing the relation between the proportion of passives and the sample size (number of verb phrases in the text).
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>To emphasize the two-stage sampling design involved in corpus compilation, let us make visual inferences about the language use of the individual authors. To this end, we can construct a 95% confidence interval for each text-specific estimate. We will use the package <code>{PropCIs}</code> <span class="citation" data-cites="Scherer2018">(<a href="#ref-Scherer2018" role="doc-biblioref">Scherer 2018</a>)</span> to calculate 95% Wilson score confidence intervals for each of the 160 texts.</p>
+<p><a href="#fig-dotplot-text-cis" class="quarto-xref">Figure&nbsp;4</a> presents text-level estimates of the proportion of passives with a 95% confidence interval. The degree of overlap among the 160 intervals can be interpreted as giving an indication of the heterogeneity of the individual authors. If the 160 authors showed a similar inclination toward the passive, we would observe considerable overlap among the error bars. Judging from the figure below, however, there seems to be appreciably heterogeneity.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>draw figure</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>ci_upper <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>ci_lower <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">160</span>){</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  ci_lower[i] <span class="ot">&lt;-</span> <span class="fu">scoreci</span>(<span class="at">x =</span> d<span class="sc">$</span>pass[i], <span class="at">n =</span> d<span class="sc">$</span>verbs[i], <span class="at">conf.level =</span> .<span class="dv">95</span>)<span class="sc">$</span>conf.int[<span class="dv">1</span>]</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  ci_upper[i] <span class="ot">&lt;-</span> <span class="fu">scoreci</span>(<span class="at">x =</span> d<span class="sc">$</span>pass[i], <span class="at">n =</span> d<span class="sc">$</span>verbs[i], <span class="at">conf.level =</span> .<span class="dv">95</span>)<span class="sc">$</span>conf.int[<span class="dv">2</span>]</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="fu">xyplot</span>(<span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type =</span> <span class="st">"n"</span>, <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">163</span>),</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">par.settings =</span> my_settings, <span class="at">axis =</span> axis_left,</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">scales =</span> <span class="fu">list</span>(</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>         <span class="at">y =</span> <span class="fu">list</span>(</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>               <span class="at">at =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">5</span>, <span class="dv">1</span>),</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>               <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">".5"</span>, <span class="st">"1"</span>))),</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>       <span class="at">ylab =</span> <span class="st">"Proportion of passives"</span>, <span class="at">xlab =</span> <span class="cn">NULL</span>,</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>       <span class="at">panel =</span> <span class="cf">function</span>(x,y){</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.points</span>(<span class="at">x=</span><span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">80</span>, <span class="dv">83</span><span class="sc">:</span><span class="dv">162</span>), <span class="at">y =</span> d<span class="sc">$</span>prop_passive)</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">80</span>, <span class="dv">83</span><span class="sc">:</span><span class="dv">162</span>), <span class="at">x1 =</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">80</span>, <span class="dv">83</span><span class="sc">:</span><span class="dv">162</span>), <span class="at">y0 =</span> ci_lower, <span class="at">y1 =</span> ci_upper)</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="dv">1</span>, <span class="at">x1=</span><span class="dv">80</span>, <span class="at">y0=</span><span class="dv">0</span>, <span class="at">y1=</span><span class="dv">0</span>)</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="dv">83</span>, <span class="at">x1=</span><span class="dv">162</span>, <span class="at">y0=</span><span class="dv">0</span>, <span class="at">y1=</span><span class="dv">0</span>)</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.text</span>(<span class="at">x=</span><span class="fu">c</span>(<span class="fl">40.5</span>, <span class="fl">122.5</span>), <span class="at">y =</span> <span class="sc">-</span>.<span class="dv">1</span>, <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"Brown"</span>, <span class="st">"Frown"</span>))</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.text</span>(<span class="at">x=</span><span class="dv">162</span>, <span class="at">y =</span> <span class="sc">-</span>.<span class="dv">25</span>, <span class="at">label=</span><span class="st">"Error bars: 95% CIs"</span>, <span class="at">col =</span> <span class="st">"grey40"</span>, <span class="at">cex =</span> .<span class="dv">8</span>, <span class="at">adj=</span><span class="dv">1</span>)</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>       })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-dotplot-text-cis" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-dotplot-text-cis-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-dotplot-text-cis-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-dotplot-text-cis-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Estimated proportion of passives for all texts in the data (grouped by corpus), presented with a 95% confidence interval.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="binomial-model" class="level4">
+<h4 class="anchored" data-anchor-id="binomial-model">Binomial model</h4>
+<p>We start with a simple binomial model, which basically ignores the structure of the data. It uses a single parameter to express the mean proportion of the passive in the dataset. This means that it essentially treats all verb phrases in the data (<em>n</em> = 26772) as an unstructured sample from the population of interest, each one drawn independently of the other ones. The way the data are presented to the model, with one row per text, does not matter to the binomial model – it produces the same result if we supply just one row, with <code>verbs</code> representing the total number of verb phrases and <code>pass</code> the total number of passives in the data.</p>
+<p>Since the clustering variable Text is not taken into account, the model rests on the assumption that the 160 texts share the same underlying relative frequency of the passive. This means that the authors are assumed to be perfectly homogeneous with respect to their stylistic preferences. Under this model, the observed variability in proportions is merely a result of sampling variation, which in turn depends on (i) the number of verb phrases in the text, and (ii) the overall proportion of the passive.</p>
+<p>Point (ii) deserves some more comment. For binomial data, sampling variation is smaller the closer we get to 0 and 1. This is due to the boundedness of the scale – near 0 or 1, there is less room for variation. Statistically speaking, the variance of the binomial distribution depends on its mean. As <a href="#fig-binomial-mean-var" class="quarto-xref">Figure&nbsp;5</a> illustrates, it is greatest at .50 and decreases toward the endpoints of the proportion scale. This means that the variability of observed proportions depends on the mean of the binomial distribution.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>draw figure</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xyplot</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type =</span> <span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,.<span class="dv">25</span>),</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings =</span> my_settings, <span class="at">axis =</span> axis_L,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales =</span> <span class="fu">list</span>(<span class="at">y =</span> <span class="fu">list</span>(</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">at =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">1</span>, .<span class="dv">2</span>, .<span class="dv">3</span>, .<span class="dv">4</span>, .<span class="dv">5</span>),</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">".1"</span>, <span class="st">".2"</span>, <span class="st">".3"</span>, <span class="st">".4"</span>, <span class="st">".5"</span>)),</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">list</span>(</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">at =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">25</span>, .<span class="dv">5</span>, .<span class="dv">75</span>, <span class="dv">1</span>),</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">".25"</span>, <span class="st">".50"</span>, <span class="st">".75"</span>, <span class="st">"1"</span>))),</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab =</span> <span class="st">"Variance"</span>,</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Mean"</span>,</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">panel =</span> <span class="cf">function</span>(x,y){</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(<span class="at">x =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, .<span class="dv">01</span>),</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y =</span> (<span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, .<span class="dv">01</span>)<span class="sc">*</span>(<span class="dv">1</span><span class="sc">-</span><span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, .<span class="dv">01</span>))),</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>                 <span class="at">type=</span><span class="st">"l"</span>)</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>       })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-binomial-mean-var" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-binomial-mean-var-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-binomial-mean-var-1.png" class="img-fluid figure-img" width="268">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-binomial-mean-var-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Mean-variance relationship in the binomial model.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>We can fit this model in R using the <code>glm()</code> function:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cbind</span>(pass, act) <span class="sc">~</span> <span class="dv">1</span>, </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> d, </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The model intercept is -1.37, which is the mean probability of the passive, expressed on the log odds scale. We can use the function <code>plogis()</code> to back-transform to the proportion scale:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plogis</span>(<span class="fu">coef</span>(m)), <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(Intercept) 
+      0.203 </code></pre>
+</div>
+</div>
+<p>A 95% CI can be constructed using the function <code>confint()</code>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plogis</span>(<span class="fu">confint</span>(m))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    2.5 %    97.5 % 
+0.1981468 0.2077818 </code></pre>
+</div>
+</div>
+<p>Model-based estimates on the proportion scale are easy to obtain using the <code>{marginaleffects}</code> package <span class="citation" data-cites="ArelBundock_etal2024">(<a href="#ref-ArelBundock_etal2024" role="doc-biblioref">Arel-Bundock, Greifer, and Heiss 2024</a>)</span>. The function <code>avg_predictions()</code> returns a model-based prediction of the mean probability of a passive verb phrase in the population of interest, along with a 95% CI.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">avg_predictions</span>(m) <span class="sc">|&gt;</span> </span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(estimate, conf.low, conf.high) <span class="sc">|&gt;</span> </span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+  estimate conf.low conf.high
+     &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1    0.203    0.198     0.208</code></pre>
+</div>
+</div>
+<p>The estimated proportion of .203 comes with a crisp 95% CI, which ranges from .198 to .208. Apparently, the model is very confident in its predicted probability of the passive voice.</p>
+<p>To check how well the binomial model fits the data, we can ask it to “retrodict” the data, i.e.&nbsp;to tell us what it thinks the distribution of the 160 text-level proportions looks like. For this task, the binomial model uses the estimated overall proportion (.203) and the sample size for each text, i.e.&nbsp;the number of verb phrases it contains. It can then produce a density curve for each text, which is centered on .203 and spread out in accordance with the sample size: for a text with more verb phrases, the density curve is more peaked, and for a text with fewer verb phrases it is spread more widely around .203. Importantly, however, all density curves are centered on .203, the estimate of the population proportion.</p>
+<p><a href="#fig-binomial-fit" class="quarto-xref">Figure&nbsp;6</a> draws the 160 density curves against the observed distribution of text-specific proportions. Apparently, the model fails to capture the heterogeneity among texts.</p>
+<div class="cell preview-image">
+<details class="code-fold">
+<summary>draw figure</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xyplot</span>(</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span> <span class="sc">~</span> <span class="dv">1</span>, <span class="at">type =</span> <span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,.<span class="dv">16</span>),</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings =</span> my_settings, <span class="at">axis =</span> axis_bottom,</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales =</span> <span class="fu">list</span>(</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">list</span>(</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">at =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">25</span>, .<span class="dv">5</span>, .<span class="dv">75</span>, <span class="dv">1</span>),</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">".25"</span>, <span class="st">".50"</span>, <span class="st">".75"</span>, <span class="st">"1"</span>))),</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab.top =</span> <span class="st">"Binomial model</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Text-specific proportion of passive verb phrases"</span>, <span class="at">ylab =</span> <span class="cn">NULL</span>,</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">panel =</span> <span class="cf">function</span>(x,y){</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.dotdiagram</span>(d<span class="sc">$</span>prop_passive, <span class="at">scale_y =</span> .<span class="dv">006</span>, <span class="at">n_bins=</span><span class="dv">50</span>, <span class="at">set_col=</span><span class="st">"grey"</span>)</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">160</span>){</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>      <span class="fu">panel.points</span>(</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">x =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">length =</span> <span class="dv">100</span>),</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">y =</span> <span class="fu">exp</span>(<span class="fu">likbinom</span>(</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>          <span class="at">x =</span> <span class="fu">round</span>(d<span class="sc">$</span>verbs[i]<span class="sc">*</span>.<span class="dv">203</span>), </span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>          <span class="at">size =</span> d<span class="sc">$</span>verbs[i], </span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>          <span class="at">prob =</span> <span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">1</span>, <span class="at">length =</span> <span class="dv">100</span>), <span class="at">log =</span> <span class="cn">TRUE</span>)) <span class="sc">/</span></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>          <span class="fu">sum</span>(<span class="fu">exp</span>(<span class="fu">likbinom</span>(</span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>            <span class="at">x =</span> <span class="fu">round</span>(d<span class="sc">$</span>verbs[i]<span class="sc">*</span>.<span class="dv">203</span>), </span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>            <span class="at">size =</span> d<span class="sc">$</span>verbs[i], </span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>            <span class="at">prob =</span> <span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">1</span>, <span class="at">length =</span> <span class="dv">100</span>), <span class="at">log =</span> <span class="cn">TRUE</span>))),</span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>        <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">alpha =</span> .<span class="dv">1</span>)</span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> .<span class="dv">4</span>, <span class="at">y =</span> .<span class="dv">06</span>, <span class="at">label =</span> <span class="st">"Observed distribution"</span>, <span class="at">col =</span> <span class="st">"grey40"</span>, <span class="at">cex =</span> .<span class="dv">9</span>, <span class="at">adj =</span> <span class="dv">0</span>)</span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> .<span class="dv">25</span>, <span class="at">y =</span> .<span class="dv">13</span>, <span class="at">label =</span> <span class="st">"Expected distribution"</span>, <span class="at">col =</span> <span class="dv">1</span>, <span class="at">cex =</span> .<span class="dv">9</span>, <span class="at">adj =</span> <span class="dv">0</span>)</span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>    })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-binomial-fit" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-binomial-fit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-binomial-fit-1.png" class="img-fluid figure-img" width="384">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-binomial-fit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: Fit between the binomial model and the data.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>If the observed data show greater variation than anticipated by a statistical model, the data are said to be <em>overdispersed</em> relative to this model. Alternative modeling approaches take into account this overdispersion, or heterogeneity. As we will see, however, they do so in different ways.</p>
+</section>
+<section id="quasi-binomial-model-including-a-heterogeneity-parameter" class="level4">
+<h4 class="anchored" data-anchor-id="quasi-binomial-model-including-a-heterogeneity-parameter">Quasi-binomial model including a heterogeneity parameter</h4>
+<p>A quasi-binomial model includes a second parameter that explicitly captures the excess variation in the data <span class="citation" data-cites="Agresti2013">(see <a href="#ref-Agresti2013" role="doc-biblioref">Agresti 2013, 150–51</a>)</span>. This <em>dispersion parameter</em> adjusts the variance of the binomial distribution and is often denoted as <span class="math inline">\(\phi\)</span>. It is estimated on the basis of a global <span class="math inline">\(\chi^2\)</span> fit statistic for the model.</p>
+<p>In this way, the quasi-binomial model allows the standard deviation of observed proportions to be greater than anticipated by the simple dependency on the mean of the distribution, which we saw in <a href="#fig-binomial-mean-var" class="quarto-xref">Figure&nbsp;5</a> above. Essentially, the dispersion parameter is a multiplicative factor that adjusts the variance of the binomial distribution upwards. If the dispersion parameter is 1, the model reduces to the binomial model discussed above. The dispersion parameter also affects inferences from the model: standard errors are multiplied by <span class="math inline">\(\sqrt{\phi}\)</span>.</p>
+<p>We can fit a quasi-binomial model using the <code>glm()</code> function in R:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cbind</span>(pass, act) <span class="sc">~</span> <span class="dv">1</span>, </span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> d, </span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"quasibinomial"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Then we use the <code>{marginaleffects}</code> package to obtain the model-based predicted probability of a passive verb phrase (+ 95% CI):</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">avg_predictions</span>(m) <span class="sc">|&gt;</span> </span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(estimate, conf.low, conf.high) <span class="sc">|&gt;</span> </span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+  estimate conf.low conf.high
+     &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1    0.203    0.186      0.22</code></pre>
+</div>
+</div>
+<p>This produces the same estimate as above, but with a wider uncertainty interval. The model intercept, once back-transformed to the probability scale, yields the same estimate:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plogis</span>(<span class="fu">coef</span>(m)), <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(Intercept) 
+      0.203 </code></pre>
+</div>
+</div>
+<p>The heterogeneity factor adjusts the variance of the binomial distribution to align the model with the excess variability in the observed proportions. However, the model still assumes a constant underlying proportion for all authors. The heterogeneity parameter basically states that some perturbation, perhaps caused by omitted predictors or positively correlated (i.e.&nbsp;non-independent) observations in each row of the table, leads to greater variability of the observed proportions. The model does not point to a specific source of the overdispersion.</p>
+<p>Since the variance is increased proportionally to the overdisersion parameter, the bell-shaped curves are spread out more widely. This is illustrated in the figure below. We see that the fit between model and data is much better now.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>draw figure</summary>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xyplot</span>(</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span> <span class="sc">~</span> <span class="dv">1</span>, <span class="at">type =</span> <span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,.<span class="dv">06</span>),</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings =</span> my_settings, <span class="at">axis =</span> axis_bottom,</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales =</span> <span class="fu">list</span>(</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">list</span>(</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">at =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">25</span>, .<span class="dv">5</span>, .<span class="dv">75</span>, <span class="dv">1</span>),</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">".25"</span>, <span class="st">".50"</span>, <span class="st">".75"</span>, <span class="st">"1"</span>))),</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab.top =</span> <span class="st">"Quasi-binomial model</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Text-specific proportion of passive verb phrases"</span>, <span class="at">ylab =</span> <span class="cn">NULL</span>,</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">panel =</span> <span class="cf">function</span>(x,y){</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.dotdiagram</span>(d<span class="sc">$</span>prop_passive, <span class="at">scale_y =</span> .<span class="dv">004</span>, <span class="at">n_bins=</span><span class="dv">50</span>, <span class="at">set_col=</span><span class="st">"grey"</span>)</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">160</span>){</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>      interpolated_to_100_steps <span class="ot">&lt;-</span> <span class="fu">approx</span>(</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">x =</span> (<span class="dv">0</span><span class="sc">:</span>d<span class="sc">$</span>verbs[i])<span class="sc">/</span>d<span class="sc">$</span>verbs[i],</span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">y =</span> <span class="fu">dDBI</span>(<span class="dv">0</span><span class="sc">:</span>d<span class="sc">$</span>verbs[i], <span class="at">mu=</span>.<span class="dv">203</span>, <span class="at">sigma=</span><span class="dv">11</span>, <span class="at">bd=</span>d<span class="sc">$</span>verbs[i]),</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>        <span class="at">xout =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">length=</span><span class="dv">100</span>))</span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>      <span class="fu">panel.points</span>(<span class="at">x =</span> interpolated_to_100_steps<span class="sc">$</span>x,</span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>                   <span class="at">y =</span> interpolated_to_100_steps<span class="sc">$</span>y<span class="sc">/</span><span class="fu">sum</span>(interpolated_to_100_steps<span class="sc">$</span>y),</span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>                   <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">alpha =</span> .<span class="dv">1</span>)</span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> .<span class="dv">48</span>, <span class="at">y =</span> .<span class="dv">03</span>, <span class="at">label =</span> <span class="st">"Observed distribution"</span>, </span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>               <span class="at">col =</span> <span class="st">"grey40"</span>, <span class="at">cex =</span> .<span class="dv">9</span>, <span class="at">adj =</span> <span class="dv">0</span>)</span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> .<span class="dv">25</span>, <span class="at">y =</span> .<span class="dv">055</span>, <span class="at">label =</span> <span class="st">"Expected distribution"</span>, </span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a>               <span class="at">col =</span> <span class="dv">1</span>, <span class="at">cex =</span> .<span class="dv">9</span>, <span class="at">adj =</span> <span class="dv">0</span>)</span>
+<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a>  })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-quasibinomial-fit" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-quasibinomial-fit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-quasibinomial-fit-1.png" class="img-fluid figure-img" width="384">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-quasibinomial-fit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: Fit between the quasi-binomial model and the data.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>However, the quasi-binomial model does <em>not</em> represent the structure in our data. It does not attribute the excess variation in proportions to the fact that we are looking at 160 different texts, from speakers who may very well show different stylistic attitudes toward passive usage. Rather, it states that <em>some</em> noise variable increased the sampling variation when drawing verb phrases from each speaker, with speakers nevertheless being actually homogeneous with respect to their underlying usage rate of the passive.</p>
+<p>While the quasi-binomial model effectively adjusts inferences for the non-independence of observations, the way in which this is achieved may not be appropriate in all situations <span class="citation" data-cites="Finney1971">(see <a href="#ref-Finney1971" role="doc-biblioref">Finney 1971, 72</a>)</span>. In particular, if the data are clustered, this information should be explicitly taken into account. The models we consider next embrace the data structure and introduce parameters that describe between-cluster variation, thereby linking overdispersion to a specific source. As noted by <span class="citation" data-cites="Agresti2013">Agresti (<a href="#ref-Agresti2013" role="doc-biblioref">2013, 151</a>)</span>, this approach is preferable, because it actually models the observed heterogeneity.</p>
+</section>
+<section id="beta-binomial-model" class="level4">
+<h4 class="anchored" data-anchor-id="beta-binomial-model">Beta-binomial model</h4>
+<p>The beta-binomial model also includes a second parameter, but this parameter has a different function (and interpretation). It explicitly allows for the possibility that the texts in the data differ in the underlying probability of passive usage. This parameter aims to represent the distribution of text-specific proportions, which means that it actively takes into account the clustering variable Text. If texts vary considerably, reflecting large overdispersion relative to the binomial model, the parameter describing the text-to-text variation will be large. If there is no evidence for surplus variation among texts, the beta-binomial model reduces to the binomial model. The relationship between the binomial mean and variance (see <a href="#fig-binomial-mean-var" class="quarto-xref">Figure&nbsp;5</a>) therefore remains unaltered.</p>
+<p>Since the text-specific proportions are bounded between 0 and 1, a distribution that respects these limits must be used. In the case of the beta-binomial model, this is the beta distribution. As discussed in more detail in <a href="https://lsoenning.github.io/posts/2024-01-11_beta_regression_quantifiers/" target="_blank">this blog post</a>, the beta distribution has two parameterizations. It can be defined using two so-called shape parameters, or it can be defined using a mean and a standard deviation parameter. The mean, in our case, is the model-based overall mean proportion of passive verb phrases.</p>
+<p>We can fit a beta-binomial model using the function <code>betabin()</code> in the R package <code>{aod}</code> <span class="citation" data-cites="Lesnoff_Lancelot2012">(<a href="#ref-Lesnoff_Lancelot2012" role="doc-biblioref">Lesnoff et al. 2012</a>)</span>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">betabin</span>(</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cbind</span>(pass, act) <span class="sc">~</span> <span class="dv">1</span>, </span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="sc">~</span> <span class="dv">1</span>, </span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> d)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The parameter controlling the spread of the text-specific proportions is termed <span class="math inline">\(\phi\)</span>. It can be extracted from the model object as follows:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>m<span class="sc">@</span>random.param</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>phi.(Intercept) 
+      0.0649405 </code></pre>
+</div>
+</div>
+<p>The <span class="math inline">\(\phi\)</span> parameter returned by <code>aod::betabin()</code> is the reciprocal of the standard deviation of the beta distribution, so we convert it:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>sd_beta <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">/</span>m<span class="sc">@</span>random.param</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This gives us the mean and standard deviation of the beta distribution that describes the variability among texts. To graph this distribution, we need to translate these parameters into shape parameters (see <a href="https://lsoenning.github.io/posts/2024-01-11_beta_regression_quantifiers/" target="_blank">this blog post</a>):</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>muphi_to_shapes <span class="ot">&lt;-</span> <span class="cf">function</span>(mu, phi) {</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  shape1 <span class="ot">&lt;-</span> mu <span class="sc">*</span> phi</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  shape2 <span class="ot">&lt;-</span> (<span class="dv">1</span> <span class="sc">-</span> mu) <span class="sc">*</span> phi</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">shape1 =</span> shape1, <span class="at">shape2 =</span> shape2))</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>shape_parameters <span class="ot">&lt;-</span> <span class="fu">muphi_to_shapes</span>(</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">mu =</span> <span class="fu">plogis</span>(<span class="fu">coef</span>(m)), </span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">phi =</span> <span class="dv">1</span><span class="sc">/</span>m<span class="sc">@</span>random.param)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We can now graph the beta distribution:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>draw figure</summary>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xyplot</span>(</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type =</span> <span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">5</span>),</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings =</span> my_settings, <span class="at">axis =</span> axis_bottom,</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales =</span> <span class="fu">list</span>(<span class="at">x =</span> <span class="fu">list</span>(</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">at =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">25</span>, .<span class="dv">5</span>, .<span class="dv">75</span>, <span class="dv">1</span>),</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">".25"</span>, <span class="st">".50"</span>, <span class="st">".75"</span>, <span class="st">"1"</span>))),</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Text-specific proportion of passive verb phrases"</span>, <span class="at">ylab =</span> <span class="cn">NULL</span>,</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">panel =</span> <span class="cf">function</span>(x,y){</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(<span class="at">x =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, .<span class="dv">01</span>),</span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y =</span> <span class="fu">dbeta</span>(<span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, .<span class="dv">01</span>), </span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>                           <span class="at">shape1 =</span> shape_parameters<span class="sc">$</span>shape1,</span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>                           <span class="at">shape2 =</span> shape_parameters<span class="sc">$</span>shape2),</span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>                 <span class="at">type=</span><span class="st">"l"</span>)</span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x=</span>.<span class="dv">4</span>, <span class="at">y=</span><span class="dv">5</span>, <span class="at">label=</span><span class="st">"Beta distribution with parameters:"</span>, </span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>               <span class="at">col =</span> <span class="st">"grey40"</span>, <span class="at">cex=</span>.<span class="dv">8</span>, <span class="at">adj=</span><span class="dv">0</span>)</span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x=</span>.<span class="dv">45</span>, <span class="at">y =</span> <span class="fl">3.5</span>, <span class="at">label =</span> <span class="st">"\u2022 Mean = 0.21; SD = 15.4"</span>,</span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>               <span class="at">col =</span> <span class="st">"grey40"</span>, <span class="at">cex=</span>.<span class="dv">8</span>, <span class="at">adj=</span><span class="dv">0</span>)</span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x=</span>.<span class="dv">45</span>, <span class="at">y =</span> <span class="fl">2.5</span>, <span class="at">label =</span> <span class="st">"\u2022 Shape 1 = 3.3; Shape 2 = 12.1"</span>,</span>
+<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>               <span class="at">col =</span> <span class="st">"grey40"</span>, <span class="at">cex=</span>.<span class="dv">8</span>, <span class="at">adj=</span><span class="dv">0</span>)</span>
+<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>       })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-beta" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-beta-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-beta-1.png" class="img-fluid figure-img" width="316">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-beta-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8: Beta density describing the distirbution of text-specific proportions.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The intercept of the beta-binomial model translates into a slightly higher mean probability of the passive:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plogis</span>(<span class="fu">coef</span>(m))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(Intercept) 
+  0.2137407 </code></pre>
+</div>
+</div>
+<p>The function <code>avg_predictions()</code> returns the same estimate, along with an appropriately wide confidence interval:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">avg_predictions</span>(m) <span class="sc">|&gt;</span> </span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(estimate, conf.low, conf.high) <span class="sc">|&gt;</span> </span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+  estimate conf.low conf.high
+     &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1    0.214    0.197     0.231</code></pre>
+</div>
+</div>
+<p>Finally, we check the fit between model and data visually (see <a href="#fig-betabinomial-fit" class="quarto-xref">Figure&nbsp;9</a>). The beta distribution appears to capture the spread of the observed text-specific proportions quite well. We should note, however, that the density curve does not capture the additional variation among the observed proportions that is due to sampling variation. The dots are therefore expected to be spread out more widely, albeit only slightly so due to the large sample sizes (see <a href="#fig-dotdiagram-wordcount" class="quarto-xref">Figure&nbsp;2</a>).</p>
+<div class="cell">
+<details class="code-fold">
+<summary>draw figure</summary>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xyplot</span>(<span class="dv">1</span> <span class="sc">~</span> <span class="dv">1</span>, <span class="at">type =</span> <span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,.<span class="dv">03</span>),</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>       <span class="at">par.settings =</span> my_settings, <span class="at">axis =</span> axis_bottom,</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">scales =</span> <span class="fu">list</span>(</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">x =</span> <span class="fu">list</span>(</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>               <span class="at">at =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">25</span>, .<span class="dv">5</span>, .<span class="dv">75</span>, <span class="dv">1</span>),</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>               <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">".25"</span>, <span class="st">".50"</span>, <span class="st">".75"</span>, <span class="st">"1"</span>))),</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab.top =</span> <span class="st">"Beta-binomial model</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab =</span> <span class="st">"Text-specific proportion of passive verb phrases"</span>, <span class="at">ylab =</span> <span class="cn">NULL</span>,</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">panel =</span> <span class="cf">function</span>(x,y){</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.dotdiagram</span>(d<span class="sc">$</span>prop_passive, <span class="at">scale_y =</span> .<span class="dv">002</span>, <span class="at">n_bins=</span><span class="dv">80</span>, <span class="at">set_col=</span><span class="st">"grey60"</span>, <span class="at">seq_min =</span> <span class="sc">-</span>.<span class="dv">125</span>,, <span class="at">seq_max =</span> <span class="dv">1</span>)</span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.points</span>(<span class="at">x =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">length=</span><span class="dv">100</span>),</span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>                      <span class="at">y =</span> <span class="fu">dbeta</span>(<span class="at">x =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">length=</span><span class="dv">100</span>),</span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>                                <span class="at">shape1 =</span> shape_parameters<span class="sc">$</span>shape1, </span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>                                <span class="at">shape2 =</span> shape_parameters<span class="sc">$</span>shape2)<span class="sc">/</span><span class="dv">200</span>, <span class="at">type =</span> <span class="st">"l"</span>)</span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.text</span>(<span class="at">x =</span> .<span class="dv">48</span>, <span class="at">y =</span> .<span class="dv">015</span>, <span class="at">label =</span> <span class="st">"Observed distribution"</span>, </span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>                    <span class="at">col =</span> <span class="st">"grey40"</span>, <span class="at">cex =</span> .<span class="dv">8</span>, <span class="at">adj =</span> <span class="dv">0</span>)</span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.text</span>(<span class="at">x =</span> .<span class="dv">25</span>, <span class="at">y =</span> .<span class="dv">03</span>, <span class="at">label =</span> <span class="st">"Expected distribution"</span>, </span>
+<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a>                    <span class="at">col =</span> <span class="dv">1</span>, <span class="at">cex =</span> .<span class="dv">8</span>, <span class="at">adj =</span> <span class="dv">0</span>)</span>
+<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a>       })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-betabinomial-fit" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-betabinomial-fit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-betabinomial-fit-1.png" class="img-fluid figure-img" width="384">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-betabinomial-fit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;9: Fit between the beta-binomial model and the data.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Since the variation in text-specific rates is represented using a probability distribution, we can use the beta-binomial model to describe this variation in informative ways. For instance, we may be interested in the interquartile range, i.e.&nbsp;the spread of the central 50% of the proportions.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qbeta</span>(</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(.<span class="dv">25</span>, .<span class="dv">75</span>), </span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">shape1 =</span> shape_parameters<span class="sc">$</span>shape1, </span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">shape2 =</span> shape_parameters<span class="sc">$</span>shape2) <span class="sc">|&gt;</span> </span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.138 0.277</code></pre>
+</div>
+</div>
+<p>Or, seeing that the the model estimate is the <em>mean</em> over the text-specific proportions, we may instead be interested in the <em>median</em> proportion:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qbeta</span>(</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  .<span class="dv">5</span>, </span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">shape1 =</span> shape_parameters<span class="sc">$</span>shape1, </span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">shape2 =</span> shape_parameters<span class="sc">$</span>shape2) <span class="sc">|&gt;</span> </span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.201</code></pre>
+</div>
+</div>
+<p>We now move on to a class of models that may be more familiar to many researchers: Mixed-effects regression models.</p>
+</section>
+<section id="random-effects-model-with-identity-link" class="level4">
+<h4 class="anchored" data-anchor-id="random-effects-model-with-identity-link">Random-effects model with identity link</h4>
+<p>We start with an ordinary random-effects regression model, which models the data on the proportion scale. This kind of model fails to respect the scale limits and does not account for the relationship between the binomial mean and variance (see <a href="#fig-binomial-mean-var" class="quarto-xref">Figure&nbsp;5</a>).</p>
+<p>To run this model, we first need to convert the data from frequency to case form, so that each row in the data represents a verb phrase:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>d_long <span class="ot">&lt;-</span> <span class="fu">binomial_to_bernoulli_data</span>(</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">response_name =</span> <span class="st">"passive"</span>,</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> d, </span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> pass,</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">size =</span> verbs, </span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">"total"</span>  </span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>d_long<span class="sc">$</span>passive <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(d_long<span class="sc">$</span>passive) <span class="sc">-</span> <span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now we fit the model using the function <code>lmer()</code> in the R package <code>{lme4}</code> <span class="citation" data-cites="Bates_etal2015">(<a href="#ref-Bates_etal2015" role="doc-biblioref">Bates et al. 2015</a>)</span>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">lmer</span>(</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  passive <span class="sc">~</span> (<span class="dv">1</span><span class="sc">|</span>id), </span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> d_long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Let us first look at model-based predictions, which look fine:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">avg_predictions</span>(m) <span class="sc">|&gt;</span> </span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(estimate, conf.low, conf.high) <span class="sc">|&gt;</span> </span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+  estimate conf.low conf.high
+     &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1    0.203    0.185     0.221</code></pre>
+</div>
+</div>
+<p>However, these differ from the model intercept, which is higher:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fixef</span>(m)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(Intercept) 
+  0.2123103 </code></pre>
+</div>
+</div>
+<p>We will return to this discrepancy, which is due to the fact that these are two different means, at the end of this section.</p>
+<p>Let us look at the fit between model and data. The ordinary random-intercept model assumes that the text-specific proportions are distributed normally around the overall mean. It describes this distribution using a standard deviation parameter, which can be obtained as follows:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m)<span class="sc">$</span>varcor<span class="sc">$</span>id[<span class="dv">1</span>] <span class="sc">|&gt;</span> </span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sqrt</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.11225</code></pre>
+</div>
+</div>
+<p>In <a href="#fig-ranef-ordinary-fit" class="quarto-xref">Figure&nbsp;10</a>, the density curve shows what the model <em>thinks</em> the data look like, which does not match the observed distribution. In fact, the symmetric bell-shaped curve provides a rather poor fit to the text-specific proportions: It expects negative proportions (dotted part of the curve), and it fails to capture the scale-induced asymmetry of the distribution.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>draw figure</summary>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xyplot</span>(<span class="dv">1</span> <span class="sc">~</span> <span class="dv">1</span>, <span class="at">type =</span> <span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,.<span class="dv">03</span>),</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>       <span class="at">par.settings =</span> my_settings, <span class="at">axis =</span> axis_bottom,</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">scales =</span> <span class="fu">list</span>(</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">x =</span> <span class="fu">list</span>(</span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>               <span class="at">at =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">25</span>, .<span class="dv">5</span>, .<span class="dv">75</span>, <span class="dv">1</span>),</span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>               <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">".25"</span>, <span class="st">".50"</span>, <span class="st">".75"</span>, <span class="st">"1"</span>))),</span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab.top =</span> <span class="st">"Ordinary regression with random intercepts</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab =</span> <span class="st">"Text-specific proportion of passive verb phrases"</span>, <span class="at">ylab =</span> <span class="cn">NULL</span>,</span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">panel =</span> <span class="cf">function</span>(x,y){</span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.dotdiagram</span>(d<span class="sc">$</span>prop_passive, <span class="at">scale_y =</span> .<span class="dv">002</span>, <span class="at">n_bins=</span><span class="dv">80</span>, <span class="at">set_col=</span><span class="st">"grey60"</span>, <span class="at">seq_min =</span> <span class="sc">-</span>.<span class="dv">125</span>,, <span class="at">seq_max =</span> <span class="dv">1</span>)</span>
+<span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.points</span>(<span class="at">x =</span> <span class="fu">seq</span>(<span class="sc">-</span>.<span class="dv">2</span>, <span class="dv">0</span>, <span class="at">length=</span><span class="dv">20</span>),</span>
+<span id="cb48-12"><a href="#cb48-12" aria-hidden="true" tabindex="-1"></a>                      <span class="at">y =</span> <span class="fu">dnorm</span>(<span class="at">x =</span> <span class="fu">seq</span>(<span class="sc">-</span>.<span class="dv">2</span>, <span class="dv">0</span>, <span class="at">length=</span><span class="dv">20</span>),</span>
+<span id="cb48-13"><a href="#cb48-13" aria-hidden="true" tabindex="-1"></a>                                <span class="at">mean =</span> .<span class="dv">203</span>, <span class="at">sd =</span> .<span class="dv">1122</span>)<span class="sc">/</span><span class="dv">190</span>, <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">lty =</span> <span class="st">"13"</span>)</span>
+<span id="cb48-14"><a href="#cb48-14" aria-hidden="true" tabindex="-1"></a>         </span>
+<span id="cb48-15"><a href="#cb48-15" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.points</span>(<span class="at">x =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">length=</span><span class="dv">100</span>),</span>
+<span id="cb48-16"><a href="#cb48-16" aria-hidden="true" tabindex="-1"></a>                      <span class="at">y =</span> <span class="fu">dnorm</span>(<span class="at">x =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">length=</span><span class="dv">100</span>),</span>
+<span id="cb48-17"><a href="#cb48-17" aria-hidden="true" tabindex="-1"></a>                                <span class="at">mean =</span> .<span class="dv">203</span>, <span class="at">sd =</span> .<span class="dv">1122</span>)<span class="sc">/</span><span class="dv">190</span>, <span class="at">type =</span> <span class="st">"l"</span>)</span>
+<span id="cb48-18"><a href="#cb48-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-19"><a href="#cb48-19" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.text</span>(<span class="at">x =</span> .<span class="dv">48</span>, <span class="at">y =</span> .<span class="dv">015</span>, <span class="at">label =</span> <span class="st">"Observed distribution"</span>, </span>
+<span id="cb48-20"><a href="#cb48-20" aria-hidden="true" tabindex="-1"></a>                    <span class="at">col =</span> <span class="st">"grey40"</span>, <span class="at">cex =</span> .<span class="dv">8</span>, <span class="at">adj =</span> <span class="dv">0</span>)</span>
+<span id="cb48-21"><a href="#cb48-21" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.text</span>(<span class="at">x =</span> .<span class="dv">25</span>, <span class="at">y =</span> .<span class="dv">03</span>, <span class="at">label =</span> <span class="st">"Expected distribution"</span>, </span>
+<span id="cb48-22"><a href="#cb48-22" aria-hidden="true" tabindex="-1"></a>                    <span class="at">col =</span> <span class="dv">1</span>, <span class="at">cex =</span> .<span class="dv">8</span>, <span class="at">adj =</span> <span class="dv">0</span>)</span>
+<span id="cb48-23"><a href="#cb48-23" aria-hidden="true" tabindex="-1"></a>       })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-ranef-ordinary-fit" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ranef-ordinary-fit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-ranef-ordinary-fit-1.png" class="img-fluid figure-img" width="384">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ranef-ordinary-fit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;10: Fit between the ordinary random-effects model and the data.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-ranef-ordinary-fit" class="quarto-xref">Figure&nbsp;10</a> helps us understand the discrepancy between the back-transformed model intercept (.212) and the mean prediction produced by the <code>{marginaleffects}</code> package (.203). The model intercept represents the center of the bell-shaped curve in <a href="#fig-ranef-ordinary-fit" class="quarto-xref">Figure&nbsp;10</a>. If the text proportions were indeed distributed symmetrically around this center, the intercept would coincide with the mean prediction. This is because the default way in which the <code>{marginaleffects}</code> package calculates mean predictions from a model with random effects proceeds in two steps: First, a prediction is made for each cluster (here: text), based on the cluster-specific random intercept. In step 2, these cluster predictions are averaged.</p>
+<p>If the cluster-specific means form a symmetric distribution, they will tend to cancel out, leading to no (or very minor) discrepancies between the two types of prediction. In the present case, the text-specific predictions do not form a symmetric pile. The center of gravity is below .212, and the mean over the estimated asymmetric distribution of cluster proportions therefore lower.</p>
+<p>We can retrieve both types of means using the <code>{marginaleffects}</code> package. The model intercept is equivalent to ignoring (or “turning off”) the clustering variable when making predictions. This can be done as follows:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">avg_predictions</span>(</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>  m, </span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">newdata =</span> <span class="fu">datagrid</span>(</span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">id =</span> <span class="cn">NA</span>),</span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">re.form =</span> <span class="cn">NA</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(estimate, conf.low, conf.high) <span class="sc">|&gt;</span> </span>
+<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+  estimate conf.low conf.high
+     &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1    0.212    0.194      0.23</code></pre>
+</div>
+</div>
+<p>The following code, in contrast, works the estimated distribution of cluster-level proportions into the predictions:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">avg_predictions</span>(</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>  m, </span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">re.form =</span> <span class="sc">~</span>(<span class="dv">1</span><span class="sc">|</span>id)) <span class="sc">|&gt;</span> </span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(estimate, conf.low, conf.high) <span class="sc">|&gt;</span> </span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+  estimate conf.low conf.high
+     &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1    0.203    0.185     0.221</code></pre>
+</div>
+</div>
+</section>
+<section id="random-effects-model-with-logit-link" class="level4">
+<h4 class="anchored" data-anchor-id="random-effects-model-with-logit-link">Random-effects model with logit link</h4>
+<p>Finally, we fit a logistic random-effects model, which uses a logit link function to respect scale constraints. This means that the proportions are not modeled directly, but instead on the unbounded logistic (or log-odds) scale.</p>
+<p>We can fit the model with the <code>glmer()</code> function in the <code>{lme4}</code> package:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">glmer</span>(</span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cbind</span>(pass, act) <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>id), </span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> d, </span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Here is the mean prediction we get using the <code>{marginaleffects}</code> package:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">avg_predictions</span>(m) <span class="sc">|&gt;</span> </span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(estimate, conf.low, conf.high) <span class="sc">|&gt;</span> </span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+  estimate conf.low conf.high
+     &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1    0.212    0.195     0.229</code></pre>
+</div>
+</div>
+<p>Again, we note that it differs from the back-transformed model intercept, which is now <em>lower</em>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plogis</span>(<span class="fu">fixef</span>(m))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(Intercept) 
+  0.1933644 </code></pre>
+</div>
+</div>
+<p>We are again dealing with two different types of means. Before we consider how this discrepancy arises, we take a closer look at the structure of the model.</p>
+<p>In this model, the random-intercept SD represents the variation between texts <em>on the logit scale</em>. We can extract the SD parameter as follows:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m)<span class="sc">$</span>varcor<span class="sc">$</span>id[<span class="dv">1</span>] <span class="sc">|&gt;</span> </span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sqrt</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.6599597</code></pre>
+</div>
+</div>
+<p>The model therefore assumes that the distribution of the random intercepts is symmetric on the logit scale. We can graph the text-specific proportions on the logit scale and overlay the expected distribution. The distribution of logits seems to be quite well approximated by the normal density curve.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>draw figure</summary>
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xyplot</span>(<span class="dv">1</span> <span class="sc">~</span> <span class="dv">1</span>, <span class="at">type =</span> <span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="fl">3.5</span>, <span class="fl">1.1</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,.<span class="dv">02</span>),</span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>       <span class="at">par.settings =</span> my_settings, <span class="at">axis =</span> axis_bottom,</span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab.top =</span> <span class="st">"Logistic regression with random intercepts</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab =</span> <span class="st">"Text-specific logit of passive verb phrases"</span>, <span class="at">ylab =</span> <span class="cn">NULL</span>,</span>
+<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">panel =</span> <span class="cf">function</span>(x,y){</span>
+<span id="cb60-6"><a href="#cb60-6" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.dotdiagram</span>(<span class="fu">qlogis</span>(d<span class="sc">$</span>prop_passive), <span class="at">scale_y =</span> .<span class="dv">0012</span>, <span class="at">n_bins=</span><span class="dv">50</span>,</span>
+<span id="cb60-7"><a href="#cb60-7" aria-hidden="true" tabindex="-1"></a>                          <span class="at">set_col=</span><span class="st">"grey60"</span>, <span class="at">seq_min =</span> <span class="sc">-</span><span class="fl">3.5</span>, <span class="at">seq_max =</span> .<span class="dv">9</span>)</span>
+<span id="cb60-8"><a href="#cb60-8" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.points</span>(<span class="at">x =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="fl">3.5</span>, .<span class="dv">8</span>, .<span class="dv">1</span>),</span>
+<span id="cb60-9"><a href="#cb60-9" aria-hidden="true" tabindex="-1"></a>                      <span class="at">y =</span> <span class="fu">dnorm</span>(<span class="fu">seq</span>(<span class="sc">-</span><span class="dv">3-5</span>, .<span class="dv">8</span>, .<span class="dv">1</span>), <span class="at">mean =</span> <span class="fu">fixef</span>(m), <span class="at">sd =</span> .<span class="dv">66</span>)<span class="sc">/</span><span class="dv">50</span>,</span>
+<span id="cb60-10"><a href="#cb60-10" aria-hidden="true" tabindex="-1"></a>                      <span class="at">type =</span> <span class="st">"l"</span>)</span>
+<span id="cb60-11"><a href="#cb60-11" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="sc">-</span><span class="dv">2</span>, <span class="at">y =</span> .<span class="dv">015</span>, <span class="at">label =</span> <span class="st">"Observed distribution"</span>, </span>
+<span id="cb60-12"><a href="#cb60-12" aria-hidden="true" tabindex="-1"></a>                    <span class="at">col =</span> <span class="st">"grey40"</span>, <span class="at">cex =</span> .<span class="dv">8</span>, <span class="at">adj =</span> <span class="dv">1</span>)</span>
+<span id="cb60-13"><a href="#cb60-13" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="sc">-</span>.<span class="dv">75</span>, <span class="at">y =</span> .<span class="dv">011</span>, <span class="at">label =</span> <span class="st">"Expected distribution"</span>, </span>
+<span id="cb60-14"><a href="#cb60-14" aria-hidden="true" tabindex="-1"></a>                    <span class="at">col =</span> <span class="dv">1</span>, <span class="at">cex =</span> .<span class="dv">8</span>, <span class="at">adj =</span> <span class="dv">0</span>)</span>
+<span id="cb60-15"><a href="#cb60-15" aria-hidden="true" tabindex="-1"></a>       })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-ranef-logistic-intercepts" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ranef-logistic-intercepts-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-ranef-logistic-intercepts-1.png" class="img-fluid figure-img" width="307">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ranef-logistic-intercepts-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;11: Fit between text-specific logits and the random-intercept distribution assumed by the model.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Let us also look at the fit between model and data on the proportion scale. <a href="#fig-ranef-logistic-fit" class="quarto-xref">Figure&nbsp;12</a> shows that the match is also pretty good on this scale.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>draw figure</summary>
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>interpolated_to_100_steps <span class="ot">&lt;-</span> <span class="fu">approx</span>(</span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">x =</span> <span class="fu">plogis</span>(<span class="fu">seq</span>(<span class="sc">-</span><span class="dv">4</span>, <span class="dv">1</span>, <span class="at">length =</span> <span class="dv">300</span>)),</span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">y =</span> <span class="fu">dnorm</span>(<span class="fu">seq</span>(<span class="sc">-</span><span class="dv">4</span>, <span class="dv">1</span>, <span class="at">length =</span> <span class="dv">300</span>), <span class="at">mean=</span><span class="sc">-</span><span class="fl">1.42830</span>, <span class="at">sd=</span>.<span class="dv">66</span>),</span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">xout =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">length=</span><span class="dv">100</span>))</span>
+<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-6"><a href="#cb61-6" aria-hidden="true" tabindex="-1"></a><span class="fu">xyplot</span>(<span class="dv">1</span> <span class="sc">~</span> <span class="dv">1</span>, <span class="at">type =</span> <span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,.<span class="dv">03</span>),</span>
+<span id="cb61-7"><a href="#cb61-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">par.settings =</span> my_settings, <span class="at">axis =</span> axis_bottom,</span>
+<span id="cb61-8"><a href="#cb61-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">scales =</span> <span class="fu">list</span>(</span>
+<span id="cb61-9"><a href="#cb61-9" aria-hidden="true" tabindex="-1"></a>         <span class="at">x =</span> <span class="fu">list</span>(</span>
+<span id="cb61-10"><a href="#cb61-10" aria-hidden="true" tabindex="-1"></a>               <span class="at">at =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">25</span>, .<span class="dv">5</span>, .<span class="dv">75</span>, <span class="dv">1</span>),</span>
+<span id="cb61-11"><a href="#cb61-11" aria-hidden="true" tabindex="-1"></a>               <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">".25"</span>, <span class="st">".50"</span>, <span class="st">".75"</span>, <span class="st">"1"</span>))),</span>
+<span id="cb61-12"><a href="#cb61-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab.top =</span> <span class="st">"Logistic regression with random intercepts</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb61-13"><a href="#cb61-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab =</span> <span class="st">"Text-specific proportion of passive verb phrases"</span>, <span class="at">ylab =</span> <span class="cn">NULL</span>,</span>
+<span id="cb61-14"><a href="#cb61-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">panel =</span> <span class="cf">function</span>(x,y){</span>
+<span id="cb61-15"><a href="#cb61-15" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.dotdiagram</span>(d<span class="sc">$</span>prop_passive, <span class="at">scale_y =</span> .<span class="dv">002</span>, <span class="at">n_bins=</span><span class="dv">80</span>, <span class="at">set_col=</span><span class="st">"grey60"</span>, <span class="at">seq_min =</span> <span class="dv">0</span>, <span class="at">seq_max =</span> <span class="dv">1</span>)</span>
+<span id="cb61-16"><a href="#cb61-16" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.points</span>(<span class="at">x =</span> interpolated_to_100_steps<span class="sc">$</span>x,</span>
+<span id="cb61-17"><a href="#cb61-17" aria-hidden="true" tabindex="-1"></a>                      <span class="at">y =</span> interpolated_to_100_steps<span class="sc">$</span>y<span class="sc">/</span><span class="dv">30</span>, <span class="at">type =</span> <span class="st">"l"</span>)</span>
+<span id="cb61-18"><a href="#cb61-18" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.text</span>(<span class="at">x =</span> .<span class="dv">48</span>, <span class="at">y =</span> .<span class="dv">015</span>, <span class="at">label =</span> <span class="st">"Observed distribution"</span>, </span>
+<span id="cb61-19"><a href="#cb61-19" aria-hidden="true" tabindex="-1"></a>                    <span class="at">col =</span> <span class="st">"grey40"</span>, <span class="at">cex =</span> .<span class="dv">8</span>, <span class="at">adj =</span> <span class="dv">0</span>)</span>
+<span id="cb61-20"><a href="#cb61-20" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.text</span>(<span class="at">x =</span> .<span class="dv">25</span>, <span class="at">y =</span> .<span class="dv">03</span>, <span class="at">label =</span> <span class="st">"Expected distribution"</span>, </span>
+<span id="cb61-21"><a href="#cb61-21" aria-hidden="true" tabindex="-1"></a>                    <span class="at">col =</span> <span class="dv">1</span>, <span class="at">cex =</span> .<span class="dv">8</span>, <span class="at">adj =</span> <span class="dv">0</span>)</span>
+<span id="cb61-22"><a href="#cb61-22" aria-hidden="true" tabindex="-1"></a>       })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-ranef-logistic-fit" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ranef-logistic-fit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-ranef-logistic-fit-1.png" class="img-fluid figure-img" width="384">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ranef-logistic-fit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;12: Fit between the logistic random-effetcs model and the data.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>We can again use this probability distribution to summarize text-to-text variation. The interquartile range based on this model is</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plogis</span>(</span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">qnorm</span>(</span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">c</span>(.<span class="dv">25</span>, .<span class="dv">75</span>), </span>
+<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean =</span> <span class="fu">fixef</span>(m), </span>
+<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd =</span> .<span class="dv">66</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb62-6"><a href="#cb62-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.133 0.272</code></pre>
+</div>
+</div>
+<p>The <em>median</em> proportion coincides with the back-transformed model intercept:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plogis</span>(</span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">qnorm</span>(</span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>    .<span class="dv">5</span>, </span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean =</span> <span class="fu">fixef</span>(m), </span>
+<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">sd =</span> .<span class="dv">66</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb64-6"><a href="#cb64-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.193</code></pre>
+</div>
+</div>
+<p>Let us now consider the discrepancy between the back-transformed model intercept and the mean prediction returned by the <code>{marginaleffects}</code> package.</p>
+<p>The model intercept represents the center of the bell-shaped curve in <a href="#fig-ranef-logistic-intercepts" class="quarto-xref">Figure&nbsp;11</a>. This means that by-text random intercepts are averaged on the logit scale, and this <strong>mean over text-specific logits</strong> is then back-transformed to the proportion scale. This estimate is often referred to as a <em>conditional/cluster-specific</em> estimate.</p>
+<p>In contrast, the default average prediction returned by <code>{marginaleffects}</code> first back-transforms the text-specific logits to the proportion scale and then calculates a <strong>mean over text-specific proportions</strong>, i.e.&nbsp;the distribution in <a href="#fig-ranef-logistic-fit" class="quarto-xref">Figure&nbsp;12</a>. This estimate is often referred to as a <em>marginal/population-averaged</em> estimate. The difference between these means (or estimates) is whether the averaging over clusters (here: texts) was done on the logit or the proportion scale.</p>
+<p>We can use the <code>{marginaleffects}</code> package to produce both kinds of averages. We get the <strong>mean over text-specific logits</strong> by ignoring (or “turning off”) the clustering variable when making predictions. This can be done as follows:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="fu">avg_predictions</span>(</span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>  m, </span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">newdata =</span> <span class="fu">datagrid</span>(</span>
+<span id="cb66-4"><a href="#cb66-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">id =</span> <span class="cn">NA</span>),</span>
+<span id="cb66-5"><a href="#cb66-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">re.form =</span> <span class="cn">NA</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb66-6"><a href="#cb66-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb66-7"><a href="#cb66-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(estimate, conf.low, conf.high) <span class="sc">|&gt;</span> </span>
+<span id="cb66-8"><a href="#cb66-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+  estimate conf.low conf.high
+     &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1    0.193    0.177      0.21</code></pre>
+</div>
+</div>
+<p>The following code, in contrast, works the estimated distribution of cluster-level proportions into the predictions:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="fu">avg_predictions</span>(</span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a>  m, </span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">re.form =</span> <span class="sc">~</span>(<span class="dv">1</span><span class="sc">|</span>id)) <span class="sc">|&gt;</span> </span>
+<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb68-5"><a href="#cb68-5" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(estimate, conf.low, conf.high) <span class="sc">|&gt;</span> </span>
+<span id="cb68-6"><a href="#cb68-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 3
+  estimate conf.low conf.high
+     &lt;dbl&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+1    0.212    0.195     0.229</code></pre>
+</div>
+</div>
+</section>
+<section id="comparison" class="level4">
+<h4 class="anchored" data-anchor-id="comparison">Comparison</h4>
+<p><a href="#fig-comparison" class="quarto-xref">Figure&nbsp;13</a> brings together the estimates from the different models. The first thing we note is that, in terms of proposed statistical precision, they form two groups: The binomial model is the odd one out, with a very narrow confidence interval on the estimated proportion. All other models produce confidence intervals that are very similar in length.</p>
+<p>The second thing to note is that estimates form three groups:</p>
+<ul>
+<li>The lowest estimate is the conditional mean based on the logistic random-effects model. It is the <strong>mean over cluster-specific logits</strong>, back-transformed to the proportion scale.</li>
+<li>The marginal mean from the same model, which is the <strong>mean over cluster-specific proportions</strong> (nearly) coincides with the mean proportion returned by the beta-binomial model, and (interestingly) the conditional estimate from the ordinary random-effects model.</li>
+<li>The third group, which yields an intermediate predicted proportion, is formed by the binomial, the quasi-binomial, and the marginal estimate from the ordinary random-effects model.</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>draw figure</summary>
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>comp_models <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">model =</span> <span class="fu">c</span>(<span class="st">"Binomial"</span>, <span class="st">"Quasi-binomial"</span>, <span class="st">"Beta-binomial"</span>, </span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a>                <span class="st">"Ordinary random-effects (conditional)"</span>,</span>
+<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a>                <span class="st">"Ordinary random-effects (marginal)"</span>,</span>
+<span id="cb70-5"><a href="#cb70-5" aria-hidden="true" tabindex="-1"></a>                <span class="st">"Logistic random-effects (conditional)"</span>,</span>
+<span id="cb70-6"><a href="#cb70-6" aria-hidden="true" tabindex="-1"></a>                <span class="st">"Logistic random-effects (marginal)"</span>),</span>
+<span id="cb70-7"><a href="#cb70-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimate =</span> <span class="fu">c</span>(pred_binomial<span class="sc">$</span>estimate,</span>
+<span id="cb70-8"><a href="#cb70-8" aria-hidden="true" tabindex="-1"></a>               pred_quasibin<span class="sc">$</span>estimate,</span>
+<span id="cb70-9"><a href="#cb70-9" aria-hidden="true" tabindex="-1"></a>               pred_betabin<span class="sc">$</span>estimate,</span>
+<span id="cb70-10"><a href="#cb70-10" aria-hidden="true" tabindex="-1"></a>               pred_ord_ranef_c<span class="sc">$</span>estimate,</span>
+<span id="cb70-11"><a href="#cb70-11" aria-hidden="true" tabindex="-1"></a>               pred_ord_ranef_m<span class="sc">$</span>estimate,</span>
+<span id="cb70-12"><a href="#cb70-12" aria-hidden="true" tabindex="-1"></a>               pred_log_ranef_c<span class="sc">$</span>estimate,</span>
+<span id="cb70-13"><a href="#cb70-13" aria-hidden="true" tabindex="-1"></a>               pred_log_ranef_m<span class="sc">$</span>estimate),</span>
+<span id="cb70-14"><a href="#cb70-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">ci_lower =</span> <span class="fu">c</span>(pred_binomial<span class="sc">$</span>conf.low,</span>
+<span id="cb70-15"><a href="#cb70-15" aria-hidden="true" tabindex="-1"></a>               pred_quasibin<span class="sc">$</span>conf.low,</span>
+<span id="cb70-16"><a href="#cb70-16" aria-hidden="true" tabindex="-1"></a>               pred_betabin<span class="sc">$</span>conf.low,</span>
+<span id="cb70-17"><a href="#cb70-17" aria-hidden="true" tabindex="-1"></a>               pred_ord_ranef_c<span class="sc">$</span>conf.low,</span>
+<span id="cb70-18"><a href="#cb70-18" aria-hidden="true" tabindex="-1"></a>               pred_ord_ranef_m<span class="sc">$</span>conf.low,</span>
+<span id="cb70-19"><a href="#cb70-19" aria-hidden="true" tabindex="-1"></a>               pred_log_ranef_c<span class="sc">$</span>conf.low,</span>
+<span id="cb70-20"><a href="#cb70-20" aria-hidden="true" tabindex="-1"></a>               pred_log_ranef_m<span class="sc">$</span>conf.low),</span>
+<span id="cb70-21"><a href="#cb70-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">ci_upper =</span> <span class="fu">c</span>(pred_binomial<span class="sc">$</span>conf.high,</span>
+<span id="cb70-22"><a href="#cb70-22" aria-hidden="true" tabindex="-1"></a>               pred_quasibin<span class="sc">$</span>conf.high,</span>
+<span id="cb70-23"><a href="#cb70-23" aria-hidden="true" tabindex="-1"></a>               pred_betabin<span class="sc">$</span>conf.high,</span>
+<span id="cb70-24"><a href="#cb70-24" aria-hidden="true" tabindex="-1"></a>               pred_ord_ranef_c<span class="sc">$</span>conf.high,</span>
+<span id="cb70-25"><a href="#cb70-25" aria-hidden="true" tabindex="-1"></a>               pred_ord_ranef_m<span class="sc">$</span>conf.high,</span>
+<span id="cb70-26"><a href="#cb70-26" aria-hidden="true" tabindex="-1"></a>               pred_log_ranef_c<span class="sc">$</span>conf.high,</span>
+<span id="cb70-27"><a href="#cb70-27" aria-hidden="true" tabindex="-1"></a>               pred_log_ranef_m<span class="sc">$</span>conf.high)</span>
+<span id="cb70-28"><a href="#cb70-28" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb70-29"><a href="#cb70-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-30"><a href="#cb70-30" aria-hidden="true" tabindex="-1"></a>comp_models<span class="sc">$</span>model <span class="ot">&lt;-</span> <span class="fu">factor</span>(</span>
+<span id="cb70-31"><a href="#cb70-31" aria-hidden="true" tabindex="-1"></a>  comp_models<span class="sc">$</span>model,</span>
+<span id="cb70-32"><a href="#cb70-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Binomial"</span>, <span class="st">"Quasi-binomial"</span>, <span class="st">"Beta-binomial"</span>, </span>
+<span id="cb70-33"><a href="#cb70-33" aria-hidden="true" tabindex="-1"></a>                <span class="st">"Ordinary random-effects (conditional)"</span>,</span>
+<span id="cb70-34"><a href="#cb70-34" aria-hidden="true" tabindex="-1"></a>                <span class="st">"Ordinary random-effects (marginal)"</span>,</span>
+<span id="cb70-35"><a href="#cb70-35" aria-hidden="true" tabindex="-1"></a>                <span class="st">"Logistic random-effects (conditional)"</span>,</span>
+<span id="cb70-36"><a href="#cb70-36" aria-hidden="true" tabindex="-1"></a>                <span class="st">"Logistic random-effects (marginal)"</span>),</span>
+<span id="cb70-37"><a href="#cb70-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">ordered =</span> <span class="cn">TRUE</span></span>
+<span id="cb70-38"><a href="#cb70-38" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb70-39"><a href="#cb70-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-40"><a href="#cb70-40" aria-hidden="true" tabindex="-1"></a>comp_models <span class="sc">|&gt;</span> </span>
+<span id="cb70-41"><a href="#cb70-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">y =</span> model, <span class="at">x =</span> estimate)) <span class="sc">+</span></span>
+<span id="cb70-42"><a href="#cb70-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fu">c</span>(.<span class="dv">1935</span>, .<span class="dv">203</span>, .<span class="dv">213</span>), <span class="at">color =</span> <span class="st">"grey95"</span>, <span class="at">lwd=</span><span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb70-43"><a href="#cb70-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb70-44"><a href="#cb70-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_linerange</span>(<span class="fu">aes</span>(<span class="at">xmin =</span> ci_lower, <span class="at">xmax =</span> ci_upper)) <span class="sc">+</span></span>
+<span id="cb70-45"><a href="#cb70-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(.<span class="dv">18</span>, .<span class="dv">23</span>, .<span class="dv">01</span>), </span>
+<span id="cb70-46"><a href="#cb70-46" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">".18"</span>, <span class="st">".19"</span>, <span class="st">".20"</span>, <span class="st">".21"</span>, <span class="st">".22"</span>, <span class="st">".23"</span>)) <span class="sc">+</span></span>
+<span id="cb70-47"><a href="#cb70-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic_ls</span>() <span class="sc">+</span></span>
+<span id="cb70-48"><a href="#cb70-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Estimated proportion of passives"</span>) <span class="sc">+</span></span>
+<span id="cb70-49"><a href="#cb70-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="cn">NULL</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-comparison" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-comparison-1.png" class="img-fluid figure-img" width="432">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;13: Comparison of model-based mean predictions.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="summary" class="level4">
+<h4 class="anchored" data-anchor-id="summary">Summary</h4>
+<p>We discussed different approaches to modeling clustered binomial data. These differ in the way they address the resulting non-independence of observations in the data. If a clustering variable is present, it is generally preferable to use a model that links the observed non-independence to this source. These (proper) modeling approaches represent the observed variation across clusters in different ways, and they yield different types of estimates for the mean proportion in the population of interest. We saw how the <code>{marginaleffects}</code> package can be used to construct these mean predictions, which mainly differ in terms of the scale on which they average over cluster-specific quantities.</p>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-Agresti2013" class="csl-entry" role="listitem">
+Agresti, Alan. 2013. <em>Categorical Data Analysis</em>. Hoboken, NJ: Wiley.
+</div>
+<div id="ref-Anderson1988" class="csl-entry" role="listitem">
+Anderson, Dorothy A. 1988. <span>“Some Models for Overdispersed Data.”</span> <em>Australian Journal of Statistics</em> 30 (2): 125–48. <a href="https://doi.org/10.1111/j.1467-842x.1988.tb00844.x">https://doi.org/10.1111/j.1467-842x.1988.tb00844.x</a>.
+</div>
+<div id="ref-ArelBundock_etal2024" class="csl-entry" role="listitem">
+Arel-Bundock, Vincent, Noah Greifer, and Andrew Heiss. 2024. <span>“How to Interpret Statistical Models Using <span class="nocase">marginaleffects</span> for <span>R</span> and <span>Python</span>.”</span> <em>Journal of Statistical Software</em> 111 (9): 1–32. <a href="https://doi.org/10.18637/jss.v111.i09">https://doi.org/10.18637/jss.v111.i09</a>.
+</div>
+<div id="ref-Bates_etal2015" class="csl-entry" role="listitem">
+Bates, Douglas, Martin Mächler, Ben Bolker, and Steve Walker. 2015. <span>“Fitting Linear Mixed-Effects Models Using <span class="nocase">lme4</span>.”</span> <em>Journal of Statistical Software</em> 67 (1): 1–48. <a href="https://doi.org/10.18637/jss.v067.i01">https://doi.org/10.18637/jss.v067.i01</a>.
+</div>
+<div id="ref-Evert2023" class="csl-entry" role="listitem">
+Evert, Stephanie. 2023. <em>Corpora: Statistics and Data Sets for Corpus Frequency Data</em>. <a href="https://doi.org/10.32614/CRAN.package.corpora">https://doi.org/10.32614/CRAN.package.corpora</a>.
+</div>
+<div id="ref-Finney1971" class="csl-entry" role="listitem">
+Finney, David J. 1971. <em>Probit Analysis</em>. New York: Cambridge University Press.
+</div>
+<div id="ref-Lesnoff_Lancelot2012" class="csl-entry" role="listitem">
+Lesnoff, M., Lancelot, and R. 2012. <em>Aod: Analysis of Overdispersed Data</em>. <a href="https://cran.r-project.org/package=aod">https://cran.r-project.org/package=aod</a>.
+</div>
+<div id="ref-Scherer2018" class="csl-entry" role="listitem">
+Scherer, Ralph. 2018. <em>PropCIs: Various Confidence Interval Methods for Proportions</em>. <a href="https://doi.org/10.32614/CRAN.package.PropCIs">https://doi.org/10.32614/CRAN.package.PropCIs</a>.
+</div>
+<div id="ref-Soenning_Schlueter2022" class="csl-entry" role="listitem">
+Sönning, Lukas, and Julia Schlüter. 2022. <span>“Comparing Standard Reference Corpora and Google Books Ngrams: Strengths, Limitations and Synergies in the Contrastive Study of Variable h- in British and American English.”</span> In <em>Data and Methods in Corpus Linguistics</em>, 17–45. Cambridge University Press. <a href="https://doi.org/10.1017/9781108589314.002">https://doi.org/10.1017/9781108589314.002</a>.
+</div>
+</div></section><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{sönning2025,
+  author = {Sönning, Lukas},
+  title = {Modeling Clustered Binomial Data},
+  date = {2025-05-09},
+  url = {https://lsoenning.github.io/posts/2025-05-05_binomial_overdispersion/},
+  langid = {en}
+}
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-sönning2025" class="csl-entry quarto-appendix-citeas" role="listitem">
+Sönning, Lukas. 2025. <span>“Modeling Clustered Binomial Data.”</span>
+May 9, 2025. <a href="https://lsoenning.github.io/posts/2025-05-05_binomial_overdispersion/">https://lsoenning.github.io/posts/2025-05-05_binomial_overdispersion/</a>.
+</div></div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/lsoenning\.github\.io");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

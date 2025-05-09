@@ -156,6 +156,7 @@ The representation of the four genres in Brown is linguistically motivated. The 
 
 Different estimands require different estimators: The currency-informed estimand of the normalized frequency weights genres in proportion to their representation in the corpus. This is equivalent to simply obtaining the corpus frequency of *should*: Divide the number of occurrences by the corpus size. The equal-importance estimand, on the other hand, requires a simple average over four occurrence rates, one for each genre.
 
+
 #### Corpus frequencies are weighted averages
 
 The typical way of answering the research questions we formulated above would be the following:

@@ -1,0 +1,932 @@
+---
+title: "Modeling clustered binomial data"
+description: "This blog post illustrates a number of strategies for modeling clustered binomial data. It describes how they handle the non-independence among observations and what kind of estimates they return."
+date: 2025-05-09
+categories: [corpus linguistics, regression, clustered data, binary data]
+citation: 
+  url: https://lsoenning.github.io/posts/2025-05-05_binomial_overdispersion/ 
+---
+
+A typical feature of corpus data is their hierarchical layout. Observations are usually clustered, which is the case if multiple data points are from the same text (or speaker). Observations from the same source are usually more similar to one another, reflecting idiosyncracies of the author/speaker or particularities of the context of language use. For binary outcome variables, there are different options for modeling such data. This blog post builds on a paper by @Anderson1988 and contrasts approaches that differ in the way they represent (or account for) the non-independence of data points.
+
+```{r}
+#| warning: false
+#| message: false
+#| code-fold: true
+#| code-summary: "R setup"
+
+library(tidyverse)         # for data wrangling and visualization
+library(marginaleffects)   # to compute model-based estimates
+library(corpora)           # for data on passives
+library(kableExtra)        # for drawing html tables
+library(lattice)           # for data visualization
+library(likelihoodExplore) # for drawing the binomial likelihood
+library(gamlss)            # to fit a variant of the quasi-binomial model
+library(aod)               # to fit a beta-binomial model
+library(PropCIs)           # to calculate Wilson score CIs
+library(doBy)              # to convert data from short to long format
+library(lme4)              # to fit mixed-effects regression models
+
+
+source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
+```
+
+
+#### Data: Passives in academic writing
+
+We use data on the frequency of the passive in the Brown Family of corpora, which is part of the `{corpora}` package [@Evert2023]. We concentrate on the genre Learned and consider texts from Brown and Frown.
+
+```{r}
+d <- PassiveBrownFam |> 
+  filter(
+    genre == "learned",
+    corpus %in% c("Brown", "Frown")) |> 
+  select(id, corpus, act, pass, verbs)
+```
+
+This leaves us with 160 texts:
+
+```{r}
+str(d)
+```
+
+There is one row per text and the following variables are relevant for our analyses:
+
+-   `id` text identifier
+-   `corpus` source corpus ("Brown" vs. "Frown")
+-   `act` number of active verb phrases in the text
+-   `pass` number of passive verb phrases in the text
+-   `verbs` total number of verb phrases in the text
+
+For each text, the frequency of the passive can be expressed as a proportion: the proportion of verb phrases that are in the passive voice. We add this variable to the data frame:
+
+```{r}
+d$prop_passive <- d$pass/d$verbs
+```
+
+We use a dot diagram to inspect the distribution of these proportions across the 160 texts. In @fig-dotdiagram, each dot represents a text, and the scores reflect the share of passive verb phrases among all verb phrases in the text document. We will refer to this quantity as the *text-specific proportion of passive verb phrases*.
+
+```{r}
+#| fig-width: 3.5
+#| fig-height: 1.1
+#| code-fold: true
+#| code-summary: "draw figure"
+#| label: fig-dotdiagram
+#| fig-cap: "Dot diagram showing the proportion of passive verb phrases in the 160 texts."
+#| message: false
+#| warning: false
+ 
+d |> 
+  ggplot(aes(x = prop_passive)) +
+  geom_dotplot(method = "histodot", binwidth = .015, dotsize=.8) +
+  theme_dotplot() +
+  scale_x_continuous(
+    limits = c(0,1), expand = c(0,0),
+    breaks = c(0, .25, .5, .75, 1),
+    labels = c("0", ".25", ".50", ".75", "1")) +
+  xlab("Proportion of passive verb phrases")
+```
+
+The 160 texts also differ in the number of verb phrases they contain, so let us also look at this distribution. @fig-dotdiagram-wordcount shows that this count varies between roughly 100 and 250.
+
+```{r}
+#| fig-width: 3.5
+#| fig-height: 1.5
+#| code-fold: true
+#| code-summary: "draw figure"
+#| label: fig-dotdiagram-wordcount
+#| fig-cap: "Dot diagram showing the distirbution of the number of verb phrases per text file."
+#| message: false
+#| warning: false
+
+d |> 
+  ggplot(aes(x = verbs)) +
+  geom_dotplot(method = "histodot", binwidth = 3, dotsize = .7) +
+    theme_dotplot() +
+    xlab("Number of verb phrases")
+```
+
+The 160 texts can be considered a sample of academic prose from the language variety of interest, written American English in the second half of the 20^th^ century. In selecting (or sampling) these 160 academic texts, the corpus compilers essentially selected a set of authors, or speakers, of this language variety. In some sense, these individuals represent the primary sampling units: Our sample size for making inference about a larger population of speakers is 160.
+
+Each text in the Brown Family of corpora is around 2,000 words long. A text excerpt, and the verb phrases it contains, can be considered as a sample from a (hypothetical) population, the academic prose produced by a specific author. At this level, the language use (or writing style) of this individual is the population of interest. The 2,000 words, (or, e.g., 160 verb phrases) then represent the secondary sampling units.
+
+This means that we can use the information in the text to make inferences about the underlying propensity of the author(s) to use the passive voice in their academic writing. Texts with fewer verb phrases provide less information, and -- due to sampling variation -- we would expect smaller samples to yield more variable proportions [see @Soenning_Schlueter2022 for an illustration].
+
+This is indeed the case for the present data. The point cloud in the @fig-scatterplot-sampling-variation below shows a trumpet-like shape: the highest proportions are from the texts with the fewest verb phrases. We should note, however, that other factors may contribute to this pattern: Thus, texts with fewer verb phrases necessarily feature longer (and presumably more elaborate) sentences, an indicator of abstract writing style that is also associated with passive usage.
+
+```{r}
+#| fig-width: 3
+#| fig-height: 2.2
+#| code-fold: true
+#| code-summary: "draw figure"
+#| label: fig-scatterplot-sampling-variation
+#| fig-cap: "Scatterplot showing the relation between the proportion of passives and the sample size (number of verb phrases in the text)."
+#| message: false
+#| warning: false
+
+d |> ggplot(aes(x = verbs, y = prop_passive)) +
+  geom_point() +
+  theme_classic() +
+  scale_y_continuous(
+    limits = c(0,1), expand = c(0,0),
+    breaks = c(0, .5, 1),
+    labels = c("0", ".5", "1")) +
+  ylab("Proportion of passives") +
+  xlab("Number of verb phrases in the text")
+```
+
+To emphasize the two-stage sampling design involved in corpus compilation, let us make visual inferences about the language use of the individual authors. To this end, we can construct a 95% confidence interval for each text-specific estimate. We will use the package `{PropCIs}` [@Scherer2018] to calculate 95% Wilson score confidence intervals for each of the 160 texts.
+
+@fig-dotplot-text-cis presents text-level estimates of the proportion of passives with a 95% confidence interval. The degree of overlap among the 160 intervals can be interpreted as giving an indication of the heterogeneity of the individual authors. If the 160 authors showed a similar inclination toward the passive, we would observe considerable overlap among the error bars. Judging from the figure below, however, there seems to be appreciably heterogeneity.
+
+```{r}
+#| fig-width: 7
+#| fig-height: 2
+#| code-fold: true
+#| code-summary: "draw figure"
+#| label: fig-dotplot-text-cis
+#| fig-cap: "Estimated proportion of passives for all texts in the data (grouped by corpus), presented with a 95% confidence interval."
+#| message: false
+#| warning: false
+
+ci_upper <- NA
+ci_lower <- NA
+
+for(i in 1:160){
+  ci_lower[i] <- scoreci(x = d$pass[i], n = d$verbs[i], conf.level = .95)$conf.int[1]
+  ci_upper[i] <- scoreci(x = d$pass[i], n = d$verbs[i], conf.level = .95)$conf.int[2]
+}
+
+xyplot(1~1, type = "n", ylim=c(0,1), xlim = c(0,163),
+       par.settings = my_settings, axis = axis_left,
+       scales = list(
+         y = list(
+               at = c(0, .5, 1),
+               label = c("0", ".5", "1"))),
+       ylab = "Proportion of passives", xlab = NULL,
+       panel = function(x,y){
+         panel.points(x=c(1:80, 83:162), y = d$prop_passive)
+         panel.segments(x0=c(1:80, 83:162), x1 = c(1:80, 83:162), y0 = ci_lower, y1 = ci_upper)
+         panel.segments(x0=1, x1=80, y0=0, y1=0)
+         panel.segments(x0=83, x1=162, y0=0, y1=0)
+         panel.text(x=c(40.5, 122.5), y = -.1, label = c("Brown", "Frown"))
+         panel.text(x=162, y = -.25, label="Error bars: 95% CIs", col = "grey40", cex = .8, adj=1)
+       })
+```
+
+#### Binomial model
+
+We start with a simple binomial model, which basically ignores the structure of the data. It uses a single parameter to express the mean proportion of the passive in the dataset. This means that it essentially treats all verb phrases in the data (*n* = `r sum(d$verbs)`) as an unstructured sample from the population of interest, each one drawn independently of the other ones. The way the data are presented to the model, with one row per text, does not matter to the binomial model -- it produces the same result if we supply just one row, with `verbs` representing the total number of verb phrases and `pass` the total number of passives in the data.
+
+Since the clustering variable Text is not taken into account, the model rests on the assumption that the 160 texts share the same underlying relative frequency of the passive. This means that the authors are assumed to be perfectly homogeneous with respect to their stylistic preferences. Under this model, the observed variability in proportions is merely a result of sampling variation, which in turn depends on (i) the number of verb phrases in the text, and (ii) the overall proportion of the passive.
+
+Point (ii) deserves some more comment. For binomial data, sampling variation is smaller the closer we get to 0 and 1. This is due to the boundedness of the scale -- near 0 or 1, there is less room for variation. Statistically speaking, the variance of the binomial distribution depends on its mean. As @fig-binomial-mean-var illustrates, it is greatest at .50 and decreases toward the endpoints of the proportion scale. This means that the variability of observed proportions depends on the mean of the binomial distribution.
+
+```{r}
+#| fig-width: 2.8
+#| fig-height: 1.4
+#| code-fold: true
+#| code-summary: "draw figure"
+#| label: fig-binomial-mean-var
+#| fig-cap: "Mean-variance relationship in the binomial model."
+#| message: false
+#| warning: false
+
+xyplot(
+  1~1, type = "n", xlim=c(0,1), ylim = c(0,.25),
+  par.settings = my_settings, axis = axis_L,
+  scales = list(y = list(
+    at = c(0, .1, .2, .3, .4, .5),
+    label = c("0", ".1", ".2", ".3", ".4", ".5")),
+    x = list(
+      at = c(0, .25, .5, .75, 1),
+      labels = c("0", ".25", ".50", ".75", "1"))),
+  ylab = "Variance",
+  xlab = "Mean",
+  panel = function(x,y){
+    panel.points(x = seq(0, 1, .01),
+                 y = (seq(0, 1, .01)*(1-seq(0, 1, .01))),
+                 type="l")
+       })
+```
+
+We can fit this model in R using the `glm()` function:
+
+```{r}
+m <- glm(
+  cbind(pass, act) ~ 1, 
+  data = d, 
+  family = "binomial")
+```
+
+The model intercept is `r round(as.numeric(coef(m)), 2)`, which is the mean probability of the passive, expressed on the log odds scale. We can use the function `plogis()` to back-transform to the proportion scale:
+
+```{r}
+round(
+  plogis(coef(m)), 3)
+```
+
+A 95% CI can be constructed using the function `confint()`:
+
+```{r}
+#| message: false
+
+plogis(confint(m))
+```
+
+Model-based estimates on the proportion scale are easy to obtain using the `{marginaleffects}` package [@ArelBundock_etal2024]. The function `avg_predictions()` returns a model-based prediction of the mean probability of a passive verb phrase in the population of interest, along with a 95% CI.
+
+```{r}
+avg_predictions(m) |> 
+  tidy() |> 
+  select(estimate, conf.low, conf.high) |> 
+  round(3)
+```
+
+```{r}
+#| echo: false
+pred_binomial <- avg_predictions(m) |> 
+  tidy() |> 
+  select(estimate, conf.low, conf.high)
+```
+
+The estimated proportion of .203 comes with a crisp 95% CI, which ranges from .198 to .208. Apparently, the model is very confident in its predicted probability of the passive voice.
+
+To check how well the binomial model fits the data, we can ask it to "retrodict" the data, i.e. to tell us what it thinks the distribution of the 160 text-level proportions looks like. For this task, the binomial model uses the estimated overall proportion (.203) and the sample size for each text, i.e. the number of verb phrases it contains. It can then produce a density curve for each text, which is centered on .203 and spread out in accordance with the sample size: for a text with more verb phrases, the density curve is more peaked, and for a text with fewer verb phrases it is spread more widely around .203. Importantly, however, all density curves are centered on .203, the estimate of the population proportion.
+
+@fig-binomial-fit draws the 160 density curves against the observed distribution of text-specific proportions. Apparently, the model fails to capture the heterogeneity among texts.
+
+```{r}
+#| fig.width: 4
+#| fig-height: 1.8
+#| code-fold: true
+#| code-summary: "draw figure"
+#| label: fig-binomial-fit
+#| fig-cap: "Fit between the binomial model and the data."
+#| message: false
+#| warning: false
+#| classes: preview-image
+
+xyplot(
+  1 ~ 1, type = "n", xlim=c(0,1), ylim = c(0,.16),
+  par.settings = my_settings, axis = axis_bottom,
+  scales = list(
+    x = list(
+      at = c(0, .25, .5, .75, 1),
+      label = c("0", ".25", ".50", ".75", "1"))),
+  xlab.top = "Binomial model\n",
+  xlab = "Text-specific proportion of passive verb phrases", ylab = NULL,
+  panel = function(x,y){
+    panel.dotdiagram(d$prop_passive, scale_y = .006, n_bins=50, set_col="grey")
+    for(i in 1:160){
+      panel.points(
+        x = seq(0, 1, length = 100),
+        y = exp(likbinom(
+          x = round(d$verbs[i]*.203), 
+          size = d$verbs[i], 
+          prob = seq(0,1, length = 100), log = TRUE)) /
+          sum(exp(likbinom(
+            x = round(d$verbs[i]*.203), 
+            size = d$verbs[i], 
+            prob = seq(0,1, length = 100), log = TRUE))),
+        type = "l", alpha = .1)
+      }
+    panel.text(x = .4, y = .06, label = "Observed distribution", col = "grey40", cex = .9, adj = 0)
+    panel.text(x = .25, y = .13, label = "Expected distribution", col = 1, cex = .9, adj = 0)
+    })
+```
+
+If the observed data show greater variation than anticipated by a statistical model, the data are said to be *overdispersed* relative to this model. Alternative modeling approaches take into account this overdispersion, or heterogeneity. As we will see, however, they do so in different ways.
+
+
+#### Quasi-binomial model including a heterogeneity parameter
+
+A quasi-binomial model includes a second parameter that explicitly captures the excess variation in the data [see @Agresti2013, pp. 150-151]. This *dispersion parameter* adjusts the variance of the binomial distribution and is often denoted as $\phi$. It is estimated on the basis of a global $\chi^2$ fit statistic for the model.
+
+In this way, the quasi-binomial model allows the standard deviation of observed proportions to be greater than anticipated by the simple dependency on the mean of the distribution, which we saw in @fig-binomial-mean-var above. Essentially, the dispersion parameter is a multiplicative factor that adjusts the variance of the binomial distribution upwards. If the dispersion parameter is 1, the model reduces to the binomial model discussed above. The dispersion parameter also affects inferences from the model: standard errors are multiplied by $\sqrt{\phi}$. 
+
+We can fit a quasi-binomial model using the `glm()` function in R:
+
+```{r}
+m <- glm(
+  cbind(pass, act) ~ 1, 
+  data = d, 
+  family = "quasibinomial")
+```
+
+Then we use the `{marginaleffects}` package to obtain the model-based predicted probability of a passive verb phrase (+ 95% CI):
+
+```{r}
+avg_predictions(m) |> 
+  tidy() |> 
+  select(estimate, conf.low, conf.high) |> 
+  round(3)
+```
+
+```{r}
+#| echo: false
+pred_quasibin <- avg_predictions(m) |> 
+  tidy() |> 
+  select(estimate, conf.low, conf.high)
+```
+
+This produces the same estimate as above, but with a wider uncertainty interval. The model intercept, once back-transformed to the probability scale, yields the same estimate:
+
+```{r}
+round(
+  plogis(coef(m)), 3)
+```
+
+The heterogeneity factor adjusts the variance of the binomial distribution to align the model with the excess variability in the observed proportions. However, the model still assumes a constant underlying proportion for all authors. The heterogeneity parameter basically states that some perturbation, perhaps caused by omitted predictors or positively correlated (i.e. non-independent) observations in each row of the table, leads to greater variability of the observed proportions. The model does not point to a specific source of the overdispersion.
+
+Since the variance is increased proportionally to the overdisersion parameter, the bell-shaped curves are spread out more widely. This is illustrated in the figure below. We see that the fit between model and data is much better now.
+
+```{r}
+#| echo: false
+m <- gamlss(cbind(pass, act) ~ 1, data=d, family="DBI",
+            trace = FALSE)
+
+```
+
+```{r}
+#| fig.width: 4
+#| fig-height: 1.4
+#| code-fold: true
+#| code-summary: "draw figure"
+#| label: fig-quasibinomial-fit
+#| fig-cap: "Fit between the quasi-binomial model and the data."
+#| message: false
+#| warning: false
+
+xyplot(
+  1 ~ 1, type = "n", xlim=c(0,1), ylim = c(0,.06),
+  par.settings = my_settings, axis = axis_bottom,
+  scales = list(
+    x = list(
+      at = c(0, .25, .5, .75, 1),
+      label = c("0", ".25", ".50", ".75", "1"))),
+  xlab.top = "Quasi-binomial model\n",
+  xlab = "Text-specific proportion of passive verb phrases", ylab = NULL,
+  panel = function(x,y){
+    panel.dotdiagram(d$prop_passive, scale_y = .004, n_bins=50, set_col="grey")
+    for(i in 1:160){
+      interpolated_to_100_steps <- approx(
+        x = (0:d$verbs[i])/d$verbs[i],
+        y = dDBI(0:d$verbs[i], mu=.203, sigma=11, bd=d$verbs[i]),
+        xout = seq(0, 1, length=100))
+      
+      panel.points(x = interpolated_to_100_steps$x,
+                   y = interpolated_to_100_steps$y/sum(interpolated_to_100_steps$y),
+                   type = "l", alpha = .1)
+    }
+    panel.text(x = .48, y = .03, label = "Observed distribution", 
+               col = "grey40", cex = .9, adj = 0)
+    panel.text(x = .25, y = .055, label = "Expected distribution", 
+               col = 1, cex = .9, adj = 0)
+  })
+```
+
+However, the quasi-binomial model does *not* represent the structure in our data. It does not attribute the excess variation in proportions to the fact that we are looking at 160 different texts, from speakers who may very well show different stylistic attitudes toward passive usage. Rather, it states that *some* noise variable increased the sampling variation when drawing verb phrases from each speaker, with speakers nevertheless being actually homogeneous with respect to their underlying usage rate of the passive. 
+
+While the quasi-binomial model effectively adjusts inferences for the non-independence of observations, the way in which this is achieved may not be appropriate in all situations [see @Finney1971, p. 72]. In particular, if the data are clustered, this information should be explicitly taken into account. The models we consider next embrace the data structure and introduce parameters that describe between-cluster variation, thereby linking overdispersion to a specific source. As noted by @Agresti2013 [p. 151], this approach is preferable, because it actually models the observed heterogeneity.
+
+#### Beta-binomial model
+
+The beta-binomial model also includes a second parameter, but this parameter has a different function (and interpretation). It explicitly allows for the possibility that the texts in the data differ in the underlying probability of passive usage. This parameter aims to represent the distribution of text-specific proportions, which means that it actively takes into account the clustering variable Text. If texts vary considerably, reflecting large overdispersion relative to the binomial model, the parameter describing the text-to-text variation will be large. If there is no evidence for surplus variation among texts, the beta-binomial model reduces to the binomial model. The relationship between the binomial mean and variance (see @fig-binomial-mean-var) therefore remains unaltered.
+
+Since the text-specific proportions are bounded between 0 and 1, a distribution that respects these limits must be used. In the case of the beta-binomial model, this is the beta distribution. As discussed in more detail in [this blog post](https://lsoenning.github.io/posts/2024-01-11_beta_regression_quantifiers/){target="_blank"}, the beta distribution has two parameterizations. It can be defined using two so-called shape parameters, or it can be defined using a mean and a standard deviation parameter. The mean, in our case, is the model-based overall mean proportion of passive verb phrases.
+
+We can fit a beta-binomial model using the function `betabin()` in the R package `{aod}` [@Lesnoff_Lancelot2012]:
+
+```{r}
+m <- betabin(
+  cbind(pass, act) ~ 1, 
+  ~ 1, 
+  data = d)
+```
+
+The parameter controlling the spread of the text-specific proportions is termed $\phi$. It can be extracted from the model object as follows:
+
+```{r}
+m@random.param
+```
+
+The $\phi$ parameter returned by `aod::betabin()` is the reciprocal of the standard deviation of the beta distribution, so we convert it:
+
+```{r}
+sd_beta <- 1/m@random.param
+```
+
+This gives us the mean and standard deviation of the beta distribution that describes the variability among texts. To graph this distribution, we need to translate these parameters into shape parameters (see [this blog post](https://lsoenning.github.io/posts/2024-01-11_beta_regression_quantifiers/){target="_blank"}):
+
+```{r}
+muphi_to_shapes <- function(mu, phi) {
+  shape1 <- mu * phi
+  shape2 <- (1 - mu) * phi
+  return(list(shape1 = shape1, shape2 = shape2))
+}
+
+shape_parameters <- muphi_to_shapes(
+  mu = plogis(coef(m)), 
+  phi = 1/m@random.param)
+```
+
+We can now graph the beta distribution:
+
+```{r}
+#| fig-width: 3.3
+#| fig-height: 1.2
+#| code-fold: true
+#| code-summary: "draw figure"
+#| label: fig-beta
+#| fig-cap: "Beta density describing the distirbution of text-specific proportions."
+#| message: false
+#| warning: false
+
+xyplot(
+  1~1, type = "n", xlim=c(0,1), ylim = c(0,5),
+  par.settings = my_settings, axis = axis_bottom,
+  scales = list(x = list(
+      at = c(0, .25, .5, .75, 1),
+      labels = c("0", ".25", ".50", ".75", "1"))),
+  xlab = "Text-specific proportion of passive verb phrases", ylab = NULL,
+  panel = function(x,y){
+    panel.points(x = seq(0, 1, .01),
+                 y = dbeta(seq(0, 1, .01), 
+                           shape1 = shape_parameters$shape1,
+                           shape2 = shape_parameters$shape2),
+                 type="l")
+    panel.text(x=.4, y=5, label="Beta distribution with parameters:", 
+               col = "grey40", cex=.8, adj=0)
+    panel.text(x=.45, y = 3.5, label = "\u2022 Mean = 0.21; SD = 15.4",
+               col = "grey40", cex=.8, adj=0)
+    panel.text(x=.45, y = 2.5, label = "\u2022 Shape 1 = 3.3; Shape 2 = 12.1",
+               col = "grey40", cex=.8, adj=0)
+       })
+```
+
+The intercept of the beta-binomial model translates into a slightly higher mean probability of the passive:
+
+```{r}
+plogis(coef(m))
+```
+
+The function `avg_predictions()` returns the same estimate, along with an appropriately wide confidence interval:
+
+```{r}
+avg_predictions(m) |> 
+  tidy() |> 
+  select(estimate, conf.low, conf.high) |> 
+  round(3)
+```
+
+```{r}
+#| echo: false
+pred_betabin <- avg_predictions(m) |> 
+  tidy() |> 
+  select(estimate, conf.low, conf.high)
+```
+
+Finally, we check the fit between model and data visually (see @fig-betabinomial-fit). The beta distribution appears to capture the spread of the observed text-specific proportions quite well. We should note, however, that the density curve does not capture the additional variation among the observed proportions that is due to sampling variation. The dots are therefore expected to be spread out more widely, albeit only slightly so due to the large sample sizes (see @fig-dotdiagram-wordcount).
+
+```{r}
+#| fig.width: 4
+#| fig-height: 1.5
+#| code-fold: true
+#| code-summary: "draw figure"
+#| label: fig-betabinomial-fit
+#| fig-cap: "Fit between the beta-binomial model and the data."
+#| message: false
+#| warning: false
+
+xyplot(1 ~ 1, type = "n", xlim=c(0,1), ylim = c(0,.03),
+       par.settings = my_settings, axis = axis_bottom,
+       scales = list(
+         x = list(
+               at = c(0, .25, .5, .75, 1),
+               label = c("0", ".25", ".50", ".75", "1"))),
+       xlab.top = "Beta-binomial model\n",
+       xlab = "Text-specific proportion of passive verb phrases", ylab = NULL,
+       panel = function(x,y){
+         panel.dotdiagram(d$prop_passive, scale_y = .002, n_bins=80, set_col="grey60", seq_min = -.125,, seq_max = 1)
+         panel.points(x = seq(0, 1, length=100),
+                      y = dbeta(x = seq(0, 1, length=100),
+                                shape1 = shape_parameters$shape1, 
+                                shape2 = shape_parameters$shape2)/200, type = "l")
+         panel.text(x = .48, y = .015, label = "Observed distribution", 
+                    col = "grey40", cex = .8, adj = 0)
+         panel.text(x = .25, y = .03, label = "Expected distribution", 
+                    col = 1, cex = .8, adj = 0)
+       })
+```
+
+Since the variation in text-specific rates is represented using a probability distribution, we can use the beta-binomial model to describe this variation in informative ways. For instance, we may be interested in the interquartile range, i.e. the spread of the central 50% of the proportions.
+
+```{r}
+qbeta(
+  c(.25, .75), 
+  shape1 = shape_parameters$shape1, 
+  shape2 = shape_parameters$shape2) |> 
+  round(3)
+```
+
+Or, seeing that the the model estimate is the *mean* over the text-specific proportions, we may instead be interested in the *median* proportion:
+
+```{r}
+qbeta(
+  .5, 
+  shape1 = shape_parameters$shape1, 
+  shape2 = shape_parameters$shape2) |> 
+  round(3)
+```
+
+We now move on to a class of models that may be more familiar to many researchers: Mixed-effects regression models.
+
+
+#### Random-effects model with identity link
+
+We start with an ordinary random-effects regression model, which models the data on the proportion scale. This kind of model fails to respect the scale limits and does not account for the relationship between the binomial mean and variance (see @fig-binomial-mean-var).
+
+To run this model, we first need to convert the data from frequency to case form, so that each row in the data represents a verb phrase:
+
+```{r}
+d_long <- binomial_to_bernoulli_data(
+  response_name = "passive",
+  data = d, 
+  y = pass,
+  size = verbs, 
+  type = "total"  
+)
+d_long$passive <- as.numeric(d_long$passive) - 1
+```
+
+Now we fit the model using the function `lmer()` in the R package `{lme4}` [@Bates_etal2015].
+
+```{r}
+m <- lmer(
+  passive ~ (1|id), 
+  data = d_long)
+```
+
+Let us first look at model-based predictions, which look fine:
+
+```{r}
+avg_predictions(m) |> 
+  tidy() |> 
+  select(estimate, conf.low, conf.high) |> 
+  round(3)
+```
+
+However, these differ from the model intercept, which is higher:
+
+```{r}
+fixef(m)
+```
+
+We will return to this discrepancy, which is due to the fact that these are two different means, at the end of this section. 
+
+Let us look at the fit between model and data. The ordinary random-intercept model assumes that the text-specific proportions are distributed normally around the overall mean. It describes this distribution using a standard deviation parameter, which can be obtained as follows:
+
+```{r}
+summary(m)$varcor$id[1] |> 
+  sqrt()
+```
+
+In @fig-ranef-ordinary-fit, the density curve shows what the model *thinks* the data look like, which does not match the observed distribution. In fact, the symmetric bell-shaped curve provides a rather poor fit to the text-specific proportions: It expects negative proportions (dotted part of the curve), and it fails to capture the scale-induced asymmetry of the distribution.
+
+```{r}
+#| fig.width: 4
+#| fig-height: 1.5
+#| code-fold: true
+#| code-summary: "draw figure"
+#| label: fig-ranef-ordinary-fit
+#| fig-cap: "Fit between the ordinary random-effects model and the data."
+#| message: false
+#| warning: false
+
+xyplot(1 ~ 1, type = "n", xlim=c(0,1), ylim = c(0,.03),
+       par.settings = my_settings, axis = axis_bottom,
+       scales = list(
+         x = list(
+               at = c(0, .25, .5, .75, 1),
+               label = c("0", ".25", ".50", ".75", "1"))),
+       xlab.top = "Ordinary regression with random intercepts\n",
+       xlab = "Text-specific proportion of passive verb phrases", ylab = NULL,
+       panel = function(x,y){
+         panel.dotdiagram(d$prop_passive, scale_y = .002, n_bins=80, set_col="grey60", seq_min = -.125,, seq_max = 1)
+         panel.points(x = seq(-.2, 0, length=20),
+                      y = dnorm(x = seq(-.2, 0, length=20),
+                                mean = .203, sd = .1122)/190, type = "l", lty = "13")
+         
+         panel.points(x = seq(0, 1, length=100),
+                      y = dnorm(x = seq(0, 1, length=100),
+                                mean = .203, sd = .1122)/190, type = "l")
+
+         panel.text(x = .48, y = .015, label = "Observed distribution", 
+                    col = "grey40", cex = .8, adj = 0)
+         panel.text(x = .25, y = .03, label = "Expected distribution", 
+                    col = 1, cex = .8, adj = 0)
+       })
+```
+
+@fig-ranef-ordinary-fit helps us understand the discrepancy between the back-transformed model intercept (.212) and the mean prediction produced by the `{marginaleffects}` package (.203). The model intercept represents the center of the bell-shaped curve in @fig-ranef-ordinary-fit. If the text proportions were indeed distributed symmetrically around this center, the intercept would coincide with the mean prediction. This is because the default way in which the `{marginaleffects}` package calculates mean predictions from a model with random effects proceeds in two steps: First, a prediction is made for each cluster (here: text), based on the cluster-specific random intercept. In step 2, these cluster predictions are averaged. 
+
+If the cluster-specific means form a symmetric distribution, they will tend to cancel out, leading to no (or very minor) discrepancies between the two types of prediction. In the present case, the text-specific predictions do not form a symmetric pile. The center of gravity is below .212, and the mean over the estimated asymmetric distribution of cluster proportions therefore lower.
+
+We can retrieve both types of means using the `{marginaleffects}` package. The model intercept is equivalent to ignoring (or "turning off") the clustering variable when making predictions. This can be done as follows:
+
+```{r}
+avg_predictions(
+  m, 
+  newdata = datagrid(
+    id = NA),
+  re.form = NA) |> 
+  tidy() |> 
+  dplyr::select(estimate, conf.low, conf.high) |> 
+  round(3)
+```
+
+```{r}
+#| echo: false
+pred_ord_ranef_c <- avg_predictions(
+  m, 
+  newdata = datagrid(
+    id = NA),
+  re.form = NA) |> 
+  tidy() |> 
+  dplyr::select(estimate, conf.low, conf.high)
+```
+
+The following code, in contrast, works the estimated distribution of cluster-level proportions into the predictions:
+
+```{r}
+avg_predictions(
+  m, 
+  re.form = ~(1|id)) |> 
+  tidy() |> 
+  dplyr::select(estimate, conf.low, conf.high) |> 
+  round(3)
+```
+
+```{r}
+#| echo: false
+pred_ord_ranef_m <- avg_predictions(
+  m, 
+  re.form = ~(1|id)) |> 
+  tidy() |> 
+  dplyr::select(estimate, conf.low, conf.high)
+```
+
+
+
+#### Random-effects model with logit link
+
+Finally, we fit a logistic random-effects model, which uses a logit link function to respect scale constraints. This means that the proportions are not modeled directly, but instead on the unbounded logistic (or log-odds) scale.
+
+We can fit the model with the `glmer()` function in the `{lme4}` package:
+
+```{r}
+m <- glmer(
+  cbind(pass, act) ~ 1 + (1|id), 
+  data = d, 
+  family = binomial)
+```
+
+Here is the mean prediction we get using the `{marginaleffects}` package:
+
+```{r}
+avg_predictions(m) |> 
+  tidy() |> 
+  select(estimate, conf.low, conf.high) |> 
+  round(3)
+```
+
+Again, we note that it differs from the back-transformed model intercept, which is now *lower*:
+
+```{r}
+plogis(fixef(m))
+```
+
+We are again dealing with two different types of means. Before we consider how this discrepancy arises, we take a closer look at the structure of the model.
+
+In this model, the random-intercept SD represents the variation between texts *on the logit scale*. We can extract the SD parameter as follows:
+
+```{r}
+summary(m)$varcor$id[1] |> 
+  sqrt()
+```
+
+The model therefore assumes that the distribution of the random intercepts is symmetric on the logit scale. We can graph the text-specific proportions on the logit scale and overlay the expected distribution. The distribution of logits seems to be quite well approximated by the normal density curve.
+
+```{r}
+#| fig.width: 3.2
+#| fig-height: 1.6
+#| code-fold: true
+#| code-summary: "draw figure"
+#| label: fig-ranef-logistic-intercepts
+#| fig-cap: "Fit between text-specific logits and the random-intercept distribution assumed by the model."
+#| message: false
+#| warning: false
+
+xyplot(1 ~ 1, type = "n", xlim=c(-3.5, 1.1), ylim = c(0,.02),
+       par.settings = my_settings, axis = axis_bottom,
+       xlab.top = "Logistic regression with random intercepts\n",
+       xlab = "Text-specific logit of passive verb phrases", ylab = NULL,
+       panel = function(x,y){
+         panel.dotdiagram(qlogis(d$prop_passive), scale_y = .0012, n_bins=50,
+                          set_col="grey60", seq_min = -3.5, seq_max = .9)
+         panel.points(x = seq(-3.5, .8, .1),
+                      y = dnorm(seq(-3-5, .8, .1), mean = fixef(m), sd = .66)/50,
+                      type = "l")
+         panel.text(x = -2, y = .015, label = "Observed distribution", 
+                    col = "grey40", cex = .8, adj = 1)
+         panel.text(x = -.75, y = .011, label = "Expected distribution", 
+                    col = 1, cex = .8, adj = 0)
+       })
+
+```
+
+Let us also look at the fit between model and data on the proportion scale. @fig-ranef-logistic-fit shows that the match is also pretty good on this scale. 
+
+```{r}
+#| fig.width: 4
+#| fig-height: 1.5
+#| code-fold: true
+#| code-summary: "draw figure"
+#| label: fig-ranef-logistic-fit
+#| fig-cap: "Fit between the logistic random-effetcs model and the data."
+#| message: false
+#| warning: false
+
+interpolated_to_100_steps <- approx(
+        x = plogis(seq(-4, 1, length = 300)),
+        y = dnorm(seq(-4, 1, length = 300), mean=-1.42830, sd=.66),
+        xout = seq(0, 1, length=100))
+
+xyplot(1 ~ 1, type = "n", xlim=c(0,1), ylim = c(0,.03),
+       par.settings = my_settings, axis = axis_bottom,
+       scales = list(
+         x = list(
+               at = c(0, .25, .5, .75, 1),
+               label = c("0", ".25", ".50", ".75", "1"))),
+       xlab.top = "Logistic regression with random intercepts\n",
+       xlab = "Text-specific proportion of passive verb phrases", ylab = NULL,
+       panel = function(x,y){
+         panel.dotdiagram(d$prop_passive, scale_y = .002, n_bins=80, set_col="grey60", seq_min = 0, seq_max = 1)
+         panel.points(x = interpolated_to_100_steps$x,
+                      y = interpolated_to_100_steps$y/30, type = "l")
+         panel.text(x = .48, y = .015, label = "Observed distribution", 
+                    col = "grey40", cex = .8, adj = 0)
+         panel.text(x = .25, y = .03, label = "Expected distribution", 
+                    col = 1, cex = .8, adj = 0)
+       })
+```
+
+
+We can again use this probability distribution to summarize text-to-text variation. The interquartile range based on this model is
+
+```{r}
+plogis(
+  qnorm(
+    c(.25, .75), 
+    mean = fixef(m), 
+    sd = .66)) |> 
+  round(3)
+```
+
+The *median* proportion coincides with the back-transformed model intercept:
+
+```{r}
+plogis(
+  qnorm(
+    .5, 
+    mean = fixef(m), 
+    sd = .66)) |> 
+  round(3)
+```
+
+Let us now consider the discrepancy between the back-transformed model intercept and the mean prediction returned by the `{marginaleffects}` package. 
+
+The model intercept represents the center of the bell-shaped curve in @fig-ranef-logistic-intercepts. This means that by-text random intercepts are averaged on the logit scale, and this **mean over text-specific logits** is then back-transformed to the proportion scale. This estimate is often referred to as a *conditional/cluster-specific* estimate.
+
+In contrast, the default average prediction returned by `{marginaleffects}` first back-transforms the text-specific logits to the proportion scale and then calculates a **mean over text-specific proportions**, i.e. the distribution in @fig-ranef-logistic-fit. This estimate is often referred to as a *marginal/population-averaged* estimate. The difference between these means (or estimates) is whether the averaging over clusters (here: texts) was done on the logit or the proportion scale.
+
+We can use the `{marginaleffects}` package to produce both kinds of averages. We get the **mean over text-specific logits** by ignoring (or "turning off") the clustering variable when making predictions. This can be done as follows:
+
+```{r}
+avg_predictions(
+  m, 
+  newdata = datagrid(
+    id = NA),
+  re.form = NA) |> 
+  tidy() |> 
+  dplyr::select(estimate, conf.low, conf.high) |> 
+  round(3)
+```
+
+The following code, in contrast, works the estimated distribution of cluster-level proportions into the predictions:
+  
+```{r}
+avg_predictions(
+  m, 
+  re.form = ~(1|id)) |> 
+  tidy() |> 
+  dplyr::select(estimate, conf.low, conf.high) |> 
+  round(3)
+```
+
+```{r}
+#| echo: false
+
+pred_log_ranef_c <- avg_predictions(
+  m, 
+  newdata = datagrid(
+    id = NA),
+  re.form = NA) |> 
+  tidy() |> 
+  dplyr::select(estimate, conf.low, conf.high)
+
+pred_log_ranef_m <- avg_predictions(
+  m, 
+  re.form = ~(1|id)) |> 
+  tidy() |> 
+  dplyr::select(estimate, conf.low, conf.high)
+```
+
+#### Comparison
+
+@fig-comparison brings together the estimates from the different models. The first thing we note is that, in terms of proposed statistical precision, they form two groups: The binomial model is the odd one out, with a very narrow confidence interval on the estimated proportion. All other models produce confidence intervals that are very similar in length.
+
+The second thing to note is that estimates form three groups:
+
+- The lowest estimate is the conditional mean based on the logistic random-effects model. It is the **mean over cluster-specific logits**, back-transformed to the proportion scale. 
+- The marginal mean from the same model, which is the  **mean over cluster-specific proportions** (nearly) coincides with the mean proportion returned by the beta-binomial model, and (interestingly) the conditional estimate from the ordinary random-effects model. 
+- The third group, which yields an intermediate predicted proportion, is formed by the binomial, the quasi-binomial, and the marginal estimate from the ordinary random-effects model.
+
+```{r}
+#| fig-width: 4.5
+#| fig-height: 1.8
+#| code-fold: true
+#| code-summary: "draw figure"
+#| label: fig-comparison
+#| fig-cap: "Comparison of model-based mean predictions."
+#| message: false
+#| warning: false
+
+comp_models <- tibble(
+  model = c("Binomial", "Quasi-binomial", "Beta-binomial", 
+                "Ordinary random-effects (conditional)",
+                "Ordinary random-effects (marginal)",
+                "Logistic random-effects (conditional)",
+                "Logistic random-effects (marginal)"),
+  estimate = c(pred_binomial$estimate,
+               pred_quasibin$estimate,
+               pred_betabin$estimate,
+               pred_ord_ranef_c$estimate,
+               pred_ord_ranef_m$estimate,
+               pred_log_ranef_c$estimate,
+               pred_log_ranef_m$estimate),
+  ci_lower = c(pred_binomial$conf.low,
+               pred_quasibin$conf.low,
+               pred_betabin$conf.low,
+               pred_ord_ranef_c$conf.low,
+               pred_ord_ranef_m$conf.low,
+               pred_log_ranef_c$conf.low,
+               pred_log_ranef_m$conf.low),
+  ci_upper = c(pred_binomial$conf.high,
+               pred_quasibin$conf.high,
+               pred_betabin$conf.high,
+               pred_ord_ranef_c$conf.high,
+               pred_ord_ranef_m$conf.high,
+               pred_log_ranef_c$conf.high,
+               pred_log_ranef_m$conf.high)
+)
+
+comp_models$model <- factor(
+  comp_models$model,
+  levels = c("Binomial", "Quasi-binomial", "Beta-binomial", 
+                "Ordinary random-effects (conditional)",
+                "Ordinary random-effects (marginal)",
+                "Logistic random-effects (conditional)",
+                "Logistic random-effects (marginal)"),
+  ordered = TRUE
+)
+
+comp_models |> 
+  ggplot(aes(y = model, x = estimate)) +
+  geom_vline(xintercept = c(.1935, .203, .213), color = "grey95", lwd=3) +
+  geom_point() +
+  geom_linerange(aes(xmin = ci_lower, xmax = ci_upper)) +
+  scale_x_continuous(breaks = seq(.18, .23, .01), 
+                     labels = c(".18", ".19", ".20", ".21", ".22", ".23")) +
+  theme_classic_ls() +
+  xlab("Estimated proportion of passives") +
+  ylab(NULL)
+```
+
+
+#### Summary
+
+We discussed different approaches to modeling clustered binomial data. These differ in the way they address the resulting non-independence of observations in the data. If a clustering variable is present, it is generally preferable to use a model that links the observed non-independence to this source. These (proper) modeling approaches represent the observed variation across clusters in different ways, and they yield different types of estimates for the mean proportion in the population of interest. We saw how the `{marginaleffects}` package can be used to construct these mean predictions, which mainly differ in terms of the scale on which they average over cluster-specific quantities. 
+
+

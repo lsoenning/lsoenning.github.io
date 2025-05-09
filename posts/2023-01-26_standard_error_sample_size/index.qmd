@@ -99,12 +99,26 @@ d |> ggplot(aes(x = N, y=R/N)) + geom_point()
 
 ```{r}
 m <- glm(cbind(R, N-R) ~ location * date, data=d, family="binomial")
-summary(m)
+anova(m)
+```
+
+```{r}
+m <- glm(cbind(R, N-R) ~ location + date, data=d, family="binomial")
+anova(m)
+```
+
+```{r}
+m <- glm(cbind(R, N-R) ~ date * location, data=d, family="binomial")
+anova(m)
 ```
 
 ```{r}
 anova(m)
 ```
+```{r}
+qchisq(.95, df = 78)
+```
+
 
 ```{r}
 car::Anova(m)

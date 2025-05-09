@@ -175,7 +175,7 @@ should_Brown |>
 
 ##### Crude answers to our research questions
 
-We may obtain crude (but quick) answers to our questions as follows. To measure the frequency of *should* in Brown, we divide its corpus frequency by the size of the corpus. We can do the same for Frown. We will multiply these rates by thousand, to get normalized frequencies 'per thousand words'.
+We may obtain crude (but quick) answers to our questions as follows. To measure the frequency of *should* in Brown, we divide its corpus frequency by the size of the corpus. We can do the same for Frown. We will multiply these rates by 1,000, to get normalized frequencies 'per thousand words'.
 
 ```{r}
 freq_should_Brown <- sum(should_Brown$n_tokens) / sum(should_Brown$n_words) * 1000
@@ -233,7 +233,7 @@ Let's take a look at the distribution of *should* in the Brown Corpus, by consid
 
 ```{r}
 #| fig-width: 7
-#| fig-height: 2.3
+#| fig-height: 2.2
 #| code-fold: true
 #| code-summary: "Draw Figure" 
 #| label: fig-should-dotdiagram
@@ -259,7 +259,7 @@ Our analyses will include Genre as a predictor -- specifically, the broad text c
 
 ```{r}
 #| fig-width: 7.5
-#| fig-height: 2.7
+#| fig-height: 2.5
 #| code-fold: true
 #| code-summary: "Draw Figure" 
 #| label: fig-should-dotdiagram-genre
@@ -282,7 +282,7 @@ d_modals |> filter(
   scale_y_continuous(expand = c(.008,0)) +
   scale_x_continuous(expand = c(0,0), breaks = c(0, 5, 10)) +
   xlab("Normalized frequency of should\n(per 1,000 words)") +
-  ggh4x::force_panelsizes(cols = c(2,3.05,1.2,1.2)) +
+  ggh4x::force_panelsizes(cols = c(2,3.05,1.2,1.25)) +
   coord_flip()
 ```
 

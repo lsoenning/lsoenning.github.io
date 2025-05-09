@@ -257,7 +257,7 @@ d |>
   ggplot(
   aes(x = age_group, 
       y = rate_pmw_0_start, 
-      size = count)) + 
+      size = total)) + 
   geom_jitter(shape = 1, alpha = .5, width = .2) +
   facet_grid(. ~ gender) +
   scale_y_log10(breaks = c(60, 100, 1000, 10000),
@@ -272,7 +272,7 @@ d |>
 
 ```
 
-We note that the subgroup of female speakers aged 70 to 79 includes an exceptionally large bubble, which represents a speaker with both (i) a disproportionately high rate of *actually* and (ii) a disproportionately high word count. This speaker exerts considerable influence on the subcorpus frequency, which is upwardly biased as a result. In the subgroup of male speakers aged 70 to 79, the speaker with the largest word count (i.e. the largest circle) uses *actually* at a relatively low rate, which likewise distorts the subcorpus frequency of this group.
+We note that the subgroup of male speakers aged 70 to 79 includes an exceptionally large bubble, which represents a speaker with both (i) a disproportionately low rate of *actually* and (ii) a disproportionately high word count. This speaker exerts considerable influence on the subcorpus frequency, which is downwardly biased as a result. In the subgroup of female speakers aged 70 to 79, the two largest bubbles also show the highest rate of *actually* in this subgroup, which likewise distorts the subcorpus frequency of this group.
 
 To summarize, corpus frequencies can be quite misleading if the size of the units in the corpus (i.e. texts or speakers) varies appreciably. A simple reassurance check compares the corpus frequency (or subcorpus frequency) with the mean text (or speaker) frequency. If these methods yield different results, we must decide which kind of frequency estimate is more appropriate for the research task at hand. In the current setting, there is no reason why a particular individual should receive greater weight when estimating a population quantity such as the usage rate of *actually* among 70-to-79-year-old female speakers of British English. In other words, the imbalance of word counts across speakers is a nuisance that must be adjusted for in the summary and analysis  of these data.
 
@@ -300,9 +300,9 @@ m_poi <- glm(
 
 We skip regression tables and directly proceed to the calculation of model-based estimates. To this end, we use the `predictions()` function in the very helpful `{marginaleffects}` package [@ArelBundock_etal2024]. We request estimates (i.e. predictions) for all combinations of Age (`age_group`) and Gender (`gender`), which means that we are not averaging over any predictor variables in the model. We specify these conditions (i.e. combinations of Age and Gender) using the `datagrid()` function. It creates a data frame of all predictor combinations of interest. Note that we must also supply a word count (`total`) to `datagrid()`; for model-based predictions, this variable controls the type of rate (or normalized frequency) returned by the `predictions()` function. We will stick to 'per million words' and therefore add `total = 1e6` to the `datagrid()` function. If you fail to specify a value for `total`, the `predictions()` function will press ahead and use the in-sample mean of this variable (i.e. 17,283) -- clearly, this is **not** what we want.
 
-Two further arguments in the code box below require some explanation. Count regression models are generalized linear models that do not model the data on the original data scale (as is the case in ordinary linear regression). Instead, a link scale is used, similar to logistic regression models. For count regression models, the counts (or in our case: rates) are modeled on the log scale. For interpretation, however, we prefer the orginial data scale -- in our case, normalized frequencies on the per-million-word scale. 
+Two further arguments in the code box below require some explanation. Count regression models are generalized linear models that do not model the data on the original data scale (as is the case in ordinary linear regression). Instead, a link scale is used, similar to logistic regression models. For count regression models, the counts (or in our case: rates) are modeled on the log scale. For interpretation, however, we prefer the original data scale -- in our case, normalized frequencies on the per-million-word scale. 
 
-The `predictions()` function therefore includes an argument `type`, which allows us to specify the scale on which predictions should be returned. Specifying `type = 'response'` asks for predictions on the data scale (i.e. normalized frequencies). Unfortunately, this will also return uncertainty intervals that are computed using the data-scale standard error. As you can check for yourself, this does not work well in the represent case, as some of the lower CI limits are then negative (which is impossible). We therefore ask for predictions on the model scale (i.e. natural logarithms) using `type = 'link'` and then backtransform these to the data scale using `transform = exp`.
+The `predictions()` function therefore includes an argument `type`, which allows us to specify the scale on which predictions should be returned. Specifying `type = 'response'` asks for predictions on the data scale (i.e. normalized frequencies). Unfortunately, this will also return uncertainty intervals that are computed using the data-scale standard error. As you can check for yourself, this does not work well in the represent case, as some of the lower CI limits are then negative (which is impossible). We therefore ask for predictions on the model scale (i.e. natural logarithms) using `type = 'link'` and then back-transform these to the data scale using `transform = exp`.
 
 ```{r}
 preds_poi <- predictions(

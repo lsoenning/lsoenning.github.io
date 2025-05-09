@@ -1,0 +1,618 @@
+---
+title: "Modeling clustered binomial data with a cluster-level predictor"
+description: "This is a follow-up to an earlier blog post on different strategies for modeling clustered binomial data. It extends this comparison to an analysis that includes a cluster-level predictor."
+date: 2025-05-08
+categories: [corpus linguistics, regression, clustered data, binary data]
+citation: 
+  url: https://lsoenning.github.io/posts/2025-05-07_binomial_overdispersion_predictor/ 
+draft: true
+---
+
+Corpus data often have a hierarchical structure, which means that there are usually  multiple tokens, or data points, from the same text (or speaker). Observations from the same text tend to be more similar to one another, due to speaker idiosyncracies or particularities of the communicative situation. For binary outcome variables, there are different options for modeling such data. This blog post builds on a paper by @Anderson1988 and contrasts approaches that differ in the way they represent (or account for) the non-independence of data points. It extends the analyses presented in an earlier blog post by including a cluster-level predictor into the analysis.
+
+```{r}
+#| warning: false
+#| message: false
+#| code-fold: true
+#| code-summary: "R setup"
+
+library(tidyverse)         # for data wrangling and visualization
+library(marginaleffects)   # to compute model-based estimates
+library(corpora)           # for data on passives
+library(kableExtra)        # for drawing html tables
+library(lattice)           # for data visualization
+library(likelihoodExplore) # for drawing the binomial likelihood
+library(gamlss)            # to fit a variant of the quasi-binomial model
+library(aod)               # to fit a beta-binomial model
+library(PropCIs)           # to calculate WIlson score CIs
+library(doBy)              # to convert data from short to long format
+library(lme4)              # to fit mixed-effects regression models
+
+
+source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
+```
+
+#### Data: Passives in academic writing
+
+For a description of the data we use, please refer to [this blog post](https://lsoenning.github.io/posts/2025-05-05_binomial_overdispersion). We will use the Brown Corpus and Frown to examine whether the frequency of the passive has declined in American English academic writing. The data are part of the `{corpora}` package [@Evert2023], and we concentrate on the genre Learned and consider texts from Brown and Frown:
+
+```{r}
+d <- subset(
+  PassiveBrownFam, 
+  genre == "learned" & corpus %in% c("Brown", "Frown")) |> 
+  select(id, corpus, act, pass, verbs)
+```
+
+This leaves us with 160 texts. This data frame includes one row per text and the following variables are relevant for our analyses:
+
+-   `id` text identifier
+-   `corpus` source corpus ("Brown" vs. "Frown")
+-   `act` number of active verbs phrases in the text
+-   `pass` number of passive verbs phrases in the text
+-   `verbs` total number of verb phrases in the text
+
+```{r}
+str(d)
+d$corpus <- droplevels(d$corpus)
+```
+
+For a visual examination of the data, please refer to [this blog post](https://lsoenning.github.io/posts/2025-05-05_binomial_overdispersion). 
+
+The key question we will address in this blog post is whether the usage rate of the passive, expressed as the proportion of passive verb phrases among all verb phrases in a text file, has declined in the second half of the 20th century. Brown represents the year 1961 and Frown the year 1991. 
+
+We will consider different approaches to modeling these data. More background on the different types of model and their assumptions can be found in [this blog post](https://lsoenning.github.io/posts/2025-05-05_binomial_overdispersion). Here, we will concentrate on the diachronic results returned by the different models.
+
+
+#### Binomial model
+
+A simple binomial model, which ignores the structure of the data, can be fit with the `glm()` function:
+
+```{r}
+m <- glm(
+  cbind(pass, act) ~ corpus, 
+  data = d, 
+  family = "binomial")
+```
+
+```{r}
+summary(m)
+```
+We record the coefficient for the predictor Corpus (and its standard error) for later comparison:
+
+```{r}
+#| message: false
+
+tmp <- summary(m)
+coef_binomial <- tmp$coefficients[2,1:2]
+
+```
+
+
+Model-based estimates on the proportion scale are easy to obtain using the `{marginaleffects}` package [@ArelBundock_etal2024]. The function `avg_predictions()` returns a model-based prediction of the average probability of a passive verb phrase for each level of the predictor Corpus, along with a 95% CI.
+
+```{r}
+avg_predictions(
+  m,
+  variables = "corpus"
+) |> tidy()
+```
+
+The function `avg_comparisons()` can be used to directly compare the difference between Brown and Frown in the average probability of a passive verb phrase; a 95% CI is also returned by this function.
+
+```{r}
+avg_comparisons(
+  m,
+  variables = "corpus"
+) |> tidy()
+```
+
+The binomial model suggests a difference of \u22124.4 percentage points between the two corpora. The 95% CI, which ranges from \u22125.3 to \u22123.4 points, suggests that this difference is statistically reliable, leading us to conclude that the passive has decreased in frequency in the 30-year period under investigation.
+
+```{r}
+#| echo: false
+
+pred_binomial <- avg_predictions(
+  m,
+  variables = "corpus"
+) |> tidy() |> 
+  dplyr::select(estimate, std.error, conf.low, conf.high)
+
+comp_binomial <- avg_comparisons(
+  m,
+  variables = "corpus"
+) |> tidy() |> 
+  dplyr::select(estimate, std.error, conf.low, conf.high)
+
+```
+
+
+
+
+#### Quasi-binomial model including a heterogeneity parameter
+
+A quasi-binomial model can also be fit using the `glm()` function in R:
+
+```{r}
+m <- glm(
+  cbind(pass, act) ~ corpus, 
+  data = d, 
+  family = "quasibinomial")
+```
+
+The model summary tells us that the dispersion parameter estimated by the model is roughly 12.
+
+```{r}
+summary(m)
+```
+
+We record the coefficient for the predictor Corpus (and its standard error) for later comparison:
+
+```{r}
+#| message: false
+
+tmp <- summary(m)
+coef_quasibin <- tmp$coefficients[2,1:2]
+
+```
+
+
+We calculate model-based estimates using `avg_predictions()`:
+
+```{r}
+avg_predictions(
+  m,
+  variables = "corpus"
+) |> tidy()
+```
+
+And an estimate of the difference in relative frequency using `avg_comparisons()`:
+
+```{r}
+avg_comparisons(
+  m,
+  variables = "corpus"
+) |> tidy()
+```
+
+```{r}
+#| echo: false
+
+pred_quasibin <- avg_predictions(
+  m,
+  variables = "corpus"
+) |> tidy() |> 
+  dplyr::select(estimate, std.error, conf.low, conf.high)
+
+comp_quasibin <- avg_comparisons(
+  m,
+  variables = "corpus"
+) |> tidy() |> 
+  dplyr::select(estimate, std.error, conf.low, conf.high)
+
+```
+
+The model uses the dispersion parameter to adjust the size of the standard errors (and therefore the width of the CIs). These are increased by $\sqrt{\phi}$, i.e. $\sqrt{12}$ or 3.46. The following table shows that this is indeed the case:
+
+```{r}
+tibble(
+  `Estimate` = c("Brown", "Frown", "Difference"),
+  `Binomial` = c(pred_binomial$std.error, comp_binomial$std.error),
+  `Quasi-binomial` = c(pred_quasibin$std.error, comp_quasibin$std.error),
+  `Ratio` = c(pred_quasibin$std.error, comp_quasibin$std.error)/c(pred_binomial$std.error, comp_binomial$std.error)
+) |> kable()
+
+
+```
+
+
+
+
+#### Beta-binomial model
+
+A beta-binomial model can be run using the function `betabin()` in the R package `{aod}` [@Lesnoff_Lancelot2012]:
+
+```{r}
+m <- betabin(
+  cbind(pass, act) ~ corpus, 
+  ~ 1, 
+  data = d)
+```
+
+```{r}
+summary(m)
+```
+
+
+We record the coefficient for the predictor Corpus (and its standard error) for later comparison:
+
+```{r}
+#| message: false
+
+tmp <- summary(m)
+coef_betabin <- tmp@Coef[2,1:2]
+
+```
+
+We calculate model-based estimates using `avg_predictions()`:
+
+```{r}
+avg_predictions(
+  m,
+  variables = "corpus"
+) |> tidy()
+```
+
+And an estimate of the difference in relative frequency using `avg_comparisons()`:
+
+```{r}
+avg_comparisons(
+  m,
+  variables = "corpus"
+) |> tidy()
+```
+
+```{r}
+#| echo: false
+
+pred_betabin <- avg_predictions(
+  m,
+  variables = "corpus"
+) |> tidy() |> 
+  dplyr::select(estimate, std.error, conf.low, conf.high)
+
+comp_betabin <- avg_comparisons(
+  m,
+  variables = "corpus"
+) |> tidy() |> 
+  dplyr::select(estimate, std.error, conf.low, conf.high)
+
+```
+
+
+
+#### Random-effects model with identity link
+
+To fit an ordinary random-effects regression model, we first need to convert the data from a frequency to a case format, so that each row in the data represents a verb phrase:
+
+```{r}
+d_long <- binomial_to_bernoulli_data(
+  response_name = "passive",
+  data = d, 
+  y = pass,
+  size = verbs, 
+  type = "total"  
+)
+d_long$passive <- as.numeric(d_long$passive) - 1
+```
+
+Now we fit the model using the function `lmer()` in the R package `{lme4}` [@Bates_etal2015].
+
+```{r}
+m <- lmer(
+  passive ~ corpus + (1|id), 
+  data = d_long)
+```
+
+We record the coefficient for the predictor Corpus (and its standard error) for later comparison:
+
+```{r}
+#| message: false
+
+tmp <- summary(m)
+coef_ordranef <- tmp$coefficients[2,1:2]
+
+```
+
+We calculate model-based estimates using `avg_predictions()`:
+
+```{r}
+avg_predictions(
+  m,
+  variables = "corpus"
+) |> tidy()
+```
+
+And an estimate of the difference in relative frequency using `avg_comparisons()`:
+
+```{r}
+avg_comparisons(
+  m,
+  variables = "corpus"
+) |> tidy()
+```
+
+```{r}
+#| echo: false
+
+# pred_ordranef_c <- avg_predictions(
+#   m,
+#   variables = "corpus"
+# ) |> tidy()
+# 
+# comp_ordranef_m <- avg_comparisons(
+#   m,
+#   variables = "corpus"
+# ) |> tidy()
+
+pred_ord_ranef_c <- avg_predictions(
+  m, 
+  variables = "corpus",
+  newdata = datagrid(
+    id = NA),
+  re.form = NA) |> 
+  tidy() |> 
+  dplyr::select(estimate, std.error, conf.low, conf.high)
+
+pred_ord_ranef_m <- avg_predictions(
+  m, 
+  variables = "corpus",
+  re.form = ~(1|id)) |> 
+  tidy() |> 
+  dplyr::select(estimate, std.error, conf.low, conf.high)
+
+
+comp_ord_ranef_c <- avg_comparisons(
+  m, 
+  variables = "corpus",
+  newdata = datagrid(
+    id = NA),
+  re.form = NA) |> 
+  tidy() |> 
+  dplyr::select(estimate, std.error, conf.low, conf.high)
+
+comp_ord_ranef_m <- avg_comparisons(
+  m, 
+  variables = "corpus",
+  re.form = ~(1|id)) |> 
+  tidy() |> 
+  dplyr::select(estimate, std.error, conf.low, conf.high)
+
+```
+
+
+#### Random-effects model with logit link
+
+Finally, we fit a logistic random-effects model, with the `glmer()` function in the `{lme4}` package:
+
+```{r}
+m <- glmer(
+  cbind(pass, act) ~ corpus + (1|id), 
+  data = d, 
+  family = binomial)
+```
+
+
+We record the coefficient for the predictor Corpus (and its standard error) for later comparison:
+
+```{r}
+#| message: false
+
+tmp <- summary(m)
+coef_logranef <- tmp$coefficients[2,1:2]
+
+```
+
+We calculate model-based estimates using `avg_predictions()`:
+
+```{r}
+avg_predictions(
+  m,
+  variables = "corpus"
+) |> tidy()
+```
+
+And an estimate of the difference in relative frequency using `avg_comparisons()`:
+
+```{r}
+avg_comparisons(
+  m,
+  variables = "corpus"
+) |> tidy()
+```
+
+```{r}
+#| echo: false
+
+# pred_ordranef_c <- avg_predictions(
+#   m,
+#   variables = "corpus"
+# ) |> tidy()
+# 
+# comp_ordranef_m <- avg_comparisons(
+#   m,
+#   variables = "corpus"
+# ) |> tidy()
+
+pred_log_ranef_c <- avg_predictions(
+  m, 
+  variables = "corpus",
+  newdata = datagrid(
+    id = NA),
+  re.form = NA) |> 
+  tidy() |> 
+  dplyr::select(estimate, std.error, conf.low, conf.high)
+
+pred_log_ranef_m <- avg_predictions(
+  m, 
+  variables = "corpus",
+  re.form = ~(1|id)) |> 
+  tidy() |> 
+  dplyr::select(estimate, std.error, conf.low, conf.high)
+
+
+comp_log_ranef_c <- avg_comparisons(
+  m, 
+  variables = "corpus",
+  newdata = datagrid(
+    id = NA),
+  re.form = NA) |> 
+  tidy() |> 
+  dplyr::select(estimate, std.error, conf.low, conf.high)
+
+comp_log_ranef_m <- avg_comparisons(
+  m, 
+  variables = "corpus",
+  re.form = ~(1|id)) |> 
+  tidy() |> 
+  dplyr::select(estimate, std.error, conf.low, conf.high)
+
+```
+
+
+#### Comparison
+
+Model-based predictions and comparisons.
+
+```{r}
+#| fig-width: 6
+#| fig-height: 2.2
+
+pred_models <- tibble(
+  model = rep(c("Binomial", "Quasi-binomial", "Beta-binomial", 
+                "Ordinary random-effects (conditional)",
+                "Ordinary random-effects (marginal)",
+                "Logistic random-effects (conditional)",
+                "Logistic random-effects (marginal)"), each = 2),
+  corpus = rep(c("Brown", "Frown"), 7),
+  estimate = c(pred_binomial$estimate,
+               pred_quasibin$estimate,
+               pred_betabin$estimate,
+               pred_ord_ranef_c$estimate,
+               pred_ord_ranef_m$estimate,
+               pred_log_ranef_c$estimate,
+               pred_log_ranef_m$estimate),
+  ci_lower = c(pred_binomial$conf.low,
+               pred_quasibin$conf.low,
+               pred_betabin$conf.low,
+               pred_ord_ranef_c$conf.low,
+               pred_ord_ranef_m$conf.low,
+               pred_log_ranef_c$conf.low,
+               pred_log_ranef_m$conf.low),
+  ci_upper = c(pred_binomial$conf.high,
+               pred_quasibin$conf.high,
+               pred_betabin$conf.high,
+               pred_ord_ranef_c$conf.high,
+               pred_ord_ranef_m$conf.high,
+               pred_log_ranef_c$conf.high,
+               pred_log_ranef_m$conf.high)
+)
+pred_models$model <- factor(
+  pred_models$model,
+  levels = c("Binomial", "Quasi-binomial", "Beta-binomial", 
+                "Ordinary random-effects (conditional)",
+                "Ordinary random-effects (marginal)",
+                "Logistic random-effects (conditional)",
+                "Logistic random-effects (marginal)"),
+  ordered = TRUE
+)
+
+pred_models |> 
+  ggplot(aes(x = corpus, y = estimate, group = model)) +
+  geom_point() +
+  geom_line() +
+  geom_linerange(aes(ymin = ci_lower, ymax = ci_upper)) +
+  facet_grid(. ~ model) +
+  theme_classic_ls() +
+  ylab("Proportion of passives") +
+  xlab(NULL)
+```
+
+
+```{r}
+#| fig-width: 4.5
+#| fig-height: 1.8
+
+comp_models <- tibble(
+  model = c("Binomial", "Quasi-binomial", "Beta-binomial", 
+                "Ordinary random-effects (conditional)",
+                "Ordinary random-effects (marginal)",
+                "Logistic random-effects (conditional)",
+                "Logistic random-effects (marginal)"),
+  estimate = c(comp_binomial$estimate,
+               comp_quasibin$estimate,
+               comp_betabin$estimate,
+               comp_ord_ranef_c$estimate,
+               comp_ord_ranef_m$estimate,
+               comp_log_ranef_c$estimate,
+               comp_log_ranef_m$estimate),
+  ci_lower = c(comp_binomial$conf.low,
+               comp_quasibin$conf.low,
+               comp_betabin$conf.low,
+               comp_ord_ranef_c$conf.low,
+               comp_ord_ranef_m$conf.low,
+               comp_log_ranef_c$conf.low,
+               comp_log_ranef_m$conf.low),
+  ci_upper = c(comp_binomial$conf.high,
+               comp_quasibin$conf.high,
+               comp_betabin$conf.high,
+               comp_ord_ranef_c$conf.high,
+               comp_ord_ranef_m$conf.high,
+               comp_log_ranef_c$conf.high,
+               comp_log_ranef_m$conf.high)
+)
+comp_models$model <- factor(
+  comp_models$model,
+  levels = c("Binomial", "Quasi-binomial", "Beta-binomial", 
+                "Ordinary random-effects (conditional)",
+                "Ordinary random-effects (marginal)",
+                "Logistic random-effects (conditional)",
+                "Logistic random-effects (marginal)"),
+  ordered = TRUE
+)
+
+comp_models |> 
+  ggplot(aes(y = model, x = estimate)) +
+  geom_point() +
+  geom_linerange(aes(xmin = ci_lower, xmax = ci_upper)) +
+  theme_classic_ls() +
+  xlim(NA, 0) +
+  geom_vline(xintercept = 0, color = "grey") +
+  xlab("Difference") +
+  ylab(NULL)
+```
+
+
+Standard errors and log-odds estimates
+
+```{r}
+#| fig-width: 4
+#| fig-height: 1.8
+
+coefs_models <- tibble(
+  model = c("Binomial", "Quasi-binomial", "Beta-binomial", 
+                "Ordinary\nrandom-effects",
+                "Logistic\nrandom-effects"),
+  estimate = c(as.numeric(coef_binomial[1]),
+               as.numeric(coef_quasibin[1]),
+               as.numeric(coef_betabin[1]),
+               as.numeric(coef_ordranef[1]),
+               as.numeric(coef_logranef[1])),
+  se = c(as.numeric(coef_binomial[2]),
+               as.numeric(coef_quasibin[2]),
+               as.numeric(coef_betabin[2]),
+               as.numeric(coef_ordranef[2]),
+               as.numeric(coef_logranef[2]))
+)
+
+coefs_models$model_horizontal <- factor(
+  coefs_models$model,
+  levels = c("Binomial", "Quasi-binomial", "Beta-binomial", 
+                "Ordinary\nrandom-effects",
+                "Logistic\nrandom-effects"),
+  labels = c("Binomial", "Quasi-binomial", "Beta-binomial", 
+                "Ordinary random-effects",
+                "Logistic random-effects"),
+  ordered = TRUE
+)
+
+coefs_models |> 
+  ggplot(aes(y = model_horizontal, x = estimate)) +
+  geom_point() +
+  geom_linerange(aes(xmin = estimate-2*se, xmax = estimate+2*se)) +
+  theme_classic_ls() +
+  xlim(NA, 0) +
+  geom_vline(xintercept = 0, color = "grey") +
+  xlab("Difference") +
+  ylab(NULL)
+```
+

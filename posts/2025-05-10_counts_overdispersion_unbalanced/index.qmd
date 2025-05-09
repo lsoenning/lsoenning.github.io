@@ -1,0 +1,1023 @@
+---
+title: "Modeling clustered frequency data II: Texts of disproportionate length"
+description: "This blog post illustrates a number of strategies for modeling clustered count data. It describes how they handle the non-independence among observations and what kind of estimates they return. The focus is on a situation where texts have very different lengths."
+date: 2025-05-02
+categories: [corpus linguistics, regression, clustered data, frequency data]
+citation: 
+  url: https://lsoenning.github.io/posts/2025-05-09_counts_overdispersion_unbalanced/ 
+draft: true
+---
+
+When describing or modeling corpus-based frequency data, the fact that a corpus is divided into text files has consequences for statistical modeling. For count variables (which corpus linguists often summarize using normalized frequencies), there are several options. This blog post contrasts different regression approaches to clustered count data and clarifies how they deal with unequal text lengths.
+
+```{r}
+#| warning: false
+#| message: false
+#| code-fold: true
+#| code-summary: "R setup"
+
+library(tidyverse)       # for data wrangling and visualization
+library(dataverse)       # for downloading data from TROLLing
+library(marginaleffects) # to compute model-based estimates
+library(MASS)            # to fit a negative binomial regression model
+library(kableExtra)      # for drawing html tables
+library(lme4)            # to fit mixed-effects regression models
+library(lattice)         # for data visualization
+library(gamlss)          # to draw the density of the gamma distribution
+
+source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
+```
+
+#### Case study: *Actually* in the Spoken BNC2014
+
+Our illustrative data records the distribution of *actually* in the Spoken BNC2014 [@Love_etal2017], which was analyzed in @Soenning_Krug2022. For more information on the dataset, please refer to @Krug_Soenning2021.
+
+We start by downloading the data from *TROLLing*:
+
+```{r}
+dat <- get_dataframe_by_name(
+    filename  = "actually_data_2014.tab",
+    dataset   = "10.18710/A3SATC",
+    server    = "dataverse.no",
+    .f        = read.csv,
+    original  = TRUE
+  )
+```
+
+These include 668 speakers and the following speaker variables:
+
+-   an ID (`speaker`)
+-   the number of times they used *actually* (`count`)
+-   their age in years, if provided in the metadata (`Exact_age`)
+-   the age range (`Age_range`)
+-   self-reported gender (`Gender`)
+-   the total number of words contributed to the corpus by the speaker (`total`), and
+-   a slightly aggregated version of age range (`age_bins`)
+
+In line with @Soenning_Krug2022, we remove speakers who contributed fewer than 100 words to the corpus, and for whom information on age and gender is missing.
+
+```{r}
+d <- dat |> 
+  filter(
+    total > 100,
+    Age_range != "Unknown",
+    !(is.na(Gender)))
+```
+
+In this blog post, we will concentrate on speakers aged 70 or older.
+
+```{r}
+d <- d |> 
+  filter(Age_range %in% c("70-79", "80-89", "90-99")) |> 
+  droplevels()
+```
+
+We add a new variable to the data frame: the speaker-specific normalized frequency of *actually*, expressed as 'per thousand words':
+
+```{r}
+d$rate_ptw <- (d$count / d$total) * 1000
+```
+
+We reduce the data frame to the variables we need for analysis and rename a few columns for consistency and clarity.
+
+```{r}
+d <- d |> dplyr::select(
+  speaker, Gender, Age_range, count, total, rate_ptw) |> 
+  dplyr::rename(
+    age_group = Age_range,
+    gender = Gender,
+    n_tokens = count,
+    n_words = total)
+```
+
+The data subset used in the present blog post includes 56 speakers:
+
+```{r}
+str(d)
+```
+
+ 
+
+#### Focus of analysis
+
+The key interest in the following is in the usage rate of *actually* (expressed as a normalized frequency) in conversational speech. Two subgroups of British speakers are compared: Male speakers aged 70 or older ("Male 70+"), and female speakers aged 70 or older ("Female 70+"). The questions guiding our analyses are:
+
+-   What is the normalized frequency of *actually* in the two groups?
+-   Does the usage rate of *actually* differ between the groups?
+
+#### Data description
+
+We start by inspecting some key characteristics of the data. First we examine the distribution of speakers across the groups, which turns out to be roughly balanced:
+
+```{r}
+table(d$gender)
+```
+
+Next, we consider the distribution of word counts across speakers (i.e. the total number of word tokens each individual contributed to the corpus). @fig-wordcount-speaker shows a very skewed profile, with one speaker showing a disproportionately high word count.
+
+```{r}
+#| fig-width: 4
+#| fig-height: 1.3
+#| code-fold: true
+#| code-summary: "Draw Figure" 
+#| label: fig-wordcount-speaker
+#| fig-cap: "Distribution of word counts across speakers from the Spoken BNC2014 aged 70 or older, excluding individuals who contributed fewer than 100 words to the corpus."
+#| message: false
+#| warning: false
+
+d |> 
+  ggplot(aes(x = n_words)) + 
+  geom_dotplot(binwidth = 3000, stackratio = .9, method = "histodot") +
+  theme_dotplot() + 
+  scale_x_continuous(labels = scales::label_comma(), expand = c(.01, .01)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  annotate("text", x = 150000, y = .5, label = "Each dot represents a speaker", color = "grey30", size = 3.5) +
+  xlab("Number of word tokens contributed to the corpus")
+```
+
+To see how the outcome variable is distributed at the speaker level, we draw a dot diagram of the speaker-specific usage rate of *actually*, expressed as "per thousand words". @fig-actually-speaker shows a skewed arrangement, with a few individuals using the word at an exceptionally high rate.
+
+```{r}
+#| fig-width: 4
+#| fig-height: 1.3
+#| code-fold: true
+#| code-summary: "Draw Figure" 
+#| label: fig-actually-speaker
+#| fig-cap: "Distribution of speaker-specific usage rates of *actually* in our data subset, per thousand words."
+#| message: false
+#| warning: false
+
+d |> 
+  ggplot(aes(x = rate_ptw)) + 
+  geom_dotplot(binwidth = .1, stackratio = .9, method = "histodot") +
+  theme_dotplot() + 
+  scale_y_continuous(expand = c(0, 0)) +
+  xlab("Speaker-specific usage rate of * (per thousand words)")
+```
+
+Due to the skew in the distribution, we use a square-root transformation for visual group comparisons. @fig-actually-speaker-sqrt reassures us that this effectively removes the skew.
+
+```{r}
+#| fig-width: 3
+#| fig-height: 1.3
+#| code-fold: true
+#| code-summary: "Draw Figure" 
+#| label: fig-actually-speaker-sqrt
+#| fig-cap: "Distribution of speaker-specific usage rates of *actually* in our data subset, per thousand words, square-root-scaled."
+#| message: false
+#| warning: false
+
+d |> 
+  ggplot(aes(x = rate_ptw)) + 
+  geom_dotplot(binwidth = .05, stackratio = .9, method = "histodot") +
+  theme_dotplot() + 
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_x_sqrt(breaks = c(0,2,4,6,8)) +
+  xlab("Speaker-specific usage rate of actually\n(per thousand words, square-root-scaled)")
+```
+
+Now we inspect the (square-root-scaled) distribution of speaker-specific rates of *actually* by Gender. @fig-boxplot shows that the median rate is very similar in the two groups. Between-speaker variation, as indicated by the height of the boxes, is slightly larger among male speakers.
+
+```{r}
+#| fig-width: 2.2
+#| fig-height: 3.3
+#| code-fold: true
+#| code-summary: "Draw Figure" 
+#| label: fig-boxplot
+#| fig-cap: "Boxplot showing the distribution of speaker-specific usage rates of *actually* (per thousand words, square-root-scaled) by Gender."
+#| message: false
+#| warning: false
+
+d |> 
+  ggplot(aes(x = gender, y = rate_ptw)) +
+  geom_boxplot() +
+  scale_y_sqrt(breaks = 0:10) +
+  theme_classic() +
+  ylab("Normalized frequency of actually\n(per thousand words, square-root-scaled)\n") +
+  xlab(NULL)
+```
+
+Our final look at the data simultaneously takes into account the speaker-specific (i) word count and (ii) usage rate of *actually*. This means that we look at the distribution of the data points behind the boxplot. 
+
+In @fig-bubble, each individual appears as a circle and the size of this circle is proportional to the speaker word count. Individuals contributing an overabundance of words to the corpus (and our data subset) appear as big circles. We observe that the person with the highest word count (the biggest circle) is male, with a relatively low rate of *actually*. Among female speakers, the two individuals with the largest word counts also show the highest usage rates.
+
+```{r}
+#| fig-width: 3
+#| fig-height: 3.3
+#| code-fold: true
+#| code-summary: "draw figure" 
+#| label: fig-bubble
+#| fig-cap: "Bubble chart showing the distribution of speaker-specific usage rates of *actually* (per thousand words, square-root-scaled) by Gender, with the size of circles reflecting the total word count for a speaker."
+#| message: false
+#| warning: false
+
+set.seed(7)
+
+d |> 
+  ggplot(aes(x = gender, y = rate_ptw, size = n_words)) +
+  geom_jitter(shape = 1, width = .25, alpha=.7) +
+  scale_y_sqrt(breaks = 0:10) +
+  theme_classic() +
+  ylab("Normalized frequency of actually\n(per thousand words, square-root-scaled)\n") +
+  scale_size_area(max_size = 15) +
+  theme(legend.position = "none") +
+  xlab(NULL)
+```
+
+A key insight from our comparison of modeling approaches to these data will be that they respond differently to this data feature, i.e. the combination, for specific texts or speakers, of disproportionately high word counts and relatively high or low occurrences rates. Before we turn to regression analysis, however, let us jot down numerical summaries for the data.
+
+ 
+
+#### Descriptive measures: Subcorpus frequencies and mean speaker frequency
+
+There are two straightforward ways of summarizing the frequencies in the two subgroups. @Egbert_Burch2023 [p. 105] refer to these as *corpus frequency* and *mean text frequency*. In the present setting, we will talk about *subcorpus frequencies* (Male 70+ subcorpus vs. Female 70+ subcorpus) and the *mean speaker frequencies*.
+
+To obtain the subcorpus frequency of *actually* in each group, we divide the total number of *actually*-tokens by the subcorpus size. We multiply this rate by 1,000 to obtain a normalized frequency of 'per thousand words':
+
+```{r}
+d |> 
+  group_by(gender) |> 
+  dplyr::summarize(
+    n_actually = sum(n_tokens),
+    corpus_size = sum(n_words),
+    subcorpus_frequency = round(n_actually/corpus_size*1000, 2)
+  ) |> kable()
+```
+
+This gives us a subcorpus frequency of 2.84 ptw for female speakers and 0.77 ptw for male speakers. We get the same estimates when using CQPweb [@Hardie2012] to run a restricted corpus query:
+
+![](cqpweb_female.png){fig-align="center" width="80%"} ![](cqpweb_male.png){fig-align="center" width="80%"}
+
+Another way of estimating the average rate of *actually* in each subgroup is to consider the speaker-specific normalized frequencies (i.e. the variable `rate_ptw`) and average over these. This yields much more similar estimates, which is consistent with what we saw in @fig-boxplot above.
+
+```{r}
+d |> 
+  group_by(gender) |> 
+  dplyr::summarize(
+    mean_speaker_frequency = round(
+      mean(rate_ptw), 2)
+  ) |> kable()
+```
+
+```{r}
+#| echo: false
+
+corpus_frequency <- d |> 
+  group_by(gender) |> 
+  dplyr::summarize(
+    n_actually = sum(n_tokens),
+    corpus_size = sum(n_words),
+    subcorpus_frequency = round(n_actually/corpus_size*1000, 2)
+  )
+
+mean_speaker_frequency <- d |> 
+  group_by(gender) |> 
+  dplyr::summarize(
+    mean_speaker_frequency = round(
+      mean(rate_ptw), 2)
+  )
+```
+
+The difference between these two ways of measuring frequency is that while the mean speaker frequency gives the same weight to each person, the corpus frequency weights speakers in proportion to the number of words they contribute to the corpus. In the present case, there is no reason why certain individuals should inform our frequency estimate more than others, so we clearly prefer the mean speaker frequency.
+
+We keep these differences in mind as we consider alternative ways of modeling the data.
+
+ 
+
+#### Poisson regression
+
+We start with a Poisson regression model, which does not take into account the grouping structure of the data. This means that it turns a blind eye on the speakers in our data and considers the *actually* tokens (and the corpus) as an unstructured bag of words.
+
+We can fit a Poisson model with the `glm()` function:
+
+```{r}
+m <- glm(
+  n_tokens ~ gender + offset(log(n_words)),
+  data = d,
+  family = "poisson")
+```
+
+Here is the regression table:
+
+```{r}
+#| attr-output: "style='font-size: 0.8em'"
+
+summary(m)
+```
+
+We use the `{marginaleffects}` package [@ArelBundock_etal2024] to calculate model-based predictions for male and female speakers. These coincide with the *corpus frequencies* reported above:
+
+```{r}
+predictions(
+  m, 
+  variables = "gender",
+  newdata = datagrid(
+    n_words = 1000)) |> 
+  tidy() |> 
+  dplyr::select(gender, estimate, conf.low, conf.high) |> 
+  mutate(across(2:4, \(x) round(x, 2))) |> 
+  kable()
+```
+
+The function `comparisons()` in the `{marginaleffects}` package allows us to compare the two groups in relative terms: The usage rate of male speakers is estimated to be only 27% as large as that of female speakers:
+
+```{r}
+comparisons(
+  m, 
+  variables = "gender",
+  newdata = datagrid(
+    n_words = 1000),
+  comparison = "ratio") |> 
+  tidy() |> 
+  dplyr::select(contrast, estimate, conf.low, conf.high) |> 
+  mutate(across(2:4, \(x) round(x, 2))) |> 
+  kable()
+```
+
+```{r}
+#| echo: false
+
+pred_poisson <- predictions(
+  m, 
+  variables = "gender",
+  newdata = datagrid(
+    n_words = 1000)) |> 
+  tidy() |> 
+  dplyr::select(gender, estimate, conf.low, conf.high)
+
+comp_poisson <- comparisons(
+  m, 
+  variables = "gender",
+  newdata = datagrid(
+    n_words = 1000),
+  comparison = "ratio") |> 
+  tidy() |> 
+  dplyr::select(contrast, estimate, conf.low, conf.high)
+
+```
+
+ 
+
+#### Quasi-Poisson regression
+
+A Quasi-Poisson model includes a dispersion parameter, which adjust inferences to account for the lack of fit of the simple Poisson model. The dispersion parameter $\phi$ is estimated on the basis of a global $\chi^2$ statistic of model (mis)fit, and it is then used to adjust the standard errors returned by the model, which are multiplied by $\sqrt{\phi}$.
+
+We can run a Quasi-Poisson model as follows:
+
+```{r}
+m <- glm(
+  n_tokens ~ gender + offset(log(n_words)),
+  data = d,
+  family = "quasipoisson")
+```
+
+The model is summarized in the following table:
+
+```{r}
+#| attr-output: "style='font-size: 0.8em'"
+
+summary(m)
+```
+
+The regression table tells us that the dispersion parameter is estimated to be roughly 25, which means that the standard errors for the Quasi-Poisson model should be 5 times ($\sqrt{25}$) larger than in the Poisson model.
+
+Importantly, however, the regression coefficients themselves do not change, and neither do the model-based predictions. We get the same point estimates, though with (appropriately) wider confidence intervals:
+
+```{r}
+predictions(
+  m, 
+  variables = "gender",
+  newdata = datagrid(
+    n_words = 1000)) |> 
+  tidy() |> 
+  dplyr::select(gender, estimate, conf.low, conf.high) |> 
+  mutate(across(2:4, \(x) round(x, 2))) |> 
+  kable()
+```
+
+The Quasi-Poisson model also returns the same relative difference between the groups:
+
+```{r}
+comparisons(
+  m, 
+  variables = "gender",
+  newdata = datagrid(
+    n_words = 1000),
+  comparison = "ratio") |> 
+  tidy() |> 
+  dplyr::select(contrast, estimate, conf.low, conf.high) |> 
+  mutate(across(2:4, \(x) round(x, 2))) |> 
+  kable()
+```
+
+```{r}
+#| echo: false
+
+pred_quaspoi <- predictions(
+  m, 
+  variables = "gender",
+  newdata = datagrid(
+    n_words = 1000)) |> 
+  tidy() |> 
+  dplyr::select(gender, estimate, conf.low, conf.high)
+
+comp_quaspoi <- comparisons(
+  m, 
+  variables = "gender",
+  newdata = datagrid(
+    n_words = 1000),
+  comparison = "ratio") |> 
+  tidy() |> 
+  dplyr::select(contrast, estimate, conf.low, conf.high)
+
+```
+
+ 
+
+#### Negative binomial regression
+
+Negative binomial regression explicitly takes into account the speakers, and models the observed variability in the usage rate of *actually* using a probability distribution. The model therefore includes an additional parameter that represents the variability of usage rates. As discussed in more detail in [this blog post](https://lsoenning.github.io/posts/2023-11-16_negative_binomial/), this parameter controls the shape of a gamma distribution, which in turn describes the multiplicative variation in speaker-specific rates.
+
+This is illustrated in @fig-gamma, which shows high variability among speakers. 
+
+```{r}
+#| fig-width: 4
+#| fig-height: 2
+#| code-fold: true
+#| code-summary: "draw figure" 
+#| label: fig-gamma
+#| fig-cap: "The gamma distribution describing between-speaker variability in the usage rate of *actually*."
+#| message: false
+#| warning: false
+
+xyplot(
+  1~1, type="n", xlim=c(0, 4.2), ylim=c(0,1.5),
+  par.settings=my_settings, axis=axis_L,
+  scales=list(y=list(at=0), x=list(at=c(0,1,2,3,4))),
+  ylab="Density", xlab="Multiplicative factor",
+  panel=function(x,y,...){
+    panel.segments(x0=1, x1=1, y0=0, y1=1.5, col=1)
+    panel.points(x = seq(.01, 4.2, length=1000),
+                 y = dGA(seq(.01, 4.2, length=1000), mu=1, sigma=(1/0.9347)),
+                 type="l")
+    })
+```
+
+Since this is a probability distribution, we can summarize the estimated distribution of speakers around their subgroup means. The following code finds the quartiles of the distribution:
+
+```{r}
+qGA(
+  p = c(.25, .5, .75), 
+  mu = 1, 
+  sigma = 1/0.9347) |> 
+  round(2)
+```
+
+This tells us that ratios of 0.25 and 1.39 mark the interquartile range: The central 50% of the speakers are within this interval. Interestingly, and perhaps counterintuitively, the median of this gamma distribution is 0.65, meaning that half of the speakers have a ratio below this mark. Let us also see how many speakers have ratio above and below 1:
+
+```{r}
+pGA(
+  q = 1, 
+  mu = 1, 
+  sigma = 1/0.9347) |> 
+  round(2)
+```
+
+64% of the speakers have a ratio below 1, meaning that around two-thirds of the speakers actually show a usage rate below the estimated subgroup mean. We will return to this rather puzzling feature of the negative binomial model further below.
+
+
+We can fit a negative binomial model using the function `glm.nb()` in the `{MASS}` package [@Venables_Ripley2002]:
+
+```{r}
+m <- MASS::glm.nb(
+  n_tokens ~ gender + offset(log(n_words)),
+  data = d)
+```
+
+This produces the following regression table:
+
+```{r}
+#| attr-output: "style='font-size: 0.8em'"
+
+summary(m)
+```
+
+Frequency estimates based on this model are much closer to the mean speaker frequencies we reported above:
+
+```{r}
+predictions(
+  m, 
+  variables = "gender",
+  newdata = datagrid(
+    n_words = 1000)) |> 
+  tidy() |> 
+  dplyr::select(gender, estimate, conf.low, conf.high) |> 
+  mutate(across(2:4, \(x) round(x, 2))) |> 
+  kable()
+```
+
+Accordingly, the estimated relative difference between the groups is negligible:
+
+```{r}
+comparisons(
+  m, 
+  variables = "gender",
+  newdata = datagrid(
+    n_words = 1000),
+  comparison = "ratio") |> 
+  tidy() |> 
+  dplyr::select(contrast, estimate, conf.low, conf.high) |> 
+  mutate(across(2:4, \(x) round(x, 2))) |> 
+  kable()
+```
+
+```{r}
+#| echo: false
+
+pred_negbin <- predictions(
+  m, 
+  variables = "gender",
+  newdata = datagrid(
+    n_words = 1000)) |> 
+  tidy() |> 
+  dplyr::select(gender, estimate, conf.low, conf.high)
+
+comp_negbin <- comparisons(
+  m, 
+  variables = "gender",
+  newdata = datagrid(
+    n_words = 1000),
+  comparison = "ratio") |> 
+  tidy() |> 
+  dplyr::select(contrast, estimate, conf.low, conf.high)
+
+```
+
+ 
+
+#### Poisson regression with random intercepts
+
+Another way of accounting for the structure in the data is to use a Poisson regression model with random intercepts on Speaker. This model is similar to the negative binomial since it also represents the observed variation among speakers using a probability distribution. Between-speaker variation is modeled on the scale of natural logarithms using a normal distribution. On the scale of the actual occurrence rates, this translates into a log-normal distribution.
+
+We will illustrate this once we have fit our model using the function `glmer()` in the R package `{lme4}` [@Bates_etal2015].
+
+```{r}
+m <- glmer(
+	n_tokens ~ gender + offset(log(n_words)) + (1|speaker), 
+	data = d,
+	family = "poisson",
+	control = glmerControl(optimizer="bobyqa"))
+```
+
+Here is a condensed regression table:
+
+```{r}
+#| attr-output: "style='font-size: 0.8em'"
+
+arm::display(m)
+```
+
+The table tells us that the standard deviation of the random intercepts, i.e. the parameter describing the spread of the normal distribution representing between-speaker variation, is 1.05. @fig-normal shows the inferred distribution of speaker intercepts on the log scale.
+
+```{r}
+#| fig-width: 3
+#| fig-height: 1.5
+#| code-fold: true
+#| code-summary: "draw figure" 
+#| label: fig-normal
+#| fig-cap: "The normal distribution describing between-speaker variability in the usage rate of *actually* on the scale of natural logarithms."
+#| message: false
+#| warning: false
+
+xyplot(
+  1~1, type="n", xlim=c(-3.5, 3.5), ylim=c(0,.45),
+  par.settings=my_settings, axis=axis_bottom,
+  scales=list(y=list(at=0), x=list(at=-3:3)),
+  ylab="Density", xlab="Natural logarithm",
+  panel=function(x,y,...){
+    panel.segments(x0=0, x1=0, y0=0, y1=.45, col=1)
+    panel.points(x = seq(-3.5, 3.5, length=1000),
+                 y = dnorm(seq(-3.5, 3.5, length=1000), mean = 0, sd = 1.05),
+                 type="l", lty="23", lineend="square")
+    })
+```
+
+It is more informative to consider between-speaker variation on the scale of multiplicative factors, as in @fig-gamma above. To this end, we translate the normal distribution on the natural logarithmic scale into a log-normal distribution on the scale of ratios.
+
+These are the quantities we have:
+
+-   $\mu$ mean of the normal distribution
+-   $\sigma^2$ variance of the normal distribution
+
+And these are the quantities we need:
+
+-   $\mu_{log}$ mean of the log-normal distribution
+-   $\sigma_{log}^2$ variance of the log-normal distribution
+
+The conversion works as follows:
+
+$$
+\begin{aligned}
+\mu_{log} &= e^{\mu + \frac{\sigma^2}{2}} \\
+\sigma_{log}^2 &= (e^{\sigma^2} - 1)e^{2\mu + \sigma^2} \\
+\end{aligned}
+$$
+
+We write a function that does this job for us. Note that this function returns the *standard deviation* (rather than the variance) of the log-normal distribution.
+
+```{r}
+normal_to_lognormal <- function(mean_n, sd_n){
+  
+  mean_ln <- exp(mean_n + (sd_n^2/2))
+  sd_ln <- (exp(sd_n^2) -1) * exp(2 * mean_n + sd_n^2)
+  
+  output <- c(mean_ln, sqrt(sd_ln))
+  names(output) <- c("mean_ln", "sd_ln")
+  return(output)
+}
+```
+
+And then we use this function to find the parameters of the log-normal distribution.
+
+```{r}
+normal_to_lognormal(
+  mean_n = 0, 
+  sd_n = 1.05)
+```
+
+Now we can draw the distribution describing between-speaker variability on the ratio scale and compare it to the gamma density we saw in @fig-gamma.
+
+@fig-lognormal shows that the two distributions are very different: The gamma density assigns much more probability mass to values below 1 (`r round(pGA(1, mu=1, sigma=(1/0.9347))*100)`% vs. `r round(plnorm(1, meanlog = 1.735421, sdlog = 2.461415)*100)`% for the log-normal distribution), and the log-normal distribution has a much thicker upper tail.
+
+
+```{r}
+#| fig-width: 6
+#| fig-height: 3
+#| code-fold: true
+#| code-summary: "draw figure" 
+#| label: fig-lognormal
+#| fig-cap: "The log-normal distribution (black) vs. the gamma distribution (grey) describing between-speaker variability in the usage rate of *actually*."
+#| message: false
+#| warning: false
+
+xyplot(
+  1~1, type="n", xlim=c(0, 6.2), ylim=c(0,1.5),
+  par.settings=my_settings, axis=axis_L,
+  scales=list(y=list(at=0), x=list(at=c(0,1,2,3,4,5,6))),
+  ylab="Density", xlab="Multiplicative factor",
+  panel=function(x,y,...){
+    panel.segments(x0=1, x1=1, y0=0, y1=1.5, col=1)
+    panel.points(x = seq(.01, 6.2, length=1000),
+                 y = dGA(seq(.01, 6.2, length=1000), mu=1, sigma=(1/0.9347)),
+                 type="l", col = "grey40")
+    panel.points(x = seq(0, 6.2, length=1000),
+                 y = dlnorm(seq(0, 6.2, length=1000), 
+                            meanlog = 1.735421, 
+                            sdlog = 2.461415),
+                 type="l")
+    panel.segments(x0=0, x1=6.2, y0=0, y1=0)
+    panel.text(x = 4, y = .2, label="Log-normal distribution", adj=0, cex=.9)
+    panel.text(x = 1.5, y = .45, label="Gamma distribution", adj=0, col = "grey40", cex=.9)
+    })
+```
+
+There are two types of predictions we can calculate for the random-intercept Poisson model. Seeing that we are interested in the occurrence rate of *actually* rather than its natural logarithm, we will want to back-transform model-based predictions to the scale of normalized frequencies. Since there is between-speaker variation, our model-based estimate will have to somehow average over speakers. The question is whether we want to average over speakers on the scale of natural logarithms (the model scale) or on the scale of normalized frequencies (the data scale).
+
+Through appropriate combination of the regression coefficients for the fixed effects, we obtain averages over speakers **on the model scale**. This is the estimated **mean log rate** of *actually* in the population of interest. We can back-transform this into a normalized frequency. This summary measure, however, does not represent the mean over normalized frequencies, since the averaging was done on another scale (the model scale).
+
+In our model, the intercept represents the mean log rate for female speakers. If we add the coefficient for the predictor Gender, we get the mean log rate for male speakers. Back-transforming these values gives us:
+
+```{r}
+# female
+round(exp(fixef(m)[1]) * 1e3, 2)
+
+# male
+round(exp(fixef(m)[1] + fixef(m)[2]) * 1e3, 2)
+```
+
+These frequency estimates are rather low. But this is not because they are wrong. Rather, it is because the averaging was done over speaker-specific natural logarithms of the usage rate of *actually*. It helps interpretation to realize that these estimates represent the **median usage rate** of *actually* in each group.
+
+We can also use the model to calculate **mean normalized frequencies**. This means that the speaker-specific log frequencies are first back-transformed into normalized frequencies, and only then do we average over them. The mean over the normalized frequencies can be calculated using the following formula, where
+
+-   $\mu^M$ is the (marginal/population-averaged) **mean over the normalized frequencies**
+-   $\mu^C$ is the (conditional/subject-specific) **mean over the log rates**
+-   $\sigma^2$ is the estimated variance of the random intercepts
+
+$$
+\mu^M = e^{\mu^C + \frac{\sigma^2}{2}}
+$$
+
+To apply this formula, we first extract the random-intercept variance from the model object:
+
+```{r}
+intercept_variance <- as.numeric(
+  summary(m)$varcor$speaker)
+```
+
+Now we can apply the formula above to obtain the mean normalized frequency of *actually* in the two groups:
+
+```{r}
+# female
+round(
+  exp(fixef(m)[1] + intercept_variance/2) * 1e3, 2)
+
+# female
+round(
+  exp(fixef(m)[1] + fixef(m)[2] + intercept_variance/2) * 1e3, 2)
+```
+
+We can also obtain these two types of estimates using the `{marginaleffects}` package. To get the **mean log rate** of *actually*, back-transformed to the normalized frequency scale, we run the following code. The argument `re.form = NA` tells the function to ignore the between-speaker variation:
+
+```{r}
+avg_predictions(
+  m, 
+  variables = "gender",
+  newdata = datagrid(
+    n_words = 1000,
+    speaker = NA),
+  re.form = NA) |> 
+  tidy() |> 
+  dplyr::select(gender, estimate, conf.low, conf.high) |> 
+  mutate(across(2:4, \(x) round(x, 2))) |> 
+  kable()
+```
+
+The corresponding relative difference between the groups can be retrieved as follows:
+
+```{r}
+comparisons(
+  m, 
+  variables = "gender",
+  newdata = datagrid(
+    n_words = 1000,
+    speaker = NA),
+  re.form = NA,
+  comparison = "ratio") |> 
+  tidy() |> 
+  dplyr::select(contrast, estimate, conf.low, conf.high) |> 
+  mutate(across(2:4, \(x) round(x, 2))) |> 
+  kable()
+```
+
+To get (something close to) the **mean normalized frequencies** we calculated above, we can ask the function `avg_predictions()` to average predictions over the speakers in the sample. This means that the by-speaker random intercepts are incorporated into the model predictions. The model-based speaker intercepts are used to get a predicted normalized frequency for each speaker, and these are then averaged. 
+
+```{r}
+avg_predictions(
+  m, 
+  variables = "gender",
+  newdata = datagrid(
+    n_words = 1000,
+    speaker = unique)) |> 
+  tidy() |> 
+  dplyr::select(gender, estimate, conf.low, conf.high) |> 
+  mutate(across(2:4, \(x) round(x, 2))) |> 
+  kable()
+```
+
+The result is not identical to the one we got above due to shrinkage: The speaker intercepts are partially pooled, and their variability is therefore smaller than implied by the random-intercept standard deviation.
+
+The relative difference between the groups remains the same:
+
+```{r}
+avg_comparisons(
+  m, 
+  variables = "gender",
+  newdata = datagrid(
+    n_words = 1000,
+    speaker = unique),
+  comparison = "ratio") |> 
+  tidy() |> 
+  dplyr::select(contrast, estimate, conf.low, conf.high) |> 
+  mutate(across(2:4, \(x) round(x, 2))) |> 
+  kable()
+```
+
+```{r}
+#| echo: false
+
+pred_ranef_c <- avg_predictions(
+  m, 
+  variables = "gender",
+  newdata = datagrid(
+    n_words = 1000,
+    speaker = NA),
+  re.form = NA) |> 
+  tidy() |> 
+  dplyr::select(gender, estimate, conf.low, conf.high)
+
+comp_ranef_c <- comparisons(
+  m, 
+  variables = "gender",
+  newdata = datagrid(
+    n_words = 1000,
+    speaker = NA),
+  re.form = NA,
+  comparison = "ratio") |> 
+  tidy() |> 
+  dplyr::select(contrast, estimate, conf.low, conf.high)
+
+
+pred_ranef_m <- avg_predictions(
+  m, 
+  variables = "gender",
+  newdata = datagrid(
+    n_words = 1000,
+    speaker = unique)) |> 
+  tidy() |> 
+  dplyr::select(gender, estimate, conf.low, conf.high)
+
+comp_ranef_m <- avg_comparisons(
+  m, 
+  variables = "gender",
+  newdata = datagrid(
+    n_words = 1000,
+    speaker = unique),
+  comparison = "ratio") |> 
+  tidy() |> 
+  dplyr::select(contrast, estimate, conf.low, conf.high)
+
+```
+
+#### Comparison
+
+@fig-comparison-preds compares the estimated average predictions we have collected in this blog post. For a point of reference, our descriptive summaries are shown in grey: The dotted lines are the two (sub)corpus frequencies, and the solid lines -- which are almost identical in the groups -- are the mean speaker frequencies.
+
+Our first observation is that estimates based on the Poisson and Quasi-Poisson model coincide with the plain subcorpus frequencies -- as a result, they suffer from the imbalanced word counts across speakers. Just like the corpus frequency, both models give much greater weight to speakers who contributed a large number of words to the corpus. As we have noted above, this is undesirable in the present case. We therefore conclude that the Poisson and Quasi-Poisson model do not guard against these imbalances in the data.
+
+The other models produce estimates that are close(r) to the mean speaker frequencies. The three models agree in the statement that the difference between the two groups, "Male 70+" and "Female 70+", are minor. The estimates from the negative binomial model and the marginal estimates (i.e. the mean over the normalized frequencies) are virtually indistinguishable from the mean speaker frequencies. This tells us that these are mean calculated over normalized frequencies.
+
+```{r}
+#| fig-width: 6.5
+#| fig-height: 3
+#| code-fold: true
+#| code-summary: "draw figure" 
+#| label: fig-comparison-preds
+#| fig-cap: "Comparison of model-based predictions for the average usage rate of *actually* in the two subgroups."
+#| message: false
+#| warning: false
+
+pred_models <- tibble(
+  model = rep(c("Poisson", "Quasi-Poisson", "Negative\nbinomial", 
+                "Random-intercept\nPoisson\n(marginal)",
+                "Random-intercept\nPoisson\n(conditional)"), each = 2),
+  gender = rep(c("Female", "Male"), 5),
+  estimate = c(pred_poisson$estimate,
+               pred_quaspoi$estimate,
+               pred_negbin$estimate,
+               pred_ranef_m$estimate,
+               pred_ranef_c$estimate),
+  ci_lower = c(pred_poisson$conf.low,
+               pred_quaspoi$conf.low,
+               pred_negbin$conf.low,
+               pred_ranef_m$conf.low,
+               pred_ranef_c$conf.low),
+  ci_upper = c(pred_poisson$conf.high,
+               pred_quaspoi$conf.high,
+               pred_negbin$conf.high,
+               pred_ranef_m$conf.high,
+               pred_ranef_c$conf.high)
+)
+
+pred_models$model <- factor(
+  pred_models$model,
+  levels = c("Poisson", "Quasi-Poisson", "Negative\nbinomial", 
+                "Random-intercept\nPoisson\n(marginal)",
+                "Random-intercept\nPoisson\n(conditional)"),
+  ordered = TRUE
+)
+
+ann_text <- data.frame(
+  estimate = 3.3,
+  lab = "Corpus frequency",
+  gender = "Female",
+  model = factor("Random-intercept\nPoisson\n(conditional)",
+                 levels = c("Poisson", "Quasi-Poisson",
+                            "Negative\nbinomial", 
+                            "Random-intercept\nPoisson\n(marginal)",
+                            "Random-intercept\nPoisson\n(conditional)"),
+                 ordered = TRUE))
+
+ann_text2 <- data.frame(
+  estimate = 1.5,
+  lab = "Mean speaker frequency",
+  gender = "Female",
+  model = factor("Random-intercept\nPoisson\n(conditional)",
+                 levels = c("Poisson", "Quasi-Poisson",
+                            "Negative\nbinomial", 
+                            "Random-intercept\nPoisson\n(marginal)",
+                            "Random-intercept\nPoisson\n(conditional)"),
+                 ordered = TRUE))
+
+
+pred_models |> 
+  ggplot(aes(x = gender, y = estimate, group = model)) +
+  geom_hline(yintercept = c(1.21, 1.23), col = "grey") +
+  geom_hline(yintercept = c(.77, 2.84), col = "grey", lty = "22", linetype="square") +
+  geom_point() +
+  geom_line() +
+  geom_linerange(aes(ymin = ci_lower, ymax = ci_upper)) +
+  facet_grid(. ~ model) +
+  theme_classic_ls() +
+  scale_y_sqrt(limits = c(0, 4.5), expand = c(0,0)) +
+  ylab("Usage rate of actually\n(ptw, square-root-scaled)\n") +
+  xlab(NULL) +
+  geom_text(data = ann_text, label = "                    Corpus frequency", col="grey50", size=3) +
+  geom_text(data = ann_text2, label = "          Mean speaker frequency", col="grey50", size=3) +
+  coord_cartesian(clip="off")
+
+```
+
+
+The conditional estimates from the random-intercept Poisson regression are considerably lower. We saw that this is because they represent (back-transformed) means over log frequencies. This corresponds to the median normalized frequency in the two subgroups. When using a random-intercept Poisson regression, we can therefore choose between these measures of central tendency: 
+
+- the mean log rate of actually, once back-transformed, represents the median normalized frequency of *actually* in the population of interest
+- the mean rate of actually, where averaging over speakers is done after back-transformation, represents the mean normalized frequency of *actually* in the population
+
+Which summary measure is more appropriate depends on the research task. In the present case, however, there are good reasons to prefer the median over the mean, as it better represents the "typical" person in each subgroup.
+
+Let us finally have another look at the estimates from the negative binomial distribution, which seems to force us to adopt the mean normalized frequency as an estimate of the average frequency of *actually*. Recall that the median of the gamma distribution describing the between-speaker variation in our model was 0.64:
+
+```{r}
+pGA(
+  q = 1, 
+  mu = 1, 
+  sigma = 1/0.9347) |> 
+  round(2)
+```
+
+This allows us to change the negative binomial estimates into median normalized frequencies of *actually*. We simply multiply the estimates by this ratio:
+
+```{r}
+round(
+  pred_negbin$estimate * .64, 2)
+```
+
+The results are very close to the conditional estimates from the random-intercept Poisson model.
+
+```{r}
+#| fig-width: 4.5
+#| fig-height: 1.6
+#| code-fold: true
+#| code-summary: "draw figure" 
+#| label: fig-comparison-comp
+#| fig-cap: "Comparison of model-based relatie differences between the average usage rates of *actually* in the two subgroups."
+#| message: false
+#| warning: false
+#| echo: false
+#| eval: false
+
+
+
+comp_models <- tibble(
+  model = c("Poisson", "Quasi-Poisson", "Negative\nbinomial", 
+                "Random-intercept\nPoisson\n(marginal)",
+                "Random-intercept\nPoisson\n(conditional)"),
+  estimate = c(comp_poisson$estimate,
+               comp_quaspoi$estimate,
+               comp_negbin$estimate,
+               comp_ranef_m$estimate,
+               comp_ranef_c$estimate),
+  ci_lower = c(comp_poisson$conf.low,
+               comp_quaspoi$conf.low,
+               comp_negbin$conf.low,
+               comp_ranef_m$conf.low,
+               comp_ranef_c$conf.low),
+  ci_upper = c(comp_poisson$conf.high,
+               comp_quaspoi$conf.high,
+               comp_negbin$conf.high,
+               comp_ranef_m$conf.high,
+               comp_ranef_c$conf.high)
+)
+comp_models$model <- factor(
+  comp_models$model,
+  levels = c("Poisson", "Quasi-Poisson", "Negative\nbinomial", 
+                "Random-intercept\nPoisson\n(marginal)",
+                "Random-intercept\nPoisson\n(conditional)"),
+  ordered = TRUE
+)
+
+comp_models$model_horizontal <- factor(
+  comp_models$model,
+  levels = c("Poisson", "Quasi-Poisson", "Negative\nbinomial", 
+                "Random-intercept\nPoisson\n(marginal)",
+                "Random-intercept\nPoisson\n(conditional)"),
+  labels = c("Poisson", "Quasi-Poisson", "Negative binomial", 
+                "Random-intercept Poisson (marginal)",
+                "Random-intercept Poisson (conditional)"),
+  ordered = TRUE
+)
+
+comp_models |> 
+  ggplot(aes(y = model_horizontal, x = estimate)) +
+  geom_vline(xintercept = 1, color = "grey") +
+  geom_point() +
+  geom_linerange(aes(xmin = ci_lower, xmax = ci_upper)) +
+  theme_classic_ls() +
+  scale_x_continuous(limits=c(0, 2.2), expand = c(0,0)) +
+  xlab("Ratio (Male/Female)") +
+  ylab(NULL)
+```
+
+#### Summary
+
+This blog post compared different approaches to modeling corpus-based frequency data. The regression models we considered address the non-independence of observations in the data in different ways and therefore return different estimates of average normalized frequencies. Differences between these estimates correspond to differences between two broad ways of measuring frequency: corpus frequency and mean text frequency. Models that account for the clustering in the data yield analogues of mean text frequencies, which are more suitable is texts differ in length, or speakers differ in the number of word tokens they contribute to a corpus. Models in this second group differ, however, in the way they average over speaker- (or text-)specific frequencies. Thus, we can summarize a distribution of frequencies on the log scale, and then transform this mean log rate into a normalized frequency. Or we can summarize the distribution on the scale of normalized frequencies. From the viewpoint of interpretation, it is essential to realize that these two estimates represent the median and the mean of the distribution of text-level normalized frequencies. We saw how the `{marginaleffects}` package can be used to construct both types of predictions.

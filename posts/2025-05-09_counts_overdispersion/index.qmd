@@ -1,0 +1,471 @@
+---
+title: "Modeling clustered frequency data I: Texts of similar length"
+description: "This blog post illustrates a number of strategies for modeling clustered count data. It describes how they handle the non-independence among observations and what kind of estimates they return. The focus is on a situation where texts have roughly the same length."
+date: 2025-05-02
+categories: [corpus linguistics, regression, clustered data, frequency data]
+citation: 
+  url: https://lsoenning.github.io/posts/2025-05-09_counts_overdispersion/
+draft: true
+---
+
+When describing or modeling corpus-based frequency counts, the fact that a corpus is divided into texts has consequences for statistical modeling. For count variables, there are different options for modeling such data. This blog post contrasts approaches that differ in the way they represent (or account for) the non-independence of data points and looks at a setting where texts are very similar in length.
+
+```{r}
+#| warning: false
+#| message: false
+#| code-fold: true
+#| code-summary: "R setup"
+
+library(tidyverse)       # for data wrangling and visualization
+library(dataverse)       # for downloading data from TROLLing
+library(marginaleffects) # to compute model-based estimates
+library(MASS)            # to fit a negative binomial regression model
+library(corpora)         # to calculate a log-likelihood score
+library(kableExtra)      # for drawing html tables
+
+
+source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
+```
+
+#### Case study: The frequency of *should* in written AmE of the 1960s and 1990s
+
+Our focus will be on the frequency of the modal verb *should* in written American English, and we will rely on data from the Brown and Frown Corpus. This allows us to work with straightforward research questions about normalized frequencies and their comparison, which are quite common in corpus work. The following questions guide our analysis:
+
+-   What is the frequency of *should* in written American English of the early 1960s and early 1990s?
+-   Has its frequency changed over time?
+
+
+We will consider the imbalance across genres in the Brown Family of corpora a meaningful feature of the population of interest and therefore not adjust our estimates for the differential representation of these text categories. For an alternative approach, see [this blog post](https://lsoenning.github.io/posts/2025-05-03_imbalance_bias/).
+
+We start by downloading the data from the *TROLLing* archive:
+
+```{r}
+#| message: false
+#| warning: false
+
+dat <- get_dataframe_by_name(
+    filename  = "modals_freq_form.tsv",
+    dataset   = "10.18710/7LNWJX",
+    server    = "dataverse.no",
+    .f        = read_tsv,
+    original  = TRUE
+  )
+```
+
+The table we have downloaded contains text-level frequencies for nine modal verbs from six members of the Brown Family (Brown, Frown, LOB, FLOB, BE06, AmE06). It includes the following variables:
+
+-   `text_id`: The text ID used in the Brown Family corpora ("A01", "A02", ...)
+-   `modal`: the modal verb
+-   `n_tokens`: number of occurrences of the modal verb in the text
+-   `corpus`: member of the Brown Family
+-   `genre`: broad genre (Fiction, General prose, Learned, Press)
+-   `text_category`: subgenre
+-   `n_words`: length of the text (number of word tokens)
+-   `time_period`: time period represented by the corpus
+-   `variety`: variety of English represented by the corpus
+
+```{r}
+#| eval: false
+str(dat)
+```
+
+```{r}
+#| echo: false
+str(data.frame(dat))
+```
+
+We extract the data for *should* in Brown and Frown and prepare them for analysis.
+
+```{r}
+#| code-fold: true
+#| code-summary: "Load and prepare data"
+ 
+d_modals <- subset(dat, corpus %in% c("Brown", "Frown"))
+
+d_modals$time_period <- factor(d_modals$time_period)
+d_modals$genre <- factor(d_modals$genre)
+
+should_data <- subset(d_modals, modal=="should")
+should_Brown <- subset(d_modals, modal=="should" & corpus=="Brown")
+should_Frown <- subset(d_modals, modal=="should" & corpus=="Frown")
+```
+
+
+ 
+
+#### Plain corpus frequencies
+
+For a quick measure of the frequency of *should* in Brown, we divide its corpus frequency by the size of the corpus. We can do the same for Frown. We will multiply these rates by 1,000, to get normalized frequencies 'per thousand words'.
+
+```{r}
+freq_should_Brown <- sum(should_Brown$n_tokens) / sum(should_Brown$n_words) * 1000
+freq_should_Frown <- sum(should_Frown$n_tokens) / sum(should_Frown$n_words) * 1000
+```
+
+And here they are, rounded to two decimal places:
+
+```{r}
+round(freq_should_Brown, 2)
+round(freq_should_Frown, 2)
+```
+
+For Brown, we get a rate of 0.79 per thousand words, and for Frown the rate is 0.68 per thousand words.
+
+For a quick answer to the second question, we divide the rate in Frown by that in Brown, which gives us a rate ratio of 0.86. This tells us that the frequency of *should* in the 1990s was only 86% as large as that in the 1960s:
+
+```{r}
+round(freq_should_Frown / freq_should_Brown, 2)
+```
+
+
+
+#### Poisson regression
+
+We start with a Poisson regression model, which does not take into account the fact that each corpus breaks down into 500 texts. Rather, the corpus is treated as an unstructured bag of words. 
+
+We can fit a Poisson model with the `glm()` function:
+
+```{r}
+m <- glm(
+  n_tokens ~ corpus + offset(log(n_words)),
+  data = should_data,
+  family = "poisson")
+```
+
+We use the `{marginaleffects}` package [@ArelBundock_etal2024] to calculate model-based predictions for the frequency of *should* in each corpus. These coincide with the plain *corpus frequencies* reported above. We specify the `n_words = 1000` to get normalized frequencies 'per thousand words'.
+
+```{r}
+predictions(
+  m, 
+  variables = "corpus",
+  newdata = datagrid(
+    n_words = 1000)) |> 
+  tidy() |> 
+  dplyr::select(corpus, estimate, conf.low, conf.high) |> 
+  mutate(across(2:4, \(x) round(x, 2))) |> 
+  kable()
+```
+
+The function `comparisons()` in the `{marginaleffects}` package allows us to compare the two corpora in relative terms, in the form of a frequency ratio. The rate of *should* in Frown is only 86% of that in Brown, suggesting a decrease of 14 percentage points.
+
+```{r}
+comparisons(
+  m, 
+  variables = "corpus",
+  newdata = datagrid(
+    n_words = 1000),
+  comparison = "ratio") |> 
+  tidy() |> 
+  dplyr::select(contrast, estimate, conf.low, conf.high) |> 
+  mutate(across(2:4, \(x) round(x, 2))) |> 
+  kable()
+```
+
+```{r}
+#| echo: false
+
+pred_poisson <- predictions(
+  m, 
+  variables = "corpus",
+  newdata = datagrid(
+    n_words = 1000)) |> 
+  tidy() |> 
+  dplyr::select(corpus, estimate, conf.low, conf.high)
+
+comp_poisson <- comparisons(
+  m, 
+  variables = "corpus",
+  newdata = datagrid(
+    n_words = 1000),
+  comparison = "ratio") |> 
+  tidy() |> 
+  dplyr::select(contrast, estimate, conf.low, conf.high)
+
+```
+
+
+#### Quasi-Poisson regression
+
+A Quasi-Poisson model introduces a dispersion parameter to adjust inferences for the non-independence of the data points. This parameter, $\phi$, is estimated on the basis of a global $\chi^2$ statistic of model (mis)fit, and it is then used to adjust the standard errors returned by the model, which are multiplied by $\sqrt{\phi}$.
+
+We can run a Quasi-Poisson model as follows:
+
+```{r}
+m <- glm(
+  n_tokens ~ corpus + offset(log(n_words)),
+  data = should_data,
+  family = "quasipoisson")
+```
+
+The model is summarized in the following table:
+
+```{r}
+#| attr-output: "style='font-size: 0.7em'"
+
+summary(m)
+```
+
+The regression table tells us that the dispersion parameter is about 3.8, which means that the standard errors for the Quasi-Poisson model should be 1.95 times ($\sqrt{3.8}$) larger than in the Poisson model.
+
+The regression coefficients themselves do not change, however, and neither do the model-based predictions. We get the same point estimates, though with (appropriately) wider confidence intervals:
+
+```{r}
+predictions(
+  m, 
+  variables = "corpus",
+  newdata = datagrid(
+    n_words = 1000)) |> 
+  tidy() |> 
+  dplyr::select(corpus, estimate, conf.low, conf.high) |> 
+  mutate(across(2:4, \(x) round(x, 2))) |> 
+  kable()
+```
+
+The Quasi-Poisson model also returns the same relative difference between the corpora:
+
+```{r}
+comparisons(
+  m, 
+  variables = "corpus",
+  newdata = datagrid(
+    n_words = 1000),
+  comparison = "ratio") |> 
+  tidy() |> 
+  dplyr::select(contrast, estimate, conf.low, conf.high) |> 
+  mutate(across(2:4, \(x) round(x, 2))) |> 
+  kable()
+```
+
+
+
+```{r}
+#| echo: false
+
+pred_quaspoi <- predictions(
+  m, 
+  variables = "corpus",
+  newdata = datagrid(
+    n_words = 1000)) |> 
+  tidy() |> 
+  dplyr::select(corpus, estimate, conf.low, conf.high)
+
+comp_quaspoi <- comparisons(
+  m, 
+  variables = "corpus",
+  newdata = datagrid(
+    n_words = 1000),
+  comparison = "ratio") |> 
+  tidy() |> 
+  dplyr::select(contrast, estimate, conf.low, conf.high)
+
+```
+
+
+
+#### Negative binomial regression
+
+Negative binomial regression explicitly takes into account the texts in the data, and models the observed text-to-text variability in the frequency of *should* using a probability distribution. The model therefore has an additional parameter that represents the variability of text-level frequencies. As discussed in more detail in [this blog post](https://lsoenning.github.io/posts/2023-11-16_negative_binomial/), this parameter controls the shape of a gamma distribution, which in turn describes the multiplicative variation in speaker-specific rates. More background is provided in [this blog post](https://lsoenning.github.io/posts/2025-05-09_counts_overdispersion_unbalanced/).
+
+We can fit a negative binomial model using the function `glm.nb()` in the `{MASS}` package [@Venables_Ripley2002]:
+
+```{r}
+m <- MASS::glm.nb(
+	n_tokens ~ corpus + offset(log(n_words)), 
+	data = should_data)
+```
+
+```{r}
+summary(m)
+```
+
+
+Model-based predictions are again virtually identical to the ones from the Poisson and Quasi-Poisson model, with wider uncertainty intervals:
+
+```{r}
+predictions(
+  m, 
+  variables = "corpus",
+  newdata = datagrid(
+    n_words = 1000)) |> 
+  tidy() |> 
+  dplyr::select(corpus, estimate, conf.low, conf.high) |> 
+  mutate(across(2:4, \(x) round(x, 2))) |> 
+  kable()
+```
+
+The negative binomial model also returns the same relative difference between the corpora:
+
+```{r}
+comparisons(
+  m, 
+  variables = "corpus",
+  newdata = datagrid(
+    n_words = 1000),
+  comparison = "ratio") |> 
+  tidy() |> 
+  dplyr::select(contrast, estimate, conf.low, conf.high) |> 
+  mutate(across(2:4, \(x) round(x, 2))) |> 
+  kable()
+```
+
+
+
+```{r}
+#| echo: false
+
+pred_begbin <- predictions(
+  m, 
+  variables = "corpus",
+  newdata = datagrid(
+    n_words = 1000)) |> 
+  tidy() |> 
+  dplyr::select(corpus, estimate, conf.low, conf.high)
+
+comp_negbin <- comparisons(
+  m, 
+  variables = "corpus",
+  newdata = datagrid(
+    n_words = 1000),
+  comparison = "ratio") |> 
+  tidy() |> 
+  dplyr::select(contrast, estimate, conf.low, conf.high)
+
+```
+
+
+
+#### Poisson regression with random intercepts
+
+```{r}
+m <- lme4::glmer(
+	n_tokens ~ corpus + offset(log(n_words)) + (1 | text_id), 
+	data = should_data,
+	family = "poisson",
+	control = glmerControl(optimizer="bobyqa"))
+```
+
+```{r}
+arm::display(m)
+```
+
+```{r}
+avg_predictions(
+  m, 
+  variables = "corpus",
+  newdata = datagrid(
+    n_words = 1000,
+    speaker = NA),
+  re.form = NA) |> 
+  tidy() |> 
+  dplyr::select(corpus, estimate, conf.low, conf.high) |> 
+  mutate(across(2:4, \(x) round(x, 2))) |> 
+  kable()
+```
+
+
+```{r}
+avg_comparisons(
+  m, 
+  variables = "corpus",
+  newdata = datagrid(
+    n_words = 1000,
+    speaker = NA),
+  re.form = NA,
+  comparison = "ratio") |> 
+  tidy() |> 
+  dplyr::select(corpus, estimate, conf.low, conf.high) |> 
+  mutate(across(2:4, \(x) round(x, 2))) |> 
+  kable()
+```
+
+
+```{r}
+intercept_variance <- as.numeric(
+  summary(m)$varcor$text_id)
+
+round(
+  exp(fixef(m)[1] + intercept_variance/2) * 1e3, 2)
+
+round(
+  exp(fixef(m)[1] + fixef(m)[2] + intercept_variance/2) * 1e3, 2)
+```
+
+```{r}
+normal_to_lognormal <- function(mean_n, sd_n){
+  
+  mean_ln <- exp(mean_n + (sd_n^2/2))
+  sd_ln <- (exp(sd_n^2) -1) * exp(2 * mean_n + sd_n^2)
+  
+  output <- c(mean_ln, sqrt(sd_ln))
+  names(output) <- c("mean_ln", "sd_ln")
+  return(output)
+}
+```
+
+```{r}
+normal_to_lognormal(
+  mean_n = 0, 
+  sd_n = .76)
+```
+
+```{r}
+#| fig-width: 6
+#| fig-height: 3
+#| code-fold: true
+#| code-summary: "draw figure" 
+#| label: fig-lognormal
+#| fig-cap: "The log-normal distribution (black) vs. the gamma distribution (grey) describing between-speaker variability in the usage rate of *actually*."
+#| message: false
+#| warning: false
+
+xyplot(
+  1~1, type="n", xlim=c(0, 6.2), ylim=c(0,1.5),
+  par.settings=my_settings, axis=axis_L,
+  scales=list(y=list(at=0), x=list(at=c(0,1,2,3,4,5,6))),
+  ylab="Density", xlab="Multiplicative factor",
+  panel=function(x,y,...){
+    panel.segments(x0=1, x1=1, y0=0, y1=1.5, col=1)
+    panel.points(x = seq(.01, 6.2, length=1000),
+                 y = dGA(seq(.01, 6.2, length=1000), mu=1, sigma=(1/0.9278)),
+                 type="l", col = "grey40")
+    panel.points(x = seq(0, 6.2, length=1000),
+                 y = dlnorm(seq(0, 6.2, length=1000), 
+                            meanlog = 1.334825 , 
+                            sdlog = 1.180212 ),
+                 type="l")
+    panel.segments(x0=0, x1=6.2, y0=0, y1=0)
+    panel.text(x = 4, y = .2, label="Log-normal distribution", adj=0, cex=.9)
+    panel.text(x = 1.5, y = .45, label="Gamma distribution", adj=0, col = "grey40", cex=.9)
+    })
+```
+
+
+```{r}
+avg_predictions(
+  m, 
+  variables = "corpus",
+  newdata = datagrid(
+    n_words = 1000,
+    text_id = unique)) |> 
+  tidy() |> 
+  dplyr::select(corpus, estimate, conf.low, conf.high) |> 
+  mutate(across(2:4, \(x) round(x, 2))) |> 
+  kable()
+```
+
+```{r}
+avg_comparisons(
+  m, 
+  variables = "corpus",
+  newdata = datagrid(
+    n_words = 1000,
+    text_id = unique),
+  comparison = "ratio") |> 
+  tidy() |> 
+  dplyr::select(contrast, estimate, conf.low, conf.high) |> 
+  mutate(across(2:4, \(x) round(x, 2))) |> 
+  kable()
+```
+
+
+
