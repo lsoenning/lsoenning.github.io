@@ -373,6 +373,7 @@ avg_predictions(
 
 We must take control over the kind of normalized frequency we are getting. We prefer 'per 1,000 words' and therefore use the argument `variables` to specify `n_words = 1000`. Now we get a more interpretable estimate:
 
+
 ```{r}
 avg_predictions(
   m_nb_Frown,
@@ -381,13 +382,6 @@ avg_predictions(
 ```
 
 We note that this is close to the weighted mean we calculated above, which means that the genres are weighted in proportion to their size. This reflects the fact that the `{marginaleffects}` package by default averages over the estimation sample, and therefore propagates imbalances into the averages (which may be desirable or not). Specifically, the function `avg_predictions()` starts by calculating a model-based prediction for each text in the data, assuming it is 1,000 words long (as specified by `variables = list(n_words = 1000))`), and then averages over these 500 model-based estimates.
-
-```{r}
-avg_predictions(
-  m_nb_Frown,
-  variables = list(
-    n_words = 1000))
-```
 
 Another way of forming weighted predictions is to use the argument `datagrid()` to define the conditions over which we average, and then add another argument, `wts`, giving the weight of these conditions. This strategy is useful if we want to use an externally informed set of custom weights. The following returns (almost) the same results as the previous code:
 

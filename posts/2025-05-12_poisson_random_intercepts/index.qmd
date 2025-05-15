@@ -132,7 +132,7 @@ To see how the outcome variable is distributed at the speaker level, we draw a d
 
 ```{r}
 #| fig-width: 4
-#| fig-height: 1.3
+#| fig-height: 1.7
 #| code-fold: true
 #| code-summary: "Draw Figure" 
 #| label: fig-actually-speaker
@@ -142,10 +142,12 @@ To see how the outcome variable is distributed at the speaker level, we draw a d
 
 d |> 
   ggplot(aes(x = rate_ptw)) + 
-  geom_dotplot(binwidth = .1, stackratio = .9, method = "histodot") +
+  geom_dotplot(binwidth = .1, stackratio = 1, method = "histodot", dotsize = .8) +
   theme_dotplot() + 
-  scale_y_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0.002, 0.002)) +
+  scale_x_continuous(expand = c(0.002, 0.002)) +
   xlab("Speaker-specific usage rate of actually (per thousand words)")
+
 ```
 
 
@@ -291,7 +293,9 @@ The table tells us that the standard deviation of the random intercepts, i.e. th
 xyplot(
   1~1, type="n", xlim=c(-8.2, -4.9), ylim=c(0,1.5),
   par.settings=my_settings, axis=axis_bottom,
-  scales=list(y=list(at=0), x=list(at=-9:-3)),
+  scales=list(y=list(at=0), x=list(
+    at=-9:-3,
+    label = c("\u22129", "\u22128", "\u22127","\u22126", "\u22125", "\u22124", "\u22123"))),
   ylab=NULL, xlab="Model scale: Natural logarithm",
   panel=function(x,y,...){
     panel.segments(x0=0, x1=0, y0=0, y1=.9, col=1)
@@ -309,8 +313,10 @@ xyplot(
     panel.text(x = log(seq(.001, .007, .001)), 
                y = 1.17, 
                label = seq(.001, .007, .001)*1000)
-    panel.text(x = fixef(m_pr), y = 1.45, label = "Ocurrences per thousand words")
+    panel.text(x = fixef(m_pr), y = 1.45, label = "Occurrences per thousand words")
     })
+
+
 ```
 
 @fig-lognormal shows what this distribution looks like on the scale of normalized frequencies. Now the occurrence rates per thousand words are equidistant and the natural logs assume a non-linear spacing. The distribution we are looking at is a log-normal distribution, which consists of positive values only, and which is skewed toward large values.
@@ -328,7 +334,7 @@ xyplot(
 x_seq <- seq(0, .006, length = 100)
 
 xyplot(
-  1~1, type="n", xlim=c(0, exp(-5)), ylim=c(0,1.5),
+  1~1, type="n", xlim=c(0, exp(-4.99)), ylim=c(0,1.5),
   par.settings=my_settings, axis=axis_bottom,
   scales=list(y=list(at=0), x=list(at=(0:7)/1000, label=0:7)),
   ylab="Density           ", xlab="Occurrences per thousand words",
@@ -356,6 +362,8 @@ xyplot(
                label = c("\u22128", "\u22127","\u22126", "\u22125"))
     panel.text(x=.0035, y=1.5, label="Natural logarithm")
     })
+
+
 ```
 
 
@@ -386,7 +394,7 @@ p1 <- xyplot(
   ylab=NULL, xlab="Model scale: Log usage rate (base e)",
   panel=function(x,y,...){
     panel.segments(x0 = fixef(m_pr), x1 = fixef(m_pr), y0 = 0, y1 = 2.1, col = "grey")
-    panel.dotdiagram(sample_speakers, scale_y = .05, n_bins = 34)
+    panel.dotdiagram(sample_speakers, scale_y = .07, n_bins = 34)
     panel.text(x = fixef(m_pr)-.2, y = 1.9, label="Mean over\nspeaker-specific\nlog usage rates", lineheight = .8, adj=1)
     panel.text(x = fixef(m_pr)+.2, y = 1.9, label="Fixed intercept of\nrandom-intercept\nPoisson model", lineheight = .8, adj=0)
     panel.text(x = fixef(m_pr), y = 1.9, label = "=")
@@ -397,6 +405,7 @@ p1 <- xyplot(
     })
 
 print(p1, position = c(0,0,.69,1))
+
 ```
 
 
@@ -424,7 +433,7 @@ The normalized frequency of 1.4 per thousand words is one kind of average usage 
 
 ```{r}
 #| fig-width: 4
-#| fig-height: 2
+#| fig-height: 2.3
 #| code-fold: true
 #| code-summary: "draw figure" 
 #| label: fig-lognormal-dotdiagram
@@ -434,24 +443,25 @@ The normalized frequency of 1.4 per thousand words is one kind of average usage 
 #| classes: preview-image
 
 p1 <- xyplot(
-  1~1, type="n", xlim=c(0, .0071), ylim=c(0,2.1),
+  1~1, type="n", xlim=c(0, .0071), ylim=c(0,2.5),
   par.settings=my_settings, axis=axis_bottom,
   scales=list(y=list(at=0), x=list(at=(0:7)/1000, label=0:7)),
   ylab=NULL, xlab="Data scale: Usage rate (per thousand words)",
   panel=function(x,y,...){
-    panel.segments(x0 = exp(fixef(m_pr) + (.55^2)/2), x1 = exp(fixef(m_pr) + (.55^2)/2), y0 = 0, y1 = 2)
-    panel.segments(x0 = exp(fixef(m_pr)), x1 = exp(fixef(m_pr)), y0 = 0, y1 = 2, col = "grey")
+    panel.segments(x0 = exp(fixef(m_pr) + (.55^2)/2), x1 = exp(fixef(m_pr) + (.55^2)/2), y0 = 0, y1 = 2.5)
+    panel.segments(x0 = exp(fixef(m_pr)), x1 = exp(fixef(m_pr)), y0 = 0, y1 = 2.5, col = "grey")
     #panel.segments(x0 = 0, x1 = 0, y0 = 0, y1 = .9, col = 1)
-    panel.dotdiagram(exp(sample_speakers), scale_y = .04, n_bins = 45)
-    panel.text(x = exp(fixef(m_pr) + (.55^2)/2)+.0003, y = 1.8, label="Mean over\nspeaker-specific\nusage rates", lineheight = .8, adj=0)
-    panel.text(x = exp(fixef(m_pr))-.0003, y = 1.8, label="Back-transformed\nintercept of\nPoisson model", lineheight = .8, adj=1, col="grey40")
-    panel.text(x = exp(fixef(m_pr) + (.55^2)/2)+.0003, y = 1.3, label="1.6 per thousand words", lineheight = .8, adj=0)
-    panel.text(x = exp(fixef(m_pr))-.0003, y = 1.3, label="1.4 per thousand words", adj=1, col="grey40")
+    panel.dotdiagram(exp(sample_speakers), scale_y = .06, n_bins = 45)
+    panel.text(x = exp(fixef(m_pr) + (.55^2)/2)+.0003, y = 2.3, label="Mean over\nspeaker-specific\nusage rates", lineheight = .8, adj=0)
+    panel.text(x = exp(fixef(m_pr))-.0003, y = 2.3, label="Back-transformed\nintercept of\nPoisson model", lineheight = .8, adj=1, col="grey40")
+    panel.text(x = exp(fixef(m_pr) + (.55^2)/2)+.0003, y = 1.8, label="1.6 per thousand words", lineheight = .8, adj=0)
+    panel.text(x = exp(fixef(m_pr))-.0003, y = 1.8, label="1.4 per thousand words", adj=1, col="grey40")
     #panel.text(x = fixef(m_pr), y = 1.7, label = "=")
-    panel.points(x = c(exp(fixef(m_pr)), exp(fixef(m_pr) + (.55^2)/2)), y = 2, pch = 19, col = c("grey40", "black"))
+    panel.points(x = c(exp(fixef(m_pr)), exp(fixef(m_pr) + (.55^2)/2)), y = 2.5, pch = 19, col = c("grey40", "black"))
     })
 
 print(p1, position = c(.2,0,1,1))
+
 ```
 
 
@@ -587,6 +597,12 @@ p1 <- xyplot(
     })
 
 print(p1, position = c(0,0,1,.85))
+
+
+
+cairo_pdf("actually_gamma_lognormal_comparison.pdf", width = 4, height = 2)
+print(p1, position = c(0,0,1,.85))
+dev.off()
 
 ```
 
