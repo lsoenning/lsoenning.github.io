@@ -1,0 +1,622 @@
+---
+title: "Frequency estimates based on random-intercept Poisson models"
+description: "Clustered count data can be modeled using a Poisson regression model including random intercepts. This blog post describes how this model represents the data and the different kinds of frequency estimates it produces."
+date: 2025-05-13
+categories: [corpus linguistics, regression, clustered data, frequency data, negative binomial]
+citation: 
+  url: https://lsoenning.github.io/posts/2025-05-12_poisson_random_intercept/ 
+---
+
+When modeling frequency counts, the Poisson model is often inappropriate since the observed variation from text to text (or speaker to speaker) is greater than anticipated by this simple model. The observed overdispersion can be addressed using Poisson mixture models, which include an additional parameter that captures the variation among texts. A frequently used variant is the negative binomial model (also called a Poisson-gamma mixture model), which represents text-to-text variation using a gamma distribution. This blog post discusses another option, a random-effects Poisson regression model (also called a Poisson-lognormal mixture model). We look at the structure of this model and how it represents text-to-text variation, and draw comparisons with the negative binomial model. We will see that a Poisson random-intercept model yields two different types of average frequencies.
+
+```{r}
+#| warning: false
+#| message: false
+#| code-fold: true
+#| code-summary: "R setup"
+
+library(tidyverse)          # for data wrangling and visualization
+library(dataverse)          # for downloading data from TROLLing
+library(marginaleffects)    # to compute model-based estimates
+library(MASS)               # to fit a negative binomial regression model
+library(kableExtra)         # for drawing html tables
+library(lme4)               # to fit mixed-effects regression models
+library(lattice)            # for data visualization
+library(gamlss)             # for drawing gamma densities
+
+# pak::pak("lsoenning/uls") # install package "uls"
+library(uls)                # for ggplot2 dotplot theme
+
+source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
+```
+
+#### Case study: *Actually* in the Spoken BNC2014
+
+Our illustrative data records the distribution of *actually* in the Spoken BNC2014 [@Love_etal2017], which was analyzed in @Soenning_Krug2022. For more information on the dataset, please refer to @Krug_Soenning2021.
+
+We start by downloading the data from *TROLLing* and rename a few variables for clarity.
+
+```{r}
+dat <- get_dataframe_by_name(
+    filename  = "actually_data_2014.tab",
+    dataset   = "10.18710/A3SATC",
+    server    = "dataverse.no",
+    .f        = read.csv,
+    original  = TRUE
+  )
+
+d <- dat |> 
+  dplyr::select(-c(Exact_age, age_bins)) |> 
+  rename(
+    n_actually = count,
+    n_words = total,
+    age_group = Age_range,
+    gender = Gender
+  )
+```
+
+In line with @Soenning_Krug2022, we remove speakers who contributed fewer than 100 words to the corpus, and for whom information on age and gender is missing.
+
+```{r}
+d <- d |> 
+  filter(
+    n_words > 100,
+    !(is.na(gender)))
+```
+
+In this blog post, we will concentrate on speakers between 19 and 29 years of age.
+
+```{r}
+d <- d |> 
+  filter(age_group == "19-29") |> 
+  droplevels()
+```
+
+We add a new variable to the data frame: the speaker-specific normalized frequency of *actually*, expressed as 'per thousand words':
+
+```{r}
+d$rate_ptw <- (d$n_actually / d$n_words) * 1000
+```
+
+The data subset used in the present blog post includes 247 speakers and the following variables:
+
+-   an ID (`speaker`)
+-   the number of times they used *actually* (`n_actually`)
+-   the age group (`age_group`)
+-   self-reported gender (`gender`)
+-   the total number of words contributed to the corpus by the speaker (`n_words`), and
+-   the usage rate of *actually*, expressed as 'per thousand words' (`rate_ptw`)
+
+```{r}
+str(d)
+```
+
+ 
+
+#### Focus of analysis
+
+The key interest in the following is in the usage rate of *actually* (expressed as a normalized frequency) among young British adults in conversational speech. In the following, the terms *normalized frequency*, *occurrence rate*, and *usage rate* will be used interchangeably.
+
+
+#### Data description
+
+We start by inspecting some key characteristics of the data. First we examine the distribution of speakers by Gender. The ratio of female and male speakers is 3 to 2:
+
+```{r}
+table(d$gender)
+```
+
+Next, we consider the distribution of word counts across speakers (i.e. the total number of word tokens each person contributed to the corpus). @fig-wordcount-speaker shows a very skewed profile, with a few speakers showing disproportionately high word counts.
+
+```{r}
+#| fig-width: 4
+#| fig-height: 2.5
+#| code-fold: true
+#| code-summary: "Draw Figure" 
+#| label: fig-wordcount-speaker
+#| fig-cap: "Distribution of word counts across speakers from the Spoken BNC2014 aged 19 to 29, excluding individuals who contribute fewer than 100 words to the corpus."
+#| message: false
+#| warning: false
+
+d |> 
+  ggplot(aes(x = n_words)) + 
+  geom_dotplot(binwidth = 3000, stackratio = .9, method = "histodot") +
+  theme_dotplot() + 
+  scale_x_continuous(labels = scales::label_comma(), expand = c(.01, .01)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  annotate("text", x = 200000, y = .5, label = "Each dot represents a speaker", color = "grey30", size = 3) +
+  xlab("Number of word tokens contributed to the corpus")
+```
+
+To see how the outcome variable is distributed at the speaker level, we draw a dot diagram of the speaker-specific usage rate of *actually*, expressed as "per thousand words". @fig-actually-speaker shows a skewed arrangement, with a few individuals using the word at an exceptionally high rate.
+
+```{r}
+#| fig-width: 4
+#| fig-height: 1.3
+#| code-fold: true
+#| code-summary: "Draw Figure" 
+#| label: fig-actually-speaker
+#| fig-cap: "Distribution of speaker-specific usage rates of *actually* in our data subset, per thousand words."
+#| message: false
+#| warning: false
+
+d |> 
+  ggplot(aes(x = rate_ptw)) + 
+  geom_dotplot(binwidth = .1, stackratio = .9, method = "histodot") +
+  theme_dotplot() + 
+  scale_y_continuous(expand = c(0, 0)) +
+  xlab("Speaker-specific usage rate of actually (per thousand words)")
+```
+
+
+#### Negative binomial regression
+
+For a point of reference, we start by fitting a negative binomial regression model. This model takes into account the speakers, and represents the observed variability in the usage rate of *actually* using a probability distribution. The model therefore includes an additional parameter that represents the variability of usage rates. As discussed in more detail in [this blog post](https://lsoenning.github.io/posts/2023-11-16_negative_binomial/), this parameter controls the shape of a gamma distribution, which in turn describes the multiplicative variation in speaker-specific rates.
+
+This is illustrated in @fig-gamma, which shows considerable variation among speakers. The vertical line marks a ratio of 1, which represents speakers whose usage rate coincides with the model-based average usage rate of *actually* (which , as we will see shortly, is 1.6 per thousand words). The density curve shows the distribution of speakers across multiplicative factors ranging from 0 to 3. A ratio of 0.5 represents a speaker whose usage rate of *actually* is only half as large as the overall average, and a ratio of 2 refers to speakers whose usage rate is twice as large as the overall average.
+
+```{r}
+#| fig-width: 3
+#| fig-height: 1.5
+#| code-fold: true
+#| code-summary: "draw figure" 
+#| label: fig-gamma
+#| fig-cap: "The gamma distribution describing between-speaker variability (in multiplicative terms) in the usage rate of *actually*."
+#| message: false
+#| warning: false
+
+xyplot(
+  1~1, type="n", xlim=c(0, 3.1), ylim=c(0,1),
+  par.settings=my_settings, axis=axis_L,
+  scales=list(y=list(at=0), x=list(at=c(0,1,2,3,4))),
+  ylab="Density", xlab="Multiplicative factor",
+  panel=function(x,y,...){
+    panel.segments(x0=1, x1=1, y0=0, y1=1, col=1)
+    panel.points(x = seq(.01, 4.2, length=1000),
+                 y = dGA(seq(.01, 4.2, length=1000), mu=1, sigma=(1/sqrt(3.4363))),
+                 type="l")
+    })
+```
+
+Since this is a probability distribution, we can summarize the estimated distribution of speakers. The following code finds the quartiles of the distribution:
+
+```{r}
+qGA(
+  p = c(.25, .5, .75), 
+  mu = 1, 
+  sigma = 1/sqrt(3.4363)) |> 
+  round(2)
+```
+
+This tells us that ratios of 0.60 and 1.29 mark the interquartile range: The central 50% of the speakers are within this interval. Interestingly, and perhaps counterintuitively, the median of this gamma distribution is 0.90 (rather than 1), meaning that half of the speakers have a ratio below this mark. Let us also see how many speakers have ratio above and below 1:
+
+```{r}
+pGA(
+  q = 1, 
+  mu = 1, 
+  sigma = 1/sqrt(3.4363)) |> 
+  round(2)
+```
+
+57% of the speakers have a ratio below 1, meaning that more than half of the speakers actually show a usage rate below the estimated mean. We will return to this rather puzzling feature of the negative binomial model further below.
+
+We can fit a negative binomial model using the function `glm.nb()` in the `{MASS}` package [@Venables_Ripley2002]:
+
+```{r}
+m_nb <- MASS::glm.nb(
+  n_actually ~ 1 + offset(log(n_words)),
+  data = d)
+```
+
+
+This produces the following regression table:
+
+```{r}
+#| attr-output: "style='font-size: 0.8em'"
+
+summary(m_nb)
+```
+
+The intercept of negative binomial model represents its estimate of the average frequency of *actually*:
+
+```{r}
+coef(m_nb)
+```
+
+We can back-transform it to the scale of normalized frequencies (per thousand words):
+
+```{r}
+round(
+  exp(coef(m_nb)) *1000, 2)
+```
+
+We can also retrieve frequency estimates using the function `avg_predictions()` in the `{marginaleffects}` package [@ArelBundock_etal2024], which also returns a 95% confidence interval:
+
+```{r}
+avg_predictions(
+  m_nb, 
+  newdata = datagrid(
+    n_words = 1000)) |> 
+  tidy() |> 
+  dplyr::select(estimate, conf.low, conf.high) |> 
+  round(2) |> 
+  kable()
+```
+
+
+
+\ 
+
+#### Poisson regression with random intercepts
+
+Another way of accounting for the structure in the data is to use a Poisson regression model with random intercepts on Speaker. This model is similar to the negative binomial since it also represents the observed variation among speakers using a probability distribution. Between-speaker variation is modeled on the scale of natural logarithms, using a normal distribution. On the scale of the actual occurrence rates, this translates into a log-normal distribution.
+
+
+##### Model fitting
+
+We will illustrate this once we have fit our model using the function `glmer()` in the R package `{lme4}` [@Bates_etal2015].
+
+```{r}
+m_pr <- glmer(
+	n_actually ~ 1 + offset(log(n_words)) + (1|speaker), 
+	data = d,
+	family = "poisson",
+	control = glmerControl(optimizer="bobyqa"))
+```
+
+Here is a condensed regression table:
+
+```{r}
+#| attr-output: "style='font-size: 0.8em'"
+
+arm::display(m_pr)
+```
+
+\ 
+
+##### Representation of between-speaker variation
+
+The table tells us that the standard deviation of the random intercepts, i.e. the parameter describing the spread of the normal distribution representing between-speaker variation, is 0.55. @fig-normal shows the inferred distribution of speaker intercepts on the log scale. At the top of the figure, a second *x*-axis is drawn, which shows the normalized frequencies corresponding to these natural logs. The equidistant logs translate into a warped, non-linear spacing of the occurrence rates per thousand words.
+
+```{r}
+#| fig-width: 3
+#| fig-height: 1.9
+#| code-fold: true
+#| code-summary: "draw figure" 
+#| label: fig-normal
+#| fig-cap: "The normal distribution describing between-speaker variability in the usage rate of *actually* on the scale of natural logarithms."
+#| message: false
+#| warning: false
+
+xyplot(
+  1~1, type="n", xlim=c(-8.2, -4.9), ylim=c(0,1.5),
+  par.settings=my_settings, axis=axis_bottom,
+  scales=list(y=list(at=0), x=list(at=-9:-3)),
+  ylab=NULL, xlab="Model scale: Natural logarithm",
+  panel=function(x,y,...){
+    panel.segments(x0=0, x1=0, y0=0, y1=.9, col=1)
+    panel.points(x = seq(-8.2, -4.9, length=1000),
+                 y = dnorm(seq(-8.2, -4.9, length=1000), 
+                           mean = fixef(m_pr), sd = .55),
+                 type="l")
+    panel.segments(x0=-8.2, x1=-4.9, y0=1, y1=1)
+    panel.segments(x0 = log(seq(.001, .007, .001)),
+                   x1 = log(seq(.001, .007, .001)),
+                   y0 = 1, y1 = 1.05)
+    panel.segments(x0 = log(seq(.0005, .0075, .001)),
+                   x1 = log(seq(.0005, .0075, .001)),
+                   y0 = 1, y1 = 1.03)
+    panel.text(x = log(seq(.001, .007, .001)), 
+               y = 1.17, 
+               label = seq(.001, .007, .001)*1000)
+    panel.text(x = fixef(m_pr), y = 1.45, label = "Ocurrences per thousand words")
+    })
+```
+
+@fig-lognormal shows what this distribution looks like on the scale of normalized frequencies. Now the occurrence rates per thousand words are equidistant and the natural logs assume a non-linear spacing. The distribution we are looking at is a log-normal distribution, which consists of positive values only, and which is skewed toward large values.
+
+```{r}
+#| fig-width: 3
+#| fig-height: 1.7
+#| code-fold: true
+#| code-summary: "draw figure" 
+#| label: fig-lognormal
+#| fig-cap: "The log-normal distribution describing between-speaker variability in the usage rate of *actually* on the normlized frequency scale."
+#| message: false
+#| warning: false
+
+x_seq <- seq(0, .006, length = 100)
+
+xyplot(
+  1~1, type="n", xlim=c(0, exp(-5)), ylim=c(0,1.5),
+  par.settings=my_settings, axis=axis_bottom,
+  scales=list(y=list(at=0), x=list(at=(0:7)/1000, label=0:7)),
+  ylab="Density           ", xlab="Occurrences per thousand words",
+  panel=function(x,y,...){
+    panel.segments(x0 = 0, x1=0, y0=0, y1=.8)
+    panel.points(x = x_seq,
+                 y = dlnorm(x_seq, 
+                            meanlog = fixef(m_pr), 
+                            sdlog = 0.55)/800,
+                 type="l")
+    
+    panel.segments(x0=exp(-8), x1=exp(-5), y0=1, y1=1)
+    panel.segments(x0 = exp(-8:-5),
+                   x1 = exp(-8:-5),
+                   y0 = 1, y1 = 1.07)
+    panel.segments(x0 = exp(-7.5:-5.5),
+                   x1 = exp(-7.5:-5.5),
+                   y0 = 1, y1 = 1.045)
+    
+    panel.segments(x0 = exp(seq(-8, 5, .1)),
+                   x1 = exp(seq(-8, 5, .1)),
+                   y0 = 1, y1 = 1.03)
+    panel.text(x = exp(-8:-5), 
+               y = 1.2, 
+               label = c("\u22128", "\u22127","\u22126", "\u22125"))
+    panel.text(x=.0035, y=1.5, label="Natural logarithm")
+    })
+```
+
+
+
+To clarify the relation between normalized frequencies (the data scale) and natural logarithms (the model scale), let us consider a group of 250 hypothetical speakers. These speakers, and their individual average usage rates of *actually*, are generated in perfect accordance with the Poisson random-intercept model. Since the model operates on the log scale, each speaker is characterized by their log usage rate of *actually*.
+
+@fig-normal-dotdiagram shows that, according to the model, the speaker-specific log usage rates form a symmetric, bell-shaped pile, which resembles a normal distribution. The center of this pile of dots is the mean log usage rate in the sample of speakers. It is the mean over the 250 log rates. 
+
+```{r}
+#| fig-width: 4
+#| fig-height: 2
+#| code-fold: true
+#| code-summary: "draw figure" 
+#| label: fig-normal-dotdiagram
+#| fig-cap: "Dot diagram showing an idealized distribution of 250 speakers on the model scale (log normalized frequencies), based on the parameters of the Poisson random-intercept model."
+#| message: false
+#| warning: false
+
+sample_speakers <- dnorm_to_dots(
+  n_dots = 250, 
+  mean = fixef(m_pr), 
+  sd = .55)
+
+p1 <- xyplot(
+  1~1, type="n", xlim=c(-8.3, -4.8), ylim=c(0,2.2),
+  par.settings=my_settings, axis=axis_bottom,
+  scales=list(y=list(at=0), x=list(at=-9:-3)),
+  ylab=NULL, xlab="Model scale: Log usage rate (base e)",
+  panel=function(x,y,...){
+    panel.segments(x0 = fixef(m_pr), x1 = fixef(m_pr), y0 = 0, y1 = 2.1, col = "grey")
+    panel.dotdiagram(sample_speakers, scale_y = .05, n_bins = 34)
+    panel.text(x = fixef(m_pr)-.2, y = 1.9, label="Mean over\nspeaker-specific\nlog usage rates", lineheight = .8, adj=1)
+    panel.text(x = fixef(m_pr)+.2, y = 1.9, label="Fixed intercept of\nrandom-intercept\nPoisson model", lineheight = .8, adj=0)
+    panel.text(x = fixef(m_pr), y = 1.9, label = "=")
+    panel.text(x = fixef(m_pr)+.4, y = 1.2, label="\u22126.58", adj=0)
+    panel.text(x = fixef(m_pr)+1.2, y = 1.2, label="Back-transformation:", adj=0, col = "grey40")
+    panel.text(x = fixef(m_pr)+1.4, y = .95, label="exp(\u22126.58)", adj=0, col = "grey40")
+    panel.text(x = fixef(m_pr)+1.4, y = .7, label="= 1.4 per thousand words", adj=0, col = "grey40")
+    })
+
+print(p1, position = c(0,0,.69,1))
+```
+
+
+In the Poisson random-intercept model, this mean log usage rate is represented by the fixed intercept of the model. We saw this fixed intercept in the regression table above. We can retrieve it from the model using the function `fixef()`:
+
+```{r}
+fixef(m_pr)
+```
+
+To make sense of this value, we back-transform this log normalized frequency to the scale of occurrence rates via exponentiation. To get occurrences 'per thousand words', we multiply this rate by 1,000, and round the result to one decimal place:
+
+```{r}
+round(
+  exp(fixef(m_pr)) * 1000,
+  1)
+```
+
+The **mean log normalized frequency**, then, which is represented by the fixed intercept of the model, corresponds to a rate of 1.4 per thousand words.
+
+
+##### Two types of average frequencies
+
+The normalized frequency of 1.4 per thousand words is one kind of average usage rate we can report based on a random-intercept Poisson model. To recognize that there is a second type of average normalized frequency, let us consider the distribution of the 250 speaker-specific usage rates on the data scale of normalized frequencies. @fig-lognormal-dotdiagram shows that the pile is no longer symmetric -- it is skewed toward the right, with a longer upper tail. Note how this dot diagram matches the density curve shown in @fig-lognormal above.
+
+
+```{r}
+#| fig-width: 4
+#| fig-height: 2
+#| code-fold: true
+#| code-summary: "draw figure" 
+#| label: fig-lognormal-dotdiagram
+#| fig-cap:  "Dot diagram showing an idealized distribution of 250 speakers on the data scale (normalized frequencies), based on the parameters of the Poisson random-intercept model."
+#| message: false
+#| warning: false
+#| classes: preview-image
+
+p1 <- xyplot(
+  1~1, type="n", xlim=c(0, .0071), ylim=c(0,2.1),
+  par.settings=my_settings, axis=axis_bottom,
+  scales=list(y=list(at=0), x=list(at=(0:7)/1000, label=0:7)),
+  ylab=NULL, xlab="Data scale: Usage rate (per thousand words)",
+  panel=function(x,y,...){
+    panel.segments(x0 = exp(fixef(m_pr) + (.55^2)/2), x1 = exp(fixef(m_pr) + (.55^2)/2), y0 = 0, y1 = 2)
+    panel.segments(x0 = exp(fixef(m_pr)), x1 = exp(fixef(m_pr)), y0 = 0, y1 = 2, col = "grey")
+    #panel.segments(x0 = 0, x1 = 0, y0 = 0, y1 = .9, col = 1)
+    panel.dotdiagram(exp(sample_speakers), scale_y = .04, n_bins = 45)
+    panel.text(x = exp(fixef(m_pr) + (.55^2)/2)+.0003, y = 1.8, label="Mean over\nspeaker-specific\nusage rates", lineheight = .8, adj=0)
+    panel.text(x = exp(fixef(m_pr))-.0003, y = 1.8, label="Back-transformed\nintercept of\nPoisson model", lineheight = .8, adj=1, col="grey40")
+    panel.text(x = exp(fixef(m_pr) + (.55^2)/2)+.0003, y = 1.3, label="1.6 per thousand words", lineheight = .8, adj=0)
+    panel.text(x = exp(fixef(m_pr))-.0003, y = 1.3, label="1.4 per thousand words", adj=1, col="grey40")
+    #panel.text(x = fixef(m_pr), y = 1.7, label = "=")
+    panel.points(x = c(exp(fixef(m_pr)), exp(fixef(m_pr) + (.55^2)/2)), y = 2, pch = 19, col = c("grey40", "black"))
+    })
+
+print(p1, position = c(.2,0,1,1))
+```
+
+
+Characterizing the distribution of usage rates on this scale is more challenging due to the asymmetry. If we want to summarize the pile of dots by referring to the "typical", or "average" occurrence rate in the group of speakers, we could use the mean or median usage rate. The mean is sensitive to outliers -- the few speakers with unusually high usage rate will therefore pull it upwards slightly. The median, on the other hand, is the usage rate in the middle of the distribution and not affected by outliers -- half the speakers are above, and half below the median rate.
+
+If we calculate the mean usage rate based on the pile of dots in @fig-lognormal-dotdiagram, we obtain a normalized frequency of 1.6 per thousand words. This "average" is marked in @fig-lognormal-dotdiagram using a black needle. For comparison, the back-transformed mean log usage rate of 1.4 per thousand words, which we calculated above, appears as a grey needle. 
+
+It is important to note that these two types of averages differ. Let us therefore repeat what they represent:
+
+- The grey average (1.4 ptw) is the **mean over the speaker-specific log usage rates** (see @fig-normal-dotdiagram), **back-transformed** into a normalized frequency.
+- The black average (1.6 ptw) is the **mean over the speaker-specific usage rates** (see @fig-lognormal-dotdiagram), i.e. over the back-transformed log usage rates.
+
+The two averages represent two different measures of central tendency:
+
+- 1.6 ptw, in black, is the **mean usage rate** over the 250 speakers.
+- 1.4 ptw, in grey, is the **median usage rate** over the 250 speakers.
+
+In other words, upon back-transforming the fixed intercept in a random-intercept Poisson regression model, we obtain the median normalized frequency. 
+
+If we look at @fig-lognormal-dotdiagram, we note that the median (grey) arguably does a better job at locating the typical occurrence rate in the group of 250 speakers -- the mean (black) seems a bit too high, as most of the dots are below 1.6 ptw. This is consistent with the advice found in statistical textbooks: the median is often a better summary measure for skewed distributions.
+
+
+##### Obtaining model-based estimates of the different average frequencies
+
+Both kinds of average frequencies can be constructed based on a Poisson model with random-intercepts. We will look at two approaches: (i) an analytic approach based on the model parameters, and (ii) a predictive approach using the `{marginaleffects}` package.
+
+As we saw above, the *median normalized frequency* is represented by the model intercept, and we can retrieve it as follows:
+
+```{r}
+round(
+  exp(fixef(m_pr)) * 1000,
+  2)
+```
+
+The *mean normalized frequency* can be calculated based on the model intercept and the variance of the normal distribution describing between-speaker variation. This is the formula:
+
+$$
+\textrm{mean normalized frequency} = \textrm{exp}(\textrm{intercept} + \frac{\textrm{random-intercept variance}}{2})
+$$
+
+To apply this formula, we first extract the random-intercept variance from the model object:
+
+```{r}
+intercept_variance <- as.numeric(
+  summary(m_pr)$varcor$speaker)
+```
+
+Now we can apply the formula above to obtain the mean normalized frequency of *actually*:
+
+```{r}
+round(
+  exp(fixef(m_pr) + intercept_variance/2) * 1e3, 2)
+```
+
+We can also obtain these two types of average frequency using the `{marginaleffects}` package. To get the **median normalized frequency** of *actually* (i.e. the back-transformed mean log rate), we run the following code. The argument `re.form = NA` tells the function to ignore between-speaker variation:
+
+```{r}
+avg_predictions(
+  m_pr, 
+  newdata = datagrid(
+    n_words = 1000,
+    speaker = NA),
+  re.form = NA) |> 
+  tidy() |> 
+  dplyr::select(estimate, conf.low, conf.high) |> 
+  round(2) |> 
+  kable()
+```
+
+
+
+To get (something close to) the **mean normalized frequencies** we calculated above, we can ask the function `avg_predictions()` to average predictions over the speakers in the sample. This means that the by-speaker random intercepts are incorporated into the model predictions. The model-based speaker intercepts are used to get a predicted normalized frequency for each speaker, and these are then averaged.
+
+```{r}
+avg_predictions(
+  m_pr, 
+  newdata = datagrid(
+    n_words = 1000,
+    speaker = unique)) |> 
+  tidy() |> 
+  dplyr::select(estimate, conf.low, conf.high) |> 
+  round(2) |> 
+  kable()
+```
+
+The result is not identical to the one we got above due to shrinkage: The speaker intercepts are partially pooled, and their variability is therefore smaller than implied by the random-intercept standard deviation.
+
+
+#### Comparison: Poisson random-intercept vs. negative binomial model
+
+We can now compare the two types of regression models in terms of (i) how they represent between-speaker variation and (ii) the kind of frequency estimates they return.
+
+The two models describe the variation among speakers using different probability distributions. These are compared in @fig-comparison, which shows that they provide quite similar, though not identical, representations of the distribution of speaker-specific normalized frequencies.
+
+- The negative binomial model uses the *gamma distribution* to express between-speaker variation; it is therefore also referred to as a *Poisson-gamma mixture model*.
+- Poisson regression with random intercepts uses the *lognormal distribution* to express between-speaker variation; it is therefore also referred to as a *Poisson-lognormal mixture model*.
+
+```{r}
+#| fig-width: 4
+#| fig-height: 2
+#| code-fold: true
+#| code-summary: "draw figure" 
+#| label: fig-comparison
+#| fig-cap: "The log-normal distribution (black) vs. the gamma distribution (grey) describing between-speaker variability in the usage rate of *actually*."
+#| message: false
+#| warning: false
+
+x_seq <- seq(0, .006, length = 100)
+
+p1 <- xyplot(
+  1~1, type="n", xlim=c(0, .006), ylim=c(0,1.1),
+  par.settings=my_settings, axis=axis_L,
+  scales=list(y=list(at=0), x=list(at=(0:6)/1000, label=c(0,1,2,3,4,5,6))),
+  ylab="Density", xlab="Ocurrences per thousand words",
+  panel=function(x,y,...){
+    panel.segments(x0=1, x1=1, y0=0, y1=1.5, col=1)
+    panel.points(x = seq(.01, 5, length=200)*exp(coef(m_nb)),
+                 y = dGA(seq(.01, 5, length=200), mu=1, sigma=1/sqrt(3.4363)),
+                 type="l", col = "grey40", lty = "32", lineend = "butt")
+    
+    panel.points(x = x_seq,
+                 y = dlnorm(x_seq, 
+                            meanlog = fixef(m_pr), 
+                            sdlog = 0.55)/600,
+                 type="l")
+    panel.segments(x0=0, x1=.006, y0=0, y1=0)
+    panel.text(x = 4, y = .2, label="Log-normal distribution", adj=0, cex=.9)
+    panel.text(x = 1.5, y = .45, label="Gamma distribution", adj=0, col = "grey50", cex=.9)
+
+    panel.abline(v = 1)
+    panel.text(x = .0008, y = 1.25, label = "Poisson-lognormal model\n(Poisson regression with random intercepts)", adj=0, cex=.9, lineheight = .8)
+    panel.text(x = .0025, y = .6, label = "Poisson-gamma model\n(Negative binomial regression)", adj=0, cex=.9, col = "grey40", lineheight = .8)
+    })
+
+print(p1, position = c(0,0,1,.85))
+
+```
+
+As for the model predictions, the intercepts in the two models represent different average frequencies:
+
+- The intercept in a negative binomial model represents the *mean normalized frequency* 
+- The intercept in the Poisson random-intercept model represents the *median normalized frequency* 
+
+The following code therefore returns different frequency estimates:
+
+```{r}
+round(
+  exp(fixef(m_pr)) * 1e3, 2)
+```
+
+```{r}
+round(
+  exp(coef(m_nb)) * 1e3, 2)
+```
+
+#### Summary
+
+The Poisson regression model with random intercepts is a strategy for modeling clustered frequency data. This model captures text-to-text (or speaker-to-speaker) variation in the occurrence rate (i.e. normalized frequency) of interest using a lognormal distribution. It is therefore also referred to as a Poisson-lognormal mixture model. This model is capable of producing two types of frequency estimates: the median normalized frequency across texts, and the mean normalized frequency across texts. It is important to recognize the difference between these measures, as they represent alternative ways of expressing the typical (or "average") occurrence rate in the population of interest. Further, it allows us to make sense of model-based predictions and how they may differ from those produced by other count regression models (such as the negative binomial model).
+
+
+
+
+
+
+
+
+
+

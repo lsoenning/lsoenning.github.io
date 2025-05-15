@@ -66,7 +66,7 @@ We will concentrate on a subset of these data: the modal verb *should* in Brown 
 
  
 
-##### Data
+#### Data
 
 We start by downloading the data directly from the *TROLLing* archive:
 
@@ -128,7 +128,9 @@ should_learned <- subset(d_modals, modal=="should" & genre=="learned")
 Brown and Frown each consist of 500 texts, which are sampled from four different genres. The following table shows the word count and number of texts for each genre in Brown:
 
 ```{r}
+#| label: tbl-imbalance-brown
 #| echo: false
+#| tbl-cap: "Distribution of words and texts across the four braod genres in the Brown Corpus."
 
 should_Brown |> 
   group_by(genre) |> 
@@ -155,7 +157,6 @@ The focus in this blog post is on how the four genres are to be handled when cal
 The representation of the four genres in Brown is linguistically motivated. The [manual](http://korpus.uib.no/icame/manuals/BROWN/INDEX.HTM) states: "The list of main categories and their subdivisions was drawn up at a conference held at Brown University in February 1963. The participants in the conference \[John B. Carroll, W. Nelson Francis, Philip B. Gove, Henry Kucera, Patricia O'Connor, and Randolph Quirk.\] also independently gave their opinions as to the number of samples there should be in each category. These figures were averaged to obtain the preliminary set of figures used." While the manual does not specify the rationale underlying participants' preferences for the number of text samples per text category, we may assume that the weighting is meant to reflect the currency of these subvarieties in written American English.
 
 Different estimands require different estimators: The currency-informed estimand of the normalized frequency weights genres in proportion to their representation in the corpus. This is equivalent to simply obtaining the corpus frequency of *should*: Divide the number of occurrences by the corpus size. The equal-importance estimand, on the other hand, requires a simple average over four occurrence rates, one for each genre.
-
 
 #### Corpus frequencies are weighted averages
 
@@ -344,6 +345,8 @@ should_data |>
   annotate("text", x = c(1.4, 1.6), y = c(.68, .85), label = c("weighted", "simple"), 
            size = 3, color = c("grey50", "black")) +
   coord_cartesian(clip="off")
+
+ggsave("should_imbalance_brown.pdf")
 
 ```
 
@@ -558,7 +561,7 @@ We observe that these model-based estimates differ from the descriptive ones rep
 ```{r}
 #| label: tbl-estimates-data-model-scale-comparison
 #| echo: false
-#| tbl-cap: "Distribution of words and texts across the four braod genres in the Brown Corpus."
+#| tbl-cap: "Comparison of simple and weighted summary statistics vs. model-based estimates."
 
 tibble(
   Comparison = c("Simple", "Weighted"),

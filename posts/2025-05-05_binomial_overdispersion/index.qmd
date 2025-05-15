@@ -31,7 +31,6 @@ library(lme4)              # to fit mixed-effects regression models
 source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
 ```
 
-
 #### Data: Passives in academic writing
 
 We use data on the frequency of the passive in the Brown Family of corpora, which is part of the `{corpora}` package [@Evert2023]. We concentrate on the genre Learned and consider texts from Brown and Frown.
@@ -157,7 +156,7 @@ for(i in 1:160){
   ci_upper[i] <- scoreci(x = d$pass[i], n = d$verbs[i], conf.level = .95)$conf.int[2]
 }
 
-xyplot(1~1, type = "n", ylim=c(0,1), xlim = c(0,163),
+p1 <- xyplot(1~1, type = "n", ylim=c(0,1), xlim = c(0,163),
        par.settings = my_settings, axis = axis_left,
        scales = list(
          y = list(
@@ -165,13 +164,17 @@ xyplot(1~1, type = "n", ylim=c(0,1), xlim = c(0,163),
                label = c("0", ".5", "1"))),
        ylab = "Proportion of passives", xlab = NULL,
        panel = function(x,y){
-         panel.points(x=c(1:80, 83:162), y = d$prop_passive)
+         panel.points(x=c(1:80, 83:162), y = d$prop_passive, pch=19)
          panel.segments(x0=c(1:80, 83:162), x1 = c(1:80, 83:162), y0 = ci_lower, y1 = ci_upper)
          panel.segments(x0=1, x1=80, y0=0, y1=0)
          panel.segments(x0=83, x1=162, y0=0, y1=0)
          panel.text(x=c(40.5, 122.5), y = -.1, label = c("Brown", "Frown"))
          panel.text(x=162, y = -.25, label="Error bars: 95% CIs", col = "grey40", cex = .8, adj=1)
        })
+
+cairo_pdf("fig_passives_text_cis.pdf", width = 7, height = 2)
+p1
+dev.off()
 ```
 
 #### Binomial model
@@ -298,12 +301,11 @@ xyplot(
 
 If the observed data show greater variation than anticipated by a statistical model, the data are said to be *overdispersed* relative to this model. Alternative modeling approaches take into account this overdispersion, or heterogeneity. As we will see, however, they do so in different ways.
 
-
 #### Quasi-binomial model including a heterogeneity parameter
 
 A quasi-binomial model includes a second parameter that explicitly captures the excess variation in the data [see @Agresti2013, pp. 150-151]. This *dispersion parameter* adjusts the variance of the binomial distribution and is often denoted as $\phi$. It is estimated on the basis of a global $\chi^2$ fit statistic for the model.
 
-In this way, the quasi-binomial model allows the standard deviation of observed proportions to be greater than anticipated by the simple dependency on the mean of the distribution, which we saw in @fig-binomial-mean-var above. Essentially, the dispersion parameter is a multiplicative factor that adjusts the variance of the binomial distribution upwards. If the dispersion parameter is 1, the model reduces to the binomial model discussed above. The dispersion parameter also affects inferences from the model: standard errors are multiplied by $\sqrt{\phi}$. 
+In this way, the quasi-binomial model allows the standard deviation of observed proportions to be greater than anticipated by the simple dependency on the mean of the distribution, which we saw in @fig-binomial-mean-var above. Essentially, the dispersion parameter is a multiplicative factor that adjusts the variance of the binomial distribution upwards. If the dispersion parameter is 1, the model reduces to the binomial model discussed above. The dispersion parameter also affects inferences from the model: standard errors are multiplied by $\sqrt{\phi}$.
 
 We can fit a quasi-binomial model using the `glm()` function in R:
 
@@ -386,7 +388,7 @@ xyplot(
   })
 ```
 
-However, the quasi-binomial model does *not* represent the structure in our data. It does not attribute the excess variation in proportions to the fact that we are looking at 160 different texts, from speakers who may very well show different stylistic attitudes toward passive usage. Rather, it states that *some* noise variable increased the sampling variation when drawing verb phrases from each speaker, with speakers nevertheless being actually homogeneous with respect to their underlying usage rate of the passive. 
+However, the quasi-binomial model does *not* represent the structure in our data. It does not attribute the excess variation in proportions to the fact that we are looking at 160 different texts, from speakers who may very well show different stylistic attitudes toward passive usage. Rather, it states that *some* noise variable increased the sampling variation when drawing verb phrases from each speaker, with speakers nevertheless being actually homogeneous with respect to their underlying usage rate of the passive.
 
 While the quasi-binomial model effectively adjusts inferences for the non-independence of observations, the way in which this is achieved may not be appropriate in all situations [see @Finney1971, p. 72]. In particular, if the data are clustered, this information should be explicitly taken into account. The models we consider next embrace the data structure and introduce parameters that describe between-cluster variation, thereby linking overdispersion to a specific source. As noted by @Agresti2013 [p. 151], this approach is preferable, because it actually models the observed heterogeneity.
 
@@ -542,7 +544,6 @@ qbeta(
 
 We now move on to a class of models that may be more familiar to many researchers: Mixed-effects regression models.
 
-
 #### Random-effects model with identity link
 
 We start with an ordinary random-effects regression model, which models the data on the proportion scale. This kind of model fails to respect the scale limits and does not account for the relationship between the binomial mean and variance (see @fig-binomial-mean-var).
@@ -583,7 +584,7 @@ However, these differ from the model intercept, which is higher:
 fixef(m)
 ```
 
-We will return to this discrepancy, which is due to the fact that these are two different means, at the end of this section. 
+We will return to this discrepancy, which is due to the fact that these are two different means, at the end of this section.
 
 Let us look at the fit between model and data. The ordinary random-intercept model assumes that the text-specific proportions are distributed normally around the overall mean. It describes this distribution using a standard deviation parameter, which can be obtained as follows:
 
@@ -629,7 +630,7 @@ xyplot(1 ~ 1, type = "n", xlim=c(0,1), ylim = c(0,.03),
        })
 ```
 
-@fig-ranef-ordinary-fit helps us understand the discrepancy between the back-transformed model intercept (.212) and the mean prediction produced by the `{marginaleffects}` package (.203). The model intercept represents the center of the bell-shaped curve in @fig-ranef-ordinary-fit. If the text proportions were indeed distributed symmetrically around this center, the intercept would coincide with the mean prediction. This is because the default way in which the `{marginaleffects}` package calculates mean predictions from a model with random effects proceeds in two steps: First, a prediction is made for each cluster (here: text), based on the cluster-specific random intercept. In step 2, these cluster predictions are averaged. 
+@fig-ranef-ordinary-fit helps us understand the discrepancy between the back-transformed model intercept (.212) and the mean prediction produced by the `{marginaleffects}` package (.203). The model intercept represents the center of the bell-shaped curve in @fig-ranef-ordinary-fit. If the text proportions were indeed distributed symmetrically around this center, the intercept would coincide with the mean prediction. This is because the default way in which the `{marginaleffects}` package calculates mean predictions from a model with random effects proceeds in two steps: First, a prediction is made for each cluster (here: text), based on the cluster-specific random intercept. In step 2, these cluster predictions are averaged.
 
 If the cluster-specific means form a symmetric distribution, they will tend to cancel out, leading to no (or very minor) discrepancies between the two types of prediction. In the present case, the text-specific predictions do not form a symmetric pile. The center of gravity is below .212, and the mean over the estimated asymmetric distribution of cluster proportions therefore lower.
 
@@ -676,8 +677,6 @@ pred_ord_ranef_m <- avg_predictions(
   tidy() |> 
   dplyr::select(estimate, conf.low, conf.high)
 ```
-
-
 
 #### Random-effects model with logit link
 
@@ -744,9 +743,11 @@ xyplot(1 ~ 1, type = "n", xlim=c(-3.5, 1.1), ylim = c(0,.02),
                     col = 1, cex = .8, adj = 0)
        })
 
+
+
 ```
 
-Let us also look at the fit between model and data on the proportion scale. @fig-ranef-logistic-fit shows that the match is also pretty good on this scale. 
+Let us also look at the fit between model and data on the proportion scale. @fig-ranef-logistic-fit shows that the match is also pretty good on this scale.
 
 ```{r}
 #| fig.width: 4
@@ -782,7 +783,6 @@ xyplot(1 ~ 1, type = "n", xlim=c(0,1), ylim = c(0,.03),
        })
 ```
 
-
 We can again use this probability distribution to summarize text-to-text variation. The interquartile range based on this model is
 
 ```{r}
@@ -805,7 +805,7 @@ plogis(
   round(3)
 ```
 
-Let us now consider the discrepancy between the back-transformed model intercept and the mean prediction returned by the `{marginaleffects}` package. 
+Let us now consider the discrepancy between the back-transformed model intercept and the mean prediction returned by the `{marginaleffects}` package.
 
 The model intercept represents the center of the bell-shaped curve in @fig-ranef-logistic-intercepts. This means that by-text random intercepts are averaged on the logit scale, and this **mean over text-specific logits** is then back-transformed to the proportion scale. This estimate is often referred to as a *conditional/cluster-specific* estimate.
 
@@ -825,7 +825,7 @@ avg_predictions(
 ```
 
 The following code, in contrast, works the estimated distribution of cluster-level proportions into the predictions:
-  
+
 ```{r}
 avg_predictions(
   m, 
@@ -859,9 +859,9 @@ pred_log_ranef_m <- avg_predictions(
 
 The second thing to note is that estimates form three groups:
 
-- The lowest estimate is the conditional mean based on the logistic random-effects model. It is the **mean over cluster-specific logits**, back-transformed to the proportion scale. 
-- The marginal mean from the same model, which is the  **mean over cluster-specific proportions** (nearly) coincides with the mean proportion returned by the beta-binomial model, and (interestingly) the conditional estimate from the ordinary random-effects model. 
-- The third group, which yields an intermediate predicted proportion, is formed by the binomial, the quasi-binomial, and the marginal estimate from the ordinary random-effects model.
+-   The lowest estimate is the conditional mean based on the logistic random-effects model. It is the **mean over cluster-specific logits**, back-transformed to the proportion scale.
+-   The marginal mean from the same model, which is the **mean over cluster-specific proportions** (nearly) coincides with the mean proportion returned by the beta-binomial model, and (interestingly) the conditional estimate from the ordinary random-effects model.
+-   The third group, which yields an intermediate predicted proportion, is formed by the binomial, the quasi-binomial, and the marginal estimate from the ordinary random-effects model.
 
 ```{r}
 #| fig-width: 4.5
@@ -924,9 +924,6 @@ comp_models |>
   ylab(NULL)
 ```
 
-
 #### Summary
 
-We discussed different approaches to modeling clustered binomial data. These differ in the way they address the resulting non-independence of observations in the data. If a clustering variable is present, it is generally preferable to use a model that links the observed non-independence to this source. These (proper) modeling approaches represent the observed variation across clusters in different ways, and they yield different types of estimates for the mean proportion in the population of interest. We saw how the `{marginaleffects}` package can be used to construct these mean predictions, which mainly differ in terms of the scale on which they average over cluster-specific quantities. 
-
-
+We discussed different approaches to modeling clustered binomial data. These differ in the way they address the resulting non-independence of observations in the data. If a clustering variable is present, it is generally preferable to use a model that links the observed non-independence to this source. These (proper) modeling approaches represent the observed variation across clusters in different ways, and they yield different types of estimates for the mean proportion in the population of interest. We saw how the `{marginaleffects}` package can be used to construct these mean predictions, which mainly differ in terms of the scale on which they average over cluster-specific quantities.

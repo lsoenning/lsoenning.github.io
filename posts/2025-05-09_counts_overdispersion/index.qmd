@@ -1,11 +1,10 @@
 ---
 title: "Modeling clustered frequency data I: Texts of similar length"
 description: "This blog post illustrates a number of strategies for modeling clustered count data. It describes how they handle the non-independence among observations and what kind of estimates they return. The focus is on a situation where texts have roughly the same length."
-date: 2025-05-02
-categories: [corpus linguistics, regression, clustered data, frequency data]
+date: 2025-05-14
+categories: [corpus linguistics, regression, clustered data, frequency data, negative binomial]
 citation: 
   url: https://lsoenning.github.io/posts/2025-05-09_counts_overdispersion/
-draft: true
 ---
 
 When describing or modeling corpus-based frequency counts, the fact that a corpus is divided into texts has consequences for statistical modeling. For count variables, there are different options for modeling such data. This blog post contrasts approaches that differ in the way they represent (or account for) the non-independence of data points and looks at a setting where texts are very similar in length.
@@ -16,13 +15,18 @@ When describing or modeling corpus-based frequency counts, the fact that a corpu
 #| code-fold: true
 #| code-summary: "R setup"
 
-library(tidyverse)       # for data wrangling and visualization
-library(dataverse)       # for downloading data from TROLLing
-library(marginaleffects) # to compute model-based estimates
-library(MASS)            # to fit a negative binomial regression model
-library(corpora)         # to calculate a log-likelihood score
-library(kableExtra)      # for drawing html tables
+library(tidyverse)          # for data wrangling and visualization
+library(dataverse)          # for downloading data from TROLLing
+library(marginaleffects)    # to compute model-based estimates
+library(MASS)               # to fit a negative binomial regression model
+library(corpora)            # to calculate a log-likelihood score
+library(kableExtra)         # for drawing html tables
+library(lme4)               # to fit mixed-effects regression models
+library(lattice)            # for data visualization
+library(gamlss)             # for drawing gamma densities
 
+# pak::pak("lsoenning/uls") # install package "uls"
+library(uls)                # for ggplot2 dotplot theme
 
 source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
 ```
@@ -33,7 +37,6 @@ Our focus will be on the frequency of the modal verb *should* in written America
 
 -   What is the frequency of *should* in written American English of the early 1960s and early 1990s?
 -   Has its frequency changed over time?
-
 
 We will consider the imbalance across genres in the Brown Family of corpora a meaningful feature of the population of interest and therefore not adjust our estimates for the differential representation of these text categories. For an alternative approach, see [this blog post](https://lsoenning.github.io/posts/2025-05-03_imbalance_bias/).
 
@@ -74,28 +77,106 @@ str(dat)
 str(data.frame(dat))
 ```
 
-We extract the data for *should* in Brown and Frown and prepare them for analysis.
+We extract the data for *should* in Brown and Frown:
 
 ```{r}
-#| code-fold: true
-#| code-summary: "Load and prepare data"
- 
-d_modals <- subset(dat, corpus %in% c("Brown", "Frown"))
+should_data <- dat |> 
+  filter(
+    corpus %in% c("Brown", "Frown"),
+    modal == "should"
+  )
 
-d_modals$time_period <- factor(d_modals$time_period)
-d_modals$genre <- factor(d_modals$genre)
+should_Brown <- should_data |> 
+  filter(
+    corpus == "Brown")
 
-should_data <- subset(d_modals, modal=="should")
-should_Brown <- subset(d_modals, modal=="should" & corpus=="Brown")
-should_Frown <- subset(d_modals, modal=="should" & corpus=="Frown")
+should_Frown <- should_data |> 
+  filter(
+    corpus == "Frown")
 ```
-
 
  
 
-#### Plain corpus frequencies
+#### Data description
 
-For a quick measure of the frequency of *should* in Brown, we divide its corpus frequency by the size of the corpus. We can do the same for Frown. We will multiply these rates by 1,000, to get normalized frequencies 'per thousand words'.
+Let us start by summarizing key features of the data. There are 500 texts in each corpus:
+
+```{r}
+table(should_data$corpus)
+```
+
+Let's also take a look at the distribution of occurrence rates across texts. We first add a new variable that expresses the text-level frequency of *should* as a normalized frequency (per thousand words):
+
+```{r}
+should_data$rate_ptw <- should_data$n_tokens/should_data$n_words*1000
+```
+
+Then we draw a histogram showing the distribution of these rates by Corpus.
+
+```{r}
+#| fig-width: 5
+#| fig-height: 3
+#| code-fold: true
+#| code-summary: "draw figure" 
+#| label: fig-histogram
+#| fig-cap: "Histogram showing the distribution of text-level occurrence rates by Corpus."
+#| message: false
+#| warning: false
+
+should_data |> 
+  ggplot(aes(x = rate_ptw)) +
+  geom_histogram(binwidth = .15) +
+  facet_grid(corpus ~ .) +
+  theme_classic_ls() +
+  xlab("Normalized frequency of should (per thousand words)") +
+  ylab("Number of texts")
+```
+
+Seeing that the normalized frequencies are skewed, we try a square-root-transformation, which somewhat mitigates the skew:
+
+```{r}
+#| fig-width: 5
+#| fig-height: 3
+#| code-fold: true
+#| code-summary: "draw figure" 
+#| label: fig-histogram-sqrt
+#| fig-cap: "Histogram showing the distribution of text-level occurrence rates by Corpus, using a square-root-scale trnasformation to mitigate the skew."
+#| message: false
+#| warning: false
+
+
+should_data |> 
+  ggplot(aes(x = rate_ptw)) +
+  geom_histogram(binwidth = .05) +
+  facet_grid(corpus ~ .) +
+  theme_classic_ls() +
+  xlab("Normalized frequency of should (per thousand words)") +
+  ylab("Number of texts") +
+  scale_x_sqrt()
+```
+
+Then we compare the distributions with a boxplot:
+
+```{r}
+#| fig-width: 5
+#| fig-height: 1.5
+#| code-fold: true
+#| code-summary: "draw figure" 
+#| label: fig-boxplot
+#| fig-cap: "Boxplot comparing the distribution of text-level occurrence rates in Brown and Frown, using a square-root trnasformation."
+#| message: false
+#| warning: false
+
+should_data |> 
+  ggplot(aes(x = rate_ptw, y = corpus)) +
+  geom_boxplot() +
+  theme_classic_ls() +
+  xlab("Normalized frequency of should (per thousand words)") +
+  ylab(NULL) +
+  scale_x_sqrt()
+```
+
+As for numerical summaries, a quick measure of the frequency of *should* in Brown can be calculated by dividing its corpus frequency by the size of the corpus. We can do the same for Frown. We will multiply these rates by 1,000, to get normalized frequencies 'per thousand words'.
 
 ```{r}
 freq_should_Brown <- sum(should_Brown$n_tokens) / sum(should_Brown$n_words) * 1000
@@ -117,11 +198,9 @@ For a quick answer to the second question, we divide the rate in Frown by that i
 round(freq_should_Frown / freq_should_Brown, 2)
 ```
 
-
-
 #### Poisson regression
 
-We start with a Poisson regression model, which does not take into account the fact that each corpus breaks down into 500 texts. Rather, the corpus is treated as an unstructured bag of words. 
+We start with a Poisson regression model, which does not take into account the fact that each corpus breaks down into 500 texts. Rather, the corpus is treated as an unstructured bag of words.
 
 We can fit a Poisson model with the `glm()` function:
 
@@ -132,10 +211,19 @@ m <- glm(
   family = "poisson")
 ```
 
+A model summary appears in the following table:
+
+```{r}
+#| attr-output: "style='font-size: 0.8em'"
+
+summary(m)
+```
+
+
 We use the `{marginaleffects}` package [@ArelBundock_etal2024] to calculate model-based predictions for the frequency of *should* in each corpus. These coincide with the plain *corpus frequencies* reported above. We specify the `n_words = 1000` to get normalized frequencies 'per thousand words'.
 
 ```{r}
-predictions(
+avg_predictions(
   m, 
   variables = "corpus",
   newdata = datagrid(
@@ -149,7 +237,7 @@ predictions(
 The function `comparisons()` in the `{marginaleffects}` package allows us to compare the two corpora in relative terms, in the form of a frequency ratio. The rate of *should* in Frown is only 86% of that in Brown, suggesting a decrease of 14 percentage points.
 
 ```{r}
-comparisons(
+avg_comparisons(
   m, 
   variables = "corpus",
   newdata = datagrid(
@@ -164,7 +252,7 @@ comparisons(
 ```{r}
 #| echo: false
 
-pred_poisson <- predictions(
+pred_poisson <- avg_predictions(
   m, 
   variables = "corpus",
   newdata = datagrid(
@@ -172,7 +260,7 @@ pred_poisson <- predictions(
   tidy() |> 
   dplyr::select(corpus, estimate, conf.low, conf.high)
 
-comp_poisson <- comparisons(
+comp_poisson <- avg_comparisons(
   m, 
   variables = "corpus",
   newdata = datagrid(
@@ -183,10 +271,9 @@ comp_poisson <- comparisons(
 
 ```
 
-
 #### Quasi-Poisson regression
 
-A Quasi-Poisson model introduces a dispersion parameter to adjust inferences for the non-independence of the data points. This parameter, $\phi$, is estimated on the basis of a global $\chi^2$ statistic of model (mis)fit, and it is then used to adjust the standard errors returned by the model, which are multiplied by $\sqrt{\phi}$.
+A Quasi-Poisson model introduces a dispersion parameter to adjust inferences for the non-independence of the data points. This parameter, $\phi$, is estimated on the basis of a global $\chi^2$ statistic of model (mis)fit, and it is then used to adjust the standard errors returned by the model, which are multiplied by $\sqrt{\phi}$. For some more background on this way of accounting for overdispersion, see [this blog post](https://lsoenning.github.io/posts/2025-05-05_binomial_overdispersion/).
 
 We can run a Quasi-Poisson model as follows:
 
@@ -200,17 +287,17 @@ m <- glm(
 The model is summarized in the following table:
 
 ```{r}
-#| attr-output: "style='font-size: 0.7em'"
+#| attr-output: "style='font-size: 0.8em'"
 
 summary(m)
 ```
 
 The regression table tells us that the dispersion parameter is about 3.8, which means that the standard errors for the Quasi-Poisson model should be 1.95 times ($\sqrt{3.8}$) larger than in the Poisson model.
 
-The regression coefficients themselves do not change, however, and neither do the model-based predictions. We get the same point estimates, though with (appropriately) wider confidence intervals:
+The regression coefficients themselves do not change, and neither do the model-based predictions. We get the same point estimates, though with (appropriately) wider confidence intervals:
 
 ```{r}
-predictions(
+avg_predictions(
   m, 
   variables = "corpus",
   newdata = datagrid(
@@ -224,7 +311,7 @@ predictions(
 The Quasi-Poisson model also returns the same relative difference between the corpora:
 
 ```{r}
-comparisons(
+avg_comparisons(
   m, 
   variables = "corpus",
   newdata = datagrid(
@@ -236,12 +323,10 @@ comparisons(
   kable()
 ```
 
-
-
 ```{r}
 #| echo: false
 
-pred_quaspoi <- predictions(
+pred_quaspoi <- avg_predictions(
   m, 
   variables = "corpus",
   newdata = datagrid(
@@ -249,7 +334,7 @@ pred_quaspoi <- predictions(
   tidy() |> 
   dplyr::select(corpus, estimate, conf.low, conf.high)
 
-comp_quaspoi <- comparisons(
+comp_quaspoi <- avg_comparisons(
   m, 
   variables = "corpus",
   newdata = datagrid(
@@ -260,11 +345,9 @@ comp_quaspoi <- comparisons(
 
 ```
 
-
-
 #### Negative binomial regression
 
-Negative binomial regression explicitly takes into account the texts in the data, and models the observed text-to-text variability in the frequency of *should* using a probability distribution. The model therefore has an additional parameter that represents the variability of text-level frequencies. As discussed in more detail in [this blog post](https://lsoenning.github.io/posts/2023-11-16_negative_binomial/), this parameter controls the shape of a gamma distribution, which in turn describes the multiplicative variation in speaker-specific rates. More background is provided in [this blog post](https://lsoenning.github.io/posts/2025-05-09_counts_overdispersion_unbalanced/).
+Negative binomial regression explicitly takes into account the texts in the data, and represents the observed text-to-text variability in the frequency of *should* using a probability distribution. The model therefore has an additional parameter that represents the variability of text-level frequencies. As discussed in more detail in [this blog post](https://lsoenning.github.io/posts/2023-11-16_negative_binomial/), this parameter controls the shape of a gamma distribution, which in turn describes the multiplicative variation in speaker-specific rates. More background is provided in [this blog post](https://lsoenning.github.io/posts/2025-05-09_counts_overdispersion_unbalanced/).
 
 We can fit a negative binomial model using the function `glm.nb()` in the `{MASS}` package [@Venables_Ripley2002]:
 
@@ -274,15 +357,17 @@ m <- MASS::glm.nb(
 	data = should_data)
 ```
 
+Here is the regression table for this model:
+
 ```{r}
+#| attr-output: "style='font-size: 0.8em'"
 summary(m)
 ```
-
 
 Model-based predictions are again virtually identical to the ones from the Poisson and Quasi-Poisson model, with wider uncertainty intervals:
 
 ```{r}
-predictions(
+avg_predictions(
   m, 
   variables = "corpus",
   newdata = datagrid(
@@ -296,7 +381,7 @@ predictions(
 The negative binomial model also returns the same relative difference between the corpora:
 
 ```{r}
-comparisons(
+avg_comparisons(
   m, 
   variables = "corpus",
   newdata = datagrid(
@@ -308,12 +393,10 @@ comparisons(
   kable()
 ```
 
-
-
 ```{r}
 #| echo: false
 
-pred_begbin <- predictions(
+pred_negbin <- avg_predictions(
   m, 
   variables = "corpus",
   newdata = datagrid(
@@ -321,7 +404,7 @@ pred_begbin <- predictions(
   tidy() |> 
   dplyr::select(corpus, estimate, conf.low, conf.high)
 
-comp_negbin <- comparisons(
+comp_negbin <- avg_comparisons(
   m, 
   variables = "corpus",
   newdata = datagrid(
@@ -334,7 +417,12 @@ comp_negbin <- comparisons(
 
 
 
+
 #### Poisson regression with random intercepts
+
+Another way of accounting for the structure in the data is to use a Poisson regression model with random intercepts on Speaker. This model also represents the observed variation among speakers using a probability distribution. Between-speaker variation is modeled on the scale of natural logarithms using a normal distribution. On the scale of the actual occurrence rates, this translates into a log-normal distribution. For a more detailed discussion of the structure of this model, see [this blog post](https://lsoenning.github.io/posts/2025-05-12_poisson_random_intercept/).
+
+We can fit this model using the function `glmer()` in the R package `{lme4}` [@Bates_etal2015].
 
 ```{r}
 m <- lme4::glmer(
@@ -344,9 +432,37 @@ m <- lme4::glmer(
 	control = glmerControl(optimizer="bobyqa"))
 ```
 
+We print a condensed regression table:
+
 ```{r}
+#| attr-output: "style='font-size: 0.8em'"
 arm::display(m)
 ```
+
+The table tells us that the standard deviation of the random intercepts, i.e. the parameter describing the spread of the normal distribution representing text-to-text variation in the occurrence rate of *should*, is 0.76. 
+
+As discussed in detail in [this blog post](https://lsoenning.github.io/posts/2025-05-12_poisson_random_intercept/), there are two types of predictions we can calculate for the random-intercept Poisson model. Seeing that we are interested in the normalized frequency of *should* rather than its natural logarithm, we will want to back-transform model-based predictions to the scale of normalized frequencies. Since there is between-speaker variation, our model-based estimate will have to somehow average over speakers. The question is whether we want to average over speakers on the scale of natural logarithms (the model scale) or on the scale of normalized frequencies (the data scale).
+
+- By averaging on the data scale of normalized frequencies, we obtain the **mean occurrence rate** across texts. 
+- By averaging on the model scale of log normalized frequencies, and then back-transforming this mean log rate, we obtain the **median occurrence rate** across texts.
+
+[This blog post](https://lsoenning.github.io/posts/2025-05-12_poisson_random_intercept/) provides a detailed illustration of these two types of frequency estimates.
+
+Through appropriate combination of the regression coefficients for the fixed effects, we get averages over texts **on the model scale**. This is the estimated **mean log rate** of *should* in the population of interest. We can back-transform this into a normalized frequency. This summary measure, however, does not represent the mean over normalized frequencies, since the averaging was done on another scale (the model scale).
+
+In our model, the intercept represents the mean log rate for Brown. If we add the coefficient for the predictor Corpus, we get the mean log rate for Frown. Back-transforming these values gives us:
+
+```{r}
+# Brown
+round(exp(fixef(m)[1]) * 1e3, 2)
+
+# Frown
+round(exp(fixef(m)[1] + fixef(m)[2]) * 1e3, 2)
+```
+
+These frequency estimates are lower than the ones we have obtained above. This is because they represent the *median occurrence rate* of *should*, and in a distribution that is skewed toward large values (see @fig-histogram), the median is always smaller than the mean.
+
+We can also calculate these two types of estimates using the `{marginaleffects}` package. To get the **mean log rate** of *should*, back-transformed to the normalized frequency scale, we run the following code. The argument `re.form = NA` tells the function to ignore the between-speaker variation:
 
 ```{r}
 avg_predictions(
@@ -354,7 +470,7 @@ avg_predictions(
   variables = "corpus",
   newdata = datagrid(
     n_words = 1000,
-    speaker = NA),
+    text_id = NA),
   re.form = NA) |> 
   tidy() |> 
   dplyr::select(corpus, estimate, conf.low, conf.high) |> 
@@ -362,6 +478,7 @@ avg_predictions(
   kable()
 ```
 
+The corresponding relative difference between the corpora can be retrieved as follows:
 
 ```{r}
 avg_comparisons(
@@ -369,76 +486,16 @@ avg_comparisons(
   variables = "corpus",
   newdata = datagrid(
     n_words = 1000,
-    speaker = NA),
+    text_id = NA),
   re.form = NA,
   comparison = "ratio") |> 
   tidy() |> 
-  dplyr::select(corpus, estimate, conf.low, conf.high) |> 
+  dplyr::select(contrast, estimate, conf.low, conf.high) |> 
   mutate(across(2:4, \(x) round(x, 2))) |> 
   kable()
 ```
 
-
-```{r}
-intercept_variance <- as.numeric(
-  summary(m)$varcor$text_id)
-
-round(
-  exp(fixef(m)[1] + intercept_variance/2) * 1e3, 2)
-
-round(
-  exp(fixef(m)[1] + fixef(m)[2] + intercept_variance/2) * 1e3, 2)
-```
-
-```{r}
-normal_to_lognormal <- function(mean_n, sd_n){
-  
-  mean_ln <- exp(mean_n + (sd_n^2/2))
-  sd_ln <- (exp(sd_n^2) -1) * exp(2 * mean_n + sd_n^2)
-  
-  output <- c(mean_ln, sqrt(sd_ln))
-  names(output) <- c("mean_ln", "sd_ln")
-  return(output)
-}
-```
-
-```{r}
-normal_to_lognormal(
-  mean_n = 0, 
-  sd_n = .76)
-```
-
-```{r}
-#| fig-width: 6
-#| fig-height: 3
-#| code-fold: true
-#| code-summary: "draw figure" 
-#| label: fig-lognormal
-#| fig-cap: "The log-normal distribution (black) vs. the gamma distribution (grey) describing between-speaker variability in the usage rate of *actually*."
-#| message: false
-#| warning: false
-
-xyplot(
-  1~1, type="n", xlim=c(0, 6.2), ylim=c(0,1.5),
-  par.settings=my_settings, axis=axis_L,
-  scales=list(y=list(at=0), x=list(at=c(0,1,2,3,4,5,6))),
-  ylab="Density", xlab="Multiplicative factor",
-  panel=function(x,y,...){
-    panel.segments(x0=1, x1=1, y0=0, y1=1.5, col=1)
-    panel.points(x = seq(.01, 6.2, length=1000),
-                 y = dGA(seq(.01, 6.2, length=1000), mu=1, sigma=(1/0.9278)),
-                 type="l", col = "grey40")
-    panel.points(x = seq(0, 6.2, length=1000),
-                 y = dlnorm(seq(0, 6.2, length=1000), 
-                            meanlog = 1.334825 , 
-                            sdlog = 1.180212 ),
-                 type="l")
-    panel.segments(x0=0, x1=6.2, y0=0, y1=0)
-    panel.text(x = 4, y = .2, label="Log-normal distribution", adj=0, cex=.9)
-    panel.text(x = 1.5, y = .45, label="Gamma distribution", adj=0, col = "grey40", cex=.9)
-    })
-```
-
+To get (something close to) the **mean normalized frequencies** we calculated above, we can ask the function `avg_predictions()` to average predictions over the speakers in the sample. This means that the by-speaker random intercepts are incorporated into the model predictions. The model-based speaker intercepts are used to get a predicted normalized frequency for each speaker, and these are then averaged.
 
 ```{r}
 avg_predictions(
@@ -452,6 +509,8 @@ avg_predictions(
   mutate(across(2:4, \(x) round(x, 2))) |> 
   kable()
 ```
+
+The relative difference between the groups remains the same:
 
 ```{r}
 avg_comparisons(
@@ -467,5 +526,116 @@ avg_comparisons(
   kable()
 ```
 
+```{r}
+#| echo: false
+
+pred_ranef_c <- avg_predictions(
+  m, 
+  variables = "corpus",
+  newdata = datagrid(
+    n_words = 1000,
+    text_id = NA),
+  re.form = NA) |> 
+  tidy() |> 
+  dplyr::select(corpus, estimate, conf.low, conf.high)
+
+comp_ranef_c <- avg_comparisons(
+  m, 
+  variables = "corpus",
+  newdata = datagrid(
+    n_words = 1000,
+    text_id = NA),
+  re.form = NA,
+  comparison = "ratio") |> 
+  tidy() |> 
+  dplyr::select(contrast, estimate, conf.low, conf.high)
 
 
+pred_ranef_m <- avg_predictions(
+  m, 
+  variables = "corpus",
+  newdata = datagrid(
+    n_words = 1000,
+    text_id = unique)) |> 
+  tidy() |> 
+  dplyr::select(corpus, estimate, conf.low, conf.high)
+
+comp_ranef_m <- avg_comparisons(
+  m, 
+  variables = "corpus",
+  newdata = datagrid(
+    n_words = 1000,
+    text_id = unique),
+  comparison = "ratio") |> 
+  tidy() |> 
+  dplyr::select(contrast, estimate, conf.low, conf.high)
+
+```
+
+
+#### Comparison
+
+@fig-comparison-preds compares the estimated average predictions we have collected in this blog post. Two points are noteworthy:
+
+- The uncertainty intervals suggested by the Poisson model are narrower than the ones based on the other models. This is because the other model explicitly take into account the non-independence of observations.
+- Except for the median occurrence rate estimate based on the random-intercept Poisson model, all models return nearly identical estimates of the normalized frequency of should in Brown and Frown.
+
+
+```{r}
+#| fig-width: 7
+#| fig-height: 3
+#| code-fold: true
+#| code-summary: "draw figure" 
+#| label: fig-comparison-preds
+#| fig-cap: "Comparison of model-based predictions for the average occurrence rate of *should* in the two corpora."
+#| message: false
+#| warning: false
+#| classes: preview-image
+
+pred_models <- tibble(
+  model = rep(c("Poisson", "Quasi-Poisson", "Negative\nbinomial", 
+                "Random-intercept\nPoisson\n(mean rate)",
+                "Random-intercept\nPoisson\n(median rate)"), each = 2),
+  corpus = rep(c("Brown", "Frown"), 5),
+  estimate = c(pred_poisson$estimate,
+               pred_quaspoi$estimate,
+               pred_negbin$estimate,
+               pred_ranef_m$estimate,
+               pred_ranef_c$estimate),
+  ci_lower = c(pred_poisson$conf.low,
+               pred_quaspoi$conf.low,
+               pred_negbin$conf.low,
+               pred_ranef_m$conf.low,
+               pred_ranef_c$conf.low),
+  ci_upper = c(pred_poisson$conf.high,
+               pred_quaspoi$conf.high,
+               pred_negbin$conf.high,
+               pred_ranef_m$conf.high,
+               pred_ranef_c$conf.high)
+)
+
+pred_models$model <- factor(
+  pred_models$model,
+  levels = c("Poisson", "Quasi-Poisson", "Negative\nbinomial", 
+                "Random-intercept\nPoisson\n(mean rate)",
+                "Random-intercept\nPoisson\n(median rate)"),
+  ordered = TRUE
+)
+
+
+pred_models |> 
+  ggplot(aes(x = corpus, y = estimate, group = model)) +
+  geom_point() +
+  geom_line() +
+  geom_linerange(aes(ymin = ci_lower, ymax = ci_upper)) +
+  facet_grid(. ~ model) +
+  theme_classic_ls() +
+  scale_y_continuous(limits = c(.4, .95), expand = c(0,0)) +
+  ylab("Occurrence rate of should\n(per thousand words)\n") +
+  xlab(NULL) +
+  coord_cartesian(clip="off")
+```
+
+#### Summary
+
+This blog post contrasted different approaches to modeling clustered frequency counts. If count data are grouped by text (or speaker), a Poisson regression model is usually too restrictive. This is because it is insensitive to the very likely possibility that the normalized frequency of interest varies among texts (or speakers). We looked at different alternatives, and observed that all of these yielded very similar results. This will be the case in situations where texts (or speakers) are similar in length. We also noted that the random-intercept Poisson model is capable of producing two different average frequency estimates: The mean or the median occurrence rate (i.e. normalized frequency) of the item across texts (or speakers).

@@ -2,6 +2,9 @@
   {
     "listing": "/posts.html",
     "items": [
+      "/posts/2025-05-10_counts_overdispersion_unbalanced/index.html",
+      "/posts/2025-05-09_counts_overdispersion/index.html",
+      "/posts/2025-05-12_poisson_random_intercepts/index.html",
       "/posts/2025-05-05_binomial_overdispersion/index.html",
       "/posts/2025-05-03_imbalance_bias/index.html",
       "/posts/2025-05-01_clustering_uncertainty_intervals/index.html",

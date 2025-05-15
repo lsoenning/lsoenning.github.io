@@ -283,8 +283,9 @@ div.csl-indent {
 <li>Has its frequency changed over time?</li>
 </ul>
 <p>&nbsp;</p>
-<section id="data" class="level5">
-<h5 class="anchored" data-anchor-id="data">Data</h5>
+</section>
+<section id="data" class="level4">
+<h4 class="anchored" data-anchor-id="data">Data</h4>
 <p>We start by downloading the data directly from the <em>TROLLing</em> archive:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">get_dataframe_by_name</span>(</span>
@@ -344,8 +345,14 @@ div.csl-indent {
 </div>
 <p>Brown and Frown each consist of 500 texts, which are sampled from four different genres. The following table shows the word count and number of texts for each genre in Brown:</p>
 <div class="cell">
+<div id="tbl-imbalance-brown" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-imbalance-brown-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Distribution of words and texts across the four braod genres in the Brown Corpus.
+</figcaption>
+<div aria-describedby="tbl-imbalance-brown-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<table class="caption-top table table-sm table-striped small" data-quarto-postprocess="true">
+<table class="do-not-create-environment cell caption-top table table-sm table-striped small" data-quarto-postprocess="true">
 <thead>
 <tr class="header">
 <th style="text-align: left;" data-quarto-table-cell-role="th">Genre</th>
@@ -380,8 +387,10 @@ div.csl-indent {
 
 </div>
 </div>
+</figure>
+</div>
+</div>
 <p>&nbsp;</p>
-</section>
 </section>
 <section id="vague-estimands" class="level4">
 <h4 class="anchored" data-anchor-id="vague-estimands">Vague estimands</h4>
@@ -453,7 +462,7 @@ div.csl-indent {
 </div>
 </div>
 <p><a href="https://lsoenning.github.io/posts/2025-04-28_disproportionate_representation_speaker/" target="_blank">This blog post</a> discusses situations where corpus units (texts or speakers) differ in size, and how this can affect frequency estimates.</p>
-<p>As noted above, the Brown Family shows a different form of imbalance: The size of the four broad genres (Fiction, General Prose, Learned, Press) differs. <strong>?@tbl-imbalance-brown</strong> showed that the genre General prose accounts for 41% of the corpus size, while Learned and Press are relatively underrepresented. We now look at how this disproportion can affect estimates of frequencies and their differences.</p>
+<p>As noted above, the Brown Family shows a different form of imbalance: The size of the four broad genres (Fiction, General Prose, Learned, Press) differs. <a href="#tbl-imbalance-brown" class="quarto-xref">Table&nbsp;1</a> showed that the genre General prose accounts for 41% of the corpus size, while Learned and Press are relatively underrepresented. We now look at how this disproportion can affect estimates of frequencies and their differences.</p>
 </section>
 <section id="frequency" class="level4">
 <h4 class="anchored" data-anchor-id="frequency">Frequency</h4>
@@ -568,7 +577,9 @@ div.csl-indent {
 <span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb22-45"><a href="#cb22-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="fu">c</span>(<span class="fl">1.4</span>, <span class="fl">1.6</span>), <span class="at">y =</span> <span class="fu">c</span>(.<span class="dv">68</span>, .<span class="dv">85</span>), <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"weighted"</span>, <span class="st">"simple"</span>), </span>
 <span id="cb22-46"><a href="#cb22-46" aria-hidden="true" tabindex="-1"></a>           <span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="fu">c</span>(<span class="st">"grey50"</span>, <span class="st">"black"</span>)) <span class="sc">+</span></span>
-<span id="cb22-47"><a href="#cb22-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">clip=</span><span class="st">"off"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb22-47"><a href="#cb22-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">clip=</span><span class="st">"off"</span>)</span>
+<span id="cb22-48"><a href="#cb22-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-49"><a href="#cb22-49" aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(<span class="st">"should_imbalance_brown.pdf"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div id="fig-should-imbalance-frequency" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -815,12 +826,12 @@ Comparison: Frown - Brown</code></pre>
 </div>
 </div>
 <p>Using a weighted average over the genres, the model-based estimate of the rate ratio is 89%, with the 95% CI ranging from 80% to 101%.</p>
-<p>We observe that these model-based estimates differ from the descriptive ones reported above. <a href="#tbl-estimates-data-model-scale-comparison" class="quarto-xref">Table&nbsp;1</a> shows that the model-based estimates suggest slightly smaller differences between Brown and Frown. This is due to the fact that averaging was done on different scales: While the descriptive ratios were averaged on the data scale (i.e.&nbsp;ratios), the model-based estimates were averaged on the model scale (i.e.&nbsp;log ratios) and the average then back-transformed into a ratio. The discrepancy between these ways of forming averages will be discussed in a future blog post.</p>
+<p>We observe that these model-based estimates differ from the descriptive ones reported above. <a href="#tbl-estimates-data-model-scale-comparison" class="quarto-xref">Table&nbsp;2</a> shows that the model-based estimates suggest slightly smaller differences between Brown and Frown. This is due to the fact that averaging was done on different scales: While the descriptive ratios were averaged on the data scale (i.e.&nbsp;ratios), the model-based estimates were averaged on the model scale (i.e.&nbsp;log ratios) and the average then back-transformed into a ratio. The discrepancy between these ways of forming averages will be discussed in a future blog post.</p>
 <div class="cell">
 <div id="tbl-estimates-data-model-scale-comparison" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-estimates-data-model-scale-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;1: Distribution of words and texts across the four braod genres in the Brown Corpus.
+Table&nbsp;2: Comparison of simple and weighted summary statistics vs.&nbsp;model-based estimates.
 </figcaption>
 <div aria-describedby="tbl-estimates-data-model-scale-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">

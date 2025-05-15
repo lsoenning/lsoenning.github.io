@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Lukas Sönning">
+<meta name="dcterms.date" content="2025-05-13">
+<meta name="description" content="Clustered count data can be modeled using a Poisson regression model including random intercepts. This blog post describes how this model represents the data and the different kinds of frequency estimates it produces.">
+
+<title>Frequency estimates based on random-intercept Poisson models – Lukas Sönning</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Lukas Sönning</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../research.html"> 
+<span class="menu-text">Research</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../resources.html"> 
+<span class="menu-text">Resources</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts.html"> 
+<span class="menu-text">Blog</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Frequency estimates based on random-intercept Poisson models</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">corpus linguistics</div>
+    <div class="quarto-category">regression</div>
+    <div class="quarto-category">clustered data</div>
+    <div class="quarto-category">frequency data</div>
+    <div class="quarto-category">negative binomial</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Clustered count data can be modeled using a Poisson regression model including random intercepts. This blog post describes how this model represents the data and the different kinds of frequency estimates it produces.
+  </div>
+</div>
+
+<div class="quarto-title-meta-author">
+  <div class="quarto-title-meta-heading">Author</div>
+  <div class="quarto-title-meta-heading">Affiliation</div>
+  
+    <div class="quarto-title-meta-contents">
+    <p class="author"><a href="https://lsoenning.github.io/">Lukas Sönning</a> <a href="https://orcid.org/0000-0002-2705-395X" class="quarto-title-author-orcid"> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg=="></a></p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            University of Bamberg
+          </p>
+      </div>
+  </div>
+
+<div class="quarto-title-meta">
+
+      
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">May 13, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>When modeling frequency counts, the Poisson model is often inappropriate since the observed variation from text to text (or speaker to speaker) is greater than anticipated by this simple model. The observed overdispersion can be addressed using Poisson mixture models, which include an additional parameter that captures the variation among texts. A frequently used variant is the negative binomial model (also called a Poisson-gamma mixture model), which represents text-to-text variation using a gamma distribution. This blog post discusses another option, a random-effects Poisson regression model (also called a Poisson-lognormal mixture model). We look at the structure of this model and how it represents text-to-text variation, and draw comparisons with the negative binomial model. We will see that a Poisson random-intercept model yields two different types of average frequencies.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>R setup</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)          <span class="co"># for data wrangling and visualization</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dataverse)          <span class="co"># for downloading data from TROLLing</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(marginaleffects)    <span class="co"># to compute model-based estimates</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(MASS)               <span class="co"># to fit a negative binomial regression model</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra)         <span class="co"># for drawing html tables</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lme4)               <span class="co"># to fit mixed-effects regression models</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lattice)            <span class="co"># for data visualization</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gamlss)             <span class="co"># for drawing gamma densities</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># pak::pak("lsoenning/uls") # install package "uls"</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(uls)                <span class="co"># for ggplot2 dotplot theme</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="case-study-actually-in-the-spoken-bnc2014" class="level4">
+<h4 class="anchored" data-anchor-id="case-study-actually-in-the-spoken-bnc2014">Case study: <em>Actually</em> in the Spoken BNC2014</h4>
+<p>Our illustrative data records the distribution of <em>actually</em> in the Spoken BNC2014 <span class="citation" data-cites="Love_etal2017">(<a href="#ref-Love_etal2017" role="doc-biblioref">Love et al. 2017</a>)</span>, which was analyzed in <span class="citation" data-cites="Soenning_Krug2022">Sönning and Krug (<a href="#ref-Soenning_Krug2022" role="doc-biblioref">2022</a>)</span>. For more information on the dataset, please refer to <span class="citation" data-cites="Krug_Soenning2021">Sönning and Krug (<a href="#ref-Krug_Soenning2021" role="doc-biblioref">2021</a>)</span>.</p>
+<p>We start by downloading the data from <em>TROLLing</em> and rename a few variables for clarity.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">get_dataframe_by_name</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">filename  =</span> <span class="st">"actually_data_2014.tab"</span>,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">dataset   =</span> <span class="st">"10.18710/A3SATC"</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">server    =</span> <span class="st">"dataverse.no"</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">.f        =</span> read.csv,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">original  =</span> <span class="cn">TRUE</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> dat <span class="sc">|&gt;</span> </span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(Exact_age, age_bins)) <span class="sc">|&gt;</span> </span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_actually =</span> count,</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_words =</span> total,</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">age_group =</span> Age_range,</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">gender =</span> Gender</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>In line with <span class="citation" data-cites="Soenning_Krug2022">Sönning and Krug (<a href="#ref-Soenning_Krug2022" role="doc-biblioref">2022</a>)</span>, we remove speakers who contributed fewer than 100 words to the corpus, and for whom information on age and gender is missing.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span> </span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    n_words <span class="sc">&gt;</span> <span class="dv">100</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span>(<span class="fu">is.na</span>(gender)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>In this blog post, we will concentrate on speakers between 19 and 29 years of age.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span> </span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(age_group <span class="sc">==</span> <span class="st">"19-29"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">droplevels</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We add a new variable to the data frame: the speaker-specific normalized frequency of <em>actually</em>, expressed as ‘per thousand words’:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>rate_ptw <span class="ot">&lt;-</span> (d<span class="sc">$</span>n_actually <span class="sc">/</span> d<span class="sc">$</span>n_words) <span class="sc">*</span> <span class="dv">1000</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The data subset used in the present blog post includes 247 speakers and the following variables:</p>
+<ul>
+<li>an ID (<code>speaker</code>)</li>
+<li>the number of times they used <em>actually</em> (<code>n_actually</code>)</li>
+<li>the age group (<code>age_group</code>)</li>
+<li>self-reported gender (<code>gender</code>)</li>
+<li>the total number of words contributed to the corpus by the speaker (<code>n_words</code>), and</li>
+<li>the usage rate of <em>actually</em>, expressed as ‘per thousand words’ (<code>rate_ptw</code>)</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(d)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   247 obs. of  6 variables:
+ $ speaker   : chr  "S0002" "S0003" "S0007" "S0009" ...
+ $ n_actually: int  21 8 6 0 0 1 21 39 1 0 ...
+ $ age_group : chr  "19-29" "19-29" "19-29" "19-29" ...
+ $ gender    : chr  "Female" "Female" "Male" "Female" ...
+ $ n_words   : int  8535 1893 11276 533 473 605 8209 13449 417 304 ...
+ $ rate_ptw  : num  2.46 4.226 0.532 0 0 ...</code></pre>
+</div>
+</div>
+<p>&nbsp;</p>
+</section>
+<section id="focus-of-analysis" class="level4">
+<h4 class="anchored" data-anchor-id="focus-of-analysis">Focus of analysis</h4>
+<p>The key interest in the following is in the usage rate of <em>actually</em> (expressed as a normalized frequency) among young British adults in conversational speech. In the following, the terms <em>normalized frequency</em>, <em>occurrence rate</em>, and <em>usage rate</em> will be used interchangeably.</p>
+</section>
+<section id="data-description" class="level4">
+<h4 class="anchored" data-anchor-id="data-description">Data description</h4>
+<p>We start by inspecting some key characteristics of the data. First we examine the distribution of speakers by Gender. The ratio of female and male speakers is 3 to 2:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(d<span class="sc">$</span>gender)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Female   Male 
+   148     99 </code></pre>
+</div>
+</div>
+<p>Next, we consider the distribution of word counts across speakers (i.e.&nbsp;the total number of word tokens each person contributed to the corpus). <a href="#fig-wordcount-speaker" class="quarto-xref">Figure&nbsp;1</a> shows a very skewed profile, with a few speakers showing disproportionately high word counts.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Draw Figure</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> n_words)) <span class="sc">+</span> </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_dotplot</span>(<span class="at">binwidth =</span> <span class="dv">3000</span>, <span class="at">stackratio =</span> .<span class="dv">9</span>, <span class="at">method =</span> <span class="st">"histodot"</span>) <span class="sc">+</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_dotplot</span>() <span class="sc">+</span> </span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_comma</span>(), <span class="at">expand =</span> <span class="fu">c</span>(.<span class="dv">01</span>, .<span class="dv">01</span>)) <span class="sc">+</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)) <span class="sc">+</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="dv">200000</span>, <span class="at">y =</span> .<span class="dv">5</span>, <span class="at">label =</span> <span class="st">"Each dot represents a speaker"</span>, <span class="at">color =</span> <span class="st">"grey30"</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Number of word tokens contributed to the corpus"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-wordcount-speaker" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-wordcount-speaker-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-wordcount-speaker-1.png" class="img-fluid figure-img" width="384">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-wordcount-speaker-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Distribution of word counts across speakers from the Spoken BNC2014 aged 19 to 29, excluding individuals who contribute fewer than 100 words to the corpus.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>To see how the outcome variable is distributed at the speaker level, we draw a dot diagram of the speaker-specific usage rate of <em>actually</em>, expressed as “per thousand words”. <a href="#fig-actually-speaker" class="quarto-xref">Figure&nbsp;2</a> shows a skewed arrangement, with a few individuals using the word at an exceptionally high rate.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Draw Figure</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> </span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> rate_ptw)) <span class="sc">+</span> </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_dotplot</span>(<span class="at">binwidth =</span> .<span class="dv">1</span>, <span class="at">stackratio =</span> .<span class="dv">9</span>, <span class="at">method =</span> <span class="st">"histodot"</span>) <span class="sc">+</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_dotplot</span>() <span class="sc">+</span> </span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">expand =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>)) <span class="sc">+</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Speaker-specific usage rate of actually (per thousand words)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-actually-speaker" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-actually-speaker-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-actually-speaker-1.png" class="img-fluid figure-img" width="384">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-actually-speaker-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Distribution of speaker-specific usage rates of <em>actually</em> in our data subset, per thousand words.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="negative-binomial-regression" class="level4">
+<h4 class="anchored" data-anchor-id="negative-binomial-regression">Negative binomial regression</h4>
+<p>For a point of reference, we start by fitting a negative binomial regression model. This model takes into account the speakers, and represents the observed variability in the usage rate of <em>actually</em> using a probability distribution. The model therefore includes an additional parameter that represents the variability of usage rates. As discussed in more detail in <a href="https://lsoenning.github.io/posts/2023-11-16_negative_binomial/">this blog post</a>, this parameter controls the shape of a gamma distribution, which in turn describes the multiplicative variation in speaker-specific rates.</p>
+<p>This is illustrated in <a href="#fig-gamma" class="quarto-xref">Figure&nbsp;3</a>, which shows considerable variation among speakers. The vertical line marks a ratio of 1, which represents speakers whose usage rate coincides with the model-based average usage rate of <em>actually</em> (which , as we will see shortly, is 1.6 per thousand words). The density curve shows the distribution of speakers across multiplicative factors ranging from 0 to 3. A ratio of 0.5 represents a speaker whose usage rate of <em>actually</em> is only half as large as the overall average, and a ratio of 2 refers to speakers whose usage rate is twice as large as the overall average.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>draw figure</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xyplot</span>(</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type=</span><span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">3.1</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings=</span>my_settings, <span class="at">axis=</span>axis_L,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales=</span><span class="fu">list</span>(<span class="at">y=</span><span class="fu">list</span>(<span class="at">at=</span><span class="dv">0</span>), <span class="at">x=</span><span class="fu">list</span>(<span class="at">at=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>))),</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab=</span><span class="st">"Density"</span>, <span class="at">xlab=</span><span class="st">"Multiplicative factor"</span>,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">panel=</span><span class="cf">function</span>(x,y,...){</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="dv">1</span>, <span class="at">x1=</span><span class="dv">1</span>, <span class="at">y0=</span><span class="dv">0</span>, <span class="at">y1=</span><span class="dv">1</span>, <span class="at">col=</span><span class="dv">1</span>)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(<span class="at">x =</span> <span class="fu">seq</span>(.<span class="dv">01</span>, <span class="fl">4.2</span>, <span class="at">length=</span><span class="dv">1000</span>),</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y =</span> <span class="fu">dGA</span>(<span class="fu">seq</span>(.<span class="dv">01</span>, <span class="fl">4.2</span>, <span class="at">length=</span><span class="dv">1000</span>), <span class="at">mu=</span><span class="dv">1</span>, <span class="at">sigma=</span>(<span class="dv">1</span><span class="sc">/</span><span class="fu">sqrt</span>(<span class="fl">3.4363</span>))),</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>                 <span class="at">type=</span><span class="st">"l"</span>)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-gamma" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-gamma-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-gamma-1.png" class="img-fluid figure-img" width="288">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-gamma-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: The gamma distribution describing between-speaker variability (in multiplicative terms) in the usage rate of <em>actually</em>.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Since this is a probability distribution, we can summarize the estimated distribution of speakers. The following code finds the quartiles of the distribution:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">qGA</span>(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">p =</span> <span class="fu">c</span>(.<span class="dv">25</span>, .<span class="dv">5</span>, .<span class="dv">75</span>), </span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">mu =</span> <span class="dv">1</span>, </span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">sigma =</span> <span class="dv">1</span><span class="sc">/</span><span class="fu">sqrt</span>(<span class="fl">3.4363</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.60 0.90 1.29</code></pre>
+</div>
+</div>
+<p>This tells us that ratios of 0.60 and 1.29 mark the interquartile range: The central 50% of the speakers are within this interval. Interestingly, and perhaps counterintuitively, the median of this gamma distribution is 0.90 (rather than 1), meaning that half of the speakers have a ratio below this mark. Let us also see how many speakers have ratio above and below 1:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pGA</span>(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">q =</span> <span class="dv">1</span>, </span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">mu =</span> <span class="dv">1</span>, </span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">sigma =</span> <span class="dv">1</span><span class="sc">/</span><span class="fu">sqrt</span>(<span class="fl">3.4363</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.57</code></pre>
+</div>
+</div>
+<p>57% of the speakers have a ratio below 1, meaning that more than half of the speakers actually show a usage rate below the estimated mean. We will return to this rather puzzling feature of the negative binomial model further below.</p>
+<p>We can fit a negative binomial model using the function <code>glm.nb()</code> in the <code>{MASS}</code> package <span class="citation" data-cites="Venables_Ripley2002">(<a href="#ref-Venables_Ripley2002" role="doc-biblioref">Venables and Ripley 2002</a>)</span>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>m_nb <span class="ot">&lt;-</span> MASS<span class="sc">::</span><span class="fu">glm.nb</span>(</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  n_actually <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> <span class="fu">offset</span>(<span class="fu">log</span>(n_words)),</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> d)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This produces the following regression table:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m_nb)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre style="font-size: 0.8em"><code>
+Call:
+MASS::glm.nb(formula = n_actually ~ 1 + offset(log(n_words)), 
+    data = d, init.theta = 3.436299959, link = log)
+
+Coefficients:
+            Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept) -6.43610    0.04266  -150.9   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for Negative Binomial(3.4363) family taken to be 1)
+
+    Null deviance: 275.14  on 246  degrees of freedom
+Residual deviance: 275.14  on 246  degrees of freedom
+AIC: 1516.1
+
+Number of Fisher Scoring iterations: 1
+
+              Theta:  3.436 
+          Std. Err.:  0.462 
+
+ 2 x log-likelihood:  -1512.118 </code></pre>
+</div>
+</div>
+<p>The intercept of negative binomial model represents its estimate of the average frequency of <em>actually</em>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(m_nb)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(Intercept) 
+  -6.436104 </code></pre>
+</div>
+</div>
+<p>We can back-transform it to the scale of normalized frequencies (per thousand words):</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">exp</span>(<span class="fu">coef</span>(m_nb)) <span class="sc">*</span><span class="dv">1000</span>, <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(Intercept) 
+        1.6 </code></pre>
+</div>
+</div>
+<p>We can also retrieve frequency estimates using the function <code>avg_predictions()</code> in the <code>{marginaleffects}</code> package <span class="citation" data-cites="ArelBundock_etal2024">(<a href="#ref-ArelBundock_etal2024" role="doc-biblioref">Arel-Bundock, Greifer, and Heiss 2024</a>)</span>, which also returns a 95% confidence interval:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">avg_predictions</span>(</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  m_nb, </span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">newdata =</span> <span class="fu">datagrid</span>(</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_words =</span> <span class="dv">1000</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(estimate, conf.low, conf.high) <span class="sc">|&gt;</span> </span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="dv">2</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">estimate</th>
+<th style="text-align: right;">conf.low</th>
+<th style="text-align: right;">conf.high</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1.6</td>
+<td style="text-align: right;">1.47</td>
+<td style="text-align: right;">1.74</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>&nbsp;</p>
+</section>
+<section id="poisson-regression-with-random-intercepts" class="level4">
+<h4 class="anchored" data-anchor-id="poisson-regression-with-random-intercepts">Poisson regression with random intercepts</h4>
+<p>Another way of accounting for the structure in the data is to use a Poisson regression model with random intercepts on Speaker. This model is similar to the negative binomial since it also represents the observed variation among speakers using a probability distribution. Between-speaker variation is modeled on the scale of natural logarithms, using a normal distribution. On the scale of the actual occurrence rates, this translates into a log-normal distribution.</p>
+<section id="model-fitting" class="level5">
+<h5 class="anchored" data-anchor-id="model-fitting">Model fitting</h5>
+<p>We will illustrate this once we have fit our model using the function <code>glmer()</code> in the R package <code>{lme4}</code> <span class="citation" data-cites="Bates_etal2015">(<a href="#ref-Bates_etal2015" role="doc-biblioref">Bates et al. 2015</a>)</span>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>m_pr <span class="ot">&lt;-</span> <span class="fu">glmer</span>(</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    n_actually <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> <span class="fu">offset</span>(<span class="fu">log</span>(n_words)) <span class="sc">+</span> (<span class="dv">1</span><span class="sc">|</span>speaker), </span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> d,</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">family =</span> <span class="st">"poisson"</span>,</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">control =</span> <span class="fu">glmerControl</span>(<span class="at">optimizer=</span><span class="st">"bobyqa"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Here is a condensed regression table:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>arm<span class="sc">::</span><span class="fu">display</span>(m_pr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre style="font-size: 0.8em"><code>glmer(formula = n_actually ~ 1 + offset(log(n_words)) + (1 | 
+    speaker), data = d, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
+coef.est  coef.se 
+   -6.58     0.04 
+
+Error terms:
+ Groups   Name        Std.Dev.
+ speaker  (Intercept) 0.55    
+ Residual             1.00    
+---
+number of obs: 247, groups: speaker, 247
+AIC = 1519.2, DIC = -1277.5
+deviance = 118.9 </code></pre>
+</div>
+</div>
+<p>&nbsp;</p>
+</section>
+<section id="representation-of-between-speaker-variation" class="level5">
+<h5 class="anchored" data-anchor-id="representation-of-between-speaker-variation">Representation of between-speaker variation</h5>
+<p>The table tells us that the standard deviation of the random intercepts, i.e.&nbsp;the parameter describing the spread of the normal distribution representing between-speaker variation, is 0.55. <a href="#fig-normal" class="quarto-xref">Figure&nbsp;4</a> shows the inferred distribution of speaker intercepts on the log scale. At the top of the figure, a second <em>x</em>-axis is drawn, which shows the normalized frequencies corresponding to these natural logs. The equidistant logs translate into a warped, non-linear spacing of the occurrence rates per thousand words.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>draw figure</summary>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xyplot</span>(</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type=</span><span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="fl">8.2</span>, <span class="sc">-</span><span class="fl">4.9</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="fl">1.5</span>),</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings=</span>my_settings, <span class="at">axis=</span>axis_bottom,</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales=</span><span class="fu">list</span>(<span class="at">y=</span><span class="fu">list</span>(<span class="at">at=</span><span class="dv">0</span>), <span class="at">x=</span><span class="fu">list</span>(<span class="at">at=</span><span class="sc">-</span><span class="dv">9</span><span class="sc">:-</span><span class="dv">3</span>)),</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab=</span><span class="cn">NULL</span>, <span class="at">xlab=</span><span class="st">"Model scale: Natural logarithm"</span>,</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">panel=</span><span class="cf">function</span>(x,y,...){</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="dv">0</span>, <span class="at">x1=</span><span class="dv">0</span>, <span class="at">y0=</span><span class="dv">0</span>, <span class="at">y1=</span>.<span class="dv">9</span>, <span class="at">col=</span><span class="dv">1</span>)</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(<span class="at">x =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="fl">8.2</span>, <span class="sc">-</span><span class="fl">4.9</span>, <span class="at">length=</span><span class="dv">1000</span>),</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y =</span> <span class="fu">dnorm</span>(<span class="fu">seq</span>(<span class="sc">-</span><span class="fl">8.2</span>, <span class="sc">-</span><span class="fl">4.9</span>, <span class="at">length=</span><span class="dv">1000</span>), </span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>                           <span class="at">mean =</span> <span class="fu">fixef</span>(m_pr), <span class="at">sd =</span> .<span class="dv">55</span>),</span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>                 <span class="at">type=</span><span class="st">"l"</span>)</span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="sc">-</span><span class="fl">8.2</span>, <span class="at">x1=</span><span class="sc">-</span><span class="fl">4.9</span>, <span class="at">y0=</span><span class="dv">1</span>, <span class="at">y1=</span><span class="dv">1</span>)</span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0 =</span> <span class="fu">log</span>(<span class="fu">seq</span>(.<span class="dv">001</span>, .<span class="dv">007</span>, .<span class="dv">001</span>)),</span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>                   <span class="at">x1 =</span> <span class="fu">log</span>(<span class="fu">seq</span>(.<span class="dv">001</span>, .<span class="dv">007</span>, .<span class="dv">001</span>)),</span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>                   <span class="at">y0 =</span> <span class="dv">1</span>, <span class="at">y1 =</span> <span class="fl">1.05</span>)</span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0 =</span> <span class="fu">log</span>(<span class="fu">seq</span>(.<span class="dv">0005</span>, .<span class="dv">0075</span>, .<span class="dv">001</span>)),</span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>                   <span class="at">x1 =</span> <span class="fu">log</span>(<span class="fu">seq</span>(.<span class="dv">0005</span>, .<span class="dv">0075</span>, .<span class="dv">001</span>)),</span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>                   <span class="at">y0 =</span> <span class="dv">1</span>, <span class="at">y1 =</span> <span class="fl">1.03</span>)</span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fu">log</span>(<span class="fu">seq</span>(.<span class="dv">001</span>, .<span class="dv">007</span>, .<span class="dv">001</span>)), </span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a>               <span class="at">y =</span> <span class="fl">1.17</span>, </span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a>               <span class="at">label =</span> <span class="fu">seq</span>(.<span class="dv">001</span>, .<span class="dv">007</span>, .<span class="dv">001</span>)<span class="sc">*</span><span class="dv">1000</span>)</span>
+<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fu">fixef</span>(m_pr), <span class="at">y =</span> <span class="fl">1.45</span>, <span class="at">label =</span> <span class="st">"Ocurrences per thousand words"</span>)</span>
+<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a>    })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-normal" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-normal-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-normal-1.png" class="img-fluid figure-img" width="288">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-normal-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: The normal distribution describing between-speaker variability in the usage rate of <em>actually</em> on the scale of natural logarithms.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-lognormal" class="quarto-xref">Figure&nbsp;5</a> shows what this distribution looks like on the scale of normalized frequencies. Now the occurrence rates per thousand words are equidistant and the natural logs assume a non-linear spacing. The distribution we are looking at is a log-normal distribution, which consists of positive values only, and which is skewed toward large values.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>draw figure</summary>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>x_seq <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, .<span class="dv">006</span>, <span class="at">length =</span> <span class="dv">100</span>)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="fu">xyplot</span>(</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type=</span><span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">exp</span>(<span class="sc">-</span><span class="dv">5</span>)), <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="fl">1.5</span>),</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings=</span>my_settings, <span class="at">axis=</span>axis_bottom,</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales=</span><span class="fu">list</span>(<span class="at">y=</span><span class="fu">list</span>(<span class="at">at=</span><span class="dv">0</span>), <span class="at">x=</span><span class="fu">list</span>(<span class="at">at=</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">7</span>)<span class="sc">/</span><span class="dv">1000</span>, <span class="at">label=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">7</span>)),</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab=</span><span class="st">"Density           "</span>, <span class="at">xlab=</span><span class="st">"Occurrences per thousand words"</span>,</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">panel=</span><span class="cf">function</span>(x,y,...){</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0 =</span> <span class="dv">0</span>, <span class="at">x1=</span><span class="dv">0</span>, <span class="at">y0=</span><span class="dv">0</span>, <span class="at">y1=</span>.<span class="dv">8</span>)</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(<span class="at">x =</span> x_seq,</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y =</span> <span class="fu">dlnorm</span>(x_seq, </span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>                            <span class="at">meanlog =</span> <span class="fu">fixef</span>(m_pr), </span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>                            <span class="at">sdlog =</span> <span class="fl">0.55</span>)<span class="sc">/</span><span class="dv">800</span>,</span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>                 <span class="at">type=</span><span class="st">"l"</span>)</span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="fu">exp</span>(<span class="sc">-</span><span class="dv">8</span>), <span class="at">x1=</span><span class="fu">exp</span>(<span class="sc">-</span><span class="dv">5</span>), <span class="at">y0=</span><span class="dv">1</span>, <span class="at">y1=</span><span class="dv">1</span>)</span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0 =</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="dv">8</span><span class="sc">:-</span><span class="dv">5</span>),</span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>                   <span class="at">x1 =</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="dv">8</span><span class="sc">:-</span><span class="dv">5</span>),</span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>                   <span class="at">y0 =</span> <span class="dv">1</span>, <span class="at">y1 =</span> <span class="fl">1.07</span>)</span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0 =</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="fl">7.5</span><span class="sc">:-</span><span class="fl">5.5</span>),</span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a>                   <span class="at">x1 =</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="fl">7.5</span><span class="sc">:-</span><span class="fl">5.5</span>),</span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>                   <span class="at">y0 =</span> <span class="dv">1</span>, <span class="at">y1 =</span> <span class="fl">1.045</span>)</span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0 =</span> <span class="fu">exp</span>(<span class="fu">seq</span>(<span class="sc">-</span><span class="dv">8</span>, <span class="dv">5</span>, .<span class="dv">1</span>)),</span>
+<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a>                   <span class="at">x1 =</span> <span class="fu">exp</span>(<span class="fu">seq</span>(<span class="sc">-</span><span class="dv">8</span>, <span class="dv">5</span>, .<span class="dv">1</span>)),</span>
+<span id="cb29-26"><a href="#cb29-26" aria-hidden="true" tabindex="-1"></a>                   <span class="at">y0 =</span> <span class="dv">1</span>, <span class="at">y1 =</span> <span class="fl">1.03</span>)</span>
+<span id="cb29-27"><a href="#cb29-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="dv">8</span><span class="sc">:-</span><span class="dv">5</span>), </span>
+<span id="cb29-28"><a href="#cb29-28" aria-hidden="true" tabindex="-1"></a>               <span class="at">y =</span> <span class="fl">1.2</span>, </span>
+<span id="cb29-29"><a href="#cb29-29" aria-hidden="true" tabindex="-1"></a>               <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"\u22128"</span>, <span class="st">"\u22127"</span>,<span class="st">"\u22126"</span>, <span class="st">"\u22125"</span>))</span>
+<span id="cb29-30"><a href="#cb29-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x=</span>.<span class="dv">0035</span>, <span class="at">y=</span><span class="fl">1.5</span>, <span class="at">label=</span><span class="st">"Natural logarithm"</span>)</span>
+<span id="cb29-31"><a href="#cb29-31" aria-hidden="true" tabindex="-1"></a>    })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-lognormal" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-lognormal-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-lognormal-1.png" class="img-fluid figure-img" width="288">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-lognormal-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: The log-normal distribution describing between-speaker variability in the usage rate of <em>actually</em> on the normlized frequency scale.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>To clarify the relation between normalized frequencies (the data scale) and natural logarithms (the model scale), let us consider a group of 250 hypothetical speakers. These speakers, and their individual average usage rates of <em>actually</em>, are generated in perfect accordance with the Poisson random-intercept model. Since the model operates on the log scale, each speaker is characterized by their log usage rate of <em>actually</em>.</p>
+<p><a href="#fig-normal-dotdiagram" class="quarto-xref">Figure&nbsp;6</a> shows that, according to the model, the speaker-specific log usage rates form a symmetric, bell-shaped pile, which resembles a normal distribution. The center of this pile of dots is the mean log usage rate in the sample of speakers. It is the mean over the 250 log rates.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>draw figure</summary>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>sample_speakers <span class="ot">&lt;-</span> <span class="fu">dnorm_to_dots</span>(</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">n_dots =</span> <span class="dv">250</span>, </span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">mean =</span> <span class="fu">fixef</span>(m_pr), </span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">sd =</span> .<span class="dv">55</span>)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type=</span><span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="fl">8.3</span>, <span class="sc">-</span><span class="fl">4.8</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="fl">2.2</span>),</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings=</span>my_settings, <span class="at">axis=</span>axis_bottom,</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales=</span><span class="fu">list</span>(<span class="at">y=</span><span class="fu">list</span>(<span class="at">at=</span><span class="dv">0</span>), <span class="at">x=</span><span class="fu">list</span>(<span class="at">at=</span><span class="sc">-</span><span class="dv">9</span><span class="sc">:-</span><span class="dv">3</span>)),</span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab=</span><span class="cn">NULL</span>, <span class="at">xlab=</span><span class="st">"Model scale: Log usage rate (base e)"</span>,</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">panel=</span><span class="cf">function</span>(x,y,...){</span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0 =</span> <span class="fu">fixef</span>(m_pr), <span class="at">x1 =</span> <span class="fu">fixef</span>(m_pr), <span class="at">y0 =</span> <span class="dv">0</span>, <span class="at">y1 =</span> <span class="fl">2.1</span>, <span class="at">col =</span> <span class="st">"grey"</span>)</span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.dotdiagram</span>(sample_speakers, <span class="at">scale_y =</span> .<span class="dv">05</span>, <span class="at">n_bins =</span> <span class="dv">34</span>)</span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fu">fixef</span>(m_pr)<span class="sc">-</span>.<span class="dv">2</span>, <span class="at">y =</span> <span class="fl">1.9</span>, <span class="at">label=</span><span class="st">"Mean over</span><span class="sc">\n</span><span class="st">speaker-specific</span><span class="sc">\n</span><span class="st">log usage rates"</span>, <span class="at">lineheight =</span> .<span class="dv">8</span>, <span class="at">adj=</span><span class="dv">1</span>)</span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fu">fixef</span>(m_pr)<span class="sc">+</span>.<span class="dv">2</span>, <span class="at">y =</span> <span class="fl">1.9</span>, <span class="at">label=</span><span class="st">"Fixed intercept of</span><span class="sc">\n</span><span class="st">random-intercept</span><span class="sc">\n</span><span class="st">Poisson model"</span>, <span class="at">lineheight =</span> .<span class="dv">8</span>, <span class="at">adj=</span><span class="dv">0</span>)</span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fu">fixef</span>(m_pr), <span class="at">y =</span> <span class="fl">1.9</span>, <span class="at">label =</span> <span class="st">"="</span>)</span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fu">fixef</span>(m_pr)<span class="sc">+</span>.<span class="dv">4</span>, <span class="at">y =</span> <span class="fl">1.2</span>, <span class="at">label=</span><span class="st">"\u22126.58"</span>, <span class="at">adj=</span><span class="dv">0</span>)</span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fu">fixef</span>(m_pr)<span class="sc">+</span><span class="fl">1.2</span>, <span class="at">y =</span> <span class="fl">1.2</span>, <span class="at">label=</span><span class="st">"Back-transformation:"</span>, <span class="at">adj=</span><span class="dv">0</span>, <span class="at">col =</span> <span class="st">"grey40"</span>)</span>
+<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fu">fixef</span>(m_pr)<span class="sc">+</span><span class="fl">1.4</span>, <span class="at">y =</span> .<span class="dv">95</span>, <span class="at">label=</span><span class="st">"exp(\u22126.58)"</span>, <span class="at">adj=</span><span class="dv">0</span>, <span class="at">col =</span> <span class="st">"grey40"</span>)</span>
+<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fu">fixef</span>(m_pr)<span class="sc">+</span><span class="fl">1.4</span>, <span class="at">y =</span> .<span class="dv">7</span>, <span class="at">label=</span><span class="st">"= 1.4 per thousand words"</span>, <span class="at">adj=</span><span class="dv">0</span>, <span class="at">col =</span> <span class="st">"grey40"</span>)</span>
+<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb30-22"><a href="#cb30-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-23"><a href="#cb30-23" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1, <span class="at">position =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,.<span class="dv">69</span>,<span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-normal-dotdiagram" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-normal-dotdiagram-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-normal-dotdiagram-1.png" class="img-fluid figure-img" width="384">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-normal-dotdiagram-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: Dot diagram showing an idealized distribution of 250 speakers on the model scale (log normalized frequencies), based on the parameters of the Poisson random-intercept model.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>In the Poisson random-intercept model, this mean log usage rate is represented by the fixed intercept of the model. We saw this fixed intercept in the regression table above. We can retrieve it from the model using the function <code>fixef()</code>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">fixef</span>(m_pr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(Intercept) 
+   -6.57786 </code></pre>
+</div>
+</div>
+<p>To make sense of this value, we back-transform this log normalized frequency to the scale of occurrence rates via exponentiation. To get occurrences ‘per thousand words’, we multiply this rate by 1,000, and round the result to one decimal place:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">exp</span>(<span class="fu">fixef</span>(m_pr)) <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(Intercept) 
+        1.4 </code></pre>
+</div>
+</div>
+<p>The <strong>mean log normalized frequency</strong>, then, which is represented by the fixed intercept of the model, corresponds to a rate of 1.4 per thousand words.</p>
+</section>
+<section id="two-types-of-average-frequencies" class="level5">
+<h5 class="anchored" data-anchor-id="two-types-of-average-frequencies">Two types of average frequencies</h5>
+<p>The normalized frequency of 1.4 per thousand words is one kind of average usage rate we can report based on a random-intercept Poisson model. To recognize that there is a second type of average normalized frequency, let us consider the distribution of the 250 speaker-specific usage rates on the data scale of normalized frequencies. <a href="#fig-lognormal-dotdiagram" class="quarto-xref">Figure&nbsp;7</a> shows that the pile is no longer symmetric – it is skewed toward the right, with a longer upper tail. Note how this dot diagram matches the density curve shown in <a href="#fig-lognormal" class="quarto-xref">Figure&nbsp;5</a> above.</p>
+<div class="cell preview-image">
+<details class="code-fold">
+<summary>draw figure</summary>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type=</span><span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">0071</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="fl">2.1</span>),</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings=</span>my_settings, <span class="at">axis=</span>axis_bottom,</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales=</span><span class="fu">list</span>(<span class="at">y=</span><span class="fu">list</span>(<span class="at">at=</span><span class="dv">0</span>), <span class="at">x=</span><span class="fu">list</span>(<span class="at">at=</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">7</span>)<span class="sc">/</span><span class="dv">1000</span>, <span class="at">label=</span><span class="dv">0</span><span class="sc">:</span><span class="dv">7</span>)),</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab=</span><span class="cn">NULL</span>, <span class="at">xlab=</span><span class="st">"Data scale: Usage rate (per thousand words)"</span>,</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">panel=</span><span class="cf">function</span>(x,y,...){</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0 =</span> <span class="fu">exp</span>(<span class="fu">fixef</span>(m_pr) <span class="sc">+</span> (.<span class="dv">55</span><span class="sc">^</span><span class="dv">2</span>)<span class="sc">/</span><span class="dv">2</span>), <span class="at">x1 =</span> <span class="fu">exp</span>(<span class="fu">fixef</span>(m_pr) <span class="sc">+</span> (.<span class="dv">55</span><span class="sc">^</span><span class="dv">2</span>)<span class="sc">/</span><span class="dv">2</span>), <span class="at">y0 =</span> <span class="dv">0</span>, <span class="at">y1 =</span> <span class="dv">2</span>)</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0 =</span> <span class="fu">exp</span>(<span class="fu">fixef</span>(m_pr)), <span class="at">x1 =</span> <span class="fu">exp</span>(<span class="fu">fixef</span>(m_pr)), <span class="at">y0 =</span> <span class="dv">0</span>, <span class="at">y1 =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">"grey"</span>)</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">#panel.segments(x0 = 0, x1 = 0, y0 = 0, y1 = .9, col = 1)</span></span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.dotdiagram</span>(<span class="fu">exp</span>(sample_speakers), <span class="at">scale_y =</span> .<span class="dv">04</span>, <span class="at">n_bins =</span> <span class="dv">45</span>)</span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fu">exp</span>(<span class="fu">fixef</span>(m_pr) <span class="sc">+</span> (.<span class="dv">55</span><span class="sc">^</span><span class="dv">2</span>)<span class="sc">/</span><span class="dv">2</span>)<span class="sc">+</span>.<span class="dv">0003</span>, <span class="at">y =</span> <span class="fl">1.8</span>, <span class="at">label=</span><span class="st">"Mean over</span><span class="sc">\n</span><span class="st">speaker-specific</span><span class="sc">\n</span><span class="st">usage rates"</span>, <span class="at">lineheight =</span> .<span class="dv">8</span>, <span class="at">adj=</span><span class="dv">0</span>)</span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fu">exp</span>(<span class="fu">fixef</span>(m_pr))<span class="sc">-</span>.<span class="dv">0003</span>, <span class="at">y =</span> <span class="fl">1.8</span>, <span class="at">label=</span><span class="st">"Back-transformed</span><span class="sc">\n</span><span class="st">intercept of</span><span class="sc">\n</span><span class="st">Poisson model"</span>, <span class="at">lineheight =</span> .<span class="dv">8</span>, <span class="at">adj=</span><span class="dv">1</span>, <span class="at">col=</span><span class="st">"grey40"</span>)</span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fu">exp</span>(<span class="fu">fixef</span>(m_pr) <span class="sc">+</span> (.<span class="dv">55</span><span class="sc">^</span><span class="dv">2</span>)<span class="sc">/</span><span class="dv">2</span>)<span class="sc">+</span>.<span class="dv">0003</span>, <span class="at">y =</span> <span class="fl">1.3</span>, <span class="at">label=</span><span class="st">"1.6 per thousand words"</span>, <span class="at">lineheight =</span> .<span class="dv">8</span>, <span class="at">adj=</span><span class="dv">0</span>)</span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fu">exp</span>(<span class="fu">fixef</span>(m_pr))<span class="sc">-</span>.<span class="dv">0003</span>, <span class="at">y =</span> <span class="fl">1.3</span>, <span class="at">label=</span><span class="st">"1.4 per thousand words"</span>, <span class="at">adj=</span><span class="dv">1</span>, <span class="at">col=</span><span class="st">"grey40"</span>)</span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>    <span class="co">#panel.text(x = fixef(m_pr), y = 1.7, label = "=")</span></span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(<span class="at">x =</span> <span class="fu">c</span>(<span class="fu">exp</span>(<span class="fu">fixef</span>(m_pr)), <span class="fu">exp</span>(<span class="fu">fixef</span>(m_pr) <span class="sc">+</span> (.<span class="dv">55</span><span class="sc">^</span><span class="dv">2</span>)<span class="sc">/</span><span class="dv">2</span>)), <span class="at">y =</span> <span class="dv">2</span>, <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"grey40"</span>, <span class="st">"black"</span>))</span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1, <span class="at">position =</span> <span class="fu">c</span>(.<span class="dv">2</span>,<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-lognormal-dotdiagram" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-lognormal-dotdiagram-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-lognormal-dotdiagram-1.png" class="img-fluid figure-img" width="384">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-lognormal-dotdiagram-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7: Dot diagram showing an idealized distribution of 250 speakers on the data scale (normalized frequencies), based on the parameters of the Poisson random-intercept model.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Characterizing the distribution of usage rates on this scale is more challenging due to the asymmetry. If we want to summarize the pile of dots by referring to the “typical”, or “average” occurrence rate in the group of speakers, we could use the mean or median usage rate. The mean is sensitive to outliers – the few speakers with unusually high usage rate will therefore pull it upwards slightly. The median, on the other hand, is the usage rate in the middle of the distribution and not affected by outliers – half the speakers are above, and half below the median rate.</p>
+<p>If we calculate the mean usage rate based on the pile of dots in <a href="#fig-lognormal-dotdiagram" class="quarto-xref">Figure&nbsp;7</a>, we obtain a normalized frequency of 1.6 per thousand words. This “average” is marked in <a href="#fig-lognormal-dotdiagram" class="quarto-xref">Figure&nbsp;7</a> using a black needle. For comparison, the back-transformed mean log usage rate of 1.4 per thousand words, which we calculated above, appears as a grey needle.</p>
+<p>It is important to note that these two types of averages differ. Let us therefore repeat what they represent:</p>
+<ul>
+<li>The grey average (1.4 ptw) is the <strong>mean over the speaker-specific log usage rates</strong> (see <a href="#fig-normal-dotdiagram" class="quarto-xref">Figure&nbsp;6</a>), <strong>back-transformed</strong> into a normalized frequency.</li>
+<li>The black average (1.6 ptw) is the <strong>mean over the speaker-specific usage rates</strong> (see <a href="#fig-lognormal-dotdiagram" class="quarto-xref">Figure&nbsp;7</a>), i.e.&nbsp;over the back-transformed log usage rates.</li>
+</ul>
+<p>The two averages represent two different measures of central tendency:</p>
+<ul>
+<li>1.6 ptw, in black, is the <strong>mean usage rate</strong> over the 250 speakers.</li>
+<li>1.4 ptw, in grey, is the <strong>median usage rate</strong> over the 250 speakers.</li>
+</ul>
+<p>In other words, upon back-transforming the fixed intercept in a random-intercept Poisson regression model, we obtain the median normalized frequency.</p>
+<p>If we look at <a href="#fig-lognormal-dotdiagram" class="quarto-xref">Figure&nbsp;7</a>, we note that the median (grey) arguably does a better job at locating the typical occurrence rate in the group of 250 speakers – the mean (black) seems a bit too high, as most of the dots are below 1.6 ptw. This is consistent with the advice found in statistical textbooks: the median is often a better summary measure for skewed distributions.</p>
+</section>
+<section id="obtaining-model-based-estimates-of-the-different-average-frequencies" class="level5">
+<h5 class="anchored" data-anchor-id="obtaining-model-based-estimates-of-the-different-average-frequencies">Obtaining model-based estimates of the different average frequencies</h5>
+<p>Both kinds of average frequencies can be constructed based on a Poisson model with random-intercepts. We will look at two approaches: (i) an analytic approach based on the model parameters, and (ii) a predictive approach using the <code>{marginaleffects}</code> package.</p>
+<p>As we saw above, the <em>median normalized frequency</em> is represented by the model intercept, and we can retrieve it as follows:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">exp</span>(<span class="fu">fixef</span>(m_pr)) <span class="sc">*</span> <span class="dv">1000</span>,</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(Intercept) 
+       1.39 </code></pre>
+</div>
+</div>
+<p>The <em>mean normalized frequency</em> can be calculated based on the model intercept and the variance of the normal distribution describing between-speaker variation. This is the formula:</p>
+<p><span class="math display">\[
+\textrm{mean normalized frequency} = \textrm{exp}(\textrm{intercept} + \frac{\textrm{random-intercept variance}}{2})
+\]</span></p>
+<p>To apply this formula, we first extract the random-intercept variance from the model object:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>intercept_variance <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summary</span>(m_pr)<span class="sc">$</span>varcor<span class="sc">$</span>speaker)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now we can apply the formula above to obtain the mean normalized frequency of <em>actually</em>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">exp</span>(<span class="fu">fixef</span>(m_pr) <span class="sc">+</span> intercept_variance<span class="sc">/</span><span class="dv">2</span>) <span class="sc">*</span> <span class="fl">1e3</span>, <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(Intercept) 
+       1.61 </code></pre>
+</div>
+</div>
+<p>We can also obtain these two types of average frequency using the <code>{marginaleffects}</code> package. To get the <strong>median normalized frequency</strong> of <em>actually</em> (i.e.&nbsp;the back-transformed mean log rate), we run the following code. The argument <code>re.form = NA</code> tells the function to ignore between-speaker variation:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">avg_predictions</span>(</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  m_pr, </span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">newdata =</span> <span class="fu">datagrid</span>(</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_words =</span> <span class="dv">1000</span>,</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">speaker =</span> <span class="cn">NA</span>),</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">re.form =</span> <span class="cn">NA</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(estimate, conf.low, conf.high) <span class="sc">|&gt;</span> </span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="dv">2</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">estimate</th>
+<th style="text-align: right;">conf.low</th>
+<th style="text-align: right;">conf.high</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1.39</td>
+<td style="text-align: right;">1.27</td>
+<td style="text-align: right;">1.51</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>To get (something close to) the <strong>mean normalized frequencies</strong> we calculated above, we can ask the function <code>avg_predictions()</code> to average predictions over the speakers in the sample. This means that the by-speaker random intercepts are incorporated into the model predictions. The model-based speaker intercepts are used to get a predicted normalized frequency for each speaker, and these are then averaged.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">avg_predictions</span>(</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>  m_pr, </span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">newdata =</span> <span class="fu">datagrid</span>(</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_words =</span> <span class="dv">1000</span>,</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">speaker =</span> unique)) <span class="sc">|&gt;</span> </span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(estimate, conf.low, conf.high) <span class="sc">|&gt;</span> </span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="dv">2</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: right;">estimate</th>
+<th style="text-align: right;">conf.low</th>
+<th style="text-align: right;">conf.high</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1.57</td>
+<td style="text-align: right;">1.43</td>
+<td style="text-align: right;">1.7</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The result is not identical to the one we got above due to shrinkage: The speaker intercepts are partially pooled, and their variability is therefore smaller than implied by the random-intercept standard deviation.</p>
+</section>
+</section>
+<section id="comparison-poisson-random-intercept-vs.-negative-binomial-model" class="level4">
+<h4 class="anchored" data-anchor-id="comparison-poisson-random-intercept-vs.-negative-binomial-model">Comparison: Poisson random-intercept vs.&nbsp;negative binomial model</h4>
+<p>We can now compare the two types of regression models in terms of (i) how they represent between-speaker variation and (ii) the kind of frequency estimates they return.</p>
+<p>The two models describe the variation among speakers using different probability distributions. These are compared in <a href="#fig-comparison" class="quarto-xref">Figure&nbsp;8</a>, which shows that they provide quite similar, though not identical, representations of the distribution of speaker-specific normalized frequencies.</p>
+<ul>
+<li>The negative binomial model uses the <em>gamma distribution</em> to express between-speaker variation; it is therefore also referred to as a <em>Poisson-gamma mixture model</em>.</li>
+<li>Poisson regression with random intercepts uses the <em>lognormal distribution</em> to express between-speaker variation; it is therefore also referred to as a <em>Poisson-lognormal mixture model</em>.</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>draw figure</summary>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>x_seq <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, .<span class="dv">006</span>, <span class="at">length =</span> <span class="dv">100</span>)</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type=</span><span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">006</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="fl">1.1</span>),</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings=</span>my_settings, <span class="at">axis=</span>axis_L,</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales=</span><span class="fu">list</span>(<span class="at">y=</span><span class="fu">list</span>(<span class="at">at=</span><span class="dv">0</span>), <span class="at">x=</span><span class="fu">list</span>(<span class="at">at=</span>(<span class="dv">0</span><span class="sc">:</span><span class="dv">6</span>)<span class="sc">/</span><span class="dv">1000</span>, <span class="at">label=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">6</span>))),</span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab=</span><span class="st">"Density"</span>, <span class="at">xlab=</span><span class="st">"Ocurrences per thousand words"</span>,</span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">panel=</span><span class="cf">function</span>(x,y,...){</span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="dv">1</span>, <span class="at">x1=</span><span class="dv">1</span>, <span class="at">y0=</span><span class="dv">0</span>, <span class="at">y1=</span><span class="fl">1.5</span>, <span class="at">col=</span><span class="dv">1</span>)</span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(<span class="at">x =</span> <span class="fu">seq</span>(.<span class="dv">01</span>, <span class="dv">5</span>, <span class="at">length=</span><span class="dv">200</span>)<span class="sc">*</span><span class="fu">exp</span>(<span class="fu">coef</span>(m_nb)),</span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y =</span> <span class="fu">dGA</span>(<span class="fu">seq</span>(.<span class="dv">01</span>, <span class="dv">5</span>, <span class="at">length=</span><span class="dv">200</span>), <span class="at">mu=</span><span class="dv">1</span>, <span class="at">sigma=</span><span class="dv">1</span><span class="sc">/</span><span class="fu">sqrt</span>(<span class="fl">3.4363</span>)),</span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>                 <span class="at">type=</span><span class="st">"l"</span>, <span class="at">col =</span> <span class="st">"grey40"</span>, <span class="at">lty =</span> <span class="st">"32"</span>, <span class="at">lineend =</span> <span class="st">"butt"</span>)</span>
+<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb43-14"><a href="#cb43-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(<span class="at">x =</span> x_seq,</span>
+<span id="cb43-15"><a href="#cb43-15" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y =</span> <span class="fu">dlnorm</span>(x_seq, </span>
+<span id="cb43-16"><a href="#cb43-16" aria-hidden="true" tabindex="-1"></a>                            <span class="at">meanlog =</span> <span class="fu">fixef</span>(m_pr), </span>
+<span id="cb43-17"><a href="#cb43-17" aria-hidden="true" tabindex="-1"></a>                            <span class="at">sdlog =</span> <span class="fl">0.55</span>)<span class="sc">/</span><span class="dv">600</span>,</span>
+<span id="cb43-18"><a href="#cb43-18" aria-hidden="true" tabindex="-1"></a>                 <span class="at">type=</span><span class="st">"l"</span>)</span>
+<span id="cb43-19"><a href="#cb43-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="dv">0</span>, <span class="at">x1=</span>.<span class="dv">006</span>, <span class="at">y0=</span><span class="dv">0</span>, <span class="at">y1=</span><span class="dv">0</span>)</span>
+<span id="cb43-20"><a href="#cb43-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="dv">4</span>, <span class="at">y =</span> .<span class="dv">2</span>, <span class="at">label=</span><span class="st">"Log-normal distribution"</span>, <span class="at">adj=</span><span class="dv">0</span>, <span class="at">cex=</span>.<span class="dv">9</span>)</span>
+<span id="cb43-21"><a href="#cb43-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fl">1.5</span>, <span class="at">y =</span> .<span class="dv">45</span>, <span class="at">label=</span><span class="st">"Gamma distribution"</span>, <span class="at">adj=</span><span class="dv">0</span>, <span class="at">col =</span> <span class="st">"grey50"</span>, <span class="at">cex=</span>.<span class="dv">9</span>)</span>
+<span id="cb43-22"><a href="#cb43-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-23"><a href="#cb43-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.abline</span>(<span class="at">v =</span> <span class="dv">1</span>)</span>
+<span id="cb43-24"><a href="#cb43-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> .<span class="dv">0008</span>, <span class="at">y =</span> <span class="fl">1.25</span>, <span class="at">label =</span> <span class="st">"Poisson-lognormal model</span><span class="sc">\n</span><span class="st">(Poisson regression with random intercepts)"</span>, <span class="at">adj=</span><span class="dv">0</span>, <span class="at">cex=</span>.<span class="dv">9</span>, <span class="at">lineheight =</span> .<span class="dv">8</span>)</span>
+<span id="cb43-25"><a href="#cb43-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> .<span class="dv">0025</span>, <span class="at">y =</span> .<span class="dv">6</span>, <span class="at">label =</span> <span class="st">"Poisson-gamma model</span><span class="sc">\n</span><span class="st">(Negative binomial regression)"</span>, <span class="at">adj=</span><span class="dv">0</span>, <span class="at">cex=</span>.<span class="dv">9</span>, <span class="at">col =</span> <span class="st">"grey40"</span>, <span class="at">lineheight =</span> .<span class="dv">8</span>)</span>
+<span id="cb43-26"><a href="#cb43-26" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb43-27"><a href="#cb43-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-28"><a href="#cb43-28" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1, <span class="at">position =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">1</span>,.<span class="dv">85</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-comparison" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-comparison-1.png" class="img-fluid figure-img" width="384">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8: The log-normal distribution (black) vs.&nbsp;the gamma distribution (grey) describing between-speaker variability in the usage rate of <em>actually</em>.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>As for the model predictions, the intercepts in the two models represent different average frequencies:</p>
+<ul>
+<li>The intercept in a negative binomial model represents the <em>mean normalized frequency</em></li>
+<li>The intercept in the Poisson random-intercept model represents the <em>median normalized frequency</em></li>
+</ul>
+<p>The following code therefore returns different frequency estimates:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">exp</span>(<span class="fu">fixef</span>(m_pr)) <span class="sc">*</span> <span class="fl">1e3</span>, <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(Intercept) 
+       1.39 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">exp</span>(<span class="fu">coef</span>(m_nb)) <span class="sc">*</span> <span class="fl">1e3</span>, <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(Intercept) 
+        1.6 </code></pre>
+</div>
+</div>
+</section>
+<section id="summary" class="level4">
+<h4 class="anchored" data-anchor-id="summary">Summary</h4>
+<p>The Poisson regression model with random intercepts is a strategy for modeling clustered frequency data. This model captures text-to-text (or speaker-to-speaker) variation in the occurrence rate (i.e.&nbsp;normalized frequency) of interest using a lognormal distribution. It is therefore also referred to as a Poisson-lognormal mixture model. This model is capable of producing two types of frequency estimates: the median normalized frequency across texts, and the mean normalized frequency across texts. It is important to recognize the difference between these measures, as they represent alternative ways of expressing the typical (or “average”) occurrence rate in the population of interest. Further, it allows us to make sense of model-based predictions and how they may differ from those produced by other count regression models (such as the negative binomial model).</p>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-ArelBundock_etal2024" class="csl-entry" role="listitem">
+Arel-Bundock, Vincent, Noah Greifer, and Andrew Heiss. 2024. <span>“How to Interpret Statistical Models Using <span class="nocase">marginaleffects</span> for <span>R</span> and <span>Python</span>.”</span> <em>Journal of Statistical Software</em> 111 (9): 1–32. <a href="https://doi.org/10.18637/jss.v111.i09">https://doi.org/10.18637/jss.v111.i09</a>.
+</div>
+<div id="ref-Bates_etal2015" class="csl-entry" role="listitem">
+Bates, Douglas, Martin Mächler, Ben Bolker, and Steve Walker. 2015. <span>“Fitting Linear Mixed-Effects Models Using <span class="nocase">lme4</span>.”</span> <em>Journal of Statistical Software</em> 67 (1): 1–48. <a href="https://doi.org/10.18637/jss.v067.i01">https://doi.org/10.18637/jss.v067.i01</a>.
+</div>
+<div id="ref-Love_etal2017" class="csl-entry" role="listitem">
+Love, Robbie, Claire Dembry, Andrew Hardie, Vaclav Brezina, and Tony McEnery. 2017. <span>“The Spoken BNC2014: Designing and Building a Spoken Corpus of Everyday Conversations.”</span> <em>International Journal of Corpus Linguistics</em>, 319–44. <a href="https://doi.org/10.1075/ijcl.22.3.02lov">https://doi.org/10.1075/ijcl.22.3.02lov</a>.
+</div>
+<div id="ref-Krug_Soenning2021" class="csl-entry" role="listitem">
+Sönning, Lukas, and Manfred Krug. 2021. <span>“<span class="nocase">Actually in contemporary British speech: Data from the Spoken BNC corpora</span>.”</span> DataverseNO. <a href="https://doi.org/10.18710/A3SATC">https://doi.org/10.18710/A3SATC</a>.
+</div>
+<div id="ref-Soenning_Krug2022" class="csl-entry" role="listitem">
+———. 2022. <span>“Comparing Study Designs and down-Sampling Strategies in Corpus Analysis: The Importance of Speaker Metadata in the BNCs of 1994 and 2014.”</span> In <em>Data and Methods in Corpus Linguistics</em>, 127–60. Cambridge University Press. <a href="https://doi.org/10.1017/9781108589314.006">https://doi.org/10.1017/9781108589314.006</a>.
+</div>
+<div id="ref-Venables_Ripley2002" class="csl-entry" role="listitem">
+Venables, W. N., and B. D. Ripley. 2002. <em>Modern Applied Statistics with s</em>. Fourth. New York: Springer. <a href="https://www.stats.ox.ac.uk/pub/MASS4/">https://www.stats.ox.ac.uk/pub/MASS4/</a>.
+</div>
+</div></section><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{sönning2025,
+  author = {Sönning, Lukas},
+  title = {Frequency Estimates Based on Random-Intercept {Poisson}
+    Models},
+  date = {2025-05-13},
+  url = {https://lsoenning.github.io/posts/2025-05-12_poisson_random_intercept/},
+  langid = {en}
+}
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-sönning2025" class="csl-entry quarto-appendix-citeas" role="listitem">
+Sönning, Lukas. 2025. <span>“Frequency Estimates Based on
+Random-Intercept Poisson Models.”</span> May 13, 2025. <a href="https://lsoenning.github.io/posts/2025-05-12_poisson_random_intercept/">https://lsoenning.github.io/posts/2025-05-12_poisson_random_intercept/</a>.
+</div></div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/lsoenning\.github\.io");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

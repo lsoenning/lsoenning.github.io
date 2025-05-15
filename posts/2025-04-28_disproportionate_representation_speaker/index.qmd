@@ -6,7 +6,6 @@ categories: [corpus linguistics, clustered data, negative binomial, clustered da
 citation: 
   url: https://lsoenning.github.io/posts/2025-04-28_disproportionate_representation_speaker/
 editor: source
-draft: false
 ---
 
 
@@ -127,6 +126,7 @@ d |>
   scale_y_continuous(expand = c(0, 0)) +
   annotate("text", x = 150000, y = .5, label = "Each dot represents a speaker", color = "grey30", size = 3.5) +
   xlab("Number of word tokens contributed to the corpus")
+
 ```
 
 What is quite interesting is that this distribution is perfectly symmetric on the log scale. 
@@ -147,6 +147,8 @@ d |>
   scale_y_continuous(expand = c(0, 0)) +
     theme_dotplot() +
     xlab("Number of words per speaker (log-scaled)")
+
+
 ```
 
 ### Frequency of *actually*: Data summary
@@ -201,6 +203,8 @@ d |> group_by(age_group, gender) |>
     directlabels::geom_dl(aes(label = gender), method = list("smart.grid", cex = .75, y = c(2.3, 4.3))) +
   xlab("Age in decreasing order") +
   ylab("Subcorpus frequency of\nactually (pmw, log-scaled)")
+
+
 ```
 
 Another way of estimating the average rate of *actually* in each subgroup is to consider the speaker-specific normalized frequencies (i.e. the variable `rate_pmw`) and average over these. @Egbert_Burch2023 [p. 105] refer to these two types of frequency estimates as *corpus frequency* and *mean text frequency*. In the present context, we slightly adapt these labels to *subcorpus frequency* and *mean speaker frequency*. 
@@ -237,6 +241,9 @@ d |> group_by(age_group, gender) |>
     directlabels::geom_dl(aes(label = gender), method = list("smart.grid", cex = .75, y = c(2.3, 4.3))) +
   xlab("Age in decreasing order") +
   ylab("Mean speaker frequency of\nactually (pmw, log-scaled)")
+
+ggsave("fig_actually_mean_speaker_frequency.pdf")
+
 ```
 
 The frequency estimates in @fig-subcorpus-frequency and @fig-mean-speaker-frequency differ considerably. Especially for 70-to-79-year-olds, the two methods yield very different usage rates. To understand why this is the case, we need to zoom in on the individual speakers. It helps to draw what is sometimes referred to as a bubble chart, where each data point (here: speaker) appears as a circle, and the size of the circles is proportional to some quantity (here: the speaker-specific word count). The figure below arranges speakers by Gender (female speakers on the left) and by Age, within each panel. The y-axis shows the speaker-specific usage rate of *actually*, and the size of the circles reflects how many words a person contributed to the corpus. Note that the y-axis is log-scaled. To be able to include normalized frequencies of 0 (for which the logarithm is not defined), we opt for a full scale break that is signaled by the grey horizontal line. 
@@ -269,6 +276,7 @@ d |>
   geom_hline(yintercept = 80, col = "grey") +
   xlab("Age in decreasing order") +
   ylab("Normalized frequency of actually\n(per million words, log-scaled)")
+
 
 ```
 
@@ -355,6 +363,8 @@ preds_poi |> ggplot(
   xlab("Age in decreasing order") +
   ylab("Estimated average rate of\nactually (pmw, log-scaled)") +
   annotate("text", x = 10.5, y = 25, label="Error bars denote 95% CIs", size = 3, col = "grey40", adj=1)
+
+
 ```
 
 The Poisson model can be extended to account for the structure of the data, and for the fact that the usage rate of *actually* may very well vary from speaker to speaker, even within the same socio-demographic subgroup. Such extensions are sometimes referred to as Poisson mixture models, which include an extra parameter that captures the amount of observed between-speaker variation. A frequently used Poisson mixture is the negative binomial distribution. For a visual explanation, see [this blog post](https://lsoenning.github.io/posts/2023-11-16_negative_binomial/){target="_blank"}. What matters for the present case study is the fact that this type of model knows about and adequately represents the structure of the data. 
@@ -418,6 +428,7 @@ preds_nb |> ggplot(
   xlab("Age in decreasing order") +
   ylab("Estimated average rate of\nactually (pmw, log-scaled)") +
   annotate("text", x = 10.5, y = 25, label="Error bars denote 95% CIs", size = 3, col = "grey40", adj=1)
+
 ```
 
 This yields a pattern that is very similar to @fig-mean-speaker-frequency, i.e. which reflects mean speaker frequency (rather than subcorpus frequency). The subgroup estimates also form more regular patterns, rather than zig-zag profiles as in @fig-estimates-poisson. This appears much more plausible from a linguistic perspective. Finally, the statistical uncertaintiy intervals are appropriately wide, especially for the oldest cohorts. As our cross-tabulation above showed, very few speakers are found in these cells, which necessarily leads to imprecise estimates.
