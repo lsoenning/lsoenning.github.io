@@ -66,7 +66,7 @@
   </url>
   <url>
     <loc>https://lsoenning.github.io/posts/2025-05-03_imbalance_bias/index.html</loc>
-    <lastmod>2025-05-15T18:52:01.677Z</lastmod>
+    <lastmod>2025-05-19T19:05:20.019Z</lastmod>
   </url>
   <url>
     <loc>https://lsoenning.github.io/posts/2023-12-13_negative_binomial_parameterization/index.html</loc>
@@ -78,7 +78,7 @@
   </url>
   <url>
     <loc>https://lsoenning.github.io/posts/2025-05-12_poisson_random_intercepts/index.html</loc>
-    <lastmod>2025-05-15T18:48:59.175Z</lastmod>
+    <lastmod>2025-05-19T15:37:36.496Z</lastmod>
   </url>
   <url>
     <loc>https://lsoenning.github.io/posts/2025-05-10_counts_overdispersion_unbalanced/index.html</loc>
@@ -87,5 +87,9 @@
   <url>
     <loc>https://lsoenning.github.io/posts/2025-05-09_counts_overdispersion/index.html</loc>
     <lastmod>2025-05-15T11:49:21.853Z</lastmod>
+  </url>
+  <url>
+    <loc>https://lsoenning.github.io/posts/2025-05-19_data_vis_workflow/index.html</loc>
+    <lastmod>2025-05-20T06:07:34.739Z</lastmod>
   </url>
 </urlset>

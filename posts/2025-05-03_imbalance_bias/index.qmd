@@ -373,7 +373,6 @@ avg_predictions(
 
 We must take control over the kind of normalized frequency we are getting. We prefer 'per 1,000 words' and therefore use the argument `variables` to specify `n_words = 1000`. Now we get a more interpretable estimate:
 
-
 ```{r}
 avg_predictions(
   m_nb_Frown,

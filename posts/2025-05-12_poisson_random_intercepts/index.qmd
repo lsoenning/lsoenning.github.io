@@ -97,7 +97,6 @@ str(d)
 
 The key interest in the following is in the usage rate of *actually* (expressed as a normalized frequency) among young British adults in conversational speech. In the following, the terms *normalized frequency*, *occurrence rate*, and *usage rate* will be used interchangeably.
 
-
 #### Data description
 
 We start by inspecting some key characteristics of the data. First we examine the distribution of speakers by Gender. The ratio of female and male speakers is 3 to 2:
@@ -149,7 +148,6 @@ d |>
   xlab("Speaker-specific usage rate of actually (per thousand words)")
 
 ```
-
 
 #### Negative binomial regression
 
@@ -210,7 +208,6 @@ m_nb <- MASS::glm.nb(
   data = d)
 ```
 
-
 This produces the following regression table:
 
 ```{r}
@@ -245,14 +242,11 @@ avg_predictions(
   kable()
 ```
 
-
-
-\ 
+ 
 
 #### Poisson regression with random intercepts
 
 Another way of accounting for the structure in the data is to use a Poisson regression model with random intercepts on Speaker. This model is similar to the negative binomial since it also represents the observed variation among speakers using a probability distribution. Between-speaker variation is modeled on the scale of natural logarithms, using a normal distribution. On the scale of the actual occurrence rates, this translates into a log-normal distribution.
-
 
 ##### Model fitting
 
@@ -274,7 +268,7 @@ Here is a condensed regression table:
 arm::display(m_pr)
 ```
 
-\ 
+ 
 
 ##### Representation of between-speaker variation
 
@@ -366,11 +360,9 @@ xyplot(
 
 ```
 
-
-
 To clarify the relation between normalized frequencies (the data scale) and natural logarithms (the model scale), let us consider a group of 250 hypothetical speakers. These speakers, and their individual average usage rates of *actually*, are generated in perfect accordance with the Poisson random-intercept model. Since the model operates on the log scale, each speaker is characterized by their log usage rate of *actually*.
 
-@fig-normal-dotdiagram shows that, according to the model, the speaker-specific log usage rates form a symmetric, bell-shaped pile, which resembles a normal distribution. The center of this pile of dots is the mean log usage rate in the sample of speakers. It is the mean over the 250 log rates. 
+@fig-normal-dotdiagram shows that, according to the model, the speaker-specific log usage rates form a symmetric, bell-shaped pile, which resembles a normal distribution. The center of this pile of dots is the mean log usage rate in the sample of speakers. It is the mean over the 250 log rates.
 
 ```{r}
 #| fig-width: 4
@@ -408,7 +400,6 @@ print(p1, position = c(0,0,.69,1))
 
 ```
 
-
 In the Poisson random-intercept model, this mean log usage rate is represented by the fixed intercept of the model. We saw this fixed intercept in the regression table above. We can retrieve it from the model using the function `fixef()`:
 
 ```{r}
@@ -425,11 +416,9 @@ round(
 
 The **mean log normalized frequency**, then, which is represented by the fixed intercept of the model, corresponds to a rate of 1.4 per thousand words.
 
-
 ##### Two types of average frequencies
 
 The normalized frequency of 1.4 per thousand words is one kind of average usage rate we can report based on a random-intercept Poisson model. To recognize that there is a second type of average normalized frequency, let us consider the distribution of the 250 speaker-specific usage rates on the data scale of normalized frequencies. @fig-lognormal-dotdiagram shows that the pile is no longer symmetric -- it is skewed toward the right, with a longer upper tail. Note how this dot diagram matches the density curve shown in @fig-lognormal above.
-
 
 ```{r}
 #| fig-width: 4
@@ -464,25 +453,23 @@ print(p1, position = c(.2,0,1,1))
 
 ```
 
-
 Characterizing the distribution of usage rates on this scale is more challenging due to the asymmetry. If we want to summarize the pile of dots by referring to the "typical", or "average" occurrence rate in the group of speakers, we could use the mean or median usage rate. The mean is sensitive to outliers -- the few speakers with unusually high usage rate will therefore pull it upwards slightly. The median, on the other hand, is the usage rate in the middle of the distribution and not affected by outliers -- half the speakers are above, and half below the median rate.
 
-If we calculate the mean usage rate based on the pile of dots in @fig-lognormal-dotdiagram, we obtain a normalized frequency of 1.6 per thousand words. This "average" is marked in @fig-lognormal-dotdiagram using a black needle. For comparison, the back-transformed mean log usage rate of 1.4 per thousand words, which we calculated above, appears as a grey needle. 
+If we calculate the mean usage rate based on the pile of dots in @fig-lognormal-dotdiagram, we obtain a normalized frequency of 1.6 per thousand words. This "average" is marked in @fig-lognormal-dotdiagram using a black needle. For comparison, the back-transformed mean log usage rate of 1.4 per thousand words, which we calculated above, appears as a grey needle.
 
 It is important to note that these two types of averages differ. Let us therefore repeat what they represent:
 
-- The grey average (1.4 ptw) is the **mean over the speaker-specific log usage rates** (see @fig-normal-dotdiagram), **back-transformed** into a normalized frequency.
-- The black average (1.6 ptw) is the **mean over the speaker-specific usage rates** (see @fig-lognormal-dotdiagram), i.e. over the back-transformed log usage rates.
+-   The grey average (1.4 ptw) is the **mean over the speaker-specific log usage rates** (see @fig-normal-dotdiagram), **back-transformed** into a normalized frequency.
+-   The black average (1.6 ptw) is the **mean over the speaker-specific usage rates** (see @fig-lognormal-dotdiagram), i.e. over the back-transformed log usage rates.
 
 The two averages represent two different measures of central tendency:
 
-- 1.6 ptw, in black, is the **mean usage rate** over the 250 speakers.
-- 1.4 ptw, in grey, is the **median usage rate** over the 250 speakers.
+-   1.6 ptw, in black, is the **mean usage rate** over the 250 speakers.
+-   1.4 ptw, in grey, is the **median usage rate** over the 250 speakers.
 
-In other words, upon back-transforming the fixed intercept in a random-intercept Poisson regression model, we obtain the median normalized frequency. 
+In other words, upon back-transforming the fixed intercept in a random-intercept Poisson regression model, we obtain the median normalized frequency.
 
 If we look at @fig-lognormal-dotdiagram, we note that the median (grey) arguably does a better job at locating the typical occurrence rate in the group of 250 speakers -- the mean (black) seems a bit too high, as most of the dots are below 1.6 ptw. This is consistent with the advice found in statistical textbooks: the median is often a better summary measure for skewed distributions.
-
 
 ##### Obtaining model-based estimates of the different average frequencies
 
@@ -531,8 +518,6 @@ avg_predictions(
   kable()
 ```
 
-
-
 To get (something close to) the **mean normalized frequencies** we calculated above, we can ask the function `avg_predictions()` to average predictions over the speakers in the sample. This means that the by-speaker random intercepts are incorporated into the model predictions. The model-based speaker intercepts are used to get a predicted normalized frequency for each speaker, and these are then averaged.
 
 ```{r}
@@ -549,15 +534,14 @@ avg_predictions(
 
 The result is not identical to the one we got above due to shrinkage: The speaker intercepts are partially pooled, and their variability is therefore smaller than implied by the random-intercept standard deviation.
 
-
 #### Comparison: Poisson random-intercept vs. negative binomial model
 
 We can now compare the two types of regression models in terms of (i) how they represent between-speaker variation and (ii) the kind of frequency estimates they return.
 
 The two models describe the variation among speakers using different probability distributions. These are compared in @fig-comparison, which shows that they provide quite similar, though not identical, representations of the distribution of speaker-specific normalized frequencies.
 
-- The negative binomial model uses the *gamma distribution* to express between-speaker variation; it is therefore also referred to as a *Poisson-gamma mixture model*.
-- Poisson regression with random intercepts uses the *lognormal distribution* to express between-speaker variation; it is therefore also referred to as a *Poisson-lognormal mixture model*.
+-   The negative binomial model uses the *gamma distribution* to express between-speaker variation; it is therefore also referred to as a *Poisson-gamma mixture model*.
+-   Poisson regression with random intercepts uses the *lognormal distribution* to express between-speaker variation; it is therefore also referred to as a *Poisson-lognormal mixture model*.
 
 ```{r}
 #| fig-width: 4
@@ -608,8 +592,8 @@ dev.off()
 
 As for the model predictions, the intercepts in the two models represent different average frequencies:
 
-- The intercept in a negative binomial model represents the *mean normalized frequency* 
-- The intercept in the Poisson random-intercept model represents the *median normalized frequency* 
+-   The intercept in a negative binomial model represents the *mean normalized frequency*
+-   The intercept in the Poisson random-intercept model represents the *median normalized frequency*
 
 The following code therefore returns different frequency estimates:
 
@@ -626,13 +610,3 @@ round(
 #### Summary
 
 The Poisson regression model with random intercepts is a strategy for modeling clustered frequency data. This model captures text-to-text (or speaker-to-speaker) variation in the occurrence rate (i.e. normalized frequency) of interest using a lognormal distribution. It is therefore also referred to as a Poisson-lognormal mixture model. This model is capable of producing two types of frequency estimates: the median normalized frequency across texts, and the mean normalized frequency across texts. It is important to recognize the difference between these measures, as they represent alternative ways of expressing the typical (or "average") occurrence rate in the population of interest. Further, it allows us to make sense of model-based predictions and how they may differ from those produced by other count regression models (such as the negative binomial model).
-
-
-
-
-
-
-
-
-
-
