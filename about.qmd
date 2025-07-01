@@ -57,14 +57,17 @@ Workshops
 
 #### Talks
 
+- 2025 Case-control down-sampling in corpus research. CL2025, Birmingham, UK.
+- 2025 Raising the bar: An analysis of bar chart usage in corpus linguistics. CL2025, Birmingham, UK.
+- 2025 Per corpora et diagrammata ad astra: Data visualization in corpus linguistics. Plenary at ICAME 46, Vilnius, Lithuania.
 -	2024 The morpho-syntax of Scottish Standard English: Questionnaire-based insights. BICLCE 10, Alicante, Spain. (with Ole Schützler and Manfred Krug)
 -	2024 Down-sampling strategies in corpus phonology. BICLCE 10, Alicante, Spain.
 -	2024 Ordinal response scales: Psychometric grounding for design and analysis. BICLCE 10, Alicante, Spain.
 -	2024 Sensitivity of dispersion measures to distributional patterns and corpus design. ICAME45, Vigo, Spain. (with Jesse Egbert)
 -	2024 Regression and random forests: Synergies for variationist corpus research. ICAME45, Vigo, Spain. (with Jason Grafmiller and Raquel Romasanta)
 -	2023 Down-sampling from hierarchically structured corpus data. FJUEL 11, Erlangen, Germany.
--	2023 Text-level measures of lexical dispersion: Robustness analysis. Corpus Linguistics 2023. Lancaster, UK.
--	2023 Down-sampling from hierarchically structured corpus data: The case of third-person verb inflection in Early Modern English. Corpus Linguistics 2023. Lancaster, UK.
+-	2023 Text-level measures of lexical dispersion: Robustness analysis. CL2023. Lancaster, UK.
+-	2023 Down-sampling from hierarchically structured corpus data: The case of third-person verb inflection in Early Modern English. CL2023. Lancaster, UK.
 -	2022 Seeing the wood for the trees: Predictive margins for random forests. ICAME 43, London, UK. (with Jason Grafmiller)
 -	2022 Keyword analysis: Progress through regression. ICAME 43, London, UK.
 -	2019 The English comparative alternation revisited: A fresh look at theory and data. ICAME 40, Neuchatel, Switzerland. (with Stefan Hartmann)
