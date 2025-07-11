@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>2&nbsp; Research objectives – Modeling variationist corpus data: A mixed-effects framework</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./02_statistical_inference.html" rel="next">
+<link href="./00_intro.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar floating slimcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./01_research_objectives.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Research objectives</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Modeling variationist corpus data: A mixed-effects framework</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./00_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01_research_objectives.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Research objectives</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_statistical_inference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Statistical inferences</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03_data_structure.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Data structure</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04_statistical_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Statistical models: Integration of research objectives and data structure</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05_model_specification.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Model specification</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06_token_level_predictors.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Token-level predictors</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07_foregrounding_variation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Foregrounding variation</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08_modeling_tactics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Modeling tactics</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09_model_predictions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Model summary: Adjusted predictions and comparisons</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10_case_study_I.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Case study I: The comparative alternation</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11_case_study_II.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Case study II: The genitive alternation</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#sec-inferences" id="toc-sec-inferences" class="nav-link active" data-scroll-target="#sec-inferences"><span class="header-section-number">2.1</span> Inferences from data</a>
+  <ul class="collapse">
+  <li><a href="#type-of-inference" id="toc-type-of-inference" class="nav-link" data-scroll-target="#type-of-inference"><span class="header-section-number">2.1.1</span> Type of inference</a></li>
+  <li><a href="#scope-of-inference" id="toc-scope-of-inference" class="nav-link" data-scroll-target="#scope-of-inference"><span class="header-section-number">2.1.2</span> Scope of inference</a></li>
+  <li><a href="#type-and-scope-of-inference-co-occurrence-patterns" id="toc-type-and-scope-of-inference-co-occurrence-patterns" class="nav-link" data-scroll-target="#type-and-scope-of-inference-co-occurrence-patterns"><span class="header-section-number">2.1.3</span> Type and scope of inference: Co-occurrence patterns</a></li>
+  <li><a href="#type-and-scope-of-inference-literature" id="toc-type-and-scope-of-inference-literature" class="nav-link" data-scroll-target="#type-and-scope-of-inference-literature"><span class="header-section-number">2.1.4</span> Type and scope of inference: Literature</a></li>
+  <li><a href="#implications-for-language-data-analyis" id="toc-implications-for-language-data-analyis" class="nav-link" data-scroll-target="#implications-for-language-data-analyis"><span class="header-section-number">2.1.5</span> Implications for language data analyis</a></li>
+  <li><a href="#statistical-vs.-extra-statistical-reasoning" id="toc-statistical-vs.-extra-statistical-reasoning" class="nav-link" data-scroll-target="#statistical-vs.-extra-statistical-reasoning"><span class="header-section-number">2.1.6</span> Statistical vs.&nbsp;extra-statistical reasoning</a></li>
+  </ul></li>
+  <li><a href="#sec-generalization" id="toc-sec-generalization" class="nav-link" data-scroll-target="#sec-generalization"><span class="header-section-number">2.2</span> Generalization</a>
+  <ul class="collapse">
+  <li><a href="#generality-of-what" id="toc-generality-of-what" class="nav-link" data-scroll-target="#generality-of-what"><span class="header-section-number">2.2.1</span> Generality of what?</a></li>
+  <li><a href="#levels-of-generality" id="toc-levels-of-generality" class="nav-link" data-scroll-target="#levels-of-generality"><span class="header-section-number">2.2.2</span> Levels of generality</a></li>
+  <li><a href="#generalizability-theory" id="toc-generalizability-theory" class="nav-link" data-scroll-target="#generalizability-theory"><span class="header-section-number">2.2.3</span> Generalizability Theory</a></li>
+  </ul></li>
+  <li><a href="#sec-severe-testing" id="toc-sec-severe-testing" class="nav-link" data-scroll-target="#sec-severe-testing"><span class="header-section-number">2.3</span> Statistical inference as severe testing</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span id="sec-research-objectives" class="quarto-section-identifier"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Research objectives</span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>In this chapter, we will take a look at objectives of empirical work. <a href="#sec-inferences" class="quarto-xref"><span>Section 2.1</span></a> will be concerned with the kinds of inferences that are often made when using data for scientific purposes. We will present a classification of inferences along two dimensions. This delineation gives us a better idea of the role played by statistical inferences in research work. It also serves to inform our discussion of statistical modeling and model specification in later chapters. <a href="#sec-generalization" class="quarto-xref"><span>Section 2.2</span></a> then considers the topic of generalization.</p>
+<section id="sec-inferences" class="level2 page-columns page-full" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="sec-inferences"><span class="header-section-number">2.1</span> Inferences from data</h2>
+<p>An important part of research work involves the use of empirical observation to make inferences. According to Merriam-Webster, the word <em>inference</em> denotes “the act or process of reaching a conclusion about something from known facts or evidence”. In the following, we will distinguish between different kinds of conclusions that are often made by researchers. The kind of inferences that are made depend on the objectives of the researcher.</p>
+<p>For our present purposes, we will classify inferences along two dimensions, which are shown graphically in Figure <a href="#fig-scientific-objectives" class="quarto-xref">Figure&nbsp;<span>2.1</span></a>. The horizontal dimension is concerned with the <em>type of inference</em>, largely distinguishing between the numerical description of the observed data (descriptive inference) and the substantive explanation of patterns in the data (analytic inference). The vertical dimension marks the <em>scope of inference</em>, the breadth of validity that is attached to a conclusion – here, we may distinguish between broad and narrow inferences. The endpoints of each continuum list related concepts and ideas. We now take a closer look at the two dimensions.</p>
+<div class="cell page-columns page-full">
+<div class="cell-output-display page-columns page-full">
+<div id="fig-scientific-objectives" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-scientific-objectives-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="01_research_objectives_files/figure-html/fig-scientific-objectives-1.png" class="img-fluid figure-img" width="432">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-scientific-objectives-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.1: Classification of inferences, Type of inference (vertical dimension) and scope of inference (horizontal dimension). The diagram is adapted from <span class="citation" data-cites="Anderson2001">N. H. Anderson (<a href="references.html#ref-Anderson2001" role="doc-biblioref">2001, 9</a>)</span> and complemented with terminology used by different authors to refer to similar notions (see text for details).
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<section id="type-of-inference" class="level3" data-number="2.1.1">
+<h3 data-number="2.1.1" class="anchored" data-anchor-id="type-of-inference"><span class="header-section-number">2.1.1</span> Type of inference</h3>
+<details>
+<summary>
+…
+</summary>
+<ul>
+<li>Language data (Evert 2006; Baroni &amp; Evert 2009)</li>
+<li>Descriptive inference: Extensional view of language – “language as an infinite body of text, comprising all the utterances that have ever been made or will ever be made by the relevant group of speakers” (Evert 2006: 179)</li>
+<li>Analytic inference: Intensional view of language – Competence of human speakers, the properties of language as a formal system</li>
+<li>E-language vs.&nbsp;I-language (Chomsky 1986: Knowledge of language: Its nature, origin, and use.)</li>
+<li>extrastatistical inference: Wilk &amp; Kempthorne 1955 (cited in Anderson 1961: 312)</li>
+</ul>
+</details>
+<p>The distinction along the vertical dimension contrasts two fundamentally different types of conclusions that can be made based on data. The first kind, which we refer to as <em>descriptive inference</em>, is a statement about some quantity of interest (e.g.&nbsp;a percentage or some other average score). This type of inference focuses on the outcome quantity which may, in certain practical applications, be of direct interest. Descriptive inferences are typical of applied research, where findings often inform real-world decisions and serve as a basis for action. A central concern is therefore the predictive accuracy of the result at hand, i.e.&nbsp;whether we can make sufficiently accurate predictions for unobserved cases or future outcomes. Descriptive inference can rely on statistical theory – tools such as <em>p</em>-values and confidence intervals are statistical uncertainty statements about the inferred or predicted outcome quantity.</p>
+<p>The second kind of conclusion we can make based on data is an <em>analytic inference</em>. It is not primarily concerned with numbers, but rather with their conceptual interpretation and substantive meaning. We seek a deeper understanding of patterns in the data, and try to offer an explanation for our observations. Interest is therefore in the kind of process or mechanism that generated the data – <em>why</em> these patterns emerge and <em>how</em> they came about. This kind of conclusion, which is necessarily tentative, reflects our scientific interest in the underlying system, or forces, that are mirrored in the observed data. Natural language use – as documented in corpora – reflects language-internal forces (e.g.&nbsp;cognitive constraints, language universals) and language-external ones (e.g.&nbsp;social factors). Analytic inference is therefore concerned with explanation or causation rather than description or prediction, and is typical for basic research with a theoretical orientation. Depending on the research context, the notion of a process may refer to a mechanism or operation in the real world (as in industry) or in the conceptual, theoretical world (such as cognitive constraints). For analytic inferences, statistical theory is of no direct help. Rather, such inferences are extra-statistical – they rely on knowledge of the subject matter.</p>
+<p>Let us consider some linguistic examples of each type. Descriptive inference, with its focus on a measured quantity and (possibly) its predictive accuracy, is typical of certain forms of language data work. For instance, descriptive grammars or dictionaries may include quantitative information on certain questions of language use. Examples are (i) the usage rate of coordinators in initial position <span class="citation" data-cites="Biber_etal1999">(<a href="references.html#ref-Biber_etal1999" role="doc-biblioref">Biber et al. 1999, 84</a>)</span>, (ii) the positional distribution of adverbials <span class="citation" data-cites="Quirk_etal1985">(<a href="references.html#ref-Quirk_etal1985" role="doc-biblioref">Quirk et al. 1985, 501</a>)</span>, and (iii) the pronunciation of words (e.g.&nbsp;<em>schedule</em>) across varieties and age groups <span class="citation" data-cites="Wells2003">(<a href="references.html#ref-Wells2003" role="doc-biblioref">Wells 2008, 717</a>)</span>. Other areas that rely on descriptive inference include applied linguistics, e.g.&nbsp;the comparative evaluation of teaching methods, and certain domains of natural language processing, e.g.&nbsp;the development of automatic taggers or translation tools. In all these applications, the interest is restricted to the outcome quantity (e.g., for <em>schedule</em>, the preference of /sk-/ /∫-/, expressed as a percentage) or the predicted outcome (e.g.&nbsp;the most likely part-of-speech tag for a given form).</p>
+<p>Analytic inference, on the other hand, is typical of work with a theoretical orientation. Interest does not primarily center on the specific outcome quantity, but on a deeper understanding of the patterns we see. The focus is on linguistic interpretation. For instance, we may be interested in working towards an explanation for distributional patterns of variants, i.e.&nbsp;different ways of saying the same thing. Examples are the dative, genitive, or comparative alternation in English. We might be interested in whether certain contextual constraints, such as constituent length or animacy, may be operative and incline the speaker towards one variant over the other. Further examples include the psycholinguistic notions of frequency effects (e.g.&nbsp;type and token counts as clues to the differential productivity of morphological patterns) and complexity effects (e.g.&nbsp;the use of support strategies to alleviate working memory load).</p>
+<p>The distinction between descriptive and analytic inference serves to highlight two important points for empirical research. The first concerns their discordant nature – they are very different research goals. Obviously, both have their merits, and it would seem that, in certain research settings, we would like to pursue both objectives. As <span class="citation" data-cites="Anderson2001">N. H. Anderson (<a href="references.html#ref-Anderson2001" role="doc-biblioref">2001</a>)</span> [p.&nbsp;10-11] notes, however, descriptive and analytic inferences require different strategies in study design and data analysis. Analytic inferences rely on restriction and simplification strategies, to isolate the process of interest. A typical example is an experimental study eliciting responses under tightly controlled, artificial circumstances. Descriptive inference, on the other hand, aims for “realistic” observation that is representative of the real-world settings to which research findings are to be applied. The important point is that aiming for both types of inference requires the researcher to make compromises, which may lead to fuzzy inferences. As noted by <span class="citation" data-cites="Anderson2001">N. H. Anderson (<a href="references.html#ref-Anderson2001" role="doc-biblioref">2001, 10</a>)</span>, “[a]ttempts to achieve both goals are likely to achieve neither” (see also <span class="citation" data-cites="Sidman1960">Sidman (<a href="references.html#ref-Sidman1960" role="doc-biblioref">1960</a>)</span>, p.&nbsp;194]. The second essential point that is clarified by the distinction between descriptive and analytic inferences is the fact that they rely on very different sources of information and reasoning aids. While descriptive inferences can be formed using statistical procedures, the kind of analytic inferences that are typical of the cognitive and behavioral sciences rest almost entirely on extra-statistical grounds. There are no statistical tests or procedures that allow us to attach uncertainty intervals to our inferences. These kinds of research conclusions hinge on experience and judgement – they are backed by knowledge of the subject-matter and research area.</p>
+<p><em>Corpus data and analytic inferences</em></p>
+<p>The question of whether corpus data can be used to make inferences on speakers’ underlying grammars has received some attention in the literature <span class="citation" data-cites="Arppe_etal2010 Baayen_Arppe2011 Divjak_etal2016 Divjak_Arppe2013">(e.g. <a href="references.html#ref-Arppe_etal2010" role="doc-biblioref">Arppe et al. 2010</a>; <a href="references.html#ref-Baayen_Arppe2011" role="doc-biblioref">Baayen and Arppe 2011</a>; <a href="references.html#ref-Divjak_etal2016" role="doc-biblioref">Divjak, Dąbrowska, and Arppe 2016</a>; <a href="references.html#ref-Divjak_Arppe2013" role="doc-biblioref">Divjak and Arppe 2013</a>)</span></p>
+<p>In variationist corpus analyses, regression analyses produce a set of probabilistic weights that attach to the predictors studied.[^We will use the label <em>predictor</em> or <em>factor</em> to refer to a variable that is assumed to show an association with the outcome. A predictor or factor can be continuous or categorical. Our usage of the label “factor” contrasts with the terminology used in variable rule analysis, where a categorical factor (or predictor) is referred to as a “factor group”, the label “factor” being used to denote the individual categories. In accordance with standard statistical terminology, these categories will here be referred to as predictor or factor <em>levels</em> .] A key question for linguistic interpretation is what meaning should be given to these probabilistic weights. We may contrast two extreme views on the matter: the naïve and the skeptical view. First, the naïve view, understands the set of probabilistic weights as a direct reflection of the underlying grammar. Regression coefficients are then assumed to have directs analogues in the mind. This reification of regression coefficients was perhaps characteristic of early variationist research <span class="citation" data-cites="Cedergren_Sankoff1974">(e.g. <a href="references.html#ref-Cedergren_Sankoff1974" role="doc-biblioref">Cedergren and Sankoff 1974</a>)</span>. It was criticized early on by <span class="citation" data-cites="Bickerton1971">Bickerton (<a href="references.html#ref-Bickerton1971" role="doc-biblioref">1971, 461</a>)</span>, who noted the need to name a “recognizable mental process”. This criticism was readily adopted by variationists. <span class="citation" data-cites="Sankoff1978">Sankoff (<a href="references.html#ref-Sankoff1978" role="doc-biblioref">1978, 235–36</a>)</span> concedes that “the regularities and tendencies modeled by these probabilities are of different kinds and come from different sources”, and that the probabilistic weights are “simply quantitative generalizations”, “analytical abstractions rather than components of language” <span class="citation" data-cites="Sankoff1978">(<a href="references.html#ref-Sankoff1978" role="doc-biblioref">Sankoff 1978, 235</a>)</span>. Likewise, <span class="citation" data-cites="Sankoff_Labov1979">Sankoff and Labov (<a href="references.html#ref-Sankoff_Labov1979" role="doc-biblioref">1979, 217</a>)</span> state: “we do not make the error of confusing the set of rules we write with the grammatical processes that people use.”</p>
+<p>The skeptical perspective, on the other hand, questions the cognitive plausibility of these probabilistic weights, on the grounds that the way they are derived from data is at odds with principles of human cognition and learning.</p>
+<details>
+<summary>
+…
+</summary>
+<ul>
+<li>“how to understand the statistical results from a cognitive perspective” <span class="citation" data-cites="Baayen_Arppe2011">(<a href="references.html#ref-Baayen_Arppe2011" role="doc-biblioref">Baayen and Arppe 2011, 8</a>)</span></li>
+<li>characteristics of mental grammars</li>
+<li>linguistic cognitive processes</li>
+<li>linguistic knowledge that is represented in the brain</li>
+<li>“characteristics observable in language usage reflect characteristics of the mental processes and structures yielding usage, even though we do not know the exact form of these mental representations”</li>
+<li>posited underlying language system governing usage</li>
+<li><span class="citation" data-cites="Divjak_Arppe2013">Divjak and Arppe (<a href="references.html#ref-Divjak_Arppe2013" role="doc-biblioref">2013, 229–30, 235–37</a>)</span></li>
+<li><span class="citation" data-cites="Klavan_Divjak2016">Klavan and Divjak (<a href="references.html#ref-Klavan_Divjak2016" role="doc-biblioref">2016</a>)</span> consider the cognitive plausibility of corpus-based models. They consider a model to be cognitively plausible if it shows the same predictive ability as humans. This is a very global assessment and fails to consider deeper questions, such as whether the prediction weights bear any realism.</li>
+<li>Uniformity of mental grammars? <span class="citation" data-cites="Divjak_etal2016">Divjak, Dąbrowska, and Arppe (<a href="references.html#ref-Divjak_etal2016" role="doc-biblioref">2016, 27</a>)</span> note that due the characteristic multicollinearity of variables (and resulting redundancy), speakers may in fact have internalized different grammars that nevertheless arrive at the same production behavior. (some references to be found there)</li>
+</ul>
+</details>
+</section>
+<section id="scope-of-inference" class="level3 page-columns page-full" data-number="2.1.2">
+<h3 data-number="2.1.2" class="anchored" data-anchor-id="scope-of-inference"><span class="header-section-number">2.1.2</span> Scope of inference</h3>
+<p>A second dimension along which inferences vary is their scope, which refers their range of validity. Studies are typically based on a limited set of entities, i.e.&nbsp;a sample. The basic distinction here is whether interest is restricted to the sample of entities at hand, or whether the aim is to extend the breadth of interpretation beyond the cases at hand. The scope of inference, sometimes referred to as th <em>inference space</em> <span class="citation" data-cites="Anderson_McLean1974">(<a href="references.html#ref-Anderson_McLean1974" role="doc-biblioref">V. E. Anderson and McLean 1974, 57</a>)</span> Accordingly, we may distinguish between <em>narrow inference</em> and <em>broad inference</em><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>. The label “entities” can refer to different, sometimes co-occurring classes of units in our study – speakers/texts, words, languages, varieties, or (micro)genres. Within a single study, the intended scope of inference may therefore vary for different classes of units.</p>
+<div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;We adopt these terms from <span class="citation" data-cites="McLean_etal1991 Stroup2013">(<a href="references.html#ref-McLean_etal1991" role="doc-biblioref">McLean, Sanders, and Stroup 1991</a>; see also <a href="references.html#ref-Stroup2013" role="doc-biblioref">Stroup 2013, 70, 90–99</a>)</span></p></div></div><p>We will use the term <em>narrow inference</em> to refer to situations where inferences are made only concerning the set of entities studied. Thus, we could decide to restrict our statements to the particular set of genres represented in our data, to the selection of words we happened to obtain, or even to the specific set of individuals we observed. Our statistical conclusions would then be specific to this narrow set. The entities that form the target of narrow inference assume a special status, since our deliberate restriction in scope can sharpen our knowledge about these individual units. A focus on individual speakers (or writers) corresponds to an idiographic research perspective <span class="citation" data-cites="Windelband1894 Allport1937 Thomae1999">Windelband (<a href="references.html#ref-Windelband1998" role="doc-biblioref">1998</a>)</span>. Since language resides in the individual speaker’s mind, there is clearly some merit to this approach to linguistic study. From a statistical perspective, the modesty of our inferential ambitions is awarded with more accurate estimates, i.e.&nbsp;narrower uncertainty bounds around our key quantities.</p>
+<p>The term <em>broad inference</em>, on the other hand, will be used to refer to situations where we use our sample as a stepping stone to make statements about the populations of entities that this sample represents. We then make generalizations based on our sample data. Questions of external validity then arise – that is, to what extent can we extrapolate these findings to unobserved entities. The individual entities are then used to form summary measures (such as averages), which are then used as estimates of population features. This entails a shift from an idiographic to a nomothetic perspective <span class="citation" data-cites="Windelband1894">Windelband (<a href="references.html#ref-Windelband1998" role="doc-biblioref">1998</a>)</span>, a more general level of description, which averages over individual and unique entities. Statistical theory offers tools to compute and express the additional uncertainty resulting from the extrapolation to unobserved entities. However, the adequacy of these methods hinges on certain requirements. Thus, statistical theory only offers guarantees of adequate performance if the sample of entities at hand is a random sample from the underlying population. Since this is rarely the case in everyday research, broad inference from non-random samples is to some (perhaps a considerable) extent extra-statistical and therefore relies on knowledge about the research area.</p>
+<p>The distinction between broad and narrow inference highlights two aspects of empirical research. First, how wide to span the inference space is a decision made by the researcher. Broad inference is an optional move: We can deliberately restrict the intended level of generality of our research findings. This may be a good call if the data at hand do not offer the type and/or amount of information that is necessary to derive adequate uncertainty bounds for broad-inference estimates. Thus, in sparse data settings, broad inference yields but a very blurry picture of generalized patterns, perhaps too blurry to be of any use. In other settings the data may not include information about certain sources of variability that would be needed to determine the uncertainty surrounding our statistical projections. Sometimes, then, the data provide a weak or unreliable inductive base for broad inference, which would prompt a circumspect researcher to backtrack and rely on narrow-inference estimates. It is also not difficult to imagine settings where both types of estimates may be combined. The second aspect of empirical research that is highlighted by the inference space is the difference between statistical and extra-statistical sources of information for drawing inferences.</p>
+</section>
+<section id="type-and-scope-of-inference-co-occurrence-patterns" class="level3 page-columns page-full" data-number="2.1.3">
+<h3 data-number="2.1.3" class="anchored" data-anchor-id="type-and-scope-of-inference-co-occurrence-patterns"><span class="header-section-number">2.1.3</span> Type and scope of inference: Co-occurrence patterns</h3>
+<p>There is a tendency for the type and scope of inference to show an association in particular research settings. Typical connections are shown in Figure <a href="#fig-scientific-objectives-cooccurrence" class="quarto-xref">Figure&nbsp;<span>2.2</span></a>). Basic research, with its purely scientific, theory-oriented approach aimed at understanding causal systems, shows a tendency to resort to narrow inference <span class="citation" data-cites="Mook1983 Cox1958">(<a href="references.html#ref-Mook1983" role="doc-biblioref">Mook 1983</a>; <a href="references.html#ref-Cox1958" role="doc-biblioref">Cox 1958, 10–11</a>)</span>. Methodologically, this research style relies on experimentation and randomization schemes for the isolation of causal forces. Applied research, on the other hand, serves as a basis for action or decisions in the real world. It shows a more pronounced interest in the representativeness of the observations under study and in the applicability of conclusions to new conditions and circumstances. Statistical techniques that feature prominently in this branch of science are survey sampling and random sampling schemes.</p>
+<div class="cell page-columns page-full">
+
+<div class="no-row-height column-margin column-container"><div class="cell-output-display">
+<div id="fig-scientific-objectives-cooccurrence" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-scientific-objectives-cooccurrence-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="01_research_objectives_files/figure-html/fig-scientific-objectives-cooccurrence-1.png" class="img-fluid figure-img" width="192">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig" id="fig-scientific-objectives-cooccurrence-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.2: Co-occurrence tendencies of type and scope of inference.}
+</figcaption>
+</figure>
+</div>
+</div></div></div>
+<ul>
+<li>See also <span class="citation" data-cites="Rabe-Hesketh_Skrondal2022">Rabe-Hesketh and Skrondal (<a href="references.html#ref-Rabe-Hesketh_Skrondal2022" role="doc-biblioref">2021</a>)</span>, p.&nbsp;100-102: In the survey-sampling literature, analytic inferences about the data-generating mechanism are referred to as <em>superpopulation inference</em> (or infinite population inference) since even an exhaustive sample still represents only a sample from the data-generating model. Descriptive inferences about finite population parameters only need to take into account sampling variability. Such inferences take into account design features and are therefore called <em>design-based inferences</em>. In contrast, <em>model-based inferences</em> target parameters of the data-generating mechanism. Note however, that the mechanism does not refer to a genuine scientific causal mechanism, rather a descriptive mechanism.</li>
+</ul>
+</section>
+<section id="type-and-scope-of-inference-literature" class="level3 page-columns page-full" data-number="2.1.4">
+<h3 data-number="2.1.4" class="anchored" data-anchor-id="type-and-scope-of-inference-literature"><span class="header-section-number">2.1.4</span> Type and scope of inference: Literature</h3>
+<p>Discussions of different types and scopes of inference appear in many places throughout the literature. Figure <a href="#fig-scientific-objectives" class="quarto-xref">Figure&nbsp;<span>2.1</span></a>) is adapted from <span class="citation" data-cites="Anderson2001">N. H. Anderson (<a href="references.html#ref-Anderson2001" role="doc-biblioref">2001, 9</a>)</span>. He refers to the illustration as a validity diagram and labels the vertical ends “outcome” and “process”, and the horizontal ends “internal” and “external”. This distinction is helpful since it distinguishes two conceptually distinct dimensions, which are sometimes mixed to varying degrees by other writers.</p>
+<p>Thus, in the domain of industrial experimentation and quality control, Deming <span class="citation" data-cites="Deming1950">Deming (<a href="references.html#ref-Deming1975" role="doc-biblioref">1975</a>)</span> introduced the distinction between <em>enumerative</em> and <em>analytic</em> studies, the vertical dimension in Figure <a href="#fig-scientific-objectives" class="quarto-xref">Figure&nbsp;<span>2.1</span></a>).<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> This distinction was formulated with applied contexts in mind, where research findings serve as a basis for action – in the words of Mook <span class="citation" data-cites="Mook1983">(<a href="references.html#ref-Mook1983" role="doc-biblioref">1983, 380</a>)</span> “a real-life setting in which one wants to know what to do”. Examples are medicine, public service and industry. A criterion that helps distinguish between enumerative and analytic tasks is the notion of a 100% sample <span class="citation" data-cites="Deming1975">(<a href="references.html#ref-Deming1975" role="doc-biblioref">Deming 1975, 147</a>)</span>. If we were able to do an exhaustive analysis of the population of interest, we would have the perfect state of information about the population. If our interest were, instead, in a process that produced certain patterns in the data (and the population), our knowledge of this process would still be incomplete. Deming <span class="citation" data-cites="Deming1950">Deming (<a href="references.html#ref-Deming1975" role="doc-biblioref">1975</a>)</span> does not distinguish between internal and external validity; rather, the focus is on applications where the aim is to generalize <span class="citation" data-cites="Gitlow_etal1989">(see also <a href="references.html#ref-Gitlow_etal1989" role="doc-biblioref">Gitlow et al. 1989</a>)</span>.</p>
+<div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;<span class="citation" data-cites="Hahn_Meeker1993">Hahn and Meeker (<a href="references.html#ref-Hahn_Meeker1993" role="doc-biblioref">1993</a>)</span>, p.&nbsp;4 take a broader view of analytic studies as research that “is <em>not</em> dealing with a finite, identifiable, unchanging collection of units, and, thus is concerned with a process, rather than a population”.</p></div></div><p>In the field of psychology, on the other hand, large parts of the discussion center on the distinction between a <em>process</em>-based and a <em>population</em>-based interpretation of statistical inference <span class="citation" data-cites="Mook1983">Frick (<a href="references.html#ref-Frick1998" role="doc-biblioref">1998</a>)</span>, again referring to the vertical dimension in Figure <a href="#fig-scientific-objectives" class="quarto-xref">Figure&nbsp;<span>2.1</span></a>). Here, analytical inferences (process model) are linked to questions of internal validity, whereas descriptive inference (population model) are intertwined with questions of external validity.</p>
+</section>
+<section id="implications-for-language-data-analyis" class="level3" data-number="2.1.5">
+<h3 data-number="2.1.5" class="anchored" data-anchor-id="implications-for-language-data-analyis"><span class="header-section-number">2.1.5</span> Implications for language data analyis</h3>
+<p>How do these settings differ from typical corpus-linguistic applications? Most corpus-based work is concerned with learning about language, its use and acquisition. That is, the interest is typically theoretical. Our findings do not inform real-world decisions. Rather, the data we collect serve to provide some insight into the workings of language. This is not to say that generalizability to a specific population is irrelevant. We do, however, need to think about which kind of generalization we wish to make.</p>
+<p>Observational studies fall in between the two poles <span class="citation" data-cites="Kish1987">(<a href="references.html#ref-Kish1987" role="doc-biblioref">Kish 1987, 20</a>)</span></p>
+</section>
+<section id="statistical-vs.-extra-statistical-reasoning" class="level3 page-columns page-full" data-number="2.1.6">
+<h3 data-number="2.1.6" class="anchored" data-anchor-id="statistical-vs.-extra-statistical-reasoning"><span class="header-section-number">2.1.6</span> Statistical vs.&nbsp;extra-statistical reasoning</h3>
+<p>We have just distinguished different kinds of inferences that research workers are often interested in making. Let us now summarize to which extent inferences can be made on statistical grounds.</p>
+<p>It turns out that statistics is relevant only for certain inferential tasks. Analytic inferences, for instance, are outside the purview of statistical methods. While quantitative tools may provide aids for the reasoned interpretation of data, there is no way of attaching statistical uncertainties to the truth value of a scientific explanation. Even experiments do not produce genuinely analytic inferences. They allow us to infer causal relations, which, however, remain at a descriptive level. A distinction is therefore sometimes made between causal description and causal explanation. In general, then, analytic inferences rest on subject-matter grounds.</p>
+<p>Descriptive inferences, on the other hand, can be made on statistical grounds. Narrow inferences are restricted to the set of conditions and contexts actually observed, and the data at hand therefore (usually) provide ample grounds for narrow descriptive inferences. In making broad inferences, on the other hand, we wish to extend our conclusions to unobserved settings and circumstances. The degree to which the data at hand can buttress these extrapolations cannot be answered on statistical grounds. It is a matter of judgement and hinges on our knowledge of the research area and the empirical experience we have accumulated <span class="citation" data-cites="Sidman1960 MacKay_Oldford2000">(<a href="references.html#ref-Sidman1960" role="doc-biblioref">Sidman 1960, 59</a>; <a href="references.html#ref-MacKay_Oldford2000" role="doc-biblioref">MacKay and Oldford 2000, 276</a>)</span>.</p>
+<div class="cell page-columns page-full">
+
+<div class="no-row-height column-margin column-container"><div class="cell-output-display">
+<div id="fig-scientific-objectives-extrastatistical" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-scientific-objectives-extrastatistical-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="01_research_objectives_files/figure-html/fig-scientific-objectives-extrastatistical-1.png" class="img-fluid figure-img" width="211">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig" id="fig-scientific-objectives-extrastatistical-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.3: Scope and type of inference: Statistical vs.&nbsp;extrastatistical reasoning.
+</figcaption>
+</figure>
+</div>
+</div></div></div>
+</section>
+</section>
+<section id="sec-generalization" class="level2 page-columns page-full" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="sec-generalization"><span class="header-section-number">2.2</span> Generalization</h2>
+<section id="generality-of-what" class="level3" data-number="2.2.1">
+<h3 data-number="2.2.1" class="anchored" data-anchor-id="generality-of-what"><span class="header-section-number">2.2.1</span> Generality of what?</h3>
+<p>from Sidman (1960: 46-47) - Which aspect of the data does one wish to test for generality? - With which features of the data are we particularly concerned? - Generality of what? - Which type of generality do we wish to determine? - Directionality of effect - Functional shape, shape of distribution - Quantitative values</p>
+<p>the current state of development of the science.</p>
+</section>
+<section id="levels-of-generality" class="level3 page-columns page-full" data-number="2.2.2">
+<h3 data-number="2.2.2" class="anchored" data-anchor-id="levels-of-generality"><span class="header-section-number">2.2.2</span> Levels of generality</h3>
+<p>Since generalizations can be made at different levels of descriptions and analysis, the distinction between broad and narrow inference can be made at different levels. Figure <a href="#fig-levels-of-generality-speakers" class="quarto-xref">Figure&nbsp;<span>2.4</span></a>) (adapted from <span class="citation" data-cites="Runyan1982">Runyan (<a href="references.html#ref-Runyan1982" role="doc-biblioref">1982, 7</a>)</span>) provides a sketch of certain layers of generality.</p>
+<p><em>Generalizations applying to specific individuals</em>. Let us start at the bottom by first considering the individual speaker. Thus, we may obtain a certain amount of spoken or written material produced by this individual. This excerpt is a sample from their language use, and may serve as a basis for inferences about the general patterns of language use, or the mental grammar, of this speaker. At this level of analysis, broad inference would target the linguistic system of this individual, from which we have observed a limited amount of output.</p>
+<div class="cell page-columns page-full">
+<div class="cell-output-display page-columns page-full">
+<div id="fig-levels-of-generality-speakers" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-levels-of-generality-speakers-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="01_research_objectives_files/figure-html/fig-levels-of-generality-speakers-1.png" class="img-fluid figure-img" width="432">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-levels-of-generality-speakers-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.4: Broad vs.&nbsp;narrow inference for speakers, speaker groups and communicative situations: Levels of generality. Adapted from <span class="citation" data-cites="Runyan1982">Runyan (<a href="references.html#ref-Runyan1982" role="doc-biblioref">1982, 7</a>)</span>.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><em>Group-specific generalizations</em>. At a higher level of analysis, we might be interested in the linguistic behavior of a particular socio-demographic subgroup, say, the speech of London teenagers. Let us assume we have data from 15 speakers. Broad inferences are generalizations to this speaker group, and the 15 individuals serve to inform our summary measures about this population, i.e.&nbsp;London teenagers in general. If we instead decide to restrict the generality of our statements to the 15 speakers at hand, this would constitute a shift to narrow inference.</p>
+<p><em>Language-specific generalizations</em>. Inferences may aim for even broader levels of validity, for instance a particular language. For Present-Day spoken British English, for instance, socio-demographic subgroups would then be considered as a sample, informing conclusions at the more general level. For written language use, on the other hand, individual genres could be considered as a sample of a larger population. Depending on the focus of our study, our interest may center on these broad inferences, i.e.&nbsp;average trends across subgroups or genres; however, our linguistic attention could also be focused on these lower-level units, in which case we would be interested in making narrow inferences.</p>
+<p><em>Universal generalizations</em>. We can pursue still broader generality by trying to identify language-universal features. Such generalizations across languages would concentrate on features common to all natural languages. These may result from shared functional-cognitive constraints, or, depending on the theoretical viewpoint adopted, innate architectures.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> At this highest level of linguistic generality, a sample consists of a set of languages, which inform our generalizations.</p>
+<div class="no-row-height column-margin column-container"><div id="fn3"><p><sup>3</sup>&nbsp;Note that the question of what gives rise to commonalities between languages are answered by analytic inferences.</p></div></div><p>As these examples illustrate, the scope of inference is relative; it depends on the descriptive level at which generalizations are advanced. Regularities may be found at each level, and our research objectives identify the tier at which (or to which) we wish to generalize. Lower-level units then usually form the sample that informs higher-level, broad-inference statements. The conceptual relationship between sample and population therefore surfaces at different elevations in Figure <a href="#fig-levels-of-generality-speakers" class="quarto-xref">Figure&nbsp;<span>2.4</span></a>), and the epistemological status of a given unit (i.e.&nbsp;grey box), depends on the linguistic question being asked. A specific language, for instance, may be a broad-inference target, or it could be considered as a unit of analysis that informs generalizations at a still broader level of inference.</p>
+<p>So far we have considered generality with regard to speakers, speaker groups, and communicative situations. The scope and levels of inference were oriented towards language-external units of description and analysis. A similar hierarchy may be stipulated for language-internal entities. Figure <a href="#fig-levels-of-generality-words" class="quarto-xref">Figure&nbsp;<span>2.5</span></a>) shows increasing levels of generality based on lexical units as the lowest level of generality. The ideas and relationship we have discussed for language-external tiers of generality directly apply to this language-internal system.</p>
+<div class="cell page-columns page-full">
+<div class="cell-output-display page-columns page-full">
+<div id="fig-levels-of-generality-words" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-levels-of-generality-words-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="01_research_objectives_files/figure-html/fig-levels-of-generality-words-1.png" class="img-fluid figure-img" width="432">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-levels-of-generality-words-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2.5: Broad vs.&nbsp;narrow inference for lexical structures: Levels of generality. Inspired by <span class="citation" data-cites="Runyan1982">Runyan (<a href="references.html#ref-Runyan1982" role="doc-biblioref">1982, 7</a>)</span>.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>To recapitulate, there are different levels at which identify regularities and advance generalizations. Two pyramidal constellations, with different altitudes of generality, were sketched: (i) a language-external one, resting on the individual speakers as the lowest-level units, and (ii) a language-internal one , with lexical units constituting the base of the hierarchy. As we move upwards, we extend the scope of inference. Moving the target of inference brings about changes in what exactly constitutes sample vs.&nbsp;population. The distinction between broad and narrow inference, then, is only meaningful if we are clear about the level of generality, both language-externally (Figure <a href="#fig-levels-of-generality-speakers" class="quarto-xref">Figure&nbsp;<span>2.4</span></a>)) and -internally (Figure <a href="#fig-levels-of-generality-words" class="quarto-xref">Figure&nbsp;<span>2.5</span></a>)).</p>
+<p>Evaluate Shadish et al.’s 4-step ladder of validity</p>
+</section>
+<section id="generalizability-theory" class="level3" data-number="2.2.3">
+<h3 data-number="2.2.3" class="anchored" data-anchor-id="generalizability-theory"><span class="header-section-number">2.2.3</span> Generalizability Theory</h3>
+<p>Some basic notions from generalizability theory will be helpful.</p>
+<ul>
+<li>Universe</li>
+<li>Facet</li>
+</ul>
+</section>
+</section>
+<section id="sec-severe-testing" class="level2 page-columns page-full" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="sec-severe-testing"><span class="header-section-number">2.3</span> Statistical inference as severe testing</h2>
+<ul>
+<li>Simple tools: If little or nothing has been done to rule out flaws in inferring a claim, then it has not passed a severe test.</li>
+<li>Probability as a measure of how capable methods are at uncovering and avoiding erroneous interpretations of data. That’s what it means to view statistical inference as severe testing.</li>
+<li>Claims may be probable, but terribly tested by the data at hand.</li>
+</ul>
+
+
+
+<div class="no-row-height column-margin column-container"><div class="">
+<p>Roland Schäfer is currently working on a statistics textbook for linguists revolving around the notion of severe testing.</p>
+</div></div><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
+<div id="ref-Allport1937" class="csl-entry" role="listitem">
+Allport, Gordon W. 1937. <em>Personality: <span>A</span> Psychological Interpretation</em>. New York: Henry Holt.
+</div>
+<div id="ref-Anderson2001" class="csl-entry" role="listitem">
+Anderson, Norman H. 2001. <em>Empirical Direction in Design and Analysis</em>. Mahwah, NJ: Lawrence Erlbaum.
+</div>
+<div id="ref-Anderson_McLean1974" class="csl-entry" role="listitem">
+Anderson, Virgil E., and Robert A. McLean. 1974. <em>Design of Experiments: A Realistic Approach</em>. New York: Marcel Dekker.
+</div>
+<div id="ref-Arppe_etal2010" class="csl-entry" role="listitem">
+Arppe, Antti, Gaëtanelle Gilquin, Dylan Glynn, Martin Hilpert, and Arne Zeschel. 2010. <span>“Cognitive <span>C</span>orpus <span>L</span>inguistics: <span>F</span>ive Points of Debate on Current Theory and Methodology.”</span> <em>Corpora</em> 5 (1): 1–27. <a href="https://doi.org/10.3366/E1749503210000341">https://doi.org/10.3366/E1749503210000341</a>.
+</div>
+<div id="ref-Baayen_Arppe2011" class="csl-entry" role="listitem">
+Baayen, R. Harald, and Antti Arppe. 2011. <span>“Statistical Classification and Principles of Human Learning.”</span> In <em>Proceedings of Quantitative Investigations in Theoretical Linguistics 4 (QITL-4)</em>, 8–11. Berlin: Humboldt-Universität zu Berlin. <a href="https://doi.org/10.1145/2858036.2858558">https://doi.org/10.1145/2858036.2858558</a>.
+</div>
+<div id="ref-Biber_etal1999" class="csl-entry" role="listitem">
+Biber, Douglas, Stig Johansson, Geoffrey Leech, Susan Conrad, and Edward Finegan. 1999. <em>Longman Grammar of Spoken and Written <span>English</span></em>. Harlow: Pearson Education.
+</div>
+<div id="ref-Bickerton1971" class="csl-entry" role="listitem">
+Bickerton, Derek. 1971. <span>“Inherent Variability and Variable Rules.”</span> <em>Foundations of Language</em> 7 (4): 457–92. <a href="http://www.jstor.org/stable/25000558">http://www.jstor.org/stable/25000558</a>.
+</div>
+<div id="ref-Cedergren_Sankoff1974" class="csl-entry" role="listitem">
+Cedergren, Henrietta J., and David Sankoff. 1974. <span>“Variable Rules: <span>P</span>erformance as a Statistical Reflection of Competence.”</span> <em>Language</em> 50 (2): 333–55. <a href="https://doi.org/10.2307/412441">https://doi.org/10.2307/412441</a>.
+</div>
+<div id="ref-Cox1958" class="csl-entry" role="listitem">
+Cox, David R. 1958. <em>Planning of Experiments</em>. New York: Wiley.
+</div>
+<div id="ref-Deming1950" class="csl-entry" role="listitem">
+Deming, W. Edwards. 1950. <em>Some Theory of Sampling</em>. New York: Wiley.
+</div>
+<div id="ref-Deming1953" class="csl-entry" role="listitem">
+———. 1953. <span>“On the Distinction Between Enumerative and Analytic Surveys.”</span> <em>Journal of the American Statistical Association</em> 48 (262): 244–55. <a href="https://doi.org/10.2307/2281285">https://doi.org/10.2307/2281285</a>.
+</div>
+<div id="ref-Deming1975" class="csl-entry" role="listitem">
+———. 1975. <span>“On Probability as a Basis for Action.”</span> <em>The American Statistician</em> 29 (4): 146–52. <a href="https://doi.org/10.2307/2683482">https://doi.org/10.2307/2683482</a>.
+</div>
+<div id="ref-Divjak_Arppe2013" class="csl-entry" role="listitem">
+Divjak, Dagmar, and Antti Arppe. 2013. <span>“Extracting Prototypes from Exemplars: <span>W</span>hat Can Corpus Data Tell Us about Concept Representation?”</span> <em>Cognitive Linguistics</em> 24 (2): 221–74. <a href="https://doi.org/10.1515/cog-2013-0008">https://doi.org/10.1515/cog-2013-0008</a>.
+</div>
+<div id="ref-Divjak_etal2016" class="csl-entry" role="listitem">
+Divjak, Dagmar, Ewa Dąbrowska, and Antti Arppe. 2016. <span>“Machine Meets Man: <span>E</span>valuating the Psychological Reality of Corpus-Based Probabilistic Models.”</span> <em>Cognitive Linguistics</em> 27 (1): 1–33. <a href="https://doi.org/10.1515/cog-2015-0101">https://doi.org/10.1515/cog-2015-0101</a>.
+</div>
+<div id="ref-Frick1998" class="csl-entry" role="listitem">
+Frick, Robert W. 1998. <span>“Interpreting Statistical Testing: Process and Propensity, Not Population and Random Sampling.”</span> <em>Behavior Research Methods: Instruments &amp; Computers</em> 30 (3): 527–35. <a href="https://doi.org/10.3758/BF03200686">https://doi.org/10.3758/BF03200686</a>.
+</div>
+<div id="ref-Gitlow_etal1989" class="csl-entry" role="listitem">
+Gitlow, Howard, Shelly Gitlow, Alan Oppenheim, and Rosa Oppenheim. 1989. <em>Tools and Methods for the Improvement of Quality</em>. Boston: Irwin.
+</div>
+<div id="ref-Hahn_Meeker1993" class="csl-entry" role="listitem">
+Hahn, Gerald J., and William Q. Meeker. 1993. <span>“Assumptions for Statistical Inference.”</span> <em>The American Statistician</em> 47 (1): 1–11. <a href="https://doi.org/10.2307/2684774">https://doi.org/10.2307/2684774</a>.
+</div>
+<div id="ref-Kish1987" class="csl-entry" role="listitem">
+Kish, Leslie. 1987. <em>Statistical Design for Research</em>. Hoboken, NJ: Wiley.
+</div>
+<div id="ref-Klavan_Divjak2016" class="csl-entry" role="listitem">
+Klavan, Jane, and Dagmar Divjak. 2016. <span>“The Cognitive Plausibility of Statistical Classification Models: <span>C</span>omparing Textual and Behavioral Evidence.”</span> <em>Folia Linguistica</em> 50 (2): 355–48. <a href="https://doi.org/10.1515/flin-2016-0014">https://doi.org/10.1515/flin-2016-0014</a>.
+</div>
+<div id="ref-MacKay_Oldford2000" class="csl-entry" role="listitem">
+MacKay, R. Jock, and R. Wayne Oldford. 2000. <span>“Scientific Method, Statistical Method and the Speed of Light.”</span> <em>Statistical Science</em> 15 (3): 254–78. <a href="https://doi.org/10.1214/ss/1009212817">https://doi.org/10.1214/ss/1009212817</a>.
+</div>
+<div id="ref-McLean_etal1991" class="csl-entry" role="listitem">
+McLean, Robert A., William L. Sanders, and Walter W. Stroup. 1991. <span>“A Unified Approach to Mixed Linear Models.”</span> <em>The American Statistician</em> 45 (1): 54–64. <a href="https://doi.org/10.2307/2685241">https://doi.org/10.2307/2685241</a>.
+</div>
+<div id="ref-Mook1983" class="csl-entry" role="listitem">
+Mook, Douglas G. 1983. <span>“In Defense of External Invalidity.”</span> <em>American Psychologist</em> 38 (4): 379–87. <a href="https://doi.org/10.1037/0003-066X.38.4.379">https://doi.org/10.1037/0003-066X.38.4.379</a>.
+</div>
+<div id="ref-Quirk_etal1985" class="csl-entry" role="listitem">
+Quirk, Randolph, Sidney Greenbaum, Geoffrey Leech, and Jan Svartvik. 1985. <em>A Comprehensive Grammar of the <span>English</span> Language</em>. London: Longman.
+</div>
+<div id="ref-Rabe-Hesketh_Skrondal2022" class="csl-entry" role="listitem">
+Rabe-Hesketh, Sophia, and Anders Skrondal. 2021. <em>Multilevel and Longitudinal Modeling Using <span>Stata</span></em>. College Station, TX: Stata Press.
+</div>
+<div id="ref-Runyan1982" class="csl-entry" role="listitem">
+Runyan, William M. 1982. <em>Life Histories and Psychobiography: <span>E</span>xplorations in Theory and Method</em>. New York: Oxford University Press.
+</div>
+<div id="ref-Sankoff1978" class="csl-entry" role="listitem">
+Sankoff, David. 1978. <span>“Probability and Linguistic Variation.”</span> <em>Synthese</em> 37 (2): 217–38. <a href="https://www.jstor.org/stable/20115257">https://www.jstor.org/stable/20115257</a>.
+</div>
+<div id="ref-Sankoff_Labov1979" class="csl-entry" role="listitem">
+Sankoff, David, and William Labov. 1979. <span>“On the Uses of Variable Rules.”</span> <em>Language in Society</em> 8 (2): 189–222. <a href="https://doi.org/10.1017/S0047404500007430">https://doi.org/10.1017/S0047404500007430</a>.
+</div>
+<div id="ref-Sidman1960" class="csl-entry" role="listitem">
+Sidman, Murray. 1960. <em>Tactics of Scientific Research: <span>E</span>valuating Experimental Data in Psychology</em>. New York: Basic Books.
+</div>
+<div id="ref-Sohn1992" class="csl-entry" role="listitem">
+Sohn, David. 1992. <span>“Knowledge in Psychological Science: That of Process or of Population?”</span> <em>The Journal of Psychology</em> 126 (1): 5–16. <a href="https://doi.org/10.1080/00223980.1992.10543336">https://doi.org/10.1080/00223980.1992.10543336</a>.
+</div>
+<div id="ref-Stroup2013" class="csl-entry" role="listitem">
+Stroup, Walter W. 2013. <em>Generalized Linear Mixed Models: <span>M</span>odern Concepts, Methods and Applications</em>. Boca Raton: CRC Press.
+</div>
+<div id="ref-Thomae1999" class="csl-entry" role="listitem">
+Thomae, Hans. 1999. <span>“The Nomothetic-Idiographic Issue: <span>S</span>ome Roots and Recent Trends.”</span> <em>International Journal of Group Tensions</em> 20 (1/2): 187–215. <a href="https://doi.org/10.1023/a:1021891506378">https://doi.org/10.1023/a:1021891506378</a>.
+</div>
+<div id="ref-Wells2003" class="csl-entry" role="listitem">
+Wells, John C. 2008. <em>Longman Pronunciation Dictionary</em>. Harlow: Pearson Longman.
+</div>
+<div id="ref-Windelband1894" class="csl-entry" role="listitem">
+Windelband, Wilhelm. 1894. <span>“Geschichte Und <span>N</span>aturwissenschaft.”</span> In <em>Rektoratsreden Der <span>U</span>niversität <span>S</span>trassburg</em>, 193–208. Strassburg: Heitz und Mündel. <a href="https://doi.org/10.11588/diglit.20767">https://doi.org/10.11588/diglit.20767</a>.
+</div>
+<div id="ref-Windelband1998" class="csl-entry" role="listitem">
+———. 1998. <span>“History and Natural Science.”</span> <em>Theory &amp; Psychology</em> 8 (1): 5–22. <a href="https://doi.org/10.1177/0959354398081001">https://doi.org/10.1177/0959354398081001</a>.
+</div>
+</div>
+</section>
+
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./00_intro.html" class="pagination-link" aria-label="Introduction">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./02_statistical_inference.html" class="pagination-link" aria-label="Statistical inferences">
+        <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Statistical inferences</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

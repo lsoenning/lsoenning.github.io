@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>4&nbsp; Data structure – Modeling variationist corpus data: A mixed-effects framework</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./04_statistical_models.html" rel="next">
+<link href="./02_statistical_inference.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar floating slimcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./03_data_structure.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Data structure</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Modeling variationist corpus data: A mixed-effects framework</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./00_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01_research_objectives.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Research objectives</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_statistical_inference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Statistical inferences</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03_data_structure.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Data structure</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04_statistical_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Statistical models: Integration of research objectives and data structure</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05_model_specification.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Model specification</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06_token_level_predictors.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Token-level predictors</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07_foregrounding_variation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Foregrounding variation</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08_modeling_tactics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Modeling tactics</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09_model_predictions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Model summary: Adjusted predictions and comparisons</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#the-structural-component" id="toc-the-structural-component" class="nav-link active" data-scroll-target="#the-structural-component"><span class="header-section-number">4.1</span> The structural component</a>
+  <ul class="collapse">
+  <li><a href="#clustered-data-structure-examples" id="toc-clustered-data-structure-examples" class="nav-link" data-scroll-target="#clustered-data-structure-examples"><span class="header-section-number">4.1.1</span> Clustered data structure: Examples</a></li>
+  <li><a href="#clustering-produces-higher-level-units" id="toc-clustering-produces-higher-level-units" class="nav-link" data-scroll-target="#clustering-produces-higher-level-units"><span class="header-section-number">4.1.2</span> Clustering produces higher-level units</a></li>
+  <li><a href="#clustered-data-structure-crossed-clustering" id="toc-clustered-data-structure-crossed-clustering" class="nav-link" data-scroll-target="#clustered-data-structure-crossed-clustering"><span class="header-section-number">4.1.3</span> Clustered data structure: Crossed clustering</a></li>
+  </ul></li>
+  <li><a href="#the-systematic-component" id="toc-the-systematic-component" class="nav-link" data-scroll-target="#the-systematic-component"><span class="header-section-number">4.2</span> The systematic component</a>
+  <ul class="collapse">
+  <li><a href="#different-units-of-analysis" id="toc-different-units-of-analysis" class="nav-link" data-scroll-target="#different-units-of-analysis"><span class="header-section-number">4.2.1</span> Different units of analysis</a></li>
+  <li><a href="#speakerswords-nested-factors" id="toc-speakerswords-nested-factors" class="nav-link" data-scroll-target="#speakerswords-nested-factors"><span class="header-section-number">4.2.2</span> Speakers/words: Nested factors</a></li>
+  <li><a href="#token-level-predictors-crossed-with-speakerword" id="toc-token-level-predictors-crossed-with-speakerword" class="nav-link" data-scroll-target="#token-level-predictors-crossed-with-speakerword"><span class="header-section-number">4.2.3</span> Token-level predictors: Crossed with Speaker/Word</a></li>
+  <li><a href="#level-2-predictors-in-cross-classified-clustering-crossing-relationships" id="toc-level-2-predictors-in-cross-classified-clustering-crossing-relationships" class="nav-link" data-scroll-target="#level-2-predictors-in-cross-classified-clustering-crossing-relationships"><span class="header-section-number">4.2.4</span> Level-2 predictors in cross-classified clustering: Crossing relationships</a></li>
+  </ul></li>
+  <li><a href="#data-structure-systematic-component" id="toc-data-structure-systematic-component" class="nav-link" data-scroll-target="#data-structure-systematic-component"><span class="header-section-number">4.3</span> Data structure: Descriptive statistics</a>
+  <ul class="collapse">
+  <li><a href="#structural-component" id="toc-structural-component" class="nav-link" data-scroll-target="#structural-component"><span class="header-section-number">4.3.1</span> Structural component</a></li>
+  <li><a href="#systematic-component" id="toc-systematic-component" class="nav-link" data-scroll-target="#systematic-component"><span class="header-section-number">4.3.2</span> Systematic component</a></li>
+  </ul></li>
+  <li><a href="#data-structure-terminology-across-literatures" id="toc-data-structure-terminology-across-literatures" class="nav-link" data-scroll-target="#data-structure-terminology-across-literatures"><span class="header-section-number">4.4</span> Data structure: Terminology across literatures</a></li>
+  <li><a href="#drawing-a-plot-plan-for-natural-language-data" id="toc-drawing-a-plot-plan-for-natural-language-data" class="nav-link" data-scroll-target="#drawing-a-plot-plan-for-natural-language-data"><span class="header-section-number">4.5</span> Drawing a plot plan for natural language data</a>
+  <ul class="collapse">
+  <li><a href="#step-1-map-the-structural-component" id="toc-step-1-map-the-structural-component" class="nav-link" data-scroll-target="#step-1-map-the-structural-component"><span class="header-section-number">4.5.1</span> Step 1: Map the structural component</a></li>
+  <li><a href="#step-2-determine-the-unit-of-analysis-for-each-predictor" id="toc-step-2-determine-the-unit-of-analysis-for-each-predictor" class="nav-link" data-scroll-target="#step-2-determine-the-unit-of-analysis-for-each-predictor"><span class="header-section-number">4.5.2</span> Step 2: Determine the unit of analysis for each predictor</a></li>
+  <li><a href="#step-3-sort-the-predictors-into-token-level-and-cluster-level-variables" id="toc-step-3-sort-the-predictors-into-token-level-and-cluster-level-variables" class="nav-link" data-scroll-target="#step-3-sort-the-predictors-into-token-level-and-cluster-level-variables"><span class="header-section-number">4.5.3</span> Step 3: Sort the predictors into token-level and cluster-level variables</a></li>
+  </ul></li>
+  <li><a href="#tools" id="toc-tools" class="nav-link" data-scroll-target="#tools"><span class="header-section-number">4.6</span> Tools</a>
+  <ul class="collapse">
+  <li><a href="#graphing-the-data-structure-using-r" id="toc-graphing-the-data-structure-using-r" class="nav-link" data-scroll-target="#graphing-the-data-structure-using-r"><span class="header-section-number">4.6.1</span> Graphing the data structure using R</a></li>
+  <li><a href="#the-structural-component-1" id="toc-the-structural-component-1" class="nav-link" data-scroll-target="#the-structural-component-1"><span class="header-section-number">4.6.2</span> The structural component</a></li>
+  <li><a href="#cluster-level-predictors" id="toc-cluster-level-predictors" class="nav-link" data-scroll-target="#cluster-level-predictors"><span class="header-section-number">4.6.3</span> Cluster-level predictors</a></li>
+  <li><a href="#token-level-predictors" id="toc-token-level-predictors" class="nav-link" data-scroll-target="#token-level-predictors"><span class="header-section-number">4.6.4</span> Token-level predictors</a></li>
+  </ul></li>
+  <li><a href="#natural-language-use" id="toc-natural-language-use" class="nav-link" data-scroll-target="#natural-language-use"><span class="header-section-number">4.7</span> Natural language use</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span id="sec-data-structure" class="quarto-section-identifier"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Data structure</span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>In this chapter, we will discuss aspects of data structure, with a view to features that may be considered typical for most types of corpus research. Much corpus-based work deals with data points, or corpus hits, that are annotated or classified along several dimensions, yielding analysis settings that include, in addition to the outcome quantity to be studied, multiple features that may (be expected to) show an association with the response variable. In such multivariate settings, We will group those variables accompanying the outcome into two components <span class="citation" data-cites="Welham_etal2014">(cf. <a href="references.html#ref-Welham_etal2014" role="doc-biblioref">Welham et al. 2014, 5</a>)</span>:</p>
+<ul>
+<li>The <em>systematic component</em> (also called <em>explanatory component</em>) includes variables that are of primary linguistic interest, and which we expect to show a (pre-specified) relationship with the outcome. We will refer to such variables as <em>predictor variables</em><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>.</li>
+<li>The <em>structural component</em> represents the way in which a data set is organized, beyond the systematic factors under study. This component identifies relevant units (e.g.&nbsp;lexical units or speakers), which add layers to the internal organization of a set of corpus hits. This structural feature is critical in corpus data analysis, and we will use the terms <em>data layout</em> and <em>data structure</em> to refer to this recurrent arrangement of corpus hits.</li>
+</ul>
+<div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;In the DoE literature, the terms <em>factor</em> or <em>treatment</em> are often used, along with <em>independent variable</em> or <em>explanatory variable</em>. We will make an effort to avoid such terms, since they imply a level of control that we do not exert in observational data settings.</p></div></div><p>This chapter starts with a closer look at the two components, and the structural relationships between them. This is followed by a section that draws terminological connections to other literatures. We will then illustrate how the knowledge about the structural and systematic component can be systematized into a plot plan of the data, an organized schematic overview that identifies the critical features of the data layout. In Chapter <a href="05_model_specification.html" class="quarto-xref"><span>Chapter 6</span></a>), we will see how this plot plan provides invaluable guidelines for regression modeling. The final section offers practical demonstration on how to use R to explore data layouts.</p>
+<section id="the-structural-component" class="level2 page-columns page-full" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="the-structural-component"><span class="header-section-number">4.1</span> The structural component</h2>
+<p>The first step in corpus-based work is to think carefully about the (prospective) structure of the data. We use the term <em>data structure</em> to refer to the underlying organization of observations (i.e.&nbsp;corpus hits) that exists prior to coding and classifying the data accoring to the variables of primary interest (the predictors, which are part of the systematic component). More specifically, the structural component may include two ways in which the individual observations in our set of data are grouped, or <em>clustered</em>: (i) they may stem from the same speaker or writer, i.e.&nbsp;the same <em>source</em>, and/or (ii) they may be grouped on lexical grounds, i.e.&nbsp;several tokens represent, or involve, the same lexical unit. In such cases, we say that there is <em>clustering</em> in the data. If a set of corpus hits can be arranged by speaker, for instance, we will refer to Speaker as a <em>clustering factor</em>, and to individual speakers as <em>clustering units</em>, or simply <em>units</em>. Clustering by source is a pervasive feature of corpus data. Whether we are also dealing with clustering by lexical unit depends on the linguistic structure or phenomenon we are studying. Both layout features of corpus data become more transparent by considering various examples of each.</p>
+<section id="clustered-data-structure-examples" class="level3 page-columns page-full" data-number="4.1.1">
+<h3 data-number="4.1.1" class="anchored" data-anchor-id="clustered-data-structure-examples"><span class="header-section-number">4.1.1</span> Clustered data structure: Examples</h3>
+<p>To illustrate typical structural features of natural language data, we first consider, as an illustrative example, the sociolinguistic variable (ING). Let us briefly consider this research context: Words ending in &lt;ing&gt; may be pronounced as /ɪŋ/ or /ɪn/. The latter variant instantiates what is referred to as <em>g</em>-dropping. The objective is to describe and understand under which circumstances speakers show <em>g</em>-dropping.</p>
+<p>Let’s assume we have compiled a corpus consisting of unstructured interviews with 66 speakers, with interviews varying in length. We search this corpus for relevant tokens, i.e.&nbsp;words ending in &lt;-ing&gt;. In total, we obtain 6314 instances. Our search returns multiple hits per speaker. <a href="#fig-ing-tokens-per-speaker" class="quarto-xref">Figure&nbsp;<span>4.1</span></a> shows distribution of token counts per speaker. Most informants contribute between about 70 and 150 tokens. This illustrates <em>clustering by source</em>: The 6314 observations that make up our data set can be arranged by Speaker.</p>
+<p>“The data have a two-level structure with tokens as units at level 1 and subjects as clusters at level 2.”</p>
+<div class="cell page-columns page-full">
+
+<div class="no-row-height column-margin column-container"><div class="cell-output-display">
+<div id="fig-ing-tokens-per-speaker" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ing-tokens-per-speaker-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="03_data_structure_files/figure-html/fig-ing-tokens-per-speaker-1.png" class="img-fluid figure-img" width="192">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig" id="fig-ing-tokens-per-speaker-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.1: Distribution of the number of tokens per Speaker; data from <span class="citation" data-cites="Forrest2017">Forrest (<a href="references.html#ref-Forrest2017" role="doc-biblioref">2017</a>)</span>.
+</figcaption>
+</figure>
+</div>
+</div></div></div>
+<p>The tokens we have extracted from our corpus can also be broken down by lexical unit; we will use the shorter label Item. We consider identical forms with different word classes as different words. Thus, there are 795 unique forms, but some belong to different word classes - for instance, <em>beginning</em> and <em>building</em> (verb or noun), and <em>demanding</em> and <em>entertaining</em> (verb and adjective). WIth this definition of “word”, we arrive at 1024 units. For the data at hand, the 6314 tokens in our data set are distributed very unevenly across these 0 items. <span class="quarto-unresolved-ref">?fig-ing-tokens-per-word</span>) shows the distribution. Among the high-frequency forms that stand out are <em>going</em> (386 tokens), <em>doing</em> (226 tokens), <em>being</em> (NA tokens), and <em>working</em> (NA tokens). Of the 0 words, 544 (i.e.&nbsp;%) only occur once in the corpus. Such items are often referred to as hapaxes (short for hapax legomena). This illustrates <em>clustering by lexical unit</em>: The 6314 observations that make up our data set can be grouped by Item.</p>
+<div class="cell page-columns page-full" data-cap-location="margin">
+<div class="cell-output-display page-columns page-full">
+<div id="fig-ing-tokens-per-item" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full" data-cap-location="margin">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-ing-tokens-per-item-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="page-columns page-full">
+<img src="03_data_structure_files/figure-html/fig-ing-tokens-per-item-1.png" class="img-fluid figure-img column-page-right" width="643">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig" id="fig-ing-tokens-per-item-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.2: Distribution of the number of tokens per Item; data from <span class="citation" data-cites="Forrest2017">Forrest (<a href="references.html#ref-Forrest2017" role="doc-biblioref">2017</a>)</span>.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Clustering by source almost always materializes in corpus data. Thus, the hits we extract from a corpus can usually be grouped according to source: We may have multiple observations per speaker (spoken corpus) or text (written corpus). The second way in which observations may be organized is by lexical unit. Whether this type of clustering will surface in our data depends on the linguistic structure we are studying. If the construction/phenomenon of interest has variable slots and is therefore instantiated by different words, then observations will be clustered by lexical unit. Examples are listed in Table @ref(tab-clustering-word-examples).</p>
+<div class="cell">
+<div class="cell-output-display">
+
+</div>
+</div>
+</section>
+<section id="clustering-produces-higher-level-units" class="level3 page-columns page-full" data-number="4.1.2">
+<h3 data-number="4.1.2" class="anchored" data-anchor-id="clustering-produces-higher-level-units"><span class="header-section-number">4.1.2</span> Clustering produces higher-level units</h3>
+<p>Whenever we have clustered (or hierarchical) data structures, we can identify <em>higher-level units</em> in our data. At the lowest level in our data, we have the individual corpus hits, i.e.&nbsp;the instances that we have extracted from the collection of texts. We will refer an observations at this lowest level as a <em>token</em>, and sometimes, for variety, as a <em>corpus hit</em>, or <em>observation</em>.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> Each token therefore occupies a single line in the concordance table.</p>
+<div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;In the literature on the design and analysis of experiments, a critical distinction is that between the unit of measurement and the experimental unit. The distinction is made based on the design employed and on the type of randomization (actually) implemented when running the experiment. In the survey sampling literature, the notion of a sampling unit plays a central role, and a distinction is made between primary and secondary sampling units.</p></div></div><p>In other literatures, what we refer to as tokens may be called “level-1 units” or “observations at level 1”. We will try to will use the term <em>token</em> consistently and reserve the label “unit” for higher-level collections of data points, i.e.&nbsp;speakers/writers and lexical units. Since they sit at a higher level in our data layout, they are sometimes referred to as <em>level-2 units</em>, or simply <em>groups</em> or <em>clusters</em>. We will usually try to use concrete labels for these units, i.e.&nbsp;<em>speakers</em> (or <em>texts</em>) and <em>words</em> or <em>types</em>. And use the term <em>unit</em> when talking about higher-level entities more generally. The hierarchical organization of the tokens in our data set means that tokens can be arranged into clusters, with clusters differing in size. When describing such data layouts, we will say that there are higher-level units in our data, and that tokens are <em>clustered</em> (by Speaker, or by Item).</p>
+<p>Due to the uncontrolled, observational nature of corpus data, it is typical for units to differ in size. This is true for both structural factors. The variability of token counts across speakers will depend mostly on corpus design – the number of tokens per speaker may vary, even considerably, depending on how much material a speaker or writer contributed to a corpus. We can sidestep highly uneven distributions by balancing the word count across speakers or texts at the stage of corpus compilation. Nevertheless, even if word counts are perfectly balanced, the number of relevant tokens for analysis will still show variation, since it also depends on how often a speaker/writer used the structure of interest. In general, then, we can only exert <em>some</em> control over the distribution of token counts over speakers. Usually, uneven tallies across speakers are a nuisance and of little substantive interest.</p>
+<p>The distribution of token counts across words, on the other hand, will almost certainly vary markedly. There are likely to be a handful of high-frequency units (or types), accounting for the bulk of the data, and very many low-frequency words, some (perhaps a substantial proportion) of which appear only once in our data. Such skewed distributions are a typical footprint of natural language data – the frequency profile then resembles a Zipfian distribution. The extent of the skew (or imbalance) depends on the structure we are studying. It is, however, a near-universal feature of natural language use. Importantly, we have no way of exerting control over the distribution of token counts over words. That is, there are no corpus compilation strategies that will even out lexical occurrence rates. In contrast to unbalances tallies across speakers, however, the observed frequency distribution often bears linguistic meaning and is of substantive interest. The skewed profile we see in <a href="#fig-ing-tokens-per-item" class="quarto-xref">Figure&nbsp;<span>4.2</span></a>) is a typical feature of natural language data.</p>
+<p>For the (ING) data, the two types of clustering produce vastly different distributions of token counts. This is not untypical for natural language data. Between-speaker imbalances in token counts largely depend on corpus design. Asymmetries in token counts across words, on the other hand, reflect the natural workings of language. Before we go further, a brief comment on terminology: While it would make sense, in principle, to say that tokens are “nested” within Speaker (or Item), the notion of “nesting” is usually used to describe a relation between factors, not between observations and factors.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a></p>
+<div class="no-row-height column-margin column-container"><div id="fn3"><p><sup>3</sup>&nbsp;There are exceptions in the literature, however, e.g. <span class="citation" data-cites="Rabe-Hesketh_Skrondal2022">Rabe-Hesketh and Skrondal (<a href="references.html#ref-Rabe-Hesketh_Skrondal2022" role="doc-biblioref">2021</a>)</span>, p.&nbsp;75.</p></div></div></section>
+<section id="clustered-data-structure-crossed-clustering" class="level3 page-columns page-full" data-number="4.1.3">
+<h3 data-number="4.1.3" class="anchored" data-anchor-id="clustered-data-structure-crossed-clustering"><span class="header-section-number">4.1.3</span> Clustered data structure: Crossed clustering</h3>
+<p>For a set of corpus data that show both types of clustering, by source and by lexical unit, the hierarchical grouping of tokens is in fact a kind of cross-classification. In our illustrative (ING) study, we have two clustering factors: Speaker and Item. We could create a table with columns for speakers and rows for words; then, each token would fall into a particular cell, i.e.&nbsp;reflect a certain speaker-word combination. <a href="#fig-ing-speaker-word-crosstab" class="quarto-xref">Figure&nbsp;<span>4.3</span></a>) gives a visual representation of the cross-classified hierarchical arrangement of tokens. Due to space limitations, words occurring fewer then 5 times are not included in the diagram. The distributions at the margins, represented by spikes, correspond to those shown in <a href="#fig-ing-tokens-per-speaker" class="quarto-xref">Figure&nbsp;<span>4.1</span></a>) and <a href="#fig-ing-tokens-per-item" class="quarto-xref">Figure&nbsp;<span>4.2</span></a>) above. The size of the circles in the grid is proportional to the number of tokens in the cell.</p>
+<div class="cell page-columns page-full">
+<div class="cell-output-display page-columns page-full">
+<div id="fig-ing-speaker-word-crosstab" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-ing-speaker-word-crosstab-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="page-columns page-full">
+<img src="03_data_structure_files/figure-html/fig-ing-speaker-word-crosstab-1.png" class="img-fluid figure-img column-page-right" width="643">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig" id="fig-ing-speaker-word-crosstab-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.3: Cross-classified clustering structure: Speaker is crossed with word (only words with 5 or more tokens are displayed).
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>In principle, any speaker-word combination could occur. However, there are very many empty cells, especially for infrequent lexical items. This is a logical consequence of the skewed marginal distribution of word token counts: The majority of words have fewer tokens than there are speakers in the data set, and by necessity each hapax stems from a single speaker, leaving 65 empty cells in the table.</p>
+<p>In the current data layout, Speaker and Item are <em>crossed</em>, which leads to the two-way arrangement shown in <a href="#fig-ing-speaker-word-crosstab" class="quarto-xref">Figure&nbsp;<span>4.3</span></a>). More specifically, as is evident from the patchy distribution of tokens across cells, they are <em>partially crossed</em>, which means that some combinations, though possible, are not observed. This is a common distributional feature of natural language data. It is in stark contrast to the kind of data structures produced by designed experiments, which are the size of units is usually (roughly) balanced.</p>
+<p>The structural component of the model not only reflects the internal organization of observations, but also identifies different levels at which processes influencing the response may occur, or more cautiously, different levels at which we may observe systematic variation. This brings us to the next component.</p>
+</section>
+</section>
+<section id="the-systematic-component" class="level2 page-columns page-full" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="the-systematic-component"><span class="header-section-number">4.2</span> The systematic component</h2>
+<p>We refer to variables that are the primary focus of a study as <em>predictor variables</em>; they constitute the systematic component of a data set. In the case of (ING), the probability of <em>g</em>-dropping has been observed to vary with a set of factors. These can be grouped into two classes: language-internal and language-external (or social). Social variables include attributes of the speaker – in our illustration of the (ING) data, these are Date of Birth, Sex, and Education. Internal features, on the other hand, are linguistic in nature. They may be attributes of the immediate environment in which a token was observed, e.g.&nbsp;Following Context – more specifically, the place of articulation of the following segment (coronal: <em>saying [t]o her</em>; velar: <em>saying [g]ood-bye</em>). They could also be properties of the lexical unit “carrying” the ending <em>-ing</em> – e.g.&nbsp;its Word Class, Frequency, or the consonant preceding <em>-ing</em> (coronal: <em>waiting</em>, velar: <em>working</em>).</p>
+<section id="different-units-of-analysis" class="level3 page-columns page-full" data-number="4.2.1">
+<h3 data-number="4.2.1" class="anchored" data-anchor-id="different-units-of-analysis"><span class="header-section-number">4.2.1</span> Different units of analysis</h3>
+<p>Predictor variables in the systematic component must be considered in light of the structural component – that is, they must be linked to the level at which they are meaured or observed. Thus, predictors can be measured at the level of the individual token, or at the level of a higher-level unit (a particular speaker or word):</p>
+<ul>
+<li>The predictors Date of Birth, Sex, and Education are attributes of the speaker, so they are measured at the level of the speaker. We call them <em>speaker-level variables</em>.</li>
+<li>Predictors that represent attributes of words are Word Class, Frequency, and the Preceding Consonant – they are <em>item-level variables</em>.</li>
+<li>Finally, the Following Context is a property of the context in which a specific token appears and is measured by inspecting the individual corpus hit. It is a <em>token-level variable</em>.</li>
+</ul>
+<p>It is important to be clear about the mapping between the systematic and the structural component. Each predictor must be linked to the appropriate level, and to the appropriate unit in the structural component. This leads to the distinction between <em>token-level predictors</em> (level-1 predictors) on the one hand, and <em>speaker-level</em> and <em>word-level predictors</em> (level-2 predictors) on the other.</p>
+<p>This distinction has consequences for the analysis of the data. Thus, the <em>unit of analysis</em> for Age and Sex is the speaker.<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a> This means that the sample size for inferences about these social variables is the number of speakers in our corpus. <a href="#fig-ing-speakers-sex-age" class="quarto-xref">Figure&nbsp;<span>4.4</span></a>) shows the relevant units of analysis, the speakers, broken down by Date of Birth and Sex. <a href="#fig-ing-speakers-education-age" class="quarto-xref">Figure&nbsp;<span>4.5</span></a>) stratifies speakers by Date of Birth and Education.</p>
+<div class="no-row-height column-margin column-container"><div id="fn4"><p><sup>4</sup>&nbsp;The term <em>unit of analysis</em> corresponds to the <em>experimental unit</em> in the literature on the design and analysis of experiments. For corpus data, the identification of the appropriate unit of analysis is usually fairly straightforward, since it follows logically from what a variable expresses and how it is measured. In data from experiments, the identification of relevant units can be much more difficult, since it depends both on the design and the method of random assignment used when conducting the experiment.</p></div><div id="fn5"><p><sup>5</sup>&nbsp;In some disciplines, this is referred to as pseudo-replication (Hurlbert).</p></div></div><p>From the point of view of these speaker-level predictors, the multiple tokens produced by a certain speaker do not add much information to our statistical conclusions. The relevant sample size is the number of different speakers. For each speaker, we have multiple tokens, however. This constitutes a form of <em>sub-sampling</em>. The notion of sub-sampling is relevant when considering level-2 predictors, which are measured on the speaker or word. We talk about sub-sampling when the data include multiple observations from the same unit. In the context of corpus data, then, sub-sampling may apply to speaker-level and word-level predictors and must be taken into account during the analysis of the data.<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a> This is because, say, additional tokens per speaker are of marginal relevance for the analysis of differences between age groups – they merely contribute to the state of information we have about one individual.</p>
+<div class="cell page-columns page-full">
+
+<div class="no-row-height column-margin column-container"><div class="cell-output-display">
+<div id="fig-ing-speakers-sex-age" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ing-speakers-sex-age-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="03_data_structure_files/figure-html/fig-ing-speakers-sex-age-1.png" class="img-fluid figure-img" width="264">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig" id="fig-ing-speakers-sex-age-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.4: Distribution of speakers across the speaker-level predictors Date of Birth and Sex.
+</figcaption>
+</figure>
+</div>
+</div></div></div>
+<div class="cell page-columns page-full">
+
+<div class="no-row-height column-margin column-container"><div class="cell-output-display">
+<div id="fig-ing-speakers-education-age" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ing-speakers-education-age-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="03_data_structure_files/figure-html/fig-ing-speakers-education-age-1.png" class="img-fluid figure-img" width="264">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig" id="fig-ing-speakers-education-age-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.5: Distribution of speakers across the speaker-level predictors Date of Birth and Education.
+</figcaption>
+</figure>
+</div>
+</div></div></div>
+<p>The unit of analysis for Word Class and Frequency, on the other hand, is the word. Again, the relevant sample size for these word-level predictors is the number of unique words in our data set. <a href="#fig-ing-words-frequency-lexicalcategory" class="quarto-xref">Figure&nbsp;<span>4.6</span></a>) shows how the 0 unique words are distributed across word classes and the frequency spectrum. Note that Frequency is shown on a log-scaled <em>x</em>-axis.</p>
+<div class="cell page-columns page-full">
+<div class="cell-output-display page-columns page-full">
+<div id="fig-ing-words-frequency-lexicalcategory" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-ing-words-frequency-lexicalcategory-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="03_data_structure_files/figure-html/fig-ing-words-frequency-lexicalcategory-1.png" class="img-fluid figure-img" width="422">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-ing-words-frequency-lexicalcategory-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.6: Distribution of words across the word-level predictors Lexical Category and Frequency.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Finally, the level of analysis for the Following Context is the specific corpus hit. This is because the predictor is measured by looking at the immediate phonetic context in which the token appears. It is therefore an attribute of the smallest level of observation: the token, or corpus hit.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+</div>
+</div>
+</section>
+<section id="speakerswords-nested-factors" class="level3 page-columns page-full" data-number="4.2.2">
+<h3 data-number="4.2.2" class="anchored" data-anchor-id="speakerswords-nested-factors"><span class="header-section-number">4.2.2</span> Speakers/words: Nested factors</h3>
+<p>The two clustering factors in the (ING) data set are Speaker and Item. The relationship that holds between these factors and the corresponding level-2 predictors is referred to as one of <em>nesting</em>. Consider the factor Speaker. Each level of the factor (i.e.&nbsp;each speaker in our data) belongs to one particular level of a speaker-level predictor, for instance a particular age group. A speaker cannot be observed at different values or levels of a speaker-level predictor. Likewise, each word belongs to a certain lexical category, a word-level predictor. It cannot be observed in different categories. Whenever we have a <em>nesting</em> relationship between two factors, we can say that one factor (e.g.&nbsp;Speaker) is <em>nested within</em> the other (e.g.&nbsp;Date of Birth). The factor Item, then, is nested within Word Class. More generally, a nested relation means that each level of the <em>nested</em> factor (i.e.&nbsp;Speaker and Item) can only be observed in combination with one particular level of the <em>outer</em> factor, the level-2 factor.</p>
+<p>In general, there are two important structural relations that can hold between factors; nesting is one of these. The other is referred to as <em>crossing</em>. When two factors are <em>crossed</em> any combination of the levels is possible. We have already come across a crossing relationship: that between Speaker and Item (see <a href="#fig-ing-speaker-word-crosstab" class="quarto-xref">Figure&nbsp;<span>4.3</span></a>). We will return to crossing shortly.</p>
+<p>In corpus data, nesting relations between clustering factors and cluster-level (level-2) predictors are not difficult to discern. This is because they arise naturally – we can identify them on the basis of our background knowledge. Thus, it is quite obvious that a speaker can belong to only one value of a speaker-level predictor. In our data set, for instance, a given speaker has a certain sex and date of birth.<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a> Likewise, a given word belong to a particular lexical category. More generally, then, we can state the following:</p>
+<div class="no-row-height column-margin column-container"><div id="fn6"><p><sup>6</sup>&nbsp;We will disregard the fact that certain speaker-level variables can also change over time – examples are the number of foreign languages spoken, the place of residence, or gender. At the time of data collection, speaker-level factors assume a particular value, which remains constant across the observations collected from this individual.</p></div></div><ul>
+<li>The levels of the factor Speaker (i.e.&nbsp;the individual speakers in the data sets) are <em>nested</em> within the levels (or values) of speaker-level predictors.</li>
+<li>The levels of the factor Item (i.e.&nbsp;the individual words in the data sets) are <em>nested</em> within the levels (or values) of word-level predictors.</li>
+</ul>
+<p>We can depict nested relationships between factors visually. Thus, <a href="#fig-ing-speaker-nested-sex-age" class="quarto-xref">Figure&nbsp;<span>4.7</span></a>) shows two-way classifications of tokens in the data: (i) by Speaker and Sex (top); and (ii) by Speaker and Age Group (bottom). Speakers are ordered by Sex, Age Group, and the number of tokens they produced; the size of the circles is proportional to this token count (see <a href="#fig-ing-tokens-per-speaker" class="quarto-xref">Figure&nbsp;<span>4.1</span></a>)). <a href="#fig-ing-speaker-nested-sex-age" class="quarto-xref">Figure&nbsp;<span>4.7</span></a>) illustrates what nested relationships between factors look like: Cross-tables between factors that enter into a nesting relationship have a systematic arrangement of empty cells, since the observable combinations of levels are limited.</p>
+<div class="cell page-columns page-full">
+<div class="cell-output-display page-columns page-full">
+<div id="fig-ing-speaker-nested-sex-age" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-ing-speaker-nested-sex-age-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="page-columns page-full">
+<img src="03_data_structure_files/figure-html/fig-ing-speaker-nested-sex-age-1.png" class="img-fluid figure-img column-page-right" width="643">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig" id="fig-ing-speaker-nested-sex-age-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.7: The nesting relationship between Speaker and the speaker-level predictors Sex and Age Group.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>In corpus data, nesting relationships are intrinsic attributes of the data. Once we have established a mapping between the systematic and the structural component, the identification of nesting relationships is fairly straightforward. In the statistical literature, Speaker and Item are referred to as <em>nested factors</em><a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a>. The factors within which Speaker and Item are nested are referred to as <em>nesting factors</em><a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a>.</p>
+<div class="no-row-height column-margin column-container"><div id="fn7"><p><sup>7</sup>&nbsp;Other labels are <em>inner factor</em> and <em>hierarchical factor</em>.</p></div><div id="fn8"><p><sup>8</sup>&nbsp;Other labels are <em>outer factor</em>, cluster-level factor, cluster-constant factor. In longitudinal data: time-invariant variable</p></div></div></section>
+<section id="token-level-predictors-crossed-with-speakerword" class="level3 page-columns page-full" data-number="4.2.3">
+<h3 data-number="4.2.3" class="anchored" data-anchor-id="token-level-predictors-crossed-with-speakerword"><span class="header-section-number">4.2.3</span> Token-level predictors: Crossed with Speaker/Word</h3>
+<ul>
+<li>environmental factor</li>
+<li>phonetic nature of the following segment</li>
+<li>preceding and following phonological segment</li>
+<li>on the immediate left, on the immediate right</li>
+</ul>
+<p>Token-level predictors such as the Following Context always enter into a crossing relationship with clustering factors – in our case, with both Speaker and Item. This is because all values of the token-level predictor (i.e.&nbsp;coronal, velar, pause, other) may occur with each speaker and each word: Speakers may produce tokens in each phonetic context, and words may likewise appear in each phonetic context.</p>
+<p>Let us visualize these cross-classifications of tokens. <a href="#fig-ing-following-context-crossed-with-speaker" class="quarto-xref">Figure&nbsp;<span>4.8</span></a> illustrates the crossed relationship between Speaker and Following Context. The 66 speakers in our data are arranged from left to right, and the levels of the factor Following Context are ordered by rate of occurrence, from top to bottom. Looking at the occurrence rate of the observed places of articulation, the general cline (other &gt; coronal &gt; pause &gt; velar) appears to be fairly consistent across speakers. <a href="#fig-ing-following-context-crossed-with-speaker" class="quarto-xref">Figure&nbsp;<span>4.8</span></a> also lists the tokens counts observed in each cell. Even though there are many sparsely populated cells, every possible combination of the two classification variables, Speaker and Following Context, occurs in the current data set. The two factors are therefore said to be <em>fully crossed</em>.</p>
+<div class="cell page-columns page-full">
+<div class="cell-output-display page-columns page-full">
+<div id="fig-ing-following-context-crossed-with-speaker" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-ing-following-context-crossed-with-speaker-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="page-columns page-full">
+<img src="03_data_structure_files/figure-html/fig-ing-following-context-crossed-with-speaker-1.png" class="img-fluid figure-img column-page-right" width="643">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig" id="fig-ing-following-context-crossed-with-speaker-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.8: Distribution of token-level predictor Following Context across speakers.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Next, consider the crossed relationship between Item and Following Context. We will restrict our attention to words that occur at least 20 times in our data set (<em>n</em> = 57). A visual impression of the two-way counts is provided in <a href="#fig-ing-following-context-crossed-with-word" class="quarto-xref">Figure&nbsp;<span>4.9</span></a>. Note that the general frequency cline (other &gt; coronal &gt; pause &gt; velar) does not hold across lexical items – the observed frequencies across the grid show pronounced peaks and gaps. The top-ranking <em>going</em> (v), for instance, is most likely to be observed before coronal sounds, contrary to the general trend in the tallies; <em>trying</em> (v), on the other hand, ranking 7<sup>th</sup>, is exclusively followed by coronal sounds.</p>
+<p>In statistical terms, there is an association between Item and Following Context. What this means is that there is a tendency for words to occur in different phonetic contexts. Such distributional asymmetries are unsurprising, and – in the present case – to a certain extent predictable: They could reflect collocational or collostructional preferences (e.g.&nbsp;<em>going to</em> and <em>trying to</em>, each with a high string frequency), or, in our case, variation among word classes in terms of the likelihood of preceding certain high-frequency function words (e.g.&nbsp;<em>the</em> and <em>a</em> would be more likely after verbs; <em>of</em> would be expected to occur more often after nouns).</p>
+<div class="cell page-columns page-full">
+<div class="cell-output-display page-columns page-full">
+<div id="fig-ing-following-context-crossed-with-word" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-ing-following-context-crossed-with-word-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="page-columns page-full">
+<img src="03_data_structure_files/figure-html/fig-ing-following-context-crossed-with-word-1.png" class="img-fluid figure-img column-page-right" width="643">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig" id="fig-ing-following-context-crossed-with-word-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.9: Distribution of token-level predictor Following Context across words with 20 or more tokens.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>When breaking down the corpus hits by Item and Following Context, we end up with quite a few empty cells — not every possible combination of the two classification variables occurs in the current data set. The two factors are therefore said to be <em>partially crossed</em>.</p>
+<p>In general, then, the crossing relationship between clustering factors and token-level predictor will be one of <em>full crossing</em> or <em>partial crossing</em>. For the two-way distribution of tokens, we can state that, for the factor Speaker, we would usually expect no systematic differences in the occurrence rate of token-level predictor values (see <a href="#fig-ing-speaker-word-crosstab" class="quarto-xref">Figure&nbsp;<span>4.3</span></a>). For the factor Item, on the other hand, the rates at which token-predictor values occur may vary between lexical units. This variation reflects language-internal distributional patterns, and will usually make sense linguistically.</p>
+</section>
+<section id="level-2-predictors-in-cross-classified-clustering-crossing-relationships" class="level3 page-columns page-full" data-number="4.2.4">
+<h3 data-number="4.2.4" class="anchored" data-anchor-id="level-2-predictors-in-cross-classified-clustering-crossing-relationships"><span class="header-section-number">4.2.4</span> Level-2 predictors in cross-classified clustering: Crossing relationships</h3>
+<p>In cases where the structural component of a data set shows a cross-classified layout, a level-2 predictor measured on one clustering factor (e.g.&nbsp;Speaker) is crossed with the other clustering factor (e.g.&nbsp;Item). For instance, a word-level predictor such as Word Class is crossed with Speaker. This is because every level of the predictor Word Class may be observed in each speaker. The two-way frequency distribution is is visualized in <a href="#fig-ing-word-class-crossed-with-speaker" class="quarto-xref">Figure&nbsp;<span>4.10</span></a>), at the top. Speaker and Word Class are partially crossed – the low-frequency word classes noun and adjective are not observed in every speaker. <a href="#fig-ing-word-class-crossed-with-speaker" class="quarto-xref">Figure&nbsp;<span>4.10</span></a>) also offers a visual cross-classification of <a href="#fig-ing-word-class-crossed-with-speaker" class="quarto-xref">Figure&nbsp;<span>4.10</span></a>) with Preceding Consonant and Frequency (binned into three frequency bands with breaks at 10 and 100). For both word-level predictors, we observe full crossing with Speaker.</p>
+<div class="cell page-columns page-full">
+<div class="cell-output-display page-columns page-full">
+<div id="fig-ing-word-class-crossed-with-speaker" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-ing-word-class-crossed-with-speaker-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="page-columns page-full">
+<img src="03_data_structure_files/figure-html/fig-ing-word-class-crossed-with-speaker-1.png" class="img-fluid figure-img column-page-right" width="643">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig" id="fig-ing-word-class-crossed-with-speaker-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.10: Distribution of item-level predictor Word Class across speakers.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The same structural relationship holds the other way around, namely between speaker-level predictors such as Date of Birth and the clustering factor Item.</p>
+</section>
+</section>
+<section id="data-structure-systematic-component" class="level2" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="data-structure-systematic-component"><span class="header-section-number">4.3</span> Data structure: Descriptive statistics</h2>
+<section id="structural-component" class="level3" data-number="4.3.1">
+<h3 data-number="4.3.1" class="anchored" data-anchor-id="structural-component"><span class="header-section-number">4.3.1</span> Structural component</h3>
+<p>The total number of observation is … The number of clusters is and there are an average of … tokens per cluster in the dataset.</p>
+<p>Need to plot</p>
+</section>
+<section id="systematic-component" class="level3" data-number="4.3.2">
+<h3 data-number="4.3.2" class="anchored" data-anchor-id="systematic-component"><span class="header-section-number">4.3.2</span> Systematic component</h3>
+<p>In clustered data settings, we can distinguish between two different kinds of averages: The <em>overall mean</em> for a variable disregards any clustering structure and simply averages over the entire set of tokens in the data. The computation of the <em>grand mean</em>, on the other hand, involves an intermediate step: First, cluster-specific averages are computed, and then we average over these cluster-specific averages.</p>
+<ul>
+<li><em>overall standard deviation</em>: SD of all observations from the overall mean</li>
+<li><em>between standard deviation</em>: SD of the cluster means from the overall mean</li>
+<li><em>within standard deviation</em>: SD of the observations from the cluster means</li>
+</ul>
+<p>Here, it probably doesn’t make sense to compute the between-cluster variability for words in this way, because of the many hapaxes. Probably better to use a multilevel model here. We could do something similar for the other linguistics predictors in the data.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th></th>
+<th style="text-align: left;">Variable</th>
+<th style="text-align: left;">Level</th>
+<th style="text-align: right;">Mean</th>
+<th style="text-align: right;">SD_word</th>
+<th style="text-align: right;">SD_subject</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td style="text-align: left;">Following context</td>
+<td style="text-align: left;">Overall</td>
+<td style="text-align: right;">0.17</td>
+<td style="text-align: right;">0.38</td>
+<td style="text-align: right;">0.38</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Between (MLM)</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">0.12</td>
+<td style="text-align: right;">0.05</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">Within (MLM)</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">0.23</td>
+<td style="text-align: right;">0.24</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>We see that Following context varies much more within speakers than between speakers.</p>
+<p>We can express the distribution of level-2 variables at two different levels: Either across tokens, or across the respective units (or clusters).</p>
+<p>Thus, we could compute the proportion of tokens that are verbs. And we can compute the proportion of words that are verbs.</p>
+</section>
+</section>
+<section id="data-structure-terminology-across-literatures" class="level2" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="data-structure-terminology-across-literatures"><span class="header-section-number">4.4</span> Data structure: Terminology across literatures</h2>
+<p>Hierarchical data structures occur in almost any domain of statistics. As a result, the terminology that has evolved to describe relevant aspects of a set of data varies considerably. We will make an effort here to draw parallels between different strands.</p>
+<p>The terms <em>crossing</em> and <em>nesting</em> are applied independently of the substantive research area.</p>
+<p>DoE: Whole plots, subplots; whole units, subunits</p>
+<p>econometrics: panels</p>
+</section>
+<section id="drawing-a-plot-plan-for-natural-language-data" class="level2 page-columns page-full" data-number="4.5">
+<h2 data-number="4.5" class="anchored" data-anchor-id="drawing-a-plot-plan-for-natural-language-data"><span class="header-section-number">4.5</span> Drawing a plot plan for natural language data</h2>
+<p>To coordinate and communicate information about corpus data structure, it helps to sketch the data layout. This section introduces a template that may be used to document the important structural features of a data set. Here, we will explain how to fill in this template. In Chapter @ref(model-specification} we will see how this organized arrangement will allow us to specify regression models in an informed manner.</p>
+<p><span class="citation" data-cites="Stroup2013">Stroup (<a href="references.html#ref-Stroup2013" role="doc-biblioref">2013</a>)</span> notes that every set of data can be considered as having a <em>plot plan</em>. This term originates from agricultural experimentation, where treatments (e.g.&nbsp;different fertilizers) are often applied to plots of land.<a href="#fn9" class="footnote-ref" id="fnref9" role="doc-noteref"><sup>9</sup></a> We will adopt this term to describe the <em>data layout</em>, which we often sketch visually.</p>
+<div class="no-row-height column-margin column-container"><div id="fn9"><p><sup>9</sup>&nbsp;Within the design of experiments literature, the field of agriculture has been an important source of technical terms. This is due to the fact that R.A. Fisher, who invented many of the designs and techniques still in use today, did applied work in this field.</p></div></div><p>As we will see in the next chapter, this plot plan will be of help when making decisions about how to analyze a set of data. A plot plan brings together the structural and the systematic component of a set of data and identifies the relationships that hold between the factors in our data – i.e.&nbsp;that of <em>nesting</em> and (partial) <em>crossing</em>. These data features have consequences for the specification of regression models.</p>
+<section id="step-1-map-the-structural-component" class="level3" data-number="4.5.1">
+<h3 data-number="4.5.1" class="anchored" data-anchor-id="step-1-map-the-structural-component"><span class="header-section-number">4.5.1</span> Step 1: Map the structural component</h3>
+<p>The first step is to identify <em>clustering variables</em> in our data. As we have discussed above, these can generally be of two kinds. Language-external clustering by source is almost always discernible in a set of corpus hits – they may be from the same Speaker (spoken corpus) or Text (written corpus). To get a feel for the data structure, we should count the number of unique speakers/texts that contribute tokens to our data, and then the number of tokens from each speaker/text (cf. <a href="#fig-ing-tokens-per-item" class="quarto-xref">Figure&nbsp;<span>4.2</span></a>)).</p>
+<p>Depending on the type of structure under investigation, there may, in addition, be clustering by lexical unit, where tokens extracted from a corpus represent the same Item. Again, it makes sense to determine the number of unique lexemes that feature in our data, and to inspect a token frequency profile (see <a href="#fig-ing-tokens-per-item" class="quarto-xref">Figure&nbsp;<span>4.2</span></a>)). This will reveal to which extent token counts are skewed, and it is worthwhile to identify the top-ranking items.</p>
+<p>If we observe both kinds of grouping structures, the clustering factors will be <em>crossed</em>. Cross-tabulations and diagrams may help us perceive features of this two-way distributions of tokens.</p>
+<p>In general, two common structural layouts seem to be the following:</p>
+<ul>
+<li>Clustering by source only</li>
+<li>Crossed clustering by source and on lexical grounds</li>
+</ul>
+<p>These two situations lead to two different templates for our plot plan.</p>
+</section>
+<section id="step-2-determine-the-unit-of-analysis-for-each-predictor" class="level3" data-number="4.5.2">
+<h3 data-number="4.5.2" class="anchored" data-anchor-id="step-2-determine-the-unit-of-analysis-for-each-predictor"><span class="header-section-number">4.5.2</span> Step 2: Determine the unit of analysis for each predictor</h3>
+<p>Next, we turn to the systematic component. Take the list of predictors and determine, for each one, the appropriate unit of analysis. Two related questions help us arrive at an appropriate classification. Predictors represent attributes of units. The first question is what kind of unit a predictor classifies or measures: Is it an attribute of the speaker (or text), an attribute of a lexeme, or an attribute of the immediate context of the corpus hit. The second question is how the attribute is determined. Is it measured based on information about the speaker or text, based on the lexeme at hand, or is it determined by looking at the specific context in which the token occurs. Usually, there are three possibilities. The unit of analysis can be (i) the speaker, (i) the word, or (iii) the context.</p>
+</section>
+<section id="step-3-sort-the-predictors-into-token-level-and-cluster-level-variables" class="level3" data-number="4.5.3">
+<h3 data-number="4.5.3" class="anchored" data-anchor-id="step-3-sort-the-predictors-into-token-level-and-cluster-level-variables"><span class="header-section-number">4.5.3</span> Step 3: Sort the predictors into token-level and cluster-level variables</h3>
+<p>Having identified the appropriate unit of analysis for each predictor, we can distinguish between token-level predictors (attributes of the context of occurrence), speaker-level predictors (attributes of the speaker), and word-level predictors (attributes of the word). We enter these variables into the plot plan at the appropriate places: Token-level predictors are listed inside of the box, speaker-level predictors are given above the box, and word-level predictors are appear to the left of the box.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="03_data_structure_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="422"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="tools" class="level2 page-columns page-full" data-number="4.6">
+<h2 data-number="4.6" class="anchored" data-anchor-id="tools"><span class="header-section-number">4.6</span> Tools</h2>
+<p>To obtain preliminary insights into the structure of the data, the following tools are helpful:</p>
+<ul>
+<li>dot diagrams</li>
+<li>bubble charts</li>
+<li>line plots</li>
+</ul>
+<section id="graphing-the-data-structure-using-r" class="level3" data-number="4.6.1">
+<h3 data-number="4.6.1" class="anchored" data-anchor-id="graphing-the-data-structure-using-r"><span class="header-section-number">4.6.1</span> Graphing the data structure using R</h3>
+<p>Once the plot plan is set up, we tabulate and visualize the distributional features of our data. Two chart types are particularly useful to this end: dot diagrams and bubble charts.</p>
+</section>
+<section id="the-structural-component-1" class="level3 page-columns page-full" data-number="4.6.2">
+<h3 data-number="4.6.2" class="anchored" data-anchor-id="the-structural-component-1"><span class="header-section-number">4.6.2</span> The structural component</h3>
+<p>An important first step is to get an insight into the distribution of tokens across clusters. The cluster variable needs to be available as a column in the data set. We start by producing a table of token counts by speaker and sort this table:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>ing_sample <span class="sc">|&gt;</span> </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(speaker) <span class="sc">|&gt;</span> </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">token_count =</span> <span class="fu">n</span>()) <span class="sc">|&gt;</span> </span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="sc">-</span>token_count)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This will return the following table:</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre class="indent"><code># A tibble: 66 × 2
+   speaker token_count
+   &lt;fct&gt;         &lt;int&gt;
+ 1 142             186
+ 2 376             137
+ 3 116             135
+ 4 368             135
+ 5 379             135
+ 6 174             133
+ 7 328             133
+ 8 383             132
+ 9 370             131
+10 369             130
+# ℹ 56 more rows</code></pre>
+</div>
+</div>
+<p>We can use the data in this table to draw a dot diagram:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>ing_sample <span class="sc">|&gt;</span> </span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(speaker) <span class="sc">|&gt;</span> </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">token_count =</span> <span class="fu">n</span>()) <span class="sc">|&gt;</span> </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="sc">-</span>token_count) <span class="sc">|&gt;</span> </span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>token_count)) <span class="sc">+</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_dotplot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-fig.margin="true">
+<div class="cell-output cell-output-stderr">
+<pre><code>Bin width defaults to 1/30 of the range of the data. Pick better value with
+`binwidth`.</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="03_data_structure_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid figure-img" width="192"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Dot diagrams are a useful tool. The figure we just produced already gives us important insight into the structure of the data. Token counts can vary widely across speakers. This is a typical feature of natural language data.<a href="#fn10" class="footnote-ref" id="fnref10" role="doc-noteref"><sup>10</sup></a></p>
+<div class="no-row-height column-margin column-container"><div id="fn10"><p><sup>10</sup>&nbsp;Certain structures are more prone to produce unequal token counts across speakers. We can get an idea of how prone a structure is by inspecting the variation in rates across text samples of equal size. It would be helpful to have some sort of typology of language structures at some point.</p></div><div id="fn11"><p><sup>11</sup>&nbsp;Again, a typology would be useful to have, based on linguistic criteria.</p></div></div><p>The second step is to do the same for the different lexical items in your data. Determine the overall number of unique lexemes, and then the number of tokens for each lexeme. This gives you a second important perspective on the structure of your data. Again, you produce a dot diagram. Depending on the type of structure you are investigating, the distribution of token counts across lexemes could be highly uneven. It could show a Zipfian distribution.<a href="#fn11" class="footnote-ref" id="fnref11" role="doc-noteref"><sup>11</sup></a></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>ing_sample <span class="sc">|&gt;</span> </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(word_2) <span class="sc">|&gt;</span> </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">token_count =</span> <span class="fu">n</span>()) <span class="sc">|&gt;</span> </span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="sc">-</span>token_count)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>This will return the following table:</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre class="indent"><code># A tibble: 1,024 × 2
+   word_2                token_count
+   &lt;fct&gt;                       &lt;int&gt;
+ 1 going_verb                    386
+ 2 doing_verb                    226
+ 3 being_gerund                  161
+ 4 working_verb                  159
+ 5 trying_verb                   147
+ 6 being_verb                    133
+ 7 interesting_adjective         132
+ 8 coming_verb                   127
+ 9 getting_verb                  125
+10 going_gerund                  119
+# ℹ 1,014 more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="cluster-level-predictors" class="level3" data-number="4.6.3">
+<h3 data-number="4.6.3" class="anchored" data-anchor-id="cluster-level-predictors"><span class="header-section-number">4.6.3</span> Cluster-level predictors</h3>
+<p>Next, consider the speaker-level and word-level predictors in turn. Produce cross-classifications for all speaker-related variables and observe how speakers are distributed across the categories. You may need to discretize continuous variables. Look for problematic distributions. Then do the same for word-level predictors.</p>
+</section>
+<section id="token-level-predictors" class="level3" data-number="4.6.4">
+<h3 data-number="4.6.4" class="anchored" data-anchor-id="token-level-predictors"><span class="header-section-number">4.6.4</span> Token-level predictors</h3>
+<p>The distribution of token-level predictors should be inspected at different levels. The <em>overall</em> distribution disregards clustering factors and reports the distribution of the variable throughout the entire data set. Two further dimensions that are of interest take into account the data structure. Thus, we can partition the overall distribution into two components, one <em>between</em> clusters and one <em>within</em> clusters. The important insight here is the extent of the between-cluster variation, since it signals the extent to which clusters vary in their constellation with regard to this token-level variable. As we will see later on, it is important to be aware of differences among clusters if they exist.</p>
+<p>For natural language data, we need to be careful when separating these sources of variability since clusters may differ dramatically in size. The best way seems to be to run a multilevel regression model with the token-level predictor as the outcome, and the clustering factors as random intercepts. This allows us to separate these two variance components, i.e.&nbsp;the within- and the between-dimension. For categorical token-level variables, we need to invoke the latent-variable interpretation of binary regression models.</p>
+</section>
+</section>
+<section id="natural-language-use" class="level2" data-number="4.7">
+<h2 data-number="4.7" class="anchored" data-anchor-id="natural-language-use"><span class="header-section-number">4.7</span> Natural language use</h2>
+<p>Language-internal factors vary naturally</p>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
+<div id="ref-Forrest2017" class="csl-entry" role="listitem">
+Forrest, Jon. 2017. <span>“The Dynamic Interaction Between Lexical and Contextual Frequency: <span>A</span> Case Study of <span>(ING)</span>.”</span> <em>Language Variation and Change</em> 29 (2): 129–56. <a href="https://doi.org/10.1017/S0954394517000072">https://doi.org/10.1017/S0954394517000072</a>.
+</div>
+<div id="ref-Rabe-Hesketh_Skrondal2022" class="csl-entry" role="listitem">
+Rabe-Hesketh, Sophia, and Anders Skrondal. 2021. <em>Multilevel and Longitudinal Modeling Using <span>Stata</span></em>. College Station, TX: Stata Press.
+</div>
+<div id="ref-Stroup2013" class="csl-entry" role="listitem">
+Stroup, Walter W. 2013. <em>Generalized Linear Mixed Models: <span>M</span>odern Concepts, Methods and Applications</em>. Boca Raton: CRC Press.
+</div>
+<div id="ref-Welham_etal2014" class="csl-entry" role="listitem">
+Welham, S. J., S. J. Gezan, S. J. Clark, and A Mead. 2014. <em>Statistical Methods in Biology: <span>Design</span> and Analysis of Experiments and Regression</em>. Boca Raton: CRC Press.
+</div>
+</div>
+</section>
+
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./02_statistical_inference.html" class="pagination-link" aria-label="Statistical inferences">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Statistical inferences</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./04_statistical_models.html" class="pagination-link" aria-label="Statistical models: Integration of research objectives and data structure">
+        <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Statistical models: Integration of research objectives and data structure</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

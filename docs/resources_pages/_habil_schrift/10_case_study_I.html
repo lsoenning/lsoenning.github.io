@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Resources – Lukas Sönning</title>
+<title>11&nbsp; Case study I: The comparative alternation – Modeling variationist corpus data: A mixed-effects framework</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -30,6 +30,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
+<link href="./11_case_study_II.html" rel="next">
+<link href="./09_model_predictions.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -39,14 +41,12 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/quarto-contrib/academicons-1.9.2/all.css" rel="stylesheet">
-<link href="site_libs/quarto-contrib/academicons-1.9.2/size.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
-  "location": "navbar",
+  "location": "sidebar",
   "copy-button": false,
   "collapse-after": 3,
-  "panel-placement": "end",
-  "type": "overlay",
+  "panel-placement": "start",
+  "type": "textbox",
   "limit": 50,
   "keyboard-shortcut": [
     "f",
@@ -70,56 +70,130 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
 
-<link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-fixed">
+<body class="nav-sidebar floating">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
-      <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">Lukas Sönning</span>
-    </a>
-  </div>
-            <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
-  <span class="navbar-toggler-icon"></span>
-</button>
-          <div class="collapse navbar-collapse" id="navbarCollapse">
-            <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="./index.html"> 
-<span class="menu-text">Home</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./about.html"> 
-<span class="menu-text">About</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./research.html"> 
-<span class="menu-text">Research</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link active" href="./resources.html" aria-current="page"> 
-<span class="menu-text">Resources</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./posts.html"> 
-<span class="menu-text">Blog</span></a>
-  </li>  
-</ul>
-          </div> <!-- /navcollapse -->
-            <div class="quarto-navbar-tools">
-</div>
-      </div> <!-- /container-fluid -->
-    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./10_case_study_I.html"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Case study I: The comparative alternation</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
 <!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Modeling variationist corpus data: A mixed-effects framework</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./00_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01_research_objectives.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Research objectives</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_statistical_inference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Statistical inferences</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03_data_structure.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Data structure</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04_statistical_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Statistical models: Integration of research objectives and data structure</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05_model_specification.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Model specification</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06_token_level_predictors.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Token-level predictors</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07_foregrounding_variation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Foregrounding variation</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08_modeling_tactics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Modeling tactics</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09_model_predictions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Model summary: Adjusted predictions and comparisons</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10_case_study_I.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Case study I: The comparative alternation</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11_case_study_II.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Case study II: The genitive alternation</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
         
@@ -129,7 +203,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Resources</h1>
+<h1 class="title"><span id="sec-case-study-I" class="quarto-section-identifier"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Case study I: The comparative alternation</span></span></h1>
 </div>
 
 
@@ -146,88 +220,8 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="plot-templates-for-microsoft-excel" class="level5">
-<h5 class="anchored" data-anchor-id="plot-templates-for-microsoft-excel">Plot templates for Microsoft Excel</h5>
-<p>Excel templates and instructions for some useful graph types can be found in the following <i class="ai  ai-osf"></i> <a href="https://osf.io/v37pw" target="_blank">OSF project</a> .</p>
-<ul>
-<li>Dot diagram<br>
-<a href="https://osf.io/tjsaf" target="_blank">template</a> | <a href="https://osf.io/w4736" target="_blank">instructions</a></li>
-</ul>
-<center>
-<img src="files/dot_diagram.png">
-</center>
-<ul>
-<li>Simple dot plot<br>
-<a href="https://osf.io/4scxt" target="_blank">template</a> | <a href="https://osf.io/8cg3j" target="_blank">instructions</a></li>
-</ul>
-<center>
-<img src="files/dot_plot_one.png">
-</center>
-<ul>
-<li>Grouped dot plot<br>
-<a href="https://osf.io/4scxt" target="_blank">template</a> | <a href="https://osf.io/8cg3j" target="_blank">instructions</a></li>
-</ul>
-<center>
-<img src="files/dot_plot_two.png">
-</center>
-<ul>
-<li>Box plot<br>
-<a href="https://osf.io/f46aq" target="_blank">template</a> | <a href="https://osf.io/t2qmy" target="_blank">instructions</a></li>
-</ul>
-<center>
-<img src="files/box_plot.png">
-</center>
-<ul>
-<li>Vertical dot plot<br>
-<a href="https://osf.io/w4u7m" target="_blank">template</a></li>
-</ul>
-<center>
-<img src="files/vertical_dot_plot.png">
-</center>
-<ul>
-<li>Scatter plot<br>
-<a href="https://osf.io/xajyk" target="_blank">template</a> | <a href="https://osf.io/hkd4c" target="_blank">instructions</a></li>
-</ul>
-<center>
-<img src="files/scatter_plot.png">
-</center>
-</section>
-<section id="speaker-slides-for-workshop" class="level5">
-<h5 class="anchored" data-anchor-id="speaker-slides-for-workshop">Speaker slides for workshop</h5>
-<ul>
-<li>FJUEL workshop, Bamberg: <a href="resources_pages/slides_fjuel_session_1-speaker.html" target="_blank">speaker slides session 1</a> | <a href="resources_pages/slides_fjuel_session_2-speaker.html" target="_blank">speaker slides session 2</a> | <a href="resources_pages/slides_fjuel_session_3-speaker.html" target="_blank">speaker slides session 3</a></li>
-</ul>
-</section>
-<section id="extended-notes-ordinal-regression-models" class="level5">
-<h5 class="anchored" data-anchor-id="extended-notes-ordinal-regression-models">Extended notes: Ordinal regression models</h5>
-<ul>
-<li><a href="resources_pages/_ordinal_notes/01_ord_var.html" target="_blank">Section 1: Background</a></li>
-<li><a href="resources_pages/_ordinal_notes/02_describe.html" target="_blank">Section 2: Descriptive statistics</a></li>
-<li><a href="resources_pages/_ordinal_notes/03_orm.html" target="_blank">Section 3: Ordered regression models</a></li>
-<li><a href="resources_pages/_ordinal_notes/04_lvm.html" target="_blank">Section 4: A latent-variable model</a></li>
-<li><a href="resources_pages/_ordinal_notes/05_meth_int.html" target="_blank">Section 5: Methods of interpretation</a></li>
-<li><a href="resources_pages/_ordinal_notes/09_r_workbench.html" target="_blank">Section 6: R workbench</a></li>
-</ul>
-</section>
-<section id="habilitationsschrift-aktueller-stand" class="level5">
-<h5 class="anchored" data-anchor-id="habilitationsschrift-aktueller-stand">Habilitationsschrift: Aktueller Stand</h5>
-<ul>
-<li><a href="resources_pages/_habil_schrift/00_intro.html" target="_blank">Section 1: Introduction</a></li>
-<li><a href="resources_pages/_habil_schrift/01_research_objectives.html" target="_blank">Section 2: Research objectives</a></li>
-<li><a href="resources_pages/_habil_schrift/02_statistical_inference.html" target="_blank">Section 3: Statistical inference</a></li>
-<li><a href="resources_pages/_habil_schrift/03_data_structure.html" target="_blank">Section 4: Data structure</a></li>
-<li><a href="resources_pages/_habil_schrift/04_statistical_models.html" target="_blank">Section 5: Statistical models: Integration of research objectives and data structure</a></li>
-<li><a href="resources_pages/_habil_schrift/05_model_specification.html" target="_blank">Section 6: Model specification</a></li>
-<li><a href="resources_pages/_habil_schrift/06_token_level_predictors.html" target="_blank">Section 7: Token-level predictors</a></li>
-<li><a href="resources_pages/_habil_schrift/07_foregrounding_variation.html" target="_blank">Section 8: Foregrounding variation</a></li>
-<li><a href="resources_pages/_habil_schrift/08_modeling_tactics.html" target="_blank">Section 9: Modeling tactics</a></li>
-<li><a href="resources_pages/_habil_schrift/09_model_predictions.html" target="_blank">Section 10: Model summary: Adjusted predictions and comparisons</a></li>
-<li><a href="resources_pages/_habil_schrift/10_case_study_I.html" target="_blank">Section 11: Case study I: The comparative alternation</a></li>
-<li><a href="resources_pages/_habil_schrift/11_case_study_II.html" target="_blank">Section 12: Case study II: The genitive alternation</a></li>
-</ul>
 
 
-</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -322,7 +316,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp("https:\/\/lsoenning\.github\.io");
+      var filterRegex = new RegExp('/' + window.location.host + '/');
     var isInternal = (href) => {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }
@@ -650,6 +644,18 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./09_model_predictions.html" class="pagination-link" aria-label="Model summary: Adjusted predictions and comparisons">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Model summary: Adjusted predictions and comparisons</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./11_case_study_II.html" class="pagination-link" aria-label="Case study II: The genitive alternation">
+        <span class="nav-page-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Case study II: The genitive alternation</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
 </div> <!-- /content -->
 
 

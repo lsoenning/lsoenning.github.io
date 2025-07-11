@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Resources – Lukas Sönning</title>
+<title>1&nbsp; Introduction – Modeling variationist corpus data: A mixed-effects framework</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -30,6 +30,8 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
+<link href="./01_research_objectives.html" rel="next">
+<link href="./index.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -39,14 +41,12 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
-<link href="site_libs/quarto-contrib/academicons-1.9.2/all.css" rel="stylesheet">
-<link href="site_libs/quarto-contrib/academicons-1.9.2/size.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
-  "location": "navbar",
+  "location": "sidebar",
   "copy-button": false,
   "collapse-after": 3,
-  "panel-placement": "end",
-  "type": "overlay",
+  "panel-placement": "start",
+  "type": "textbox",
   "limit": 50,
   "keyboard-shortcut": [
     "f",
@@ -70,56 +70,130 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
 
-<link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-fixed">
+<body class="nav-sidebar floating">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
-      <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
-    <span class="navbar-title">Lukas Sönning</span>
-    </a>
-  </div>
-            <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
-  <span class="navbar-toggler-icon"></span>
-</button>
-          <div class="collapse navbar-collapse" id="navbarCollapse">
-            <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="./index.html"> 
-<span class="menu-text">Home</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./about.html"> 
-<span class="menu-text">About</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./research.html"> 
-<span class="menu-text">Research</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link active" href="./resources.html" aria-current="page"> 
-<span class="menu-text">Resources</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./posts.html"> 
-<span class="menu-text">Blog</span></a>
-  </li>  
-</ul>
-          </div> <!-- /navcollapse -->
-            <div class="quarto-navbar-tools">
-</div>
-      </div> <!-- /container-fluid -->
-    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./00_intro.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
 <!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Modeling variationist corpus data: A mixed-effects framework</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./00_intro.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01_research_objectives.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Research objectives</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_statistical_inference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Statistical inferences</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03_data_structure.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Data structure</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04_statistical_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Statistical models: Integration of research objectives and data structure</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05_model_specification.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Model specification</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06_token_level_predictors.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Token-level predictors</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07_foregrounding_variation.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Foregrounding variation</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08_modeling_tactics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Modeling tactics</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09_model_predictions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Model summary: Adjusted predictions and comparisons</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./10_case_study_I.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Case study I: The comparative alternation</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11_case_study_II.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Case study II: The genitive alternation</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
         
@@ -129,7 +203,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Resources</h1>
+<h1 class="title"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></h1>
 </div>
 
 
@@ -146,88 +220,40 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="plot-templates-for-microsoft-excel" class="level5">
-<h5 class="anchored" data-anchor-id="plot-templates-for-microsoft-excel">Plot templates for Microsoft Excel</h5>
-<p>Excel templates and instructions for some useful graph types can be found in the following <i class="ai  ai-osf"></i> <a href="https://osf.io/v37pw" target="_blank">OSF project</a> .</p>
+<p>The focus of the present study is on corpus-based variationist research, where corpus data are used to shed light on some type of alternation phenomenon. Classic examples of this type of research are the dative, genitive, or comparative alternation in Present-day English.</p>
+<p>The goal is to work toward a unified approach to the statistical analysis of this type of corpus data. The framework I have chosen is multilevel (mixed-effects) regression, which is one of the most widely used tools for modeling variationist data. As I will try to lay out in the following chapters, it is also a remarkably useful tool since is allows us to summarize data in an insightful way that is capable of closely integrating the researcher’s objectives and our knowledge about the structure of the data. The current treatment elaborates on earlier accounts of multilevel modeling of language data by giving special consideration to these two guideposts of language data modeling.</p>
+<p>One of the key themes, which is dealt with in <a href="01_research_objectives.html" class="quarto-xref"><span>Chapter 2</span></a>, is the role of the researcher’s objectives when analyzing variationist corpus data. It turns out that scientific (and therefore statistical) inferences can be categorized along two dimensions, in terms of their type and scope. Being clear about how the goals of a study relate to these dimensions helps us withe the specification and interpretation of statistical models.</p>
+<p><a href="02_statistical_inference.html" class="quarto-xref"><span>Chapter 3</span></a> then describes the way in which statistical models can help us pursue our linguistic goals, and how their form may vary depending on the type and scope of inference. The discussion is supported by illustrative demonstrations that allow us to recognize how alterations to a model affect the meaning and interpretation of statistical uncertainty estimates such as confidence intervals. I will also deal with two fundamental concepts in statistical theory – the methodological device of random sampling and the notion of a population – and lay out their role and relevance in variationist corpus research.</p>
+<p><a href="03_data_structure.html" class="quarto-xref"><span>Chapter 4</span></a> turns to the second key feature of corpus data, their structural layout. By this, I mean what may be considered a variationist data universal: The tokens, or instances of the structure of interest, are always clustered in the sense that there will be multiple tokens from the same text (speaker or author). Depending on the linguistic structure studied, there may also be multiple tokens per item (word form, lexical item, or lemma). I will refer to this as the structural component of the data and contrast it with the systematic component, which includes the set of predictor variables that are assumed to show an association with the choices speakers make. Borrowing heavily from the literature on the design and analysis of experiments, I will present a simple template that researchers may fill in to recognize the relation between the variables (structural and systematic) in their data. This template then provides guidance for model specification, as it brings into view the components that could in principle be included in a mixed-effects model, and whose exclusion brings with it an additional assumption that the model is forced to make.</p>
+<p><a href="04_statistical_models.html" class="quarto-xref"><span>Chapter 5</span></a> elaborates on the dialogue between model specification and research objectives and pays particular attention to the use of random effects in data analysis. I will discuss the distinction between fixed and random effects, which remains a source of confusion and dispute throughout the language sciences. We will lay out the dimensions along which these two classes have been contrasted, which relate to very different features of empirical research, including study design, characteristics of the variable as such, and the researcher’s objectives. A variable’s status as fixed vs.&nbsp;random may therefore vary across dimensions, which helps us make sense of the confusion in the literature. I will consider fixed effects and random effects as prototypes, which allows us to appreciate where on a continuum a specific variable may be located.</p>
+<p><a href="05_model_specification.html" class="quarto-xref"><span>Chapter 6</span></a> then turns to the concrete task of specifying a regression model for variationist corpus data. The implications of the template presented in <a href="03_data_structure.html" class="quarto-xref"><span>Chapter 4</span></a> will be illustrated using a case study on the variable (ING), sometimes referred to as “<em>g</em>-dropping”.</p>
+<p><a href="06_token_level_predictors.html" class="quarto-xref"><span>Chapter 7</span></a> will deal in more detail with the treatment of what I will refer to as token-level predictors. These are variables that are coded at the level of the individual corpus hits (rather than attributes of higher-level units such as texts of lexical items). Such token-level predictors play a special role in multilevel modeling, since their association with the outcome can be partitioned into what is referred to as a between-cluster and within-cluster component. While this partition is discussed prominently in other fields of study (e.g.&nbsp;research on education), it has – to my knowledge – so far been largely neglected in language research. As I will illustrate, however, this partitioning of the variation of token-level predictors allows us to address informative research questions.</p>
+<p><a href="07_foregrounding_variation.html" class="quarto-xref"><span>Chapter 8</span></a> discusses the potential of mixed-effects models to fruitfully combine two fundamentally different approaches to empirical work, namely what has been referred to as the nomothetic vs.&nbsp;idiographic orientation. The former seeks generalizations, the latter represent a case-study-type approach that looks in depth at a (much) smaller number of subjects. A brief historical digression will show that the relevance of both perspectives has found its way into variationist research, including the more recent use of mixed-effects regression analysis. I will demonstrate how this modeling framework may be used to this end and will draw attention to an important pitfall that does not seem to have received much attention by practitioners.</p>
+<p><a href="08_modeling_tactics.html" class="quarto-xref"><span>Chapter 9</span></a> is practical in nature and deals with various modeling tactics.</p>
+<p><a href="09_model_predictions.html" class="quarto-xref"><span>Chapter 10</span></a> turns to an important topic in mixed-effects modeling of categorical outcome variables: The different types of model-based predictions (or estimates) on the proportion scale. It discusses the important distinction between what are often referred to as conditional (or cluster-specific) and marginal (or population-averaged) predictions, which is arguably discussed too rarely in the methodological literature on language data analysis. I will also lay out and contrast different ways of adjusting for variables in the model when forming predictions for model interpretation.</p>
+<p><a href="10_case_study_I.html" class="quarto-xref"><span>Chapter 11</span></a> and <a href="10_case_study_I.html" class="quarto-xref"><span>Chapter 11</span></a> present two case studies.</p>
+<details>
+<summary>
+…
+</summary>
 <ul>
-<li>Dot diagram<br>
-<a href="https://osf.io/tjsaf" target="_blank">template</a> | <a href="https://osf.io/w4736" target="_blank">instructions</a></li>
+<li>How can language data be thought about in a systematic way</li>
+<li>Try and see some sort of unity that will be helpful and constructive</li>
+<li>How can language data be studied quantitatively in a way that advances understanding</li>
+<li>Corpus data is analyzed with a variety of methodological approaches</li>
+<li>Mixed-effects regression modeling has emerged as one of the chief methodological approaches.</li>
+<li>Why research on alternation phenomena is useful [Arppe_etal2010, pp.&nbsp;13-15]</li>
+<li>causal inference ought to be an increasingly prominent concern, to which corpus-based analyses do not always pay sufficient heed</li>
+<li>recognize archetypes</li>
+<li>consider approaches with a common language</li>
+<li>prototypical analyses</li>
+<li>“too often, framework are siloed within specific disciplines, clouded by domain-specific language”</li>
+<li>“this makes methods harder to discover, and hides their general applicability”</li>
+<li>“it can be hard for practitioners outside of these fields to recognize when the problem they are facing fits one of these paradigms”</li>
 </ul>
-<center>
-<img src="files/dot_diagram.png">
-</center>
-<ul>
-<li>Simple dot plot<br>
-<a href="https://osf.io/4scxt" target="_blank">template</a> | <a href="https://osf.io/8cg3j" target="_blank">instructions</a></li>
-</ul>
-<center>
-<img src="files/dot_plot_one.png">
-</center>
-<ul>
-<li>Grouped dot plot<br>
-<a href="https://osf.io/4scxt" target="_blank">template</a> | <a href="https://osf.io/8cg3j" target="_blank">instructions</a></li>
-</ul>
-<center>
-<img src="files/dot_plot_two.png">
-</center>
-<ul>
-<li>Box plot<br>
-<a href="https://osf.io/f46aq" target="_blank">template</a> | <a href="https://osf.io/t2qmy" target="_blank">instructions</a></li>
-</ul>
-<center>
-<img src="files/box_plot.png">
-</center>
-<ul>
-<li>Vertical dot plot<br>
-<a href="https://osf.io/w4u7m" target="_blank">template</a></li>
-</ul>
-<center>
-<img src="files/vertical_dot_plot.png">
-</center>
-<ul>
-<li>Scatter plot<br>
-<a href="https://osf.io/xajyk" target="_blank">template</a> | <a href="https://osf.io/hkd4c" target="_blank">instructions</a></li>
-</ul>
-<center>
-<img src="files/scatter_plot.png">
-</center>
-</section>
-<section id="speaker-slides-for-workshop" class="level5">
-<h5 class="anchored" data-anchor-id="speaker-slides-for-workshop">Speaker slides for workshop</h5>
-<ul>
-<li>FJUEL workshop, Bamberg: <a href="resources_pages/slides_fjuel_session_1-speaker.html" target="_blank">speaker slides session 1</a> | <a href="resources_pages/slides_fjuel_session_2-speaker.html" target="_blank">speaker slides session 2</a> | <a href="resources_pages/slides_fjuel_session_3-speaker.html" target="_blank">speaker slides session 3</a></li>
-</ul>
-</section>
-<section id="extended-notes-ordinal-regression-models" class="level5">
-<h5 class="anchored" data-anchor-id="extended-notes-ordinal-regression-models">Extended notes: Ordinal regression models</h5>
-<ul>
-<li><a href="resources_pages/_ordinal_notes/01_ord_var.html" target="_blank">Section 1: Background</a></li>
-<li><a href="resources_pages/_ordinal_notes/02_describe.html" target="_blank">Section 2: Descriptive statistics</a></li>
-<li><a href="resources_pages/_ordinal_notes/03_orm.html" target="_blank">Section 3: Ordered regression models</a></li>
-<li><a href="resources_pages/_ordinal_notes/04_lvm.html" target="_blank">Section 4: A latent-variable model</a></li>
-<li><a href="resources_pages/_ordinal_notes/05_meth_int.html" target="_blank">Section 5: Methods of interpretation</a></li>
-<li><a href="resources_pages/_ordinal_notes/09_r_workbench.html" target="_blank">Section 6: R workbench</a></li>
-</ul>
-</section>
-<section id="habilitationsschrift-aktueller-stand" class="level5">
-<h5 class="anchored" data-anchor-id="habilitationsschrift-aktueller-stand">Habilitationsschrift: Aktueller Stand</h5>
-<ul>
-<li><a href="resources_pages/_habil_schrift/00_intro.html" target="_blank">Section 1: Introduction</a></li>
-<li><a href="resources_pages/_habil_schrift/01_research_objectives.html" target="_blank">Section 2: Research objectives</a></li>
-<li><a href="resources_pages/_habil_schrift/02_statistical_inference.html" target="_blank">Section 3: Statistical inference</a></li>
-<li><a href="resources_pages/_habil_schrift/03_data_structure.html" target="_blank">Section 4: Data structure</a></li>
-<li><a href="resources_pages/_habil_schrift/04_statistical_models.html" target="_blank">Section 5: Statistical models: Integration of research objectives and data structure</a></li>
-<li><a href="resources_pages/_habil_schrift/05_model_specification.html" target="_blank">Section 6: Model specification</a></li>
-<li><a href="resources_pages/_habil_schrift/06_token_level_predictors.html" target="_blank">Section 7: Token-level predictors</a></li>
-<li><a href="resources_pages/_habil_schrift/07_foregrounding_variation.html" target="_blank">Section 8: Foregrounding variation</a></li>
-<li><a href="resources_pages/_habil_schrift/08_modeling_tactics.html" target="_blank">Section 9: Modeling tactics</a></li>
-<li><a href="resources_pages/_habil_schrift/09_model_predictions.html" target="_blank">Section 10: Model summary: Adjusted predictions and comparisons</a></li>
-<li><a href="resources_pages/_habil_schrift/10_case_study_I.html" target="_blank">Section 11: Case study I: The comparative alternation</a></li>
-<li><a href="resources_pages/_habil_schrift/11_case_study_II.html" target="_blank">Section 12: Case study II: The genitive alternation</a></li>
-</ul>
+</details>
 
 
-</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -322,7 +348,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp("https:\/\/lsoenning\.github\.io");
+      var filterRegex = new RegExp('/' + window.location.host + '/');
     var isInternal = (href) => {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }
@@ -650,6 +676,18 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./index.html" class="pagination-link" aria-label="Preface">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Preface</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./01_research_objectives.html" class="pagination-link" aria-label="Research objectives">
+        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Research objectives</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
 </div> <!-- /content -->
 
 

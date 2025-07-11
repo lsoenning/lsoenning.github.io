@@ -1,0 +1,90 @@
+---
+title: "Sampling variation in text-level normalized frequencies"
+description: "This short blog post illustrates how the sampling variation of text-level normlaized frequencies depends on the length of texts."
+date: 2025-07-09
+categories: [data visualization]
+citation: 
+  url: https://lsoenning.github.io/posts/2025-07-09_sampling_variation_normalized_frequencies/
+draft: true
+---
+
+These two features are illustrated in Figure 1, which shows hypothetical token distributions for a 1-ptw item in corpora that differ in average text length. The horizontal axis shows the average text length, which runs from 200 (left) to 10,000 (right). Each point denotes an imaginary text, with its vertical position marking the text-level normalized frequency (in ptw). The grey vertical lines are drawn at three illustrative text lengths: 500/2,000/10,000 words. For these snapshots, the distribution of text-level occurrence rates is shown above the graph, using a histogram-like representation. The height of the grey spikes reflects the relative frequency of rates. The large spike at 0 for 500-word texts indicates that about 61% of these texts do not include the item. For a 2,000-word text, this percentage drops to 14%.
+
+## Figure 1: Sampling variation
+
+```{r}
+#| fig-width: 3
+#| fig-height: 2.5
+#| fig-cap: "The effect of average text length on the observed data distribution."
+set.seed(3)
+#| eval: false
+
+library(lattice)
+source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
+
+
+n_words <- runif(3000, log(200), log(11000))
+
+n_tokens_po <- NA
+
+for(i in 1:length(n_words)){
+	n_tokens_po[i] <- sum(rpois(round(exp(n_words[i])), 1000/1e6))
+}
+
+p1 <- xyplot(jitter(sqrt(I(n_tokens_po/round(exp(n_words)))), amount=.0015) ~ (n_words), ylim=c(-.01, sqrt(.01)),
+	   par.settings=my_settings, axis=axis_L, alpha=1/3, xlim=log(c(170, 11000)),
+	   xlab="Text length (log scaled)", ylab="Text-level normalized frequency\n(ptw, square-root scaled)",
+	   scales=list(x=list(at=log(c(200, 500, 1000, 2000, 5000, 10000)),
+	   				   label=c("200", "500", "1000", "2000", "5000", "10000")),
+	   			y=list(at=sqrt(c(0,.001, .005, .01)), label=c(0,1,5,10))),
+	   panel=function(x,y,...){
+	   	panel.segments(x0=log(175), x1=log(170), y0=sqrt(seq(0,.01,.001)), y1=sqrt(seq(0,.01,.001)))
+	   	panel.abline(h=sqrt(.001), col="grey", lty="22", lineend="square")
+	   	panel.segments(x0=log(c(500,2000,10000)), x1=log(c(500,2000,10000)),
+	   				   y0=-.009, y1=.1, col="grey")
+	   	panel.xyplot(x,y,...)
+	   	
+	   	panel.segments(x0=(log(500)-.3)+ sqrt((0:4) / 500)*9, 
+	   				   x1=(log(500)-.3)+ sqrt((0:4) / 500)*9,
+	   				   y0=sqrt(.014), 
+	   				   y1=sqrt(.014)+dpois(0:4, lambda = (1000/1e6)*500)/16,
+	   				   lineend="butt", col="grey60", lwd=1)
+	   	
+	   	panel.segments(x0=(log(2000)-.3)+ sqrt((0:9) / 2000)*9, 
+	   				   x1=(log(2000)-.3)+ sqrt((0:9) / 2000)*9, 
+	   				   y0=sqrt(.014), 
+	   				   y1=sqrt(.014)+dpois(0:9, lambda = (1000/1e6)*2000)/16,
+	   				   lineend="butt", col="grey60", lwd=1)
+	   	
+	   	panel.segments(x0=(log(10000)-.3)+ sqrt((0:24) / 10000)*9, 
+	   				   x1=(log(10000)-.3)+ sqrt((0:24) / 10000)*9,
+	   				   y0=sqrt(.014), 
+	   				   y1=sqrt(.014)+dpois(0:24, lambda = (1000/1e6)*10000)/16,
+	   				   lineend="butt", col="grey60", lwd=1)
+	   	
+	   	panel.segments(x0=(log(500)-.3),   x1=(log(500)+.6),   y0=sqrt(.0135), y1=sqrt(.0135), lwd=.5)
+	   	panel.segments(x0=(log(2000)-.3),  x1=(log(2000)+.6),  y0=sqrt(.0135), y1=sqrt(.0135), lwd=.5)
+	   	panel.segments(x0=(log(10000)-.3), x1=(log(10000)+.6), y0=sqrt(.0135), y1=sqrt(.0135), lwd=.5)
+	   	
+	   	panel.text(x=(log(500)-.3) + sqrt(c(0, c(1,5,10)/1e3))*9, y=sqrt(.0122), label=c(0,1,5,10), cex=.6)
+	   	panel.text(x=(log(2000)-.3) + sqrt(c(0, c(1,5,10)/1e3))*9, y=sqrt(.0122), label=c(0,1,5,10), cex=.6)
+	   	panel.text(x=(log(10000)-.3) + sqrt(c(0, c(1,5,10)/1e3))*9, y=sqrt(.0122), label=c(0,1,5,10), cex=.6)
+	   	
+	   	panel.segments(x0=(log(500)-.3) + sqrt(c(0, c(1,5,10)/1e3))*9, 
+	   				   x1=(log(500)-.3) + sqrt(c(0, c(1,5,10)/1e3))*9,
+	   				   y0=sqrt(.0135), y1=sqrt(.0132), lwd=.5)
+	   	
+	    panel.segments(x0=(log(2000)-.3) + sqrt(c(0, c(1,5,10)/1e3))*9, 
+	   				   x1=(log(2000)-.3) + sqrt(c(0, c(1,5,10)/1e3))*9,
+	   				   y0=sqrt(.0135), y1=sqrt(.0132), lwd=.5)
+	   		   	
+	   	panel.segments(x0=(log(10000)-.3) + sqrt(c(0, c(1,5,10)/1e3))*9, 
+	   				   x1=(log(10000)-.3) + sqrt(c(0, c(1,5,10)/1e3))*9,
+	   				   y0=sqrt(.0135), y1=sqrt(.0132), lwd=.5)
+	   })
+
+print(p1, position=c(0,0,.8,.7))
+
+```
+
+Figure 1 shows that the share of texts with token counts of zero depends on the average length. We also note that frequency distributions for shorter texts become increasingly discrete, with large gaps due to impossible rates of occurrence. The longer the text, on the other hand, the (more) continuous the distribution. Finally, the text-to-text variability of ptw rates decreases from left to right. This reflects sampling variation: In larger samples, i.e. texts of length 10,000, estimates for the item’s normalized frequency are less variable from text to text.

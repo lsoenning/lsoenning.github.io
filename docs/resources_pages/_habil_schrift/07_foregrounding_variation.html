@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>8&nbsp; Foregrounding variation – Modeling variationist corpus data: A mixed-effects framework</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./08_modeling_tactics.html" rel="next">
+<link href="./06_token_level_predictors.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating slimcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./07_foregrounding_variation.html"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Foregrounding variation</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Modeling variationist corpus data: A mixed-effects framework</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./00_intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./01_research_objectives.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Research objectives</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./02_statistical_inference.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Statistical inferences</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./03_data_structure.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Data structure</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./04_statistical_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Statistical models: Integration of research objectives and data structure</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./05_model_specification.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Model specification</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./06_token_level_predictors.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Token-level predictors</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./07_foregrounding_variation.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Foregrounding variation</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./08_modeling_tactics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Modeling tactics</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./09_model_predictions.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Model summary: Adjusted predictions and comparisons</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#generalizing-and-particularizing-approaches-to-clustering-units" id="toc-generalizing-and-particularizing-approaches-to-clustering-units" class="nav-link active" data-scroll-target="#generalizing-and-particularizing-approaches-to-clustering-units"><span class="header-section-number">8.1</span> Generalizing and particularizing approaches to clustering units</a></li>
+  <li><a href="#the-two-orientations-in-contrast" id="toc-the-two-orientations-in-contrast" class="nav-link" data-scroll-target="#the-two-orientations-in-contrast"><span class="header-section-number">8.2</span> The two orientations in contrast</a></li>
+  <li><a href="#complementary-approaches-to-data-analysis" id="toc-complementary-approaches-to-data-analysis" class="nav-link" data-scroll-target="#complementary-approaches-to-data-analysis"><span class="header-section-number">8.3</span> Complementary approaches to data analysis</a></li>
+  <li><a href="#graphical-techniques" id="toc-graphical-techniques" class="nav-link" data-scroll-target="#graphical-techniques"><span class="header-section-number">8.4</span> Graphical techniques</a>
+  <ul class="collapse">
+  <li><a href="#techniques-developed-in-the-variationist-paradigm" id="toc-techniques-developed-in-the-variationist-paradigm" class="nav-link" data-scroll-target="#techniques-developed-in-the-variationist-paradigm"><span class="header-section-number">8.4.1</span> Techniques developed in the variationist paradigm</a></li>
+  </ul></li>
+  <li><a href="#the-issue-of-data-sparsity" id="toc-the-issue-of-data-sparsity" class="nav-link" data-scroll-target="#the-issue-of-data-sparsity"><span class="header-section-number">8.5</span> The issue of data sparsity</a></li>
+  <li><a href="#idiographic-perspectives-on-language-data" id="toc-idiographic-perspectives-on-language-data" class="nav-link" data-scroll-target="#idiographic-perspectives-on-language-data"><span class="header-section-number">8.6</span> Idiographic perspectives on language data</a>
+  <ul class="collapse">
+  <li><a href="#individual-differences-substantive-interest-in-variability" id="toc-individual-differences-substantive-interest-in-variability" class="nav-link" data-scroll-target="#individual-differences-substantive-interest-in-variability"><span class="header-section-number">8.6.1</span> Individual differences: Substantive interest in variability</a></li>
+  <li><a href="#idiographic-approach-to-lexical-units" id="toc-idiographic-approach-to-lexical-units" class="nav-link" data-scroll-target="#idiographic-approach-to-lexical-units"><span class="header-section-number">8.6.2</span> Idiographic approach to lexical units</a></li>
+  </ul></li>
+  <li><a href="#combining-nomothetic-and-idiographic-perspectives-using-mixed-effects-models" id="toc-combining-nomothetic-and-idiographic-perspectives-using-mixed-effects-models" class="nav-link" data-scroll-target="#combining-nomothetic-and-idiographic-perspectives-using-mixed-effects-models"><span class="header-section-number">8.7</span> Combining nomothetic and idiographic perspectives using mixed-effects models</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span id="sec-foregrounding-variation" class="quarto-section-identifier"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Foregrounding variation</span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="generalizing-and-particularizing-approaches-to-clustering-units" class="level2 page-columns page-full" data-number="8.1">
+<h2 data-number="8.1" class="anchored" data-anchor-id="generalizing-and-particularizing-approaches-to-clustering-units"><span class="header-section-number">8.1</span> Generalizing and particularizing approaches to clustering units</h2>
+<p>The behavior of organisms can be studied from different perspectives, which have been classified along a continuum from idiographic to nomothetic. This distinction, which was introduced by <span class="citation" data-cites="Windelband1894">Windelband (<a href="references.html#ref-Windelband1998" role="doc-biblioref">1998</a>)</span><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>, can, for our present purposes, be understood as referring to different levels of analysis. In this chapter we will discuss the relevance of the nomothetic-idiographic cline for the study of language and the analysis of corpus data. Both levels of analysis have advantages and limitations. An awareness of existing trade-offs can serve to inform our approach to corpus data, enhance our data-analytic repertoire and lead to more nuanced empirical insights. We will start with a delineation of the two styles and then discuss how they can be integrated into corpus data analysis. Graphical and numerical tools that add idiographic insights will be discussed. The final section is concerned with the relevance of the idiographic perspective in language data analysis more generally.</p>
+<div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;The distinction between idiographic and nomothetic perspectives has had noticeable repercussions in the field of psychology, where it was popularized by <span class="citation" data-cites="Allport1937 Allport1962">(<a href="references.html#ref-Allport1937" role="doc-biblioref">Allport 1937, 22</a>; <a href="references.html#ref-Allport1962" role="doc-biblioref">1962</a>)</span>. See <span class="citation" data-cites="Thomae1999">Thomae (<a href="references.html#ref-Thomae1999" role="doc-biblioref">1999</a>)</span> for an overview and <span class="citation" data-cites="Holt1962">Holt (<a href="references.html#ref-Holt1962" role="doc-biblioref">1962</a>)</span> for a critical perspective.</p></div></div></section>
+<section id="the-two-orientations-in-contrast" class="level2 page-columns page-full" data-number="8.2">
+<h2 data-number="8.2" class="anchored" data-anchor-id="the-two-orientations-in-contrast"><span class="header-section-number">8.2</span> The two orientations in contrast</h2>
+<p>The <em>nomothetic</em> research style is characterized by the pursuit of generalization. Its aim is to identify regularities across organisms, with a view, perhaps, to establishing general laws. As described by <span class="citation" data-cites="Levy1970">(<a href="references.html#ref-Levy1970" role="doc-biblioref"><strong>Levy1970?</strong></a>)</span>, this branch of research activity includes “the development of generalizations of ever increasing scope, so greater and greater varieties of phenomena may be explained by them, and broader and broader reaching predictions and decision based upon them”. Accordingly, empirical work seeks to collect sufficiently large samples to establish a solid base for generalization. Data analysis involves the aggregation and averaging over individuals to derive broad-inference estimates that can be projected across classes of organisms, or organisms in general. Variation among units around these abstracted patterns is a minor concern at this level of analysis.</p>
+<p>The <em>idiographic</em> orientation, on the other hand, shifts the main focus to the individual organism. This style of research is concerned with a comprehensive appreciation of each specific unit, offering a description of its patterns of behavior. The detailed profiles obtained by this strategy reveal consistencies and differences among units, showing stable configurations across units as well as the idiosyncratic features in each. Empirical studies therefore typically investigate fewer distinct organisms, but compile more extensive records of each. Hence, the method is sometimes referred to as the “small-<em>n</em> approach”.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> Data-analytic techniques involve the computation of summary measures at the level of the individual unit, whose integrity is preserved throughout all stages of analysis and interpretation.</p>
+<div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;Here, <em>n</em> refers to the number of units. This should not be taken to suggest that idiographic studies require fewer resources or deal with data sets of smaller size in general <span class="citation" data-cites="Mook1982">(<a href="references.html#ref-Mook1982" role="doc-biblioref">Mook 1982, 223</a>)</span>.</p></div></div><p>As originally conceived, the labels “idiographic” and “nomothetic” refer to different research methodologies or even scientific mentalities. Differences between the two styles therefore surface in all branches of research activity, extending from data analysis and research design to problem formulation, substantive priorities and philosophical outlook. Our focus will be on the relevance of these viewpoints for data analysis. We will see that the distinction becomes relevant when there is clustering in the data. As we have argued in Chapter <a href="03_data_structure.html" class="quarto-xref"><span>Chapter 4</span></a>, clustered data structures are typical for natural language data. We would therefore argue that the distinction between nomothetic and idiographic data-analytic philosophies is also of broader relevance for corpus data analysis.</p>
+<p>The analysis of structured data layouts can put varying degrees of emphasis on the individual units (clusters) in the data. We might background them by only considering their average behavior. This would correspond to a nomothetic viewpoint, with the average smoothing over the underlying idiosyncracies to distill the information that is shared by the set of units. We will also refer to this empirical direction as the <em>group-averaged</em>, generalizing approach. The individual units submerge into the error term of the model, which collects the the residual variation not accounted for by the systematic component of the model.</p>
+<p>On the other hand, we could also be interested in the underlying units as such, asking about the patterns the data form in each particular cluster. This would resemble, in some sense, the idiographic research style. Our attention could be focused on the specific unit, as we might consider each cluster an object of interest in its own right. We will refer to this kind of outlook as the <em>unit-specific</em> approach. A weaker form of unit-specificity would be show an interest not for each unit individually, but on the structure of the existing between-unit variability, that is, the degree of similarity or variability among units.</p>
+<p>Let us consider a hypothetical example. Figure <a href="#fig-illustration-idiographic-nomothetic" class="quarto-xref">Figure&nbsp;<span>8.1</span></a> shows how the same set of data could be visualized from these two angles. In our illustrative example, a predictor of interest has three levels (conditions); these are shown along the horizontal axis. There are five subjects, and every subject is observed in each condition. Panel (a) shows a nomothetically inspired, group-averaged perspective on the data. In each condition, we average over the five speakers. This condenses the information into a three scores, which represent, in some average sense, how the typical speaker behaves in these conditions.</p>
+<p>The data are of higher resolution, however – we also have information about the shape of the pattern that the predictor forms in each subject. An idiographically-inspired, unit-specific perspective on the data would foreground the configurations observed for each speaker. The corresponding visualization is shown in Figure <a href="#fig-illustration-idiographic-nomothetic" class="quarto-xref">Figure&nbsp;<span>8.1</span></a> b, where the individual profiles denote within-speaker conditional averages. This reveals a richer perspective on the data: It shows the degree of consistency of the group-statistical profile across individuals. Thus, it is not concerned primarily with the most typical score for a particular condition, but with the regularity of this pattern across individual speakers. In Figure <a href="#fig-illustration-idiographic-nomothetic" class="quarto-xref">Figure&nbsp;<span>8.1</span></a> b, we are asking about whether the hockey-stick pattern materializes in each individual.</p>
+<div class="cell page-columns page-full">
+<div class="cell-output-display page-columns page-full">
+<div id="fig-illustration-idiographic-nomothetic" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-illustration-idiographic-nomothetic-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="07_foregrounding_variation_files/figure-html/fig-illustration-idiographic-nomothetic-1.png" class="img-fluid figure-img" width="422">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-illustration-idiographic-nomothetic-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.1: Illustration of the nomothetic and idiographic approach to data analysis and interpretation.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Since both perspectives offer meaningful insights, our aim should be to combine features of both approaches in corpus data analysis.</p>
+</section>
+<section id="complementary-approaches-to-data-analysis" class="level2 page-columns page-full" data-number="8.3">
+<h2 data-number="8.3" class="anchored" data-anchor-id="complementary-approaches-to-data-analysis"><span class="header-section-number">8.3</span> Complementary approaches to data analysis</h2>
+<p>Data analysis using regression modeling is typically geared towards group-statistical, nomothetic description. Our interpretation usually centers on those regression coefficients that reflect averages and differences between averages (the “fixed effects”). The visualization of regression models also rests on predicted averages for certain constellations of predictor values. As we will demonstrate in the following, a useful strategy is to supplement and enrich aggregating approaches with empirical indications at the level of the individual units – about pattern variability and consistency. To encourage a more balanced emphasis on different levels of analysis, let us contrast drawbacks of the nomothetic view with benefits of the idiographic angle.</p>
+<p>We should emphasize that group-statistical summaries do play an important role in data-based work. By averaging over a set of scores, we gain information by discarding numerical details <span class="citation" data-cites="Stigler2016">(<a href="references.html#ref-Stigler2016" role="doc-biblioref"><strong>Stigler2016?</strong></a>)</span>. Thus, if averages provide good summaries, they facilitate comparisons across partitions of the data. We will distinguish two types of averaging: (i) <em>average scores</em> computed over a set of numbers and (ii) <em>average patterns</em> computed over a set of profiles. Figure <a href="#fig-illustration-idiographic-nomothetic" class="quarto-xref">Figure&nbsp;<span>8.1</span></a> shows examples of both kinds: (i) each conditional average in panel (a) is an average over a set of 5 scores; and (ii) the hockey-stick profile in panel (a) is an average over a set of 5 patterns.</p>
+<p>The important point for the ensuing discussion is that any kind of averaging treats the data points, or patterns, as interchangeable <span class="citation" data-cites="Cobb1997">(e.g. <a href="references.html#ref-Cobb1997" role="doc-biblioref">Cobb 1997, 155–57</a>)</span>, i.e.&nbsp;sufficiently similar to yield a valid abstraction. Thus, <em>average scores</em> should do a good job of indicating what the typical observation looks like. In Figure <a href="#fig-illustration-idiographic-nomothetic" class="quarto-xref">Figure&nbsp;<span>8.1</span></a> a, for instance, the average for condition 3 does a slightly better job than that for condition 1. <em>Average patterns</em>, on the other hand, should provide a valid summary of the individual profiles that go into this average. In Figure <a href="#fig-illustration-idiographic-nomothetic" class="quarto-xref">Figure&nbsp;<span>8.1</span></a> b, we see some variability in the subject-specific configurations. In general, average scores and patterns lose their appeal (and validity) if a closer look at the underlying cases raises doubts about the similarity, or interchangeability of the underlying numbers or profiles.</p>
+<p>Before computing an average over a set of scores or patterns, then, we should inspect the data for threats to the validity of our summary measures. Since averages can mask a great deal of underlying variability, they should routinely be accompanied by measures of spread (e.g.&nbsp;the standard deviation or median absolute deviation). The dispersion of scores around their average gives us some idea of how “typical” the average case really is. This routine textbook advice is more difficult to apply to average patterns, however – especially if the profiles of interest are formed over three or more conditions. Visual examinations of unit-level patterns, as illustrated in Figure <a href="#fig-illustration-idiographic-nomothetic" class="quarto-xref">Figure&nbsp;<span>8.1</span></a> b, then provide invaluable assistance. Side-by-side comparisons of the average pattern and its constituent profiles will show the descriptive adequacy of the average pattern. We will consider additional techniques for the appraisal of pattern consistency across units further below.</p>
+<p>If an average pattern is forced onto an ensemble of erratic profiles, it does not describe the typical pattern in the underlying set; it is rather an elusive abstraction that may in fact represent only a fraction of the units.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> A breakdown of the focal profile by individual unit can therefore urge a more cautionary interpretation of group-statistical trends. In cases where the extent of commonalities among units, as reflected in the smoothed overlay, diminish against the backdrop of unit-to-unit variability, averages may fail to articulate meaningful and interesting data features.</p>
+<div class="no-row-height column-margin column-container"><div id="fn3"><p><sup>3</sup>&nbsp;In some cases, average patterns can also distort the form of a relationship <span class="citation" data-cites="Mook1982">(<a href="references.html#ref-Mook1982" role="doc-biblioref">Mook 1982, 193–94</a>)</span>.</p></div><div id="fn4"><p><sup>4</sup>&nbsp;As noted by <span class="citation" data-cites="Mook1982">(<a href="references.html#ref-Mook1982" role="doc-biblioref">Mook 1982, 230</a>)</span>, “the odds are that you would see no need to test the statistical significance of this relationship. It has met the ’traumatic interocular test” […]: It hits you between the eyes.”</p></div></div><p>If, on the other hand, the profiles are, by and large, in good agreement with their balanced outline, this indicates that the group-statistical summary offers a good description of the typical pattern and does not obscure variation. We would then be more inclined to take the summary statement at face value. More importantly, however, observed regularities among units enable us to make a much stronger case for the factor of interest. By allowing – or forcing – the patterns to become directly visible in the individual units, we may be able to offer a simple and direct demonstration of the capacity of the focal predictor. Stable within-unit profiles offer a far more telling and convincing story than averaged summaries <span class="citation" data-cites="Mook1982">(<a href="references.html#ref-Mook1982" role="doc-biblioref">Mook 1982, 228–29</a>)</span>. Consistent configurations within individuals therefore add additional weight to the evidence and may in fact obviate the need for statistical significance testing.<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a></p>
+<p>In fact, the demonstrability of between-unit consistency may be considered a more stringent criterion for judgments about the “significance” of an observed pattern. This is because, given a sufficiently large sample of units, “statistical significance” can be demonstrated for almost any kind of pattern. At some point, the size of the data will outweigh unit-to-unit heterogeneity. In terms of research strategy, larger samples are therefore not the primary key to establishing the validity and generality of statistical conclusions. If the averaged pattern reverberates steadily at the level of the individual units, however, this will add evidential force to our conclusions, providing more reassurance to the reader than any statistical testing procedure could.</p>
+<p>Demonstrations of consistency also provide leverage when considering the generality of research findings <span class="citation" data-cites="Sidman1960">(see, e.g., <a href="references.html#ref-Sidman1960" role="doc-biblioref">Sidman 1960, 51, 83</a>)</span>. If we find corresponding patterns in a set of units, this provides statistical grounds for extending conclusions to unobserved cases. Consistency among units therefore enhances generality, especially if regularities emerge across a diverse set or different classes of units. Judgments as to the range of validity of research findings, which ultimately rest on extra-statistical, subject-matter grounds, can at least in part be informed by statistical analysis.</p>
+<p>To summarize, we have seen that the particularization of empirical insights that is characteristic of the idiographic research style attaches great importance to the integrity of the individual unit. Instead of averaging over cases, it offers a description of the behavior of each unit under study. This angle reveals a level of detail that is beyond the reach of group-statistical approaches. A great deal of analytical leverage can be gained by combining group-averaged and unit-specific levels of analysis. We have accentuated potential disadvantages of group-statistical methods to encourage a shift of emphasis to the variability among units. A complementary approach will assess the consistency among units to arrive at a proper understanding of what the data are saying. While inconsistency among units would qualify and challenge average summaries, consistent profiles produce a coherent picture that is more than the sum of its parts.</p>
+</section>
+<section id="graphical-techniques" class="level2 page-columns page-full" data-number="8.4">
+<h2 data-number="8.4" class="anchored" data-anchor-id="graphical-techniques"><span class="header-section-number">8.4</span> Graphical techniques</h2>
+<ul>
+<li>Dot diagram brings all the data points into view</li>
+<li>Uncover and interpret between-unit variation that is represented in the random-effects hyperparameters</li>
+<li>Comparative measures: Extend focus to the level of the individual units, e.g.&nbsp;Probability of superiority (<span class="citation" data-cites="Grissom_Kim2012">Grissom and Kim (<a href="references.html#ref-Grissom_Kim2012" role="doc-biblioref">2012</a>)</span>, p.&nbsp;149–174)</li>
+<li>icon arrays <span class="citation" data-cites="Gigerenzer_Hoffrage1995">Akl et al. (<a href="references.html#ref-Akl_etal2011" role="doc-biblioref">2011</a>)</span></li>
+</ul>
+<p>Present information on the level of the individual unit</p>
+<ul>
+<li><em>consistency</em> refers to the share of units showing a particular pattern or configuration</li>
+<li>How representative is the mean value of all the subjects in the population?</li>
+<li>The number of subjects who actually fell at the mean value.</li>
+<li>If there were a greater interest in the population distribution, we would see more data expressed not simply in terms of summary measures, but rather in terms of the number of subjects that yield each value of the quantity of interest.</li>
+</ul>
+<section id="techniques-developed-in-the-variationist-paradigm" class="level3 page-columns page-full" data-number="8.4.1">
+<h3 data-number="8.4.1" class="anchored" data-anchor-id="techniques-developed-in-the-variationist-paradigm"><span class="header-section-number">8.4.1</span> Techniques developed in the variationist paradigm</h3>
+<p><span class="citation" data-cites="Bickerton1971">Bickerton (<a href="references.html#ref-Bickerton1971" role="doc-biblioref">1971</a>)</span>’s criticism on the averaging triggered an increased focus on speaker-specific behavior, which led to a number of methodological advances. We will here discuss two exemplary studies, each with a methodological focus, which illustrate the degree of data-analytic sophistication that was developed early on in the variationist paradigm.</p>
+<p>The first is <span class="citation" data-cites="Sankoff1974">G. Sankoff (<a href="references.html#ref-Sankoff1974" role="doc-biblioref">1974</a>)</span>, who used demonstrated how to look beyond aggregated results. The first graph type is concerned with the consistency of a linguistic factor across individuals. <a href="#fig-sankoff-line-range-chart" class="quarto-xref">Figure&nbsp;<span>8.2</span></a> applies the graphing technique to the predictor LEXICAL CATEGORY, for which we observed the highest rate of g-dropping for verbs, followed by gerunds, nouns and then adjectives. The graph shows two things. First, the vertical spread of points reflects the variation in dropping rates across speakers within each lexical category. The range of dropping rates is marked visually using a rectangle, which extends from the lowest to the highest proportion of [in]-realizations. The mean rate for each column (i.e.&nbsp;each lexical category) is shown using a thicker crossbar. It is clear that each mean summarizes a highly variable distribution.</p>
+<p>The second aspect highlighted in <a href="#fig-sankoff-line-range-chart" class="quarto-xref">Figure&nbsp;<span>8.2</span></a> is the consistency of the verb &gt; gerund &gt; noun &gt; adjective cline across speakers. Each speaker appears as a profile, connecting their dropping rates for these four lexical classes. To avoid a clutter due to noise and sampling variability, <a href="#fig-sankoff-line-range-chart" class="quarto-xref">Figure&nbsp;<span>8.2</span></a> only includes individuals with at least 5 tokens for each lexical class. The focus is then on whether the overall configuration emerges within each speaker, which appears to be roughly the case.</p>
+<div class="cell page-columns page-full">
+
+<div class="no-row-height column-margin column-container"><div class="cell-output-display">
+<div id="fig-sankoff-line-range-chart" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-sankoff-line-range-chart-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="07_foregrounding_variation_files/figure-html/fig-sankoff-line-range-chart-1.png" class="img-fluid figure-img" width="211">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig" id="fig-sankoff-line-range-chart-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.2: Consistency of lexical category constraint across individuals with at least 5 tokens in each word class (15 speakers). This graph is modeled on <span class="citation" data-cites="Sankoff1974">G. Sankoff (<a href="references.html#ref-Sankoff1974" role="doc-biblioref">1974, 33</a>)</span>.
+</figcaption>
+</figure>
+</div>
+</div></div></div>
+<p>Another display type used in <span class="citation" data-cites="Sankoff1974">G. Sankoff (<a href="references.html#ref-Sankoff1974" role="doc-biblioref">1974</a>)</span> is mimicked in <a href="#fig-sankoff-consistency-diverging-bars" class="quarto-xref">Figure&nbsp;<span>8.3</span></a>. Again, only 15 speakers are shown, each with at least 5 tokens per lexical category. Black bars indicate the number of [in] tokens, white bars the number of [ing] tokens produced by an individual in a specific category. Individuals are ordered by g-dropping rate: Speaker 404, at the top, almost categorically uses the [in] pronunciation; speaker 116, at the bottom, shows the reverse behavior. We note that the dropping rate decreases fairly regulary from left to right for these 15 speakers.</p>
+<div class="cell page-columns page-full">
+<div class="cell-output-display page-columns page-full">
+<div id="fig-sankoff-consistency-diverging-bars" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-sankoff-consistency-diverging-bars-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="07_foregrounding_variation_files/figure-html/fig-sankoff-consistency-diverging-bars-1.png" class="img-fluid figure-img" width="432">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-sankoff-consistency-diverging-bars-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.3: Consistency of lexical category constraint across individuals with at least 5 tokens in each word class (15 speakers). This graph is modeled on <span class="citation" data-cites="Sankoff1974">G. Sankoff (<a href="references.html#ref-Sankoff1974" role="doc-biblioref">1974, 36</a>)</span>.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The final graphing technique used by <span class="citation" data-cites="Sankoff1974">G. Sankoff (<a href="references.html#ref-Sankoff1974" role="doc-biblioref">1974</a>)</span> has a different focus: the coherence of social groupings. In the example she uses, speaker-specific rates are plotted against speaker age, and the visual demonstration reveals a patterning that is so clear that no trend line is required. <a href="#fig-sankoff-speaker-social-factor" class="quarto-xref">Figure&nbsp;<span>8.4</span></a> spplies the technique to the predictor EDUCATION.</p>
+<div class="cell page-columns page-full">
+
+<div class="no-row-height column-margin column-container"><div class="cell-output-display">
+<div id="fig-sankoff-speaker-social-factor" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-sankoff-speaker-social-factor-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="07_foregrounding_variation_files/figure-html/fig-sankoff-speaker-social-factor-1.png" class="img-fluid figure-img" width="249">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig" id="fig-sankoff-speaker-social-factor-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.4: Between-speaker variation within social categories. This graph is modeled on <span class="citation" data-cites="Sankoff1974">G. Sankoff (<a href="references.html#ref-Sankoff1974" role="doc-biblioref">1974, 41</a>)</span>.
+</figcaption>
+</figure>
+</div>
+</div></div></div>
+<p>Further, distinctly different graphical methods were proposed by <span class="citation" data-cites="Guy1980">Guy (<a href="references.html#ref-Guy1980" role="doc-biblioref">1980</a>)</span>, who distinguishes between qualitative and quantitative assessments. Qualitative checks focus on the rank order of factor levels and its consistency across individuals. A <em>pairwise comparison chart</em> is used to visually depict the consistency of ordering. A major obstacle is the data sparsity, and <span class="citation" data-cites="Guy1980">Guy (<a href="references.html#ref-Guy1980" role="doc-biblioref">1980</a>)</span> demonstrates the use of graphical tools that include information about token counts and therefore the statistical precision of speaker-specific values.</p>
+<p><span class="citation" data-cites="Guy1980">Guy (<a href="references.html#ref-Guy1980" role="doc-biblioref">1980</a>)</span> proposed a number of graphical techniques for assessing the consistency of data patterns across individuals. The illustrative analysis used in that study was concerned with a variable rule analysis of /t,d/ deletion, focusing on a number of grammatical and phonological constraints. To examine the generality across individuals of the average pattern obtained for a specific predictor, <span class="citation" data-cites="Guy1980">Guy (<a href="references.html#ref-Guy1980" role="doc-biblioref">1980</a>)</span> used two general approaches, which we will illustrate using our data on (ING). We have observed that the average pattern is that verbs show the highest rate of g-dropping, followed by nouns and then adjectives. In other words, the realization as [ing] is most likely in adjectives, and less likely in nouns and verbs.</p>
+<p>The first approach used by <span class="citation" data-cites="Guy1980">Guy (<a href="references.html#ref-Guy1980" role="doc-biblioref">1980</a>)</span> is qualitative. It looks at whether the cline adjective &gt; noun &gt; verb is stable across individuals. Since there are three levels of the factor, there are three ordered comparisons we can make for each speaker. The first step is to obtain, for each speaker, the rate of <em>g</em>-dropping for each lexical category.<span class="citation" data-cites="Guy1980">Gelman et al. (<a href="references.html#ref-Gelman_etal2008" role="doc-biblioref">2008</a>)</span> The three rates can then be compared, to see whether the material produced by this individual conforms to the general pattern.</p>
+<p><span class="citation" data-cites="Guy1980">Guy (<a href="references.html#ref-Guy1980" role="doc-biblioref">1980</a>)</span> records the results of these comparisons in a <em>pairwise comparison chart</em>. This chart is a cross-table that lists all factors levels as column and row labels. It makes sense to arrange these levels according to the average pattern in the data, in decreasing order from left to right an from top to bottom. For each combination of factor levels (e.g.&nbsp;adjective - verb), there are two cells - one above the diagonal and one below the diagonal. If the within-speaker rank order of the two factor levels is consistent with the general pattern, a mark is entered into the cell below the diagonal, if the pattern is reversed in the data produced by this individual, the mark appears above the diagonal.</p>
+<p><a href="#fig-guy-pairwise-comparison-chart" class="quarto-xref">Figure&nbsp;<span>8.5</span></a> shows a pairwise comparison chart for the predictor Lexical Category. When interpreting this graph, our focus is on the degree to which marks occupy the area below the diagonal. If the center of visual gravity is located firmly towards the lower left corner of the cross table, this reflects consistency across speakers.</p>
+<div class="cell page-columns page-full">
+
+<div class="no-row-height column-margin column-container"><div class="cell-output-display">
+<div id="fig-guy-pairwise-comparison-chart" class="quarto-float quarto-figure quarto-figure-center anchored" width="216">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-guy-pairwise-comparison-chart-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="07_foregrounding_variation_files/figure-html/fig-guy-pairwise-comparison-chart-1.png" id="fig-guy-pairwise-comparison-chart" class="img-fluid figure-img" width="216">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-guy-pairwise-comparison-chart-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.5
+</figcaption>
+</figure>
+</div>
+</div></div></div>
+<p><a href="#fig-guy-pairwise-comparison-chart" class="quarto-xref">Figure&nbsp;<span>8.5</span></a>, which uses dots as visual marks, deviates from the version that appears in <span class="citation" data-cites="Guy1980">Guy (<a href="references.html#ref-Guy1980" role="doc-biblioref">1980</a>)</span> in one important regard: The original pairwise comparison use an additional mark if there is a draw between the factor levels - in our case, if the rate of g-dropping is the same in both contexts. This mark (a horizontal instead of a vertical bar) is then added to the cell below the diagonal. Since this adds to the visual weight below the diagonal, i.e.&nbsp;to the preferred outcome of the data examination, we prefer to exclude such draws from the chart.</p>
+<p>A key issue that arises when studying these speaker-level comparisons is data sparsity. Thus, a speaker may have produced only few tokens for a specific factor level, which adds uncertainty to the comparison and the location of the mark in the pairwise comparison chart. This issue is discussed at length in <span class="citation" data-cites="Guy1980">Guy (<a href="references.html#ref-Guy1980" role="doc-biblioref">1980</a>)</span>, where information about the number of tokens buttressing a specific comparison is incorporated into graphs. As a measure of data quantity, the token count for the factor level with the smaller number of occurrences is used. This allows us to see whether inconsistencies may be attributable to paucity of data and the resulting sampling variation .</p>
+<p>To add information of data quantity to the graph, the cells in the pairwise comparison chart are rearranged into stacked rows <span class="citation" data-cites="Guy1980">(Figure 1.3 in <a href="references.html#ref-Guy1980" role="doc-biblioref">Guy 1980, 19</a>)</span>. Unfortunately, the resulting visual form loses the direct interpretation in terms of the center of viusal gravity. We therefore opt for a different strategy, which allows us to include token count information directly into the pairwise comparison chart: Fill color reflects token count, with darker greyshades signalling more comfortable sample sizes.</p>
+<p>The second approach used by <span class="citation" data-cites="Guy1980">Guy (<a href="references.html#ref-Guy1980" role="doc-biblioref">1980</a>)</span> is quantitative in nature. Instead of noting the rank order of factor levels, it records and compares the proportionate difference obtained for specific comparisons across speakers. These differences are graphed against the data quantity measure, the smaller number of tokens for the pair of factor levels. <a href="#fig-guy-quantitative-factor-pair-chart" class="quarto-xref">Figure&nbsp;<span>8.6</span></a> shows such a <em>quantitative factor pair chart</em> for the predictor Lexical Category. The black vertical line indicates the average over all speakers, and the scatter of points allows us to note how consistent speakers are. Again, data sparsity is a potential issue. Since smaller token counts will yield more variable difference estimates, the point cloud should assume the shape of a funnel, with points higher up in the graph being closer to the group average. For our data, we observe this pattern for the (adjective - verb) and the (adjective - noun) difference. For the (noun-verb) difference, however, there is a clear outlier.</p>
+<div class="cell page-columns page-full">
+<div class="cell-output-display page-columns page-full">
+<div id="fig-guy-quantitative-factor-pair-chart" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-guy-quantitative-factor-pair-chart-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="07_foregrounding_variation_files/figure-html/fig-guy-quantitative-factor-pair-chart-1.png" class="img-fluid figure-img" width="480">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-guy-quantitative-factor-pair-chart-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.6: Quantitative factor pair chart
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell page-columns page-full">
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 33 rows containing missing values or values outside the scale range
+(`stat_bindot()`).</code></pre>
+</div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-guy-quantitative-factor-pair-dotdiagram" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-guy-quantitative-factor-pair-dotdiagram-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="07_foregrounding_variation_files/figure-html/fig-guy-quantitative-factor-pair-dotdiagram-1.png" class="img-fluid figure-img" width="192">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-guy-quantitative-factor-pair-dotdiagram-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;8.7: Quantitative factor pair dot diagram
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Further graphical techniques that use speaker-specific factor levels or differences between these appear in <span class="citation" data-cites="Guy_Boyd1990">Guy and Boyd (<a href="references.html#ref-Guy_Boyd1990" role="doc-biblioref">1990</a>)</span> and <span class="citation" data-cites="Guy1991">Guy (<a href="references.html#ref-Guy1991" role="doc-biblioref">1991</a>)</span>. For instance, <span class="citation" data-cites="Guy_Boyd1990">Guy and Boyd (<a href="references.html#ref-Guy_Boyd1990" role="doc-biblioref">1990, 8, 11</a>)</span> graph the factor levels for an internal predictor (morphological class) against an external variable, speaker age. They also graph the difference between two morphological classes against speaker age, as a reassurance.</p>
+<div class="cell">
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: The `size` argument of `element_line()` is deprecated as of ggplot2 3.4.0.
+ℹ Please use the `linewidth` argument instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 19 rows containing missing values or values outside the scale range
+(`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="07_foregrounding_variation_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="480"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="the-issue-of-data-sparsity" class="level2" data-number="8.5">
+<h2 data-number="8.5" class="anchored" data-anchor-id="the-issue-of-data-sparsity"><span class="header-section-number">8.5</span> The issue of data sparsity</h2>
+<p>The individual-level analyses developed in the variable rule paradigm rely on separate analyses of speakers. This means that the data need to be divided up, and separate regressions (or Varbrul analyses) are then run on these partitions <span class="citation" data-cites="Guy1980 Guy_Boyd1990">(<a href="references.html#ref-Guy1980" role="doc-biblioref">Guy 1980</a>; <a href="references.html#ref-Guy_Boyd1990" role="doc-biblioref">Guy and Boyd 1990</a>)</span>. Alternatively, an interaction between Speaker and the within-speaker predictor can be included into the model <span class="citation" data-cites="Sankoff_Labov1979">(<a href="references.html#ref-Sankoff_Labov1979" role="doc-biblioref">D. Sankoff and Labov 1979, 209</a>)</span>. Both of these strategies may run into data sparsity issues.</p>
+<p>Data sparsity issues lead to three problems:</p>
+<ul>
+<li>Noisy parameter estimates</li>
+<li>Separation or quasi-separation (referred to as “knockouts” in the variationist paradigm)</li>
+<li>Empty cells<span class="citation" data-cites="Guy1988">(^ <a href="references.html#ref-Guy1988" role="doc-biblioref">Guy 1988, 126</a> refers to this as “non-orthogonality” of factors (or, in variable rule parlance, “factor groups”).)</span></li>
+</ul>
+<p>Various work-arounds have been used in the literature <span class="citation" data-cites="Guy1980">(<a href="references.html#ref-Guy1980" role="doc-biblioref">Guy 1980, 20</a>)</span>.</p>
+<ul>
+<li>Combine data for speakers <span class="citation" data-cites="Guy_Boyd1990">(<a href="references.html#ref-Guy_Boyd1990" role="doc-biblioref">Guy and Boyd 1990, 7</a>)</span></li>
+<li>Combination of factor levels</li>
+<li>Exclusion of speakers <span class="citation" data-cites="Paolillo2013">(<a href="references.html#ref-Paolillo2013" role="doc-biblioref">Paolillo 2013</a>)</span></li>
+</ul>
+<p>None of these strategies may be considered satisfactory. The combination of data from different speakers (or items, as the case may be) appears the least problematic. <span class="citation" data-cites="Guy2018">Guy (<a href="references.html#ref-Guy2018" role="doc-biblioref">2018</a>)</span> suggested that clustering units with fewer than 20 tokens should be combined in a “residual category”. As for the combination of factor levels, if there are theoretical reasons to distinguish between them, the informativity of the analysis may be impeded. As for the conflation of categories, <span class="citation" data-cites="Guy1988">Guy (<a href="references.html#ref-Guy1988" role="doc-biblioref">1988, 132</a>)</span> notes that “in the absence of linguistically meaningful generalization about common properties that unite [these classes] […], this procedure would yield garbage”. Finally, the exclusion of speakers may also be undesirable. If individuals are excluded due to data sparseness, this reduces the sample size. If speakers are excluded because they show categorical behavior, either in general, or for a specific factor level, the exclusion of these individuals may distort the results for speaker-level predictors. For instance, <span class="citation" data-cites="Paolillo2013">Paolillo (<a href="references.html#ref-Paolillo2013" role="doc-biblioref">2013, 97</a>)</span> removes from the analysis two speakers who showed categorical usage, due to “knockouts”.</p>
+</section>
+<section id="idiographic-perspectives-on-language-data" class="level2" data-number="8.6">
+<h2 data-number="8.6" class="anchored" data-anchor-id="idiographic-perspectives-on-language-data"><span class="header-section-number">8.6</span> Idiographic perspectives on language data</h2>
+<p>It was stressed by <span class="citation" data-cites="Carver1978">Carver (<a href="references.html#ref-Carver1978" role="doc-biblioref">1978</a>)</span> that <span class="citation" data-cites="Coleman1964">Coleman (<a href="references.html#ref-Coleman1964" role="doc-biblioref">1964</a>)</span> and <span class="citation" data-cites="Clark1973">Clark (<a href="references.html#ref-Clark1973" role="doc-biblioref">1973</a>)</span> represented a particular scientific mentality, which he refers to as that of “statistical significance testers”. This mentality is related to the generalizing, nomothetic approach (see Chapter …). <span class="citation" data-cites="Carver1978">Carver (<a href="references.html#ref-Carver1978" role="doc-biblioref">1978</a>)</span> provides perspective on the critique that had been advanced by <span class="citation" data-cites="Miller_Coleman1972">Miller and Coleman (<a href="references.html#ref-Miller_Coleman1972" role="doc-biblioref">1972</a>)</span> against his study on reading behavior <span class="citation" data-cites="Carver1972">(<a href="references.html#ref-Carver1972" role="doc-biblioref">Carver 1972</a>)</span>. <span class="citation" data-cites="Miller_Coleman1972">Miller and Coleman (<a href="references.html#ref-Miller_Coleman1972" role="doc-biblioref">1972</a>)</span> reported a replication study that apparently failed to replicate Carver’s findings. <span class="citation" data-cites="Carver1978">Carver (<a href="references.html#ref-Carver1978" role="doc-biblioref">1978</a>)</span> lays out how his reanalysis of <span class="citation" data-cites="Miller_Coleman1972">Miller and Coleman (<a href="references.html#ref-Miller_Coleman1972" role="doc-biblioref">1972</a>)</span>’s data as well as several further successful replications by himself lent support to his original findings. We can learn from this episode that the nomothetic approach to language data analysis, and its associated test of significance are not the only reliable scientific strategies. Carver’s research style focussed on within-study replicative patterns as well as coherence with theory. Thus, <span class="citation" data-cites="Carver1978">Carver (<a href="references.html#ref-Carver1978" role="doc-biblioref">1978</a>)</span> noted that the dependability of his earlier findings could be read from two forms of replication: The consistency of a function relationship across two groups of subjects, and the inherent replication offered by the individual data points in the curve, where the similarity between adjacent difficulty levels reflected consistency, or repeatability.<span class="citation" data-cites="Sidman1960">(^Is this form of replication mentioned at all in <a href="references.html#ref-Sidman1960" role="doc-biblioref">Sidman 1960</a>?)</span></p>
+<p>Interestingly, the issue of generality debate also appeared in the fixed-vs-random-effect- controversy. As <span class="citation" data-cites="Raaijmakers2003">Raaijmakers (<a href="references.html#ref-Raaijmakers2003" role="doc-biblioref">2003</a>)</span> notes, a common misconception in the psycholinguistic community is that item analyses only return a significant result if the treatment effect is obtained for every item. He notes that “[t]he idea seems to be that a treatment effect should be present for each and every one of the subjects and items, otherwise it is not a real effect.” <span class="citation" data-cites="Raaijmakers2003 Forster2008">(<a href="references.html#ref-Raaijmakers2003" role="doc-biblioref">2003, 146</a>; see also <a href="references.html#ref-Forster2008" role="doc-biblioref">Forster 2008</a>)</span>. This is an idiographic interpretation, attached to a nomothetic analysis. In fact, traditional ANOVA-style analyses are ill-equipped to give a meaningful reflection of generality of an effect across subjects and/or items. In light of these misconceptions, and it appears questionable whether random effects should actually be referred to as “generalization effects”, as suggested by <span class="citation" data-cites="Coleman1979">Coleman (<a href="references.html#ref-Coleman1979" role="doc-biblioref">1979</a>)</span>.</p>
+<ul>
+<li><p>discussion in experimental syntax/generative grammar: Den Dikken et al.&nbsp;2007</p></li>
+<li><p>studies that have demonstrated stable variation across speakers, cited in Barth &amp; Kapatsinsi 2014: 205-206</p></li>
+<li><p>Findings apply to individuals, the locus of the speaker’s mind as the locus of grammar</p></li>
+<li><p>the findings do apply to live behaving organisms, rather than in a “by-and-large, on-the-average” way to the abstract “typical case”. After all, only individual behave. Groups do not. <span class="citation" data-cites="Mook1982">(<a href="references.html#ref-Mook1982" role="doc-biblioref">Mook 1982, 238</a>)</span></p></li>
+<li><p><span class="citation" data-cites="Cedergren_Sankoff1974">Cedergren and Sankoff (<a href="references.html#ref-Cedergren_Sankoff1974" role="doc-biblioref">1974, 347</a>)</span> caution against generalizing across variable speaker-level grammars; check the fit of their model against the individual speakers performance; “categorical rule differences”</p></li>
+<li><p><span class="citation" data-cites="Bickerton1971">Bickerton (<a href="references.html#ref-Bickerton1971" role="doc-biblioref">1971, 488</a>)</span> cautions against averaging over between-speaker variability</p></li>
+<li><p>reversals take a special place</p></li>
+</ul>
+<p>Variationist sociolinguistics has experienced its own nomothetic-idiographic debate in the 1970s. Thus, <span class="citation" data-cites="Bickerton1971">Bickerton (<a href="references.html#ref-Bickerton1971" role="doc-biblioref">1971</a>)</span> criticized the nomothetic approach taken by <span class="citation" data-cites="Labov_etal1968">Labov et al. (<a href="references.html#ref-Labov_etal1968" role="doc-biblioref">1968</a>)</span> and <span class="citation" data-cites="Labov1969">Labov (<a href="references.html#ref-Labov1969" role="doc-biblioref">1969</a>)</span>, which triggered methodological progress in variationist research towards a greater consideration of the idiographic perspective. A variety of examples are summarized by <span class="citation" data-cites="Sankoff_Labov1979">D. Sankoff and Labov (<a href="references.html#ref-Sankoff_Labov1979" role="doc-biblioref">1979, 206–10</a>)</span>. See <span class="citation" data-cites="Guy1980">Guy (<a href="references.html#ref-Guy1980" role="doc-biblioref">1980</a>)</span> for an exemplary study.</p>
+<section id="individual-differences-substantive-interest-in-variability" class="level3" data-number="8.6.1">
+<h3 data-number="8.6.1" class="anchored" data-anchor-id="individual-differences-substantive-interest-in-variability"><span class="header-section-number">8.6.1</span> Individual differences: Substantive interest in variability</h3>
+<ul>
+<li>If variation in a set of data reflects real between-speaker variation, this variability has basic substantive interest</li>
+<li>intrinsic interest</li>
+<li>If the source of variability is real individual differences, this variability has basic substantive interest. <span class="citation" data-cites="Anderson2001">(<a href="references.html#ref-Anderson2001" role="doc-biblioref">Anderson 2001, 19</a>)</span></li>
+<li>In most theory-oriented research, individual differences are ignored. The general run of experimental process studies take for granted either that essentially all individuals in a given condition will exhibit the same directional effect or that any opposite effects by a minority of subjects would not trouble the face value of the means. This may usually be justified, but the massive unconcern with obtaining such justification is disturbing. <span class="citation" data-cites="Anderson2001">(<a href="references.html#ref-Anderson2001" role="doc-biblioref">Anderson 2001, 19–20</a>)</span></li>
+<li>the intricacy of internal structure</li>
+</ul>
+</section>
+<section id="idiographic-approach-to-lexical-units" class="level3" data-number="8.6.2">
+<h3 data-number="8.6.2" class="anchored" data-anchor-id="idiographic-approach-to-lexical-units"><span class="header-section-number">8.6.2</span> Idiographic approach to lexical units</h3>
+<ul>
+<li>a uniqueness that defies all formulation <span class="citation" data-cites="Allport1962">(<a href="references.html#ref-Allport1962" role="doc-biblioref">Allport 1962, 408</a>, quoting James)</span></li>
+<li>we can give no ultimate account of it <span class="citation" data-cites="Allport1962">(<a href="references.html#ref-Allport1962" role="doc-biblioref">Allport 1962, 408</a>, quoting James)</span></li>
+<li>appreciation of the richness of lexical individuality</li>
+<li>residual peculiarities</li>
+<li>well-configurated prominent dispositions</li>
+<li>capture the full richness</li>
+<li>the internal organization</li>
+<li>A single exception may be buried in a standard deviation</li>
+<li>more nuanced attention to</li>
+</ul>
+<p>Implications</p>
+<ul>
+<li>shift our field of activity</li>
+<li>continue to develop and sharpen procedures for investigating the behavior of individual subjects</li>
+<li>nomotheitc approach should be supplemented with idiographic level of description</li>
+<li>averages are taken as valid statistical summaries</li>
+</ul>
+</section>
+</section>
+<section id="combining-nomothetic-and-idiographic-perspectives-using-mixed-effects-models" class="level2" data-number="8.7">
+<h2 data-number="8.7" class="anchored" data-anchor-id="combining-nomothetic-and-idiographic-perspectives-using-mixed-effects-models"><span class="header-section-number">8.7</span> Combining nomothetic and idiographic perspectives using mixed-effects models</h2>
+<p>The danger of shrinkage/partial pooling</p>
+<ul>
+<li><span class="citation" data-cites="Baayen_etal2008">Baayen, Davidson, and Bates (<a href="references.html#ref-Baayen_etal2008" role="doc-biblioref">2008</a>)</span> suggest inspection of the BLUPs</li>
+<li>This is what <span class="citation" data-cites="Forrest2015">Forrest (<a href="references.html#ref-Forrest2015" role="doc-biblioref">2015</a>)</span> does</li>
+</ul>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
+<div id="ref-Akl_etal2011" class="csl-entry" role="listitem">
+Akl, Elie A., Andrew D. Oxman, Jeph Herrin, Gunn E. Vist, Irene Terrenato, Francesca Sperati, Cecilia Costiniuk, Diana Blank, and Holder Schünemann. 2011. <span>“The Dynamic Interaction Between Lexical and Contextual Frequency: <span>A</span> Case Study of <span>(ING)</span>.”</span> <em>Cochrane Database of Systematic Reviews</em>, no. 3. <a href="https://doi.org/10.1002/14651858.CD006776.pub2">https://doi.org/10.1002/14651858.CD006776.pub2</a>.
+</div>
+<div id="ref-Allport1937" class="csl-entry" role="listitem">
+Allport, Gordon W. 1937. <em>Personality: <span>A</span> Psychological Interpretation</em>. New York: Henry Holt.
+</div>
+<div id="ref-Allport1962" class="csl-entry" role="listitem">
+———. 1962. <span>“The General and the Unique in Psychological Science.”</span> <em>Journal of Personality</em> 30 (3): 405–22. <a href="https://doi.org/10.1111/j.1467-6494.1962.tb02313.x">https://doi.org/10.1111/j.1467-6494.1962.tb02313.x</a>.
+</div>
+<div id="ref-Anderson2001" class="csl-entry" role="listitem">
+Anderson, Norman H. 2001. <em>Empirical Direction in Design and Analysis</em>. Mahwah, NJ: Lawrence Erlbaum.
+</div>
+<div id="ref-Baayen_etal2008" class="csl-entry" role="listitem">
+Baayen, R. Harald, Douglas J. Davidson, and Douglas M. Bates. 2008. <span>“Mixed-Effects Modeling with Crossed Random Effects for Subjects and Items.”</span> <em>Journal of Memory and Language</em> 59 (4): 390–412. <a href="https://doi.org/10.1016/j.jml.2007.12.005">https://doi.org/10.1016/j.jml.2007.12.005</a>.
+</div>
+<div id="ref-Bickerton1971" class="csl-entry" role="listitem">
+Bickerton, Derek. 1971. <span>“Inherent Variability and Variable Rules.”</span> <em>Foundations of Language</em> 7 (4): 457–92. <a href="http://www.jstor.org/stable/25000558">http://www.jstor.org/stable/25000558</a>.
+</div>
+<div id="ref-Carver1972" class="csl-entry" role="listitem">
+Carver, Ronald P. 1972. <span>“Evidence for the Invalidity of the <span>M</span>iller-<span>C</span>oleman Readability Scale.”</span> <em>Journal of Reading Behavior</em> 4 (3): 42–47. <a href="https://doi.org/10.1080/10862967109546999">https://doi.org/10.1080/10862967109546999</a>.
+</div>
+<div id="ref-Carver1978" class="csl-entry" role="listitem">
+———. 1978. <span>“Sense and Nonsense about Generalizing to a Language Population.”</span> <em>Journal of Reading Behavior</em> 10 (1): 25–33. <a href="https://doi.org/10.1080/10862967809547252">https://doi.org/10.1080/10862967809547252</a>.
+</div>
+<div id="ref-Cedergren_Sankoff1974" class="csl-entry" role="listitem">
+Cedergren, Henrietta J., and David Sankoff. 1974. <span>“Variable Rules: <span>P</span>erformance as a Statistical Reflection of Competence.”</span> <em>Language</em> 50 (2): 333–55. <a href="https://doi.org/10.2307/412441">https://doi.org/10.2307/412441</a>.
+</div>
+<div id="ref-Clark1973" class="csl-entry" role="listitem">
+Clark, Herbert H. 1973. <span>“The Language-as-Fixed-Effect Fallacy: <span>A</span> Critique of Language Statistics in Psychological Research.”</span> <em>Journal of Verbal Learning and Verbal Behavior</em> 12 (4): 335–59. <a href="https://doi.org/10.1016/S0022-5371(73)80014-3">https://doi.org/10.1016/S0022-5371(73)80014-3</a>.
+</div>
+<div id="ref-Cobb1997" class="csl-entry" role="listitem">
+Cobb, George W. 1997. <em>Introduction to Design and Analysis of Experiments</em>. New York: Wiley.
+</div>
+<div id="ref-Coleman1964" class="csl-entry" role="listitem">
+Coleman, Edmund B. 1964. <span>“Generalizing to a Language Population.”</span> <em>Psychological Reports</em> 14 (1): 219–26. <a href="https://doi.org/10.2466/pr0.1964.14.1.219">https://doi.org/10.2466/pr0.1964.14.1.219</a>.
+</div>
+<div id="ref-Coleman1979" class="csl-entry" role="listitem">
+———. 1979. <span>“Generalization Effects Vs Random Effects: <span>I</span>s <span class="math inline">\(\sigma_{TL}^{2}\)</span> a Source of <span>T</span>ype 1 or <span>T</span>ype 2 Error?”</span> <em>Journal of Verbal Learning and Verbal Behavior</em> 18 (2): 243–56. <a href="https://doi.org/10.1016/S0022-5371(79)90145-2">https://doi.org/10.1016/S0022-5371(79)90145-2</a>.
+</div>
+<div id="ref-Forrest2015" class="csl-entry" role="listitem">
+Forrest, Jon. 2015. <span>“Community Rules and Speaker Behavior: Individual Adherence to Group Constraints on (ING).”</span> <em>Language Variation and Change</em> 27 (3): 377–406. <a href="https://doi.org/10.1017/s0954394515000137">https://doi.org/10.1017/s0954394515000137</a>.
+</div>
+<div id="ref-Forster2008" class="csl-entry" role="listitem">
+Forster, Kenneth I. 2008. <span>“What Is <span>F2</span> Good For?”</span> <em>Journal of Memory and Language</em> 59 (4): 389. <a href="https://doi.org/10.1016/j.jml.2008.08.002">https://doi.org/10.1016/j.jml.2008.08.002</a>.
+</div>
+<div id="ref-Gelman_etal2008" class="csl-entry" role="listitem">
+Gelman, Andrew, Aleks Jakulin, Maria Grazia Pittau, and Yu-Sung Su. 2008. <span>“A Weakly Informative Default Prior Distribution for Logistic and Other Regression Models.”</span> <em>The Annals of Applied Statistics</em> 2 (4): 1360–83. <a href="https://doi.org/10.1214/08-AOAS191">https://doi.org/10.1214/08-AOAS191</a>.
+</div>
+<div id="ref-Gigerenzer1996" class="csl-entry" role="listitem">
+Gigerenzer, Gerd. 1996. <span>“The Psychology of Good Judgment: <span>F</span>requency Formats and Simple Algorithms.”</span> <em>Medical Decision Making</em> 16 (3): 273–80. <a href="https://doi.org/10.1177/0272989X9601600312">https://doi.org/10.1177/0272989X9601600312</a>.
+</div>
+<div id="ref-Gigerenzer_Hoffrage1995" class="csl-entry" role="listitem">
+Gigerenzer, Gerd, and Ulrich Hoffrage. 1995. <span>“How to Improve Bayesian Reasoning Without Instruction: <span>F</span>requency Formats.”</span> <em>Psychological Review</em> 102 (4): 684–704. <a href="https://doi.org/10.1037/0033-295X.102.4.684">https://doi.org/10.1037/0033-295X.102.4.684</a>.
+</div>
+<div id="ref-Grissom_Kim2012" class="csl-entry" role="listitem">
+Grissom, Robert J., and John J. Kim. 2012. <em>Effect Sizes for Research: <span>U</span>nivariate and Multivariate Applications</em>. New York: Routledge.
+</div>
+<div id="ref-Guy1980" class="csl-entry" role="listitem">
+Guy, Gregory R. 1980. <span>“Variation in the Group and the Individual: <span>T</span>he Case of Final Stop Deletion.”</span> In <em>Locating Language in Time and Space</em>, edited by William Labov, 1–36. New York: Academic Press.
+</div>
+<div id="ref-Guy1988" class="csl-entry" role="listitem">
+———. 1988. <span>“Advanced <span>VARBRUL</span> Analysis.”</span> In <em>Linguistic Change and Contact: NWAV-XVI</em>, edited by Kathleen Ferrara, Becky Brown, Keith Walters, and John Baugh, 124–36. Austion, TX: University of Texas, Department of Linguistics.
+</div>
+<div id="ref-Guy1991" class="csl-entry" role="listitem">
+———. 1991. <span>“Explanation in Variable Phonology: <span>A</span>n Exponential Model of Morphological Constraints.”</span> <em>Language Variation and Change</em> 3 (1): 1–22. <a href="https://doi.org/10.1017/S0954394500000429">https://doi.org/10.1017/S0954394500000429</a>.
+</div>
+<div id="ref-Guy2018" class="csl-entry" role="listitem">
+———. 2018. <span>“LVC Guidelines for Reporting Quantitative Results.”</span> <a href="http://gregoryrguy.com/wp-content/uploads/Guy-2018-Guidelines-for-reporting-quantitative-results-LVC-Nov-18-2018.pdf">http://gregoryrguy.com/wp-content/uploads/Guy-2018-Guidelines-for-reporting-quantitative-results-LVC-Nov-18-2018.pdf</a>.
+</div>
+<div id="ref-Guy_Boyd1990" class="csl-entry" role="listitem">
+Guy, Gregory R., and Sally Boyd. 1990. <span>“The Development of a Morphological Class.”</span> <em>Language Variation and Change</em> 2 (1): 1–18. <a href="https://doi.org/10.1017/S0954394500000235">https://doi.org/10.1017/S0954394500000235</a>.
+</div>
+<div id="ref-Holt1962" class="csl-entry" role="listitem">
+Holt, Robert A. 1962. <span>“Individuality and Generalization in the Psychology of Personality.”</span> <em>Journal of Personality</em> 30 (3): 377–404. <a href="https://doi.org/10.1111/j.1467-6494.1962.tb02312.x">https://doi.org/10.1111/j.1467-6494.1962.tb02312.x</a>.
+</div>
+<div id="ref-Labov1969" class="csl-entry" role="listitem">
+Labov, William. 1969. <span>“Contraction, Deletion, and Inherent Variability of the English Copula.”</span> <em>Language</em> 45 (4): 715–62. <a href="https://doi.org/10.2307/412333">https://doi.org/10.2307/412333</a>.
+</div>
+<div id="ref-Labov_etal1968" class="csl-entry" role="listitem">
+Labov, William, Paul Cohen, Clarence Robins, and John Lewis. 1968. <em>A Study of the Non-Standard English of Negro and Puerto Rican Speakers in New York City</em>. New York: Columbia University.
+</div>
+<div id="ref-Miller_Coleman1972" class="csl-entry" role="listitem">
+Miller, Gerald R., and Edmund B. Coleman. 1972. <span>“The Measurement of Reading Speed and the Obligation to Generalize to a Population of Reading Materials.”</span> <em>Journal of Reading Behavior</em> 4 (3): 48–56. <a href="https://doi.org/10.1080/10862967109547000">https://doi.org/10.1080/10862967109547000</a>.
+</div>
+<div id="ref-Mook1982" class="csl-entry" role="listitem">
+Mook, Douglas G. 1982. <em>Psychological Research: <span>S</span>trategy and Tactics</em>. New York: Harper; Row.
+</div>
+<div id="ref-Paolillo2013" class="csl-entry" role="listitem">
+Paolillo, John C. 2013. <span>“Individual Effects in Variation Analysis: <span>M</span>odel, Software, and Research Design.”</span> <em>Language Variation and Change</em> 25 (1): 89–118. <a href="https://doi.org/10.1017/S0954394512000270">https://doi.org/10.1017/S0954394512000270</a>.
+</div>
+<div id="ref-Raaijmakers2003" class="csl-entry" role="listitem">
+Raaijmakers, Jeroen G. W. 2003. <span>“A Further Look at the <span>‘Language-as-Fixed-Effect Fallacy’</span>.”</span> <em>Canadian Journal of Experimental Psychology / Revue Canadienne de Psychologie Expérimentale</em> 57 (3): 141–51. <a href="https://doi.org/10.1037/h0087421">https://doi.org/10.1037/h0087421</a>.
+</div>
+<div id="ref-Sankoff_Labov1979" class="csl-entry" role="listitem">
+Sankoff, David, and William Labov. 1979. <span>“On the Uses of Variable Rules.”</span> <em>Language in Society</em> 8 (2): 189–222. <a href="https://doi.org/10.1017/S0047404500007430">https://doi.org/10.1017/S0047404500007430</a>.
+</div>
+<div id="ref-Sankoff1974" class="csl-entry" role="listitem">
+Sankoff, Gillian. 1974. <span>“A Quantitative Paradigm for the Study of Communicative Competence.”</span> In <em>Explorations in the Ethnography of Speaking</em>, edited by Richard Baumann and Joel Sherzer, 18–49. Cambridge: Cambridge University Press.
+</div>
+<div id="ref-Sidman1960" class="csl-entry" role="listitem">
+Sidman, Murray. 1960. <em>Tactics of Scientific Research: <span>E</span>valuating Experimental Data in Psychology</em>. New York: Basic Books.
+</div>
+<div id="ref-Thomae1999" class="csl-entry" role="listitem">
+Thomae, Hans. 1999. <span>“The Nomothetic-Idiographic Issue: <span>S</span>ome Roots and Recent Trends.”</span> <em>International Journal of Group Tensions</em> 20 (1/2): 187–215. <a href="https://doi.org/10.1023/a:1021891506378">https://doi.org/10.1023/a:1021891506378</a>.
+</div>
+<div id="ref-Windelband1894" class="csl-entry" role="listitem">
+Windelband, Wilhelm. 1894. <span>“Geschichte Und <span>N</span>aturwissenschaft.”</span> In <em>Rektoratsreden Der <span>U</span>niversität <span>S</span>trassburg</em>, 193–208. Strassburg: Heitz und Mündel. <a href="https://doi.org/10.11588/diglit.20767">https://doi.org/10.11588/diglit.20767</a>.
+</div>
+<div id="ref-Windelband1998" class="csl-entry" role="listitem">
+———. 1998. <span>“History and Natural Science.”</span> <em>Theory &amp; Psychology</em> 8 (1): 5–22. <a href="https://doi.org/10.1177/0959354398081001">https://doi.org/10.1177/0959354398081001</a>.
+</div>
+</div>
+</section>
+
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./06_token_level_predictors.html" class="pagination-link" aria-label="Token-level predictors">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Token-level predictors</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./08_modeling_tactics.html" class="pagination-link" aria-label="Modeling tactics">
+        <span class="nav-page-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Modeling tactics</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -60,3 +60,23 @@ Excel templates and instructions for some useful graph types can be found in the
 - [Section 4: A latent-variable model](resources_pages/_ordinal_notes/04_lvm.html){target="_blank"} 
 - [Section 5: Methods of interpretation](resources_pages/_ordinal_notes/05_meth_int.html){target="_blank"} 
 - [Section 6: R workbench](resources_pages/_ordinal_notes/09_r_workbench.html){target="_blank"} 
+
+
+##### Habilitationsschrift: Aktueller Stand
+
+- [Section 1: Introduction](resources_pages/_habil_schrift/00_intro.html){target="_blank"} 
+- [Section 2: Research objectives](resources_pages/_habil_schrift/01_research_objectives.html){target="_blank"} 
+- [Section 3: Statistical inference](resources_pages/_habil_schrift/02_statistical_inference.html){target="_blank"} 
+- [Section 4: Data structure](resources_pages/_habil_schrift/03_data_structure.html){target="_blank"} 
+- [Section 5: Statistical models: Integration of research objectives and data structure](resources_pages/_habil_schrift/04_statistical_models.html){target="_blank"} 
+- [Section 6: Model specification](resources_pages/_habil_schrift/05_model_specification.html){target="_blank"} 
+- [Section 7: Token-level predictors](resources_pages/_habil_schrift/06_token_level_predictors.html){target="_blank"} 
+- [Section 8: Foregrounding variation](resources_pages/_habil_schrift/07_foregrounding_variation.html){target="_blank"} 
+- [Section 9: Modeling tactics](resources_pages/_habil_schrift/08_modeling_tactics.html){target="_blank"} 
+- [Section 10: Model summary: Adjusted predictions and comparisons](resources_pages/_habil_schrift/09_model_predictions.html){target="_blank"} 
+- [Section 11: Case study I: The comparative alternation](resources_pages/_habil_schrift/10_case_study_I.html){target="_blank"} 
+- [Section 12: Case study II: The genitive alternation](resources_pages/_habil_schrift/11_case_study_II.html){target="_blank"} 
+
+
+
+
