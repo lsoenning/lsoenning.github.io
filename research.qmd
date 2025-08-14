@@ -6,22 +6,21 @@ editor: source
 
 #### Unpublished
 
-- **Sönning**, Lukas. (in press). Count regression models for keyness analysis. Chapter for: Carolin Cholotta & Christine Renker (eds.), *META-LING 2023 - Methodological Exploration and Technological Advances in Linguistics*  {{< ai psyarxiv >}} [Accepted manuscript](https://doi.org/10.31234/osf.io/25mwj){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/mc26t/){target="_blank"} 
+- **Sönning**, Lukas. (in press). Count regression models for keyness analysis. Chapter for: Carolin Cholotta & Christine Renker (eds.), *META-LING 2023 - Methodological Exploration and Technological Advances in Linguistics*  [Accepted manuscript](https://doi.org/10.31234/osf.io/25mwj){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/mc26t/){target="_blank"} 
 
-- **Sönning**, Lukas, Jason Grafmiller & Raquel Romasanta. (under review). Regression and random forests: Synergies for variationist corpus research. {{< ai psyarxiv >}} [Working paper](https://doi.org/10.31234/osf.io/afuh9){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/5u8bt/){target="_blank"} 
-
-- **Sönning**, Lukas & Jesse Egbert. (under review). Sensitivity of dispersion measures to distributional patterns and corpus design. {{< ai psyarxiv >}} [Working paper](https://doi.org/10.31234/osf.io/rz8qn){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/mfjst/){target="_blank"}
-
-- Schützler, Ole, Lukas **Sönning**, Fabian Vetter & Manfred Krug. (in preparation). The morpho-syntax of Scottish Standard English: Questionnaire-based insights. {{< ai osf >}} [OSF](https://osf.io/hykq5/){target="_blank"}
-
+- **Sönning**, Lukas & Jesse Egbert. (under review). Sensitivity of dispersion measures to distributional patterns and corpus design. [Submitted manuscript](https://doi.org/10.31234/osf.io/rz8qn){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/mfjst/){target="_blank"}
 
 - **Sönning**, Lukas. (under review). Dispersion analysis. In Hilary Nesi & Petar Milin (eds.), *International Encyclopedia of Language and Linguistics*, 3rd ed. Amsterdam: Elsevier. [Submitted manuscript](https://osf.io/preprints/osf/h3dyx){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/epvk2/){target="_blank"} 
 
-- **Sönning**, Lukas. (in preparation). Down-sampling strategies in corpus phonology. Chapter for: Philipp Meer & Ulrike Gut (eds.) *English corpus phonetics and phonology: Current approaches and future directions* {{< ai osf >}} [OSF](https://osf.io/67ya5/){target="_blank"}
+- **Sönning**, Lukas, Jason Grafmiller & Raquel Romasanta. (under review). Regression and random forests: Synergies for variationist corpus research. [Working paper](https://doi.org/10.31234/osf.io/afuh9){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/5u8bt/){target="_blank"} 
 
-- **Sönning**, Lukas. (in preparation). An analysis of bar chart usage in corpus data visualization. {{< ai osf >}} [Working paper](https://osf.io/preprints/osf/ahyz4_v1){target="_blank"}   | {{< ai osf >}} [OSF](https://osf.io/a5p4s/){target="_blank"}
+- Schützler, Ole, Lukas **Sönning**, Fabian Vetter & Manfred Krug. (under review). The morpho-syntax of Standard Scottish English: Questionnaire-based insights. [Submitted manuscript](./docs/files/preprint_bslvc_scottish.pdf){target="_blank"} | {{< ai osf >}} [OSF](https://osf.io/hykq5/){target="_blank"}
 
-- **Sönning**, Lukas. (in preparation). Case-control down-sampling in corpus-based research. {{< ai osf >}} [Working paper](https://osf.io/preprints/osf/g74bk_v1){target="_blank"}   | {{< ai osf >}} [OSF](https://osf.io/t59h6/){target="_blank"}
+- **Sönning**, Lukas. (under review). Down-sampling strategies in corpus phonology. Chapter for: Philipp Meer & Ulrike Gut (eds.) *English corpus phonetics and phonology: Current approaches and future directions* [Submitted manuscript](https://osf.io/preprints/osf/5hduq_v1){target="_blank"}   {{< ai osf >}} [OSF](https://osf.io/67ya5/){target="_blank"}
+
+- **Sönning**, Lukas. (under review). An analysis of bar chart usage in corpus data visualization. [Submitted manuscript](https://osf.io/preprints/osf/ahyz4_v1){target="_blank"}   | {{< ai osf >}} [OSF](https://osf.io/a5p4s/){target="_blank"}
+
+- **Sönning**, Lukas. (under review). Case-control down-sampling in corpus-based research. [Submitted manuscript](https://osf.io/preprints/osf/g74bk_v1){target="_blank"}   | {{< ai osf >}} [OSF](https://osf.io/t59h6/){target="_blank"}
 
 - **Sönning**, Lukas. (in preparation). Random forests in corpus research: A systematic review. 
 
