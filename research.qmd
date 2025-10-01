@@ -6,21 +6,23 @@ editor: source
 
 #### Unpublished
 
-- **Sönning**, Lukas. (in press). Count regression models for keyness analysis. Chapter for: Carolin Cholotta & Christine Renker (eds.), *META-LING 2023 - Methodological Exploration and Technological Advances in Linguistics*  [Accepted manuscript](https://doi.org/10.31234/osf.io/25mwj){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/mc26t/){target="_blank"} 
+- **Sönning**, Lukas. (forthcoming). Count regression models for keyness analysis. Chapter for: Carolin Cholotta & Christine Renker (eds.), *META-LING 2023 - Methodological Exploration and Technological Advances in Linguistics*  [Accepted manuscript](https://doi.org/10.31234/osf.io/25mwj){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/mc26t/){target="_blank"} 
 
-- **Sönning**, Lukas & Jesse Egbert. (under review). Sensitivity of dispersion measures to distributional patterns and corpus design. [Submitted manuscript](https://doi.org/10.31234/osf.io/rz8qn){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/mfjst/){target="_blank"}
+- **Sönning**, Lukas & Jesse Egbert. (forthcoming). Sensitivity of dispersion measures to distributional patterns and corpus design. *International Journal of Corpus Linguistics* [Submitted manuscript](https://doi.org/10.31234/osf.io/rz8qn){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/mfjst/){target="_blank"}
 
 - **Sönning**, Lukas. (under review). Dispersion analysis. In Hilary Nesi & Petar Milin (eds.), *International Encyclopedia of Language and Linguistics*, 3rd ed. Amsterdam: Elsevier. [Submitted manuscript](https://osf.io/preprints/osf/h3dyx){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/epvk2/){target="_blank"} 
 
-- **Sönning**, Lukas, Jason Grafmiller & Raquel Romasanta. (under review). Regression and random forests: Synergies for variationist corpus research. [Working paper](https://doi.org/10.31234/osf.io/afuh9){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/5u8bt/){target="_blank"} 
-
-- Schützler, Ole, Lukas **Sönning**, Fabian Vetter & Manfred Krug. (under review). The morpho-syntax of Standard Scottish English: Questionnaire-based insights. [Submitted manuscript](./docs/files/preprint_bslvc_scottish.pdf){target="_blank"} | {{< ai osf >}} [OSF](https://osf.io/hykq5/){target="_blank"}
+- Schützler, Ole, Lukas **Sönning**, Fabian Vetter & Manfred Krug. (under review). The morpho-syntax of Standard Scottish English: Questionnaire-based insights. [Submitted manuscript](http://dx.doi.org/10.2139/ssrn.5381956){target="_blank"} | {{< ai osf >}} [OSF](https://osf.io/hykq5/){target="_blank"}
 
 - **Sönning**, Lukas. (under review). Down-sampling strategies in corpus phonology. Chapter for: Philipp Meer & Ulrike Gut (eds.) *English corpus phonetics and phonology: Current approaches and future directions* [Submitted manuscript](https://osf.io/preprints/osf/5hduq_v1){target="_blank"}   {{< ai osf >}} [OSF](https://osf.io/67ya5/){target="_blank"}
 
 - **Sönning**, Lukas. (under review). An analysis of bar chart usage in corpus data visualization. [Submitted manuscript](https://osf.io/preprints/osf/ahyz4_v1){target="_blank"}   | {{< ai osf >}} [OSF](https://osf.io/a5p4s/){target="_blank"}
 
 - **Sönning**, Lukas. (under review). Case-control down-sampling in corpus-based research. [Submitted manuscript](https://osf.io/preprints/osf/g74bk_v1){target="_blank"}   | {{< ai osf >}} [OSF](https://osf.io/t59h6/){target="_blank"}
+
+- **Sönning**, Lukas & Timo Roettger. (under review). Reproducibility, replication, and preregistration. In Stefan Hartmann & Laura J. Speed (eds.), *Handbook of language and cognition*. Bloomsbury. [Submitted manuscript](https://osf.io/preprints/psyarxiv/drvnz_v1){target="_blank"}   | {{< ai osf >}} [OSF](https://osf.io/yhv8n/){target="_blank"}
+
+- **Sönning**, Lukas, Jason Grafmiller & Raquel Romasanta. (under review). Regression and random forests: Synergies for variationist corpus research. [Working paper](https://doi.org/10.31234/osf.io/afuh9){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/5u8bt/){target="_blank"} 
 
 - **Sönning**, Lukas. (in preparation). Random forests in corpus research: A systematic review. 
 
@@ -95,7 +97,18 @@ Software
 
 #### Datasets
 
-- Sönning, Lukas. 2024. *Background data for: Ordinal response scales: Psychometric grounding for design and analysis*, [https://doi.org/10.18710/0VLSLW](https://doi.org/10.18710/0VLSLW){target="_blank"}, DataverseNO, V1
+
+- Braun, Albert & Lukas Sönning. 2025. *The comparative and superlative alternation in 1960s and 1970s written British English: Data from Braun (1982)*. [https://doi.org/10.18710/4Z7OJG](https://doi.org/10.18710/4Z7OJG), DataverseNO, V1.
+
+- Sönning, Lukas. 2025. *Biber et al.'s (2016) set of 150 BNC items for the analysis of dispersion measures: Dataset for "Evaluation of text-level measures of lexical dispersion*. [https://doi.org/10.18710/ATCQZW](https://doi.org/10.18710/ATCQZW), DataverseNO, V1.
+
+- Sönning, Lukas. 2024. *Background data for: Advancing our understanding of dispersion measures in corpus research*. [https://doi.org/10.18710/FVHTFM](https://doi.org/10.18710/FVHTFM), DataverseNO, V1.
+
+
+- Sönning, Lukas. 2024. *Background data for: Some obstacles to replication in corpus linguistics*. [https://doi.org/10.18710/7LNWJX](https://doi.org/10.18710/7LNWJX), DataverseNO, V1.
+
+
+- Sönning, Lukas. 2024. *Background data for: Ordinal response scales: Psychometric grounding for design and analysis*, [https://doi.org/10.18710/0VLSLW](https://doi.org/10.18710/0VLSLW){target="_blank"}, DataverseNO, V1.
 
 - Krug, Manfred, Fabian Vetter & Lukas Sönning. 2024. *Background data for: Latent-variable modeling of ordinal outcomes in language data analysis.* [https://doi.org/10.18710/WI9TEH](https://doi.org/10.18710/WI9TEH){target="_blank"}, DataverseNO, V1.
 
