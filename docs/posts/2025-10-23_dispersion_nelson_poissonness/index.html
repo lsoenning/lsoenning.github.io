@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Lukas Sönning">
+<meta name="dcterms.date" content="2025-10-30">
+<meta name="description" content="This blog post discusses the dispersion measure MB, which was recently proposed by Nelson (2025). The motivation behind MB – to build an index that tolerates sampling variation – is highly commendable. To extend the applicability of this measure, I describe how it can be applied to linguistically grounded corpus parts (e.g.&nbsp;genres/regsiters, text files), which may also differ in length. I then study the behavior of MB and DMB and observe that both seem to show an overall bias toward evenness.">
+
+<title>Nelson’s (2025) Poisson-based dispersion measure – Lukas Sönning</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Lukas Sönning</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../research.html"> 
+<span class="menu-text">Research</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../resources.html"> 
+<span class="menu-text">Resources</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts.html"> 
+<span class="menu-text">Blog</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Nelson’s (2025) Poisson-based dispersion measure</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">corpus linguistics</div>
+    <div class="quarto-category">dispersion</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    This blog post discusses the dispersion measure <em>MB</em>, which was recently proposed by Nelson (2025). The motivation behind <em>MB</em> – to build an index that tolerates sampling variation – is highly commendable. To extend the applicability of this measure, I describe how it can be applied to linguistically grounded corpus parts (e.g.&nbsp;genres/regsiters, text files), which may also differ in length. I then study the behavior of <em>MB</em> and <em>D<sub>MB</sub></em> and observe that both seem to show an overall bias toward evenness.
+  </div>
+</div>
+
+<div class="quarto-title-meta-author">
+  <div class="quarto-title-meta-heading">Author</div>
+  <div class="quarto-title-meta-heading">Affiliation</div>
+  
+    <div class="quarto-title-meta-contents">
+    <p class="author"><a href="https://lsoenning.github.io/">Lukas Sönning</a> <a href="https://orcid.org/0000-0002-2705-395X" class="quarto-title-author-orcid"> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg=="></a></p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            University of Bamberg
+          </p>
+      </div>
+  </div>
+
+<div class="quarto-title-meta">
+
+      
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">October 30, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="cell">
+<details class="code-fold">
+<summary>R setup</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tlda)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lattice)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="the-idea-behind-mb" class="level4">
+<h4 class="anchored" data-anchor-id="the-idea-behind-mb">The idea behind <em>MB</em></h4>
+<p>In a recent paper, <span class="citation" data-cites="Nelson2025">R. N. Nelson (<a href="#ref-Nelson2025" role="doc-biblioref">2025</a>)</span> argues that corpus-based dispersion analysis should be informed by probabilistic models that take into account sampling variation (which he refers to as “noise”). This makes sense: Suppose we are interested in the dispersion of an item across (say) 10 registers, which are represented by sub-corpora. Even if the underlying usage rate (i.e.&nbsp;the true rate of occurrence of the item) is <em>exactly</em> the same in each register, the (normalized) frequencies observed in the sub-corpora will not be identical. This is due to sampling variation. Each sub-corpus is a sample from the target sub-population (i.e.&nbsp;register), and the sample statistic will fluctuate around the true value. The smaller the sample, the larger the fluctuation (i.e.&nbsp;sampling variation).</p>
+<p>What <span class="citation" data-cites="Nelson2025">R. N. Nelson (<a href="#ref-Nelson2025" role="doc-biblioref">2025</a>)</span> finds problematic about existing parts-based measures is that they take an ideal, equally-apportioned distribution as a point of reference. Any deviation from this ideal moves the dispersion score away from the optimum. In my view, <span class="citation" data-cites="Nelson2025">R. N. Nelson (<a href="#ref-Nelson2025" role="doc-biblioref">2025</a>)</span> rightly argues that this benchmark is too strict and therefore unattainable. What is needed instead, he says, is a point of reference that provides some leeway in that it acknowledges the existence of sampling variation. This can be achieved with a probabilistic model such as the Poisson distribution, which is able to mark out the amount of sampling variation we must expect for a sample (i.e.&nbsp;corpus part) of a given size.</p>
+<p>In fact, the Poisson distribution provides a probabilistic model for an item whose underlying (i.e.&nbsp;actual) usage rate in the population is constant across the contexts represented by corpus parts. If all parts are (say) 1,000 words long, and the underlying usage rate is 1 per thousand words, this model says how likely it is to observe a frequency count of 0, 1, 2, etc. The Poisson distribution therefore tells us how the subfrequencies will vary due to sampling variation, and this allows us to see how tolerant we should be to deviations from a perfectly even distribution.</p>
+</section>
+<section id="a-poisson-based-dispersion-measure" class="level4">
+<h4 class="anchored" data-anchor-id="a-poisson-based-dispersion-measure">A Poisson-based dispersion measure</h4>
+<p>This motivates <span class="citation" data-cites="Nelson2025">R. N. Nelson (<a href="#ref-Nelson2025" role="doc-biblioref">2025</a>)</span> to build a dispersion measure based on the Poisson model. The basic idea is straightforward. We first determine how many empty parts we would expect on the basis of the Poisson model. We express this as the <strong>expected</strong> Poisson-based probability of an empty part (i.e.&nbsp;a subfrequency of zero), <span class="math inline">\(\textrm{Pr}_{\textrm{exp}}(0)\)</span>. This provides the point of reference, which represents a scenario of perfect evenness, with a constant underlying usage rate throughout the target population. Then we compare the <strong>observed</strong> proportion of empty parts to this point of reference.</p>
+<p>Suppose the Poisson distribution tells us that the probability of seeing a subfrequency of zero is .65. The <em>expected proportion of empty corpus parts</em> is therefore .65. If the <em>observed proportion of empty corpus parts</em> is near .65, the data are consistent with the Poisson model and therefore consistent with a maximally even/balanced distribution. If the observed proportion is higher, however, the data deviate from this ideal, resulting in the dispersion score moving away from the optimum.</p>
+<p>To calculate <em>MB</em>, we therefore need to determine two quantities:</p>
+<ul>
+<li><span class="math inline">\(\textrm{Pr}_{\textrm{obs}}(0)\)</span>: The <strong>observed proportion</strong> of empty parts</li>
+<li><span class="math inline">\(\textrm{Pr}_{\textrm{exp}}(0)\)</span>: The <strong>expected proportion</strong> of empty parts</li>
+</ul>
+<p>With these, we determine what <span class="citation" data-cites="Nelson2025">R. N. Nelson (<a href="#ref-Nelson2025" role="doc-biblioref">2025</a>)</span> calls <em>biasedness</em>, <span class="math inline">\(b\)</span>, which is the amount of deviation from evenness (i.e.&nbsp;from the Poisson model):</p>
+<p><span class="math display">\[
+b = \frac{|\textrm{Pr}_{\textrm{obs}}(0) - \textrm{Pr}_{\textrm{exp}}(0)|}{1 - \textrm{Pr}_{\textrm{exp}}(0)}
+\]</span></p>
+<p>The value of <em>MB</em> is then equal to <span class="math inline">\(b\)</span> unless the observed proportion of empty parts is smaller than (or equal to) the expected one:</p>
+<p><span class="math display">\[
+MB = \begin{cases}
+0 &amp; \textrm{if} &amp; \textrm{Pr}_{\textrm{obs}}(0) \le \textrm{Pr}_{\textrm{exp}}(0)\\
+b &amp; \textrm{if} &amp; \textrm{Pr}_{\textrm{obs}}(0) \gt \textrm{Pr}_{\textrm{exp}}(0)
+\end{cases}
+\]</span></p>
+<p>The fact that <em>MB</em> is based on a probability model that can embrace sampling variation is a great feature. However, the way in which this measure determines the parts that form the basis of the analysis is likely to draw criticism from (corpus) linguists.</p>
+</section>
+<section id="a-drawback-corpus-parts-must-be-equal-sized-and-their-number-varies-across-items" class="level4">
+<h4 class="anchored" data-anchor-id="a-drawback-corpus-parts-must-be-equal-sized-and-their-number-varies-across-items">A drawback: Corpus parts must be equal-sized, and their number varies across items</h4>
+<p>A peculiar feature of <span class="citation" data-cites="Nelson2025">R. N. Nelson (<a href="#ref-Nelson2025" role="doc-biblioref">2025</a>)</span>’s method is the way it divides the corpus into parts: It is based on equal-sized corpus chunks and, crucially, the number of parts depends on the corpus frequency of the item. For an item that occurs <em>f</em> times in the corpus, the corpus is divided into <em>f</em> parts. This means that dispersion calculations for different items are based on different partitions of the corpus (unless items have the same corpus frequency).</p>
+<p>This is a very unusual approach to forming corpus parts, so let us first see why <span class="citation" data-cites="Nelson2025">R. N. Nelson (<a href="#ref-Nelson2025" role="doc-biblioref">2025</a>)</span> uses this strategy. As he explains in his paper, the computation of the <strong>expected proportion</strong> of empty parts, <span class="math inline">\(\textrm{Pr}_{\textrm{exp}}(0)\)</span>, is very simple if the number of parts is equal to the corpus frequency. This is because the average per-part occurrence rate, <span class="math inline">\(\lambda\)</span>, is then equal to 1, and the Poisson-based <strong>expected proportion</strong> of empty parts is then <span class="math inline">\(e^{-1}\)</span> (i.e.&nbsp;about .37). The driving force behind this partitioning strategy, then, is computational efficiency.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
+<p>There are three aspects of this approach to forming corpus parts that are unappealing. The first is the more obvious one: It does not allow the user to concentrate on linguistically meaningful units, or contexts of language use. This, however, is desirable from a linguistic perspective <span class="citation" data-cites="Egbert_etal2020">(see <a href="#ref-Egbert_etal2020" role="doc-biblioref">Egbert, Burch, and Biber 2020</a>)</span>, and it is also what researchers routinely do – only few studies rely on arbitrary partitions of the corpus <span class="citation" data-cites="Soenning2025a Soenning2025b">(see <a href="#ref-Soenning2025a" role="doc-biblioref">Sönning 2025a</a>, <a href="#ref-Soenning2025b" role="doc-biblioref">2025b</a>)</span>.</p>
+<p>The second issue is the way it handles low-frequency items. We will put aside hapaxes, even though they run into an obvious problem – there will only be one corpus part. However, one may very well argue that it is difficult (perhaps even nonsensical) to quantify the dispersion of a hapax. But for items with low corpus frequencies – say, 2, 3, or 4 occurrences in total – the method will rely on a very small number of corpus parts. As a result, low-frequency items can take on only a small number of values. To illustrate this, here are the possible dispersion scores for items with overall frequency counts of 2, 3, 4, 5, and 6 . Note that we express them using conventional scaling (where 0 denotes a maximally uneven/bursty/clumpy distribution):</p>
+<div class="cell">
+<details class="code-fold">
+<summary>R code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="dv">1</span> <span class="sc">-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">abs</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">2</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="dv">1</span>)) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="dv">1</span>))), <span class="dv">2</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="dv">1</span> <span class="sc">-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">abs</span>((<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>)<span class="sc">/</span><span class="dv">3</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="dv">1</span>)) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="dv">1</span>))), <span class="dv">2</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="dv">1</span> <span class="sc">-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">abs</span>((<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>)<span class="sc">/</span><span class="dv">4</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="dv">1</span>)) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="dv">1</span>))), <span class="dv">2</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="dv">1</span> <span class="sc">-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">abs</span>((<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>)<span class="sc">/</span><span class="dv">5</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="dv">1</span>)) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="dv">1</span>))), <span class="dv">2</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="dv">1</span> <span class="sc">-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">abs</span>((<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)<span class="sc">/</span><span class="dv">6</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="dv">1</span>)) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="dv">1</span>))), <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<ul>
+<li>Corpus frequency 2: <code>.42                  1</code></li>
+<li>Corpus frequency 3: <code>.42       .53        1</code></li>
+<li>Corpus frequency 4: <code>.40    .42   .79     1</code></li>
+<li>Corpus frequency 5: <code>.32  .42  .63  .73   1</code></li>
+<li>Corpus frequency 6: <code>.26 .42 .53 .68 .79  1</code></li>
+</ul>
+<p>We see that an item with a corpus frequency of 2 can take on only two values, .42 or 1. As corpus frequency increases, the number of discrete values likewise increases, and scores begin to approach the value of 0, which here denotes the dispersion pessimum. Nelson <span class="citation" data-cites="Nelson2025">(<a href="#ref-Nelson2025" role="doc-biblioref">2025, 121</a>)</span> does comment on the fact that <em>MB</em> scores do not cover the entire unit interval for items with low corpus frequencies. He states that this constraint is negligible for corpus frequencies above 50, and, if need be, <em>MB</em> scores “can be easily adjusted”. What he does not comment on is the discreteness of the <em>MB</em> scores.</p>
+<p>The third and final issue that needs to be pointed out is the variation in the size (and number) of the corpus parts that form the basis of dispersion analysis. To see why this might be considered an issue, consider the structure of the ICE corpora, which is visualized in <a href="#fig-structure-ice" class="quarto-xref">Figure&nbsp;1</a>. Text files are categorized into registers/genres at three levels of granularity:</p>
+<ul>
+<li>2 modes (spoken vs.&nbsp;written)</li>
+<li>12 macro genres</li>
+<li>32 genres</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Draw figure</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>breakpoints <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>macro_genre <span class="sc">==</span> <span class="st">"private_dialogues"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>macro_genre <span class="sc">==</span> <span class="st">"public_dialogues"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>macro_genre <span class="sc">==</span> <span class="st">"unscripted_monologues"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>macro_genre <span class="sc">==</span> <span class="st">"scripted_monologues"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>macro_genre <span class="sc">==</span> <span class="st">"student_writing"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>macro_genre <span class="sc">==</span> <span class="st">"letters"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>macro_genre <span class="sc">==</span> <span class="st">"academic_writing"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>macro_genre <span class="sc">==</span> <span class="st">"popular_writing"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>macro_genre <span class="sc">==</span> <span class="st">"reportage"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>macro_genre <span class="sc">==</span> <span class="st">"instructional_writing"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>macro_genre <span class="sc">==</span> <span class="st">"persuasive_writing"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>macro_genre <span class="sc">==</span> <span class="st">"creative_writing"</span>))<span class="sc">+</span>.<span class="dv">5</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>breakpoints_2 <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"face_to_face_conversations"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"phonecalls"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"classroom_lessons"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"broadcast_discussions"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"broadcast_interviews"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"parliamentary_debates"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"legal_cross_examinations"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"business_transactions"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"spontaneous_commentaries"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"unscripted_speeches"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"demonstrations"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"legal_presentations"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"broadcast_news"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"broadcast_talks"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"non_broadcast_talks"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"student_essays"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"exam_scripts"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"social_letters"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"business_letters"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"acad_humanities"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"acad_social_sciences"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"acad_natural_sciences"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"acad_technology"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"pop_humanities"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"pop_social_sciences"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"pop_natural_sciences"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"pop_technology"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"press_news_reports"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"administrative_writing"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"skills_hobbies"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"press_editorials"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>    <span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"novels_short_stories"</span>))<span class="sc">+</span>.<span class="dv">5</span></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>label_locations <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>macro_genre <span class="sc">==</span> <span class="st">"private_dialogues"</span>)),</span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>macro_genre <span class="sc">==</span> <span class="st">"public_dialogues"</span>)),</span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>macro_genre <span class="sc">==</span> <span class="st">"unscripted_monologues"</span>)),</span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>macro_genre <span class="sc">==</span> <span class="st">"scripted_monologues"</span>)),</span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>macro_genre <span class="sc">==</span> <span class="st">"student_writing"</span>)),</span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>macro_genre <span class="sc">==</span> <span class="st">"letters"</span>)),</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>macro_genre <span class="sc">==</span> <span class="st">"academic_writing"</span>)),</span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>macro_genre <span class="sc">==</span> <span class="st">"popular_writing"</span>)),</span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>macro_genre <span class="sc">==</span> <span class="st">"reportage"</span>)),</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>macro_genre <span class="sc">==</span> <span class="st">"instructional_writing"</span>)),</span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>macro_genre <span class="sc">==</span> <span class="st">"persuasive_writing"</span>)),</span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>macro_genre <span class="sc">==</span> <span class="st">"creative_writing"</span>)) </span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>label_locations_2 <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"face_to_face_conversations"</span>)),</span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"phonecalls"</span>)),</span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"classroom_lessons"</span>)),</span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"broadcast_discussions"</span>)),</span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"broadcast_interviews"</span>)),</span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"parliamentary_debates"</span>)),</span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"legal_cross_examinations"</span>)),</span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"business_transactions"</span>)),</span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"spontaneous_commentaries"</span>)),</span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"unscripted_speeches"</span>)),</span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"demonstrations"</span>)),</span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"legal_presentations"</span>)),</span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"broadcast_news"</span>)),</span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"broadcast_talks"</span>)),</span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"non_broadcast_talks"</span>)),</span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"student_essays"</span>)),</span>
+<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"exam_scripts"</span>)),</span>
+<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"social_letters"</span>)),</span>
+<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"business_letters"</span>)),</span>
+<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"acad_humanities"</span>)),</span>
+<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"acad_social_sciences"</span>)),</span>
+<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"acad_natural_sciences"</span>)),</span>
+<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"acad_technology"</span>)),</span>
+<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"pop_humanities"</span>)),</span>
+<span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"pop_social_sciences"</span>)),</span>
+<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"pop_natural_sciences"</span>)),</span>
+<span id="cb3-92"><a href="#cb3-92" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"pop_technology"</span>)),</span>
+<span id="cb3-93"><a href="#cb3-93" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"press_news_reports"</span>)),</span>
+<span id="cb3-94"><a href="#cb3-94" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"administrative_writing"</span>)),</span>
+<span id="cb3-95"><a href="#cb3-95" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"skills_hobbies"</span>)),</span>
+<span id="cb3-96"><a href="#cb3-96" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"press_editorials"</span>)),</span>
+<span id="cb3-97"><a href="#cb3-97" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>genre <span class="sc">==</span> <span class="st">"novels_short_stories"</span>)))</span>
+<span id="cb3-98"><a href="#cb3-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-99"><a href="#cb3-99" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(<span class="dv">1</span> <span class="sc">~</span> <span class="dv">1</span>, </span>
+<span id="cb3-100"><a href="#cb3-100" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">580</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">60</span>),</span>
+<span id="cb3-101"><a href="#cb3-101" aria-hidden="true" tabindex="-1"></a>       <span class="at">scales=</span><span class="fu">list</span>(<span class="at">draw=</span>F), </span>
+<span id="cb3-102"><a href="#cb3-102" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab=</span><span class="st">""</span>, <span class="at">ylab=</span><span class="st">""</span>,</span>
+<span id="cb3-103"><a href="#cb3-103" aria-hidden="true" tabindex="-1"></a>       <span class="at">par.settings=</span>my_settings,</span>
+<span id="cb3-104"><a href="#cb3-104" aria-hidden="true" tabindex="-1"></a>       <span class="at">panel=</span><span class="cf">function</span>(x,y){</span>
+<span id="cb3-105"><a href="#cb3-105" aria-hidden="true" tabindex="-1"></a>         <span class="co">#panel.segments(x0 = .5, x1 = 500.5, y0 = 8, y1 = 8, col = "grey80", lwd = .5)</span></span>
+<span id="cb3-106"><a href="#cb3-106" aria-hidden="true" tabindex="-1"></a>         </span>
+<span id="cb3-107"><a href="#cb3-107" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.segments</span>(</span>
+<span id="cb3-108"><a href="#cb3-108" aria-hidden="true" tabindex="-1"></a>            <span class="at">x0=</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">500</span>)<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-109"><a href="#cb3-109" aria-hidden="true" tabindex="-1"></a>            <span class="at">x1=</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">500</span>)<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-110"><a href="#cb3-110" aria-hidden="true" tabindex="-1"></a>            <span class="at">y0=</span><span class="dv">5</span>, <span class="at">y1=</span><span class="dv">8</span>, <span class="at">lwd=</span>.<span class="dv">5</span>, <span class="at">col=</span><span class="st">"grey80"</span>)</span>
+<span id="cb3-111"><a href="#cb3-111" aria-hidden="true" tabindex="-1"></a>                </span>
+<span id="cb3-112"><a href="#cb3-112" aria-hidden="true" tabindex="-1"></a>         </span>
+<span id="cb3-113"><a href="#cb3-113" aria-hidden="true" tabindex="-1"></a>        <span class="co">#panel.segments(x0 = .5, x1 = 500.5, y0 = 41, y1 = 41, col = "grey")</span></span>
+<span id="cb3-114"><a href="#cb3-114" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-115"><a href="#cb3-115" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.segments</span>(<span class="at">x0=</span>breakpoints,</span>
+<span id="cb3-116"><a href="#cb3-116" aria-hidden="true" tabindex="-1"></a>                       <span class="at">x1=</span>breakpoints,</span>
+<span id="cb3-117"><a href="#cb3-117" aria-hidden="true" tabindex="-1"></a>                       <span class="at">y0=</span><span class="dv">5</span>, <span class="at">y1=</span><span class="dv">55</span>, <span class="at">lwd=</span>.<span class="dv">5</span>, <span class="at">col=</span><span class="st">"grey"</span>)</span>
+<span id="cb3-118"><a href="#cb3-118" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-119"><a href="#cb3-119" aria-hidden="true" tabindex="-1"></a>        <span class="co">#panel.segments(x0=.5, x1=500.5, y0=48, y1=48, col="grey", lwd=.5)</span></span>
+<span id="cb3-120"><a href="#cb3-120" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-121"><a href="#cb3-121" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.text</span>(<span class="at">x=</span>label_locations, <span class="at">y=</span><span class="dv">35</span>, <span class="at">label=</span><span class="fu">c</span>(</span>
+<span id="cb3-122"><a href="#cb3-122" aria-hidden="true" tabindex="-1"></a>            <span class="st">"private dialogues"</span>, <span class="st">"public dialogues"</span>,<span class="st">"unscripted monologues"</span>,</span>
+<span id="cb3-123"><a href="#cb3-123" aria-hidden="true" tabindex="-1"></a>            <span class="st">"scripted monologues"</span>, <span class="st">"student writing"</span>,<span class="st">"letters"</span>,</span>
+<span id="cb3-124"><a href="#cb3-124" aria-hidden="true" tabindex="-1"></a>            <span class="st">"academic writing"</span>,<span class="st">"popular writing"</span>,<span class="st">"reportage"</span>,</span>
+<span id="cb3-125"><a href="#cb3-125" aria-hidden="true" tabindex="-1"></a>            <span class="st">"instructional writing"</span>,<span class="st">"persuasive writing"</span>,<span class="st">"creative writing"</span></span>
+<span id="cb3-126"><a href="#cb3-126" aria-hidden="true" tabindex="-1"></a>        ), <span class="at">srt=</span><span class="dv">90</span>, <span class="at">adj=</span><span class="dv">0</span>, <span class="at">lineheight=</span>.<span class="dv">8</span>, <span class="at">cex=</span>.<span class="dv">9</span>)</span>
+<span id="cb3-127"><a href="#cb3-127" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-128"><a href="#cb3-128" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.segments</span>(<span class="at">x0=</span>breakpoints_2,</span>
+<span id="cb3-129"><a href="#cb3-129" aria-hidden="true" tabindex="-1"></a>                       <span class="at">x1=</span>breakpoints_2,</span>
+<span id="cb3-130"><a href="#cb3-130" aria-hidden="true" tabindex="-1"></a>                       <span class="at">y0=</span><span class="dv">5</span>, <span class="at">y1=</span><span class="dv">32</span>, <span class="at">lwd=</span>.<span class="dv">5</span>, <span class="at">col=</span><span class="st">"grey"</span>)</span>
+<span id="cb3-131"><a href="#cb3-131" aria-hidden="true" tabindex="-1"></a>                </span>
+<span id="cb3-132"><a href="#cb3-132" aria-hidden="true" tabindex="-1"></a>                </span>
+<span id="cb3-133"><a href="#cb3-133" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.text</span>(<span class="at">x=</span>label_locations_2, <span class="at">y=</span><span class="dv">10</span>, <span class="at">label=</span><span class="fu">c</span>(</span>
+<span id="cb3-134"><a href="#cb3-134" aria-hidden="true" tabindex="-1"></a>          <span class="st">"face-to-face conversations"</span>, <span class="st">"phonecalls"</span>, <span class="st">"classroom lessons"</span>, <span class="st">"broadcast discussions"</span>,     </span>
+<span id="cb3-135"><a href="#cb3-135" aria-hidden="true" tabindex="-1"></a>          <span class="st">"broadcast interviews"</span>, <span class="st">"parliamentary debates"</span>, <span class="st">"legal cross-examinations"</span>, <span class="st">"business transactions"</span>,     </span>
+<span id="cb3-136"><a href="#cb3-136" aria-hidden="true" tabindex="-1"></a>          <span class="st">"spontaneous commentaries"</span>, <span class="st">"unscripted speeches"</span>, <span class="st">"demonstrations"</span>, <span class="st">"legal presentations"</span>,       </span>
+<span id="cb3-137"><a href="#cb3-137" aria-hidden="true" tabindex="-1"></a>          <span class="st">"broadcast news"</span>, <span class="st">"broadcast talks"</span>, <span class="st">"non-broadcast talks"</span>, <span class="st">"student essays"</span>,            </span>
+<span id="cb3-138"><a href="#cb3-138" aria-hidden="true" tabindex="-1"></a>          <span class="st">"exam scripts"</span>, <span class="st">"social letters"</span>, <span class="st">"business letters"</span>, <span class="st">"humanities (acad)"</span>,           </span>
+<span id="cb3-139"><a href="#cb3-139" aria-hidden="true" tabindex="-1"></a>          <span class="st">"social sciences (acad)"</span>, <span class="st">"natural sciences (acad)"</span>, <span class="st">"technology (acad)"</span>, <span class="st">"humanities (pop)"</span>,            </span>
+<span id="cb3-140"><a href="#cb3-140" aria-hidden="true" tabindex="-1"></a>          <span class="st">"social sciences (pop)"</span>, <span class="st">"natural sciences (pop)"</span>, <span class="st">"technology (pop)"</span>, <span class="st">"press news reports"</span>,        </span>
+<span id="cb3-141"><a href="#cb3-141" aria-hidden="true" tabindex="-1"></a>          <span class="st">"administrative writing"</span>, <span class="st">"skills/hobbies"</span>, <span class="st">"press editorials"</span>, <span class="st">"novels &amp; short stories"</span>), </span>
+<span id="cb3-142"><a href="#cb3-142" aria-hidden="true" tabindex="-1"></a>          <span class="at">srt=</span><span class="dv">90</span>, <span class="at">adj=</span><span class="dv">0</span>, <span class="at">lineheight=</span>.<span class="dv">8</span>, <span class="at">cex=</span>.<span class="dv">8</span>, <span class="at">col =</span> <span class="st">"grey40"</span>)</span>
+<span id="cb3-143"><a href="#cb3-143" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-144"><a href="#cb3-144" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-145"><a href="#cb3-145" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.segments</span>(</span>
+<span id="cb3-146"><a href="#cb3-146" aria-hidden="true" tabindex="-1"></a>            <span class="at">x0 =</span> <span class="fu">c</span>(<span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>mode <span class="sc">==</span> <span class="st">"spoken"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-147"><a href="#cb3-147" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">max</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>mode <span class="sc">==</span> <span class="st">"spoken"</span>))<span class="sc">+</span>.<span class="dv">5</span>,</span>
+<span id="cb3-148"><a href="#cb3-148" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">max</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>mode <span class="sc">==</span> <span class="st">"written"</span>))<span class="sc">+</span>.<span class="dv">5</span>),</span>
+<span id="cb3-149"><a href="#cb3-149" aria-hidden="true" tabindex="-1"></a>            <span class="at">x1 =</span> <span class="fu">c</span>(<span class="fu">min</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>mode <span class="sc">==</span> <span class="st">"spoken"</span>))<span class="sc">-</span>.<span class="dv">5</span>,</span>
+<span id="cb3-150"><a href="#cb3-150" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">max</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>mode <span class="sc">==</span> <span class="st">"spoken"</span>))<span class="sc">+</span>.<span class="dv">5</span>,</span>
+<span id="cb3-151"><a href="#cb3-151" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">max</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>mode <span class="sc">==</span> <span class="st">"written"</span>))<span class="sc">+</span>.<span class="dv">5</span>),</span>
+<span id="cb3-152"><a href="#cb3-152" aria-hidden="true" tabindex="-1"></a>            <span class="at">y0 =</span> <span class="dv">5</span>, <span class="at">y1 =</span> <span class="dv">60</span>, <span class="at">lwd =</span> .<span class="dv">5</span>, <span class="at">col =</span> <span class="st">"grey"</span>)</span>
+<span id="cb3-153"><a href="#cb3-153" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-154"><a href="#cb3-154" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.text</span>(<span class="at">x=</span><span class="fu">c</span>(<span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>mode <span class="sc">==</span> <span class="st">"spoken"</span>)),</span>
+<span id="cb3-155"><a href="#cb3-155" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">mean</span>(<span class="fu">which</span>(metadata_ice<span class="sc">$</span>mode <span class="sc">==</span> <span class="st">"written"</span>))),</span>
+<span id="cb3-156"><a href="#cb3-156" aria-hidden="true" tabindex="-1"></a>                   <span class="at">y=</span><span class="dv">60</span>, <span class="at">label=</span><span class="fu">c</span>(<span class="st">"Spoken"</span>, <span class="st">"Written"</span>))</span>
+<span id="cb3-157"><a href="#cb3-157" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb3-158"><a href="#cb3-158" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="dv">515</span>, <span class="at">y =</span> <span class="fu">c</span>(<span class="dv">7</span>, <span class="dv">15</span>, <span class="dv">40</span>), <span class="at">label =</span> <span class="fu">c</span>(</span>
+<span id="cb3-159"><a href="#cb3-159" aria-hidden="true" tabindex="-1"></a>          <span class="st">"Text files</span><span class="sc">\n</span><span class="st">(n = 500)"</span>, <span class="st">"Genres</span><span class="sc">\n</span><span class="st">(n = 32)"</span>, <span class="st">"Macro genres</span><span class="sc">\n</span><span class="st">(n = 12)"</span></span>
+<span id="cb3-160"><a href="#cb3-160" aria-hidden="true" tabindex="-1"></a>        ), <span class="at">lineheight =</span> .<span class="dv">85</span>, <span class="at">adj =</span> <span class="dv">0</span>)</span>
+<span id="cb3-161"><a href="#cb3-161" aria-hidden="true" tabindex="-1"></a>       })</span>
+<span id="cb3-162"><a href="#cb3-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-163"><a href="#cb3-163" aria-hidden="true" tabindex="-1"></a>p1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-structure-ice" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-structure-ice-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-structure-ice-1.png" class="img-fluid figure-img" width="720">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-structure-ice-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Structure of the ICE family of corpora.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Now imagine that the corpus is divided into equal-sized chunks.</p>
+<ul>
+<li>For an item with a corpus frequency of 2, we form two corpus parts. <em>MB</em> then primarily informs us about the dispersion of this item across modes.</li>
+<li>For items with a corpus frequency of around 10 to 15, the corpus chunks will tend to align with macro genres, so for items in this frequency band dispersion is assessed primarily across macro genres.</li>
+<li>For items with a corpus frequency somewhere in the region of 30 or 40, corpus parts will roughly represent genres, so dispersion is measured across these units.</li>
+<li>The dispersion of items that occur around 500 times in the corpus will mainly be measured at the level of the text files in the corpus.</li>
+<li>For items with a corpus frequency greater then 500, the dispersion score will also capture the within-text variability of subfrequencies.</li>
+</ul>
+<p>As a result, the meaning (and interpretation) of dispersion scores varies with the item’s corpus frequency. I would consider this problematic, because I agree with Egbert et al. <span class="citation" data-cites="Egbert_etal2020">(<a href="#ref-Egbert_etal2020" role="doc-biblioref">2020, 110</a>)</span>, who note: “Dispersion results should always be interpreted and reported as ‘dispersion across _____’, where the blank is filled by the type of corpus unit across which dispersion was calculated”. For <em>MB</em>, the blank would need to be filled in differently depending on the corpus frequency of the item.</p>
+<p>To see the range of interpretations we would need to attach to items in different frequency bands, I will rely on a set of 150 word forms, which was compiled by <span class="citation" data-cites="Biber_etal2016">Biber et al. (<a href="#ref-Biber_etal2016" role="doc-biblioref">2016</a>)</span> for methodological purposes, that is, to study the behavior of dispersion measures in different distributional settings. The items are intended to cover a broad range of frequency and dispersion levels. The dataset <code>biber150_ice_gb</code> in the <code>{tlda}</code> package includes text-level frequency information for these forms in ICE-GB <span class="citation" data-cites="Nelson_etal2002">(<a href="#ref-Nelson_etal2002" role="doc-biblioref">G. Nelson, Wallis, and Aarts 2002</a>)</span>. Four items on <span class="citation" data-cites="Biber_etal2016">Biber et al. (<a href="#ref-Biber_etal2016" role="doc-biblioref">2016</a>)</span>’s list do not occur in ICE-GB (<em>aye</em>, <em>corp</em>, <em>ltd</em>, <em>tt</em>), leaving us with 146.</p>
+<p><a href="#fig-partitioning-ice" class="quarto-xref">Figure&nbsp;2</a> shows the (log-scaled) corpus frequency of the 146 items against three benchmarks: the number of macro genres (<em>n</em> = 12), genres (<em>n</em> = 32), and text files (<em>n</em> = 500). Divisions at the level of genres or macro genres are made for lower-frequency items with fewer than 50 occurrences (about a quarter of the word forms). Around half of the items have a corpus frequency greater than 500, and for these higher-frequency items, we would obtain measurements at or below the level of the text files in the corpus.</p>
+<div class="cell preview-image">
+<details class="code-fold">
+<summary>Draw figure</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">histogram</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">log</span>(<span class="fu">rowSums</span>(biber150_ice_gb_macro_genre[<span class="sc">-</span><span class="dv">1</span>,])),</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings =</span> my_settings, <span class="at">axis =</span> axis_bottom,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="st">"grey"</span>, <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="fu">log</span>(<span class="dv">1</span>), <span class="fu">log</span>(<span class="dv">100000</span>), <span class="at">length =</span> <span class="dv">26</span>) <span class="sc">-</span> <span class="fl">0.460517</span><span class="sc">/</span><span class="dv">2</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">22</span>),</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Corpus frequency"</span>, <span class="at">ylab =</span> <span class="st">""</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales =</span> <span class="fu">list</span>(<span class="at">x =</span> <span class="fu">list</span>(<span class="at">at =</span> <span class="fu">log</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">10</span>, <span class="dv">100</span>, <span class="dv">1000</span>, <span class="dv">10000</span>, <span class="dv">100000</span>)),</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>                         <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"1"</span>, <span class="st">"10"</span>, <span class="st">"100"</span>, <span class="st">"1,000"</span>, <span class="st">"10,000"</span>, <span class="st">"100,000"</span>))),</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">panel =</span> <span class="cf">function</span>(x,y,...){</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0 =</span> <span class="fu">log</span>(<span class="dv">500</span>), <span class="at">x1 =</span> <span class="fu">log</span>(<span class="dv">500</span>), <span class="at">y0 =</span> <span class="dv">0</span>, <span class="at">y1 =</span> <span class="dv">14</span>, <span class="at">lty =</span> <span class="st">"22"</span>, <span class="at">lineend =</span> <span class="st">"butt"</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0 =</span> <span class="fu">log</span>(<span class="dv">32</span>), <span class="at">x1 =</span> <span class="fu">log</span>(<span class="dv">32</span>), <span class="at">y0 =</span> <span class="dv">0</span>, <span class="at">y1 =</span> <span class="dv">17</span>, <span class="at">lty =</span> <span class="st">"22"</span>, <span class="at">lineend =</span> <span class="st">"butt"</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0 =</span> <span class="fu">log</span>(<span class="dv">12</span>), <span class="at">x1 =</span> <span class="fu">log</span>(<span class="dv">12</span>), <span class="at">y0 =</span> <span class="dv">0</span>, <span class="at">y1 =</span> <span class="dv">20</span>, <span class="at">lty =</span> <span class="st">"22"</span>, <span class="at">lineend =</span> <span class="st">"butt"</span>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fu">log</span>(<span class="dv">500</span>)<span class="sc">-</span>.<span class="dv">15</span>, <span class="at">y =</span> <span class="fl">15.5</span>, <span class="at">label =</span> <span class="st">"Texts (n = 500)"</span>, <span class="at">adj =</span> <span class="dv">0</span>)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fu">log</span>(<span class="dv">32</span>)<span class="sc">-</span>.<span class="dv">15</span>, <span class="at">y =</span> <span class="fl">18.5</span>, <span class="at">label =</span> <span class="st">"Genres (n = 32)"</span>, <span class="at">adj =</span> <span class="dv">0</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fu">log</span>(<span class="dv">12</span>)<span class="sc">-</span>.<span class="dv">15</span>, <span class="at">y =</span> <span class="fl">21.5</span>, <span class="at">label =</span> <span class="st">"Macro genres (n = 12)"</span>, <span class="at">adj =</span> <span class="dv">0</span>)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.histogram</span>(x, ...)</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1, <span class="at">position =</span> <span class="fu">c</span>(<span class="sc">-</span>.<span class="dv">075</span>, <span class="dv">0</span>, .<span class="dv">98</span>, <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-partitioning-ice" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-partitioning-ice-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-partitioning-ice-1.png" class="img-fluid figure-img" width="336">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-partitioning-ice-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Corpus frequency (log-scaled) of 146 items from <span class="citation" data-cites="Biber_etal2016">Biber et al. (<a href="#ref-Biber_etal2016" role="doc-biblioref">2016</a>)</span>’s list in ICE-GB.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="extension-of-nelsons-approach-to-corpus-parts-of-different-size-dmb" class="level4">
+<h4 class="anchored" data-anchor-id="extension-of-nelsons-approach-to-corpus-parts-of-different-size-dmb">Extension of Nelson’s approach to corpus parts of different size: <em>D<sub>MB</sub></em></h4>
+<p>For many, myself included, it would be desirable to apply the Poissonness approach to an existing set of corpus parts, which ideally represent meaningful contexts of language use. This means that the measure should ideally also work with parts of different size. In this section, I describe a generalization of Nelson’s <span class="citation" data-cites="Nelson2025">(<a href="#ref-Nelson2025" role="doc-biblioref">2025</a>)</span> <em>MB</em> that meets these demands; I will label the resulting index <em>D<sub>MB</sub></em>.</p>
+<p>Before we go further, I should note that this requires us to abandon the virtue of computational simplicity. To calculate <em>D<sub>MB</sub></em>, we need access to a statistical programming language such as R. For convenience, the measure can be computed with the function <code>disp_DMB()</code> in the R package <code>{tlda}</code> <span class="citation" data-cites="tlda_package">(<a href="#ref-tlda_package" role="doc-biblioref">Sönning 2025c</a>)</span>.</p>
+<p>Instead of using the simple approach proposed by <span class="citation" data-cites="Nelson2025">R. N. Nelson (<a href="#ref-Nelson2025" role="doc-biblioref">2025</a>)</span> (which, however, requires us to work with many different sets of arbitrary corpus chunks), we determine the expected proportion of empty parts using a Poisson regression model. In this model, the corpus parts constitute the individual observations, which are characterized by two counts:</p>
+<ul>
+<li><em>Subfrequency</em>: The number of occurrences of the item</li>
+<li><em>Part size</em>: The length of the part (in number of word tokens)</li>
+</ul>
+<p>The model itself does not include any predictor variables apart from what is referred to as an offset term, which gives the part sizes. This is necessary for the same reason we often calculate normalized frequencies: A frequency count (i.e.&nbsp;subfrequency) is only meaningful in relation to corpus size (i.e.&nbsp;part size). The regression model then allows us to estimate an intercept, which is <span class="math inline">\(\lambda\)</span> (the average occurrence rate), expressed on the log scale. For a count regression model with an offset term, <span class="math inline">\(\lambda\)</span> is the average occurrence rate (i.e.&nbsp;normalized frequency) per 1 word. For interpretation, the rate is expressed using a more appropriate basis (e.g.&nbsp;“per thousand/million words” instead of “per 1 word”).</p>
+</section>
+<section id="step-by-step-calculation-of-dmb" class="level4">
+<h4 class="anchored" data-anchor-id="step-by-step-calculation-of-dmb">Step-by-step calculation of <em>D<sub>MB</sub></em></h4>
+<p>Let us consider the implementation of this approach step by step. For illustration, we look at the dispersion of <em>actually</em> in ICE-GB, using the text files as corpus parts. We start by extracting the subfrequencies and part sizes from the data object <code>biber150_ice_gb</code>, which is part of the <code>{tlda}</code> package:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>actually_subfreq <span class="ot">&lt;-</span> biber150_ice_gb[<span class="st">"actually"</span>,]</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>actually_partsize <span class="ot">&lt;-</span> biber150_ice_gb[<span class="st">"word_count"</span>,]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Then we specify a Poisson regression model with an offset term, using the base R function <code>glm()</code>. Note that part sizes are log-transformed before being passed to the function <code>offset()</code>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  actually_subfreq <span class="sc">~</span> <span class="fu">offset</span>(<span class="fu">log</span>(actually_partsize)), </span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> poisson)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Let’s look at the regression table:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>arm<span class="sc">::</span><span class="fu">display</span>(m)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>glm(formula = actually_subfreq ~ offset(log(actually_partsize)), 
+    family = poisson)
+            coef.est coef.se
+(Intercept) -6.91     0.03  
+---
+  n = 500, k = 1
+  residual deviance = 1907.4, null deviance = 1907.4 (difference = 0.0)</code></pre>
+</div>
+</div>
+<p>The model intercept, <span class="math inline">\(-6.91\)</span>, is the <strong>natural log occurrence rate per 1 word</strong>. To obtain an interpretable figure, we first exponentiate the intercept (to undo the log<sub>e</sub>-transformation):</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(<span class="fu">coef</span>(m))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> (Intercept) 
+0.0009949711 </code></pre>
+</div>
+</div>
+<p>This amounts to a rate of about 0.001 per 1 word, which is better thought of as 1 per thousand words.</p>
+<p>The next step is to obtain from the Poisson model the expected proportion of empty parts for the set of corpus parts that entered the analysis. It is important that this question be asked in this way, i.e.&nbsp;by reference to the set of parts in the data. This is because the probability of a part being empty or not primarily depends on its size. We therefore calculate the probability of a subfrequency of 0 for each part:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>prob_0_all_parts <span class="ot">&lt;-</span> <span class="fu">dpois</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">0</span>, </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">exp</span>(<span class="fu">coef</span>(m))<span class="sc">*</span>actually_partsize)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Then we take the average over these probabilities:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(prob_0_all_parts)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.1204614</code></pre>
+</div>
+</div>
+<p>This is our Poisson-based estimate of <span class="math inline">\(\textrm{Pr}_{\textrm{exp}}(0)\)</span>. From here on, everything works in the same way as described by <span class="citation" data-cites="Nelson2025">R. N. Nelson (<a href="#ref-Nelson2025" role="doc-biblioref">2025</a>)</span>. As an added benefit, we can use the regression model to produce approximate 95% confidence intervals.</p>
+<p>The R function <code>disp_DMB()</code> carries out these computations:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">disp_DMB</span>(</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">subfreq =</span> actually_subfreq, </span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">partsize =</span> actually_partsize, </span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">conf_int =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">digits =</span> <span class="dv">2</span>,</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     DMB ci_lower ci_upper 
+    0.66     0.65     0.67 </code></pre>
+</div>
+</div>
+</section>
+<section id="comparison-of-mb-and-dmb" class="level4">
+<h4 class="anchored" data-anchor-id="comparison-of-mb-and-dmb">Comparison of <em>MB</em> and <em>D<sub>MB</sub></em></h4>
+<p>To compare the dispersion scores produced by <em>MB</em> and <em>D<sub>MB</sub></em>, we turn to <span class="citation" data-cites="Biber_etal2016">Biber et al. (<a href="#ref-Biber_etal2016" role="doc-biblioref">2016</a>)</span>’s list of diagnostic items, and the ICE-GB corpus. Recall that ICE-GB only contains 146 out of the 150 items, so we work with this subset.</p>
+<section id="calculations" class="level5">
+<h5 class="anchored" data-anchor-id="calculations">Calculations</h5>
+<p>We start by calculating <em>MB</em>. What we need is the <strong>size of the corpus</strong> (1,072,393 tokens) and a <strong>data table</strong> that includes all occurrences of the 146 items in the corpus (here: 321,328 tokens in total). The data table must include a column that gives the <strong>corpus position</strong> for each occurrence. The following annotated code carries out the calculations.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Calculate MB</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># total number of token in ICE-GB</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>n_total <span class="ot">&lt;-</span> <span class="dv">1072393</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># data table with all occurrences of the 146 items including the corpus</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co"># position of each occurrence</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>ice_gb_150_corpus_position <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"ice_gb_150_corpus_position.rds"</span>)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="co"># create character vector listing all items</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>items <span class="ot">&lt;-</span> <span class="fu">unique</span>(ice_gb_150_corpus_position<span class="sc">$</span>item)</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="co"># initiate vectors to store counts</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>freq_item <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>n_0 <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a><span class="co"># for each item, divide corpus into f parts, where f is the corpus frequency</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a><span class="co"># of the item and then count how many of these are empty</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(items)){</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>  item_selected <span class="ot">&lt;-</span> items[i]</span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>  item_data <span class="ot">&lt;-</span> <span class="fu">subset</span>(ice_gb_150_corpus_position, item <span class="sc">==</span> item_selected)</span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>  freq_item[i] <span class="ot">&lt;-</span> <span class="fu">nrow</span>(item_data)</span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>  n_0[i] <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">table</span>(<span class="fu">cut</span>(item_data<span class="sc">$</span>corpus_position, <span class="fu">seq</span>(<span class="dv">0</span>, n_total<span class="sc">+</span><span class="dv">1</span>, <span class="at">length =</span> <span class="fu">nrow</span>(item_data)<span class="sc">+</span><span class="dv">1</span>))) <span class="sc">==</span> <span class="dv">0</span>)</span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a><span class="co"># combine results into data frame</span></span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>ice_gb_150 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">item =</span> items,</span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">freq =</span> freq_item,</span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">n_zeros =</span> n_0</span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a><span class="co"># add the observed proportion of empty parts</span></span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>ice_gb_150<span class="sc">$</span>prop_zero <span class="ot">&lt;-</span> ice_gb_150<span class="sc">$</span>n_zeros <span class="sc">/</span> ice_gb_150<span class="sc">$</span>freq</span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate MB</span></span>
+<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a>ice_gb_150<span class="sc">$</span>MB <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(</span>
+<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a>  ice_gb_150<span class="sc">$</span>prop_zero <span class="sc">&lt;=</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="dv">1</span>), <span class="dv">0</span>,</span>
+<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">abs</span>(ice_gb_150<span class="sc">$</span>prop_zero <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="dv">1</span>)) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span><span class="dv">1</span>)))</span>
+<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-39"><a href="#cb16-39" aria-hidden="true" tabindex="-1"></a><span class="co"># adjust to conventional scaling (0 = uneven; 1 = even)</span></span>
+<span id="cb16-40"><a href="#cb16-40" aria-hidden="true" tabindex="-1"></a>ice_gb_150<span class="sc">$</span>MB <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> ice_gb_150<span class="sc">$</span>MB</span>
+<span id="cb16-41"><a href="#cb16-41" aria-hidden="true" tabindex="-1"></a>ice_gb_150 <span class="ot">&lt;-</span> ice_gb_150[<span class="fu">order</span>(ice_gb_150<span class="sc">$</span>item),]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>This gives us a data frame with the following columns:</p>
+<ul>
+<li><code>item</code> the item (146 in total)</li>
+<li><code>freq</code> corpus frequency</li>
+<li><code>n_zeros</code> the number of empty parts</li>
+<li><code>prop_zero</code> the proportion of empty parts (out of <code>freq</code> parts)</li>
+<li><code>MB</code> the score for the dispersion measure <em>MB</em></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(ice_gb_150)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   146 obs. of  5 variables:
+ $ item     : chr  "a" "able" "actually" "after" ...
+ $ freq     : int  20483 390 1067 871 364 181 4 2807 156 3198 ...
+ $ n_zeros  : int  7752 175 608 378 195 127 3 1133 85 1276 ...
+ $ prop_zero: num  0.378 0.449 0.57 0.434 0.536 ...
+ $ MB       : num  0.983 0.872 0.681 0.895 0.734 ...</code></pre>
+</div>
+</div>
+<p>Next, we use the function <code>disp_DMB()</code> in the <code>{tlda}</code> package <span class="citation" data-cites="tlda_package">(<a href="#ref-tlda_package" role="doc-biblioref">Sönning 2025c</a>)</span> to calculate <em>D<sub>MB</sub></em>. The text files will be used as corpus parts.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Calculate <em>D<sub>MB</sub></em></summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># initiate vector to store results</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>disp_scores_ice <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="cn">NA</span>, <span class="dv">150</span>)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co"># loop through items and calculate DNB; for items with a corpus frequency </span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="co"># of 0 (n = 4), the function returns NA</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">150</span>){</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span>(<span class="fu">sum</span>(biber150_ice_gb[i<span class="sc">+</span><span class="dv">1</span>,]) <span class="sc">&gt;</span> <span class="dv">0</span>){</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>      disp_scores_ice[i] <span class="ot">&lt;-</span> <span class="fu">disp_DMB</span>(</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">subfreq =</span> biber150_ice_gb[i<span class="sc">+</span><span class="dv">1</span>,],</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">partsize =</span> biber150_ice_gb[<span class="dv">1</span>,],</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">print_score =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a><span class="co"># combine into a data frame</span></span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>ice_gb_150_DMB <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">item =</span> <span class="fu">rownames</span>(biber150_ice_gb)[<span class="sc">-</span><span class="dv">1</span>],</span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">DMB =</span> disp_scores_ice</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a><span class="co"># exclude items with a corpus frequency of 0 (where DMB is NA)</span></span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>ice_gb_150_DMB <span class="ot">&lt;-</span> <span class="fu">subset</span>(ice_gb_150_DMB, <span class="sc">!</span><span class="fu">is.na</span>(DMB))</span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a><span class="co"># combine with the data frame created above</span></span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a>ice_gb_150_nelson <span class="ot">&lt;-</span> <span class="fu">merge</span>(ice_gb_150, ice_gb_150_DMB, <span class="at">by =</span> <span class="st">"item"</span>)</span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a><span class="co"># order alphabetically by item</span></span>
+<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a>ice_gb_150_nelson <span class="ot">&lt;-</span> ice_gb_150_nelson[<span class="fu">order</span>(ice_gb_150_nelson<span class="sc">$</span>item),]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>This adds one more column to the data frame:</p>
+<ul>
+<li><code>DMB</code> the score for the dispersion measure <em>D<sub>MB</sub></em></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(ice_gb_150_nelson)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   146 obs. of  6 variables:
+ $ item     : chr  "a" "able" "actually" "after" ...
+ $ freq     : int  20483 390 1067 871 364 181 4 2807 156 3198 ...
+ $ n_zeros  : int  7752 175 608 378 195 127 3 1133 85 1276 ...
+ $ prop_zero: num  0.378 0.449 0.57 0.434 0.536 ...
+ $ MB       : num  0.983 0.872 0.681 0.895 0.734 ...
+ $ DMB      : num  1 0.84 0.657 0.861 0.744 ...</code></pre>
+</div>
+</div>
+</section>
+<section id="distribution-of-scores" class="level5">
+<h5 class="anchored" data-anchor-id="distribution-of-scores">Distribution of scores</h5>
+<p>We start by inspecting the overall distribution of <em>MB</em> and <em>D<sub>MB</sub></em> scores using histograms. It is worth repeating here that I am expressing dispersion scores using the conventional scaling:</p>
+<ul>
+<li>0 = maximally uneven distribution</li>
+<li>1 = maximally even distribution</li>
+</ul>
+<p><a href="#fig-histograms" class="quarto-xref">Figure&nbsp;3</a> shows that the two measures yield a similar distribution, with scores pushing against the upper bound of the scale: For <em>MB</em>, only 14% of the items receive scores below .50, and for <em>D<sub>MB</sub></em> this figure is at 12%. Considering the pool of items assembled by <span class="citation" data-cites="Biber_etal2016">Biber et al. (<a href="#ref-Biber_etal2016" role="doc-biblioref">2016</a>)</span>, which aim to cover a broad range of frequency and dispersion levels, it seems that both measures show a bias toward evenness.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Draw figure</summary>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">histogram</span>(</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="sc">~</span> MB, <span class="at">data =</span> ice_gb_150_nelson,</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">20</span>),</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, .<span class="dv">05</span>),  <span class="at">col =</span> <span class="st">"grey"</span>,</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales =</span> <span class="fu">list</span>(<span class="at">x =</span> <span class="fu">list</span>(<span class="at">at =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>),</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>                         <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"0</span><span class="sc">\n</span><span class="st">(uneven)"</span>, <span class="st">"1</span><span class="sc">\n</span><span class="st">(even)"</span>))),</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab =</span> <span class="cn">NULL</span>, <span class="at">xlab =</span> <span class="cn">NULL</span>, <span class="at">xlab.top =</span> <span class="fu">expression</span>(MB),</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings =</span> my_settings, <span class="at">axis =</span> axis_bottom)</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">histogram</span>(</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>  <span class="sc">~</span> DMB, <span class="at">data =</span> ice_gb_150_nelson,</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">20</span>),</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, .<span class="dv">05</span>),  <span class="at">col =</span> <span class="st">"grey"</span>,</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales =</span> <span class="fu">list</span>(<span class="at">x =</span> <span class="fu">list</span>(<span class="at">at =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>),</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>                         <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"0</span><span class="sc">\n</span><span class="st">(uneven)"</span>, <span class="st">"1</span><span class="sc">\n</span><span class="st">(even)"</span>))),</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab =</span> <span class="cn">NULL</span>, <span class="at">xlab =</span> <span class="cn">NULL</span>, <span class="at">xlab.top =</span> <span class="fu">expression</span>(D[MB]),</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings =</span> my_settings, <span class="at">axis =</span> axis_bottom)</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>cowplot<span class="sc">::</span><span class="fu">plot_grid</span>(<span class="cn">NULL</span>, p1, <span class="cn">NULL</span>, p2, <span class="cn">NULL</span>,</span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>                   <span class="at">nrow =</span> <span class="dv">1</span>, <span class="at">rel_widths =</span> <span class="fu">c</span>(<span class="sc">-</span>.<span class="dv">1</span>, <span class="dv">1</span>, .<span class="dv">1</span>, <span class="dv">1</span>, .<span class="dv">07</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-histograms" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-histograms-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-histograms-1.png" class="img-fluid figure-img" width="384">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-histograms-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Distribution of the <em>MB</em> and <em>D<sub>MB</sub></em> scores for 146 items (out of <span class="citation" data-cites="Biber_etal2016">Biber et al. (<a href="#ref-Biber_etal2016" role="doc-biblioref">2016</a>)</span>’s set of 150) in ICE-GB.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Let’s also look at the relationship between these measures and frequency. <a href="#fig-scatterplot-frequency" class="quarto-xref">Figure&nbsp;4</a> again shows similar constellations. What is particularly noteworthy for both <em>MB</em> and <em>D<sub>MB</sub></em> is that they show no notable association with frequency. This is in stark contrast to other parts-based dispersion measures, which show a very strong, spurious correlation with frequency. In fact, this has emerged as one of the most important weaknesses of existing parts-based dispersion measures, and it has spawned methodological efforts to remove the unwanted influence that frequency has on dispersion scores <span class="citation" data-cites="Gries2022 Gries2024">(see <a href="#ref-Gries2022" role="doc-biblioref">Gries 2022</a>, <a href="#ref-Gries2024" role="doc-biblioref">2024</a>)</span>. The fact that <em>MB</em> and <em>D<sub>MB</sub></em> appear to measure dispersion independently from frequency is an attractive feature of these measures.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Draw figure</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  MB <span class="sc">~</span> <span class="fu">log</span>(freq), <span class="at">data =</span> ice_gb_150_nelson, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Frequency (log-scaled)"</span>, <span class="at">ylab =</span> <span class="st">"</span><span class="sc">\n\n</span><span class="st">Dispersion"</span>, </span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales =</span> <span class="fu">list</span>(</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">list</span>(<span class="at">at =</span> <span class="fu">log</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">10</span>,<span class="dv">100</span>, <span class="dv">1000</span>, <span class="dv">10000</span>)),</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">label =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">10</span>,<span class="dv">100</span>, <span class="dv">1000</span>, <span class="dv">10000</span>)),</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="fu">list</span>(<span class="at">at =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>),</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>             <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">0</span><span class="sc">\n</span><span class="st">(uneven)"</span>, <span class="st">"(even)</span><span class="sc">\n</span><span class="st">1</span><span class="sc">\n</span><span class="st">"</span>))),</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings =</span> my_settings, <span class="at">axis =</span> axis_L,</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">panel =</span> <span class="cf">function</span>(x,y,...){</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(x,y,...)</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fu">log</span>(<span class="dv">300</span>), <span class="at">y =</span> <span class="fl">1.15</span>, <span class="at">label =</span> <span class="st">"MB"</span>)</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(</span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>  DMB <span class="sc">~</span> <span class="fu">log</span>(freq), <span class="at">data =</span> ice_gb_150_nelson, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Frequency (log-scaled)"</span>, <span class="at">ylab =</span> <span class="st">""</span>, </span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales =</span> <span class="fu">list</span>(</span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">list</span>(<span class="at">at =</span> <span class="fu">log</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">10</span>,<span class="dv">100</span>, <span class="dv">1000</span>, <span class="dv">10000</span>)),</span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a>             <span class="at">label =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">10</span>,<span class="dv">100</span>, <span class="dv">1000</span>, <span class="dv">10000</span>)),</span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="fu">list</span>(<span class="at">at =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))),</span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings =</span> my_settings, <span class="at">axis =</span> axis_L,</span>
+<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">panel =</span> <span class="cf">function</span>(x,y,...){</span>
+<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(x,y,...)</span>
+<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fu">log</span>(<span class="dv">300</span>), <span class="at">y =</span> <span class="fl">1.15</span>, <span class="at">label =</span> <span class="fu">expression</span>(D[MB]))</span>
+<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a>cowplot<span class="sc">::</span><span class="fu">plot_grid</span>(</span>
+<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a>  <span class="cn">NULL</span>, <span class="cn">NULL</span>, <span class="cn">NULL</span>,</span>
+<span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a>  <span class="cn">NULL</span>, p1, p2,</span>
+<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">nrow =</span> <span class="dv">2</span>, </span>
+<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">rel_widths =</span> <span class="fu">c</span>(<span class="sc">-</span>.<span class="dv">08</span>, <span class="fl">1.1</span>, <span class="dv">1</span>),</span>
+<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">rel_heights =</span> <span class="fu">c</span>(.<span class="dv">125</span>, <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-scatterplot-frequency" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-scatterplot-frequency-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-scatterplot-frequency-1.png" class="img-fluid figure-img" width="480">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scatterplot-frequency-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Scatterplots graphing dispersion scores against the corpus frequency of 146 items (out of <span class="citation" data-cites="Biber_etal2016">Biber et al. (<a href="#ref-Biber_etal2016" role="doc-biblioref">2016</a>)</span>’s set of 150) in ICE-GB.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Let us finally compare the <em>MB</em> and <em>D<sub>MB</sub></em> values we obtain for each item directly. To this end, <a href="#fig-scatterplot-comparison" class="quarto-xref">Figure&nbsp;5</a> graphs these scores against one another. The grey diagonal line represents identity, i.e.&nbsp;perfect agreement between <em>MB</em> and <em>D<sub>MB</sub></em>; indeed most items fall near this line. Items above the diagonal (e.g.&nbsp;<em>aha</em>, <em>da</em>, <em>bloke</em>, <em>nodded</em>) receive higher dispersion scores from <em>D<sub>MB</sub></em>, meaning that <em>D<sub>MB</sub></em> suggests that they are more evenly distributed than <em>MB</em>. For items below the diagonal (e.g.&nbsp;<em>minus</em>, <em>charles</em>, <em>percent</em>), <em>MB</em> suggests greater evenness.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Draw figure</summary>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  DMB <span class="sc">~</span> MB, <span class="at">data =</span> ice_gb_150_nelson, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>),</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab =</span> <span class="fu">expression</span>(D[MB]), <span class="at">xlab =</span> <span class="st">"MB"</span>, <span class="at">axis =</span> axis_L,</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales =</span> <span class="fu">list</span>(</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">list</span>(<span class="at">at =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>)),</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="fu">list</span>(<span class="at">at =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))),       <span class="at">par.settings =</span> my_settings,</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">panel =</span> <span class="cf">function</span>(x,y){</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.abline</span>(<span class="at">a =</span> <span class="dv">0</span>, <span class="at">b =</span> <span class="dv">1</span>, <span class="at">col =</span> <span class="st">"grey"</span>)</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(x, y, <span class="at">label =</span> <span class="fu">as.character</span>(ice_gb_150_nelson<span class="sc">$</span>item), </span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>               <span class="at">cex =</span> .<span class="dv">8</span>, <span class="at">fontface =</span> <span class="st">"italic"</span>)</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1, <span class="at">position =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,.<span class="dv">96</span>, <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-scatterplot-comparison" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-scatterplot-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-scatterplot-comparison-1.png" class="img-fluid figure-img" width="432">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-scatterplot-comparison-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Scatterplot graphing the <em>D<sub>MB</sub></em> score against the <em>MB</em> score for each of the 146 items in ICE-GB.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Let’s take a closer look at some items to see why the two measures yield different scores. For <em>aha</em>, which occurs 4 times in the corpus, <em>MB</em> produces a lower score (.40 vs.&nbsp;1):</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">subset</span>(ice_gb_150_nelson, item <span class="sc">==</span> <span class="st">"aha"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  item freq n_zeros prop_zero        MB DMB
+7  aha    4       3      0.75 0.3954942   1</code></pre>
+</div>
+</div>
+<p>This is because, upon dividing ICE-GB into four equal-sized parts, <em>aha</em> appears in only one of them, and a distribution of <code>0 0 0 4</code> is quite uneven. This reflects the fact that <em>aha</em> only occurs in the spoken part. Since <em>MB</em> divides the corpus into few chunks, its score for this item reflects its association with spoken registers. <em>D<sub>MB</sub></em>, on the other hand, returns a score of 1, because the four occurrences stem from different texts (i.e.&nbsp;corpus parts). This means that, at this level of analysis (500 corpus parts, i.e.&nbsp;text files), the four occurrences are distributed as evenly as possible – each in a different text.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(biber150_ice_gb[<span class="st">"aha"</span>,])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  0   1 
+496   4 </code></pre>
+</div>
+</div>
+<p>For <em>percent</em>, <em>MB</em> yields a higher score (1 vs.&nbsp;.67), suggesting greater evenness. Upon dividing the corpus into three parts, one part is empty, which aligns with the expectations based on the Poisson distribution. The meaning of this score is somewhat unclear. Reference back to <a href="#fig-structure-ice" class="quarto-xref">Figure&nbsp;1</a> shows that a division of ICE-GB into thirds yields a spoken, a written, and a mixed part, which obscures the meaning carried by the score.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">subset</span>(ice_gb_150_nelson, item <span class="sc">==</span> <span class="st">"percent"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       item freq n_zeros prop_zero MB       DMB
+102 percent    3       1 0.3333333  1 0.6686852</code></pre>
+</div>
+</div>
+<p><em>D<sub>MB</sub></em> gives a lower score to <em>percent</em>. This is because an even distribution would have seen the three instances of <em>percent</em> spread across three different parts (i.e.&nbsp;text files). However, one text contains two occurrences of the item:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(biber150_ice_gb[<span class="st">"percent"</span>,])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+  0   1   2 
+498   1   1 </code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="summary" class="level4">
+<h4 class="anchored" data-anchor-id="summary">Summary</h4>
+<p>In this blog post, I have described how <span class="citation" data-cites="Nelson2025">R. N. Nelson (<a href="#ref-Nelson2025" role="doc-biblioref">2025</a>)</span>’s <em>MB</em> can be extended to work with a pre-determined set of corpus parts that may differ in size. The resulting measure <em>D<sub>MB</sub></em> is implemented in the R function <code>disp_DMB()</code> in the <code>{tlda}</code> package. In my view, this modification of <em>MB</em> overcomes what I would consider a major concern with <em>MB</em>: Its reliance on equal-sized corpus parts whose number varies across items.</p>
+<p>To summarize our examination of <em>MB</em> and <em>D<sub>MB</sub></em>, we may note the following pros and cons:</p>
+<ul>
+<li>Good: They tolerate sampling variation and thereby avoid an unrealistic and overly narrow definition of evenness</li>
+<li>Good: They are unaffected by frequency</li>
+<li>Problematic: Both measures appear to be biased toward high levels of evenness</li>
+</ul>
+<p><span class="citation" data-cites="Nelson2025">R. N. Nelson (<a href="#ref-Nelson2025" role="doc-biblioref">2025</a>)</span> provides new and welcome impulses for methodological research on the measurement of dispersion. It may be too early, however, to conclude that <em>MB</em> may be considered “a measure with generally superior performance” <span class="citation" data-cites="Nelson2025">(<a href="#ref-Nelson2025" role="doc-biblioref">R. N. Nelson 2025, 121</a>)</span>.</p>
+
+
+
+</section>
+
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-Biber_etal2016" class="csl-entry" role="listitem">
+Biber, Douglas, Randi Reppen, Erin Schnur, and Romy Ghanem. 2016. <span>“On the (Non)utility of Juilland’sDto Measure Lexical Dispersion in Large Corpora.”</span> <em>International Journal of Corpus Linguistics</em> 21 (4): 439–64. <a href="https://doi.org/10.1075/ijcl.21.4.01bib">https://doi.org/10.1075/ijcl.21.4.01bib</a>.
+</div>
+<div id="ref-Egbert_etal2020" class="csl-entry" role="listitem">
+Egbert, Jesse, Brent Burch, and Douglas Biber. 2020. <span>“Lexical Dispersion and Corpus Design.”</span> <em>International Journal of Corpus Linguistics</em> 25 (1): 89–115. <a href="https://doi.org/10.1075/ijcl.18010.egb">https://doi.org/10.1075/ijcl.18010.egb</a>.
+</div>
+<div id="ref-Gries2022" class="csl-entry" role="listitem">
+Gries, Stefan Th. 2022. <span>“What Do (Most of) Our Dispersion Measures Measure (Most)? Dispersion?”</span> <em>Journal of Second Language Studies</em> 5 (2): 171–205. <a href="https://doi.org/10.1075/jsls.21029.gri">https://doi.org/10.1075/jsls.21029.gri</a>.
+</div>
+<div id="ref-Gries2024" class="csl-entry" role="listitem">
+———. 2024. <em>Frequency, Dispersion, Association, and Keyness: Revising and Tupleizing Corpus-Linguistic Measures</em>. John Benjamins. <a href="https://doi.org/10.1075/scl.115">https://doi.org/10.1075/scl.115</a>.
+</div>
+<div id="ref-Nelson_etal2002" class="csl-entry" role="listitem">
+Nelson, Gerald, Sean Wallis, and Bas Aarts. 2002. <em>Exploring Natural Language: Working with the British Component of the International Corpus of English</em>. John Benjamins. <a href="https://doi.org/10.1075/veaw.g29">https://doi.org/10.1075/veaw.g29</a>.
+</div>
+<div id="ref-Nelson2025" class="csl-entry" role="listitem">
+Nelson, Robert N. 2025. <span>“Groundhog Day Is Not a Good Model for Corpus Dispersion.”</span> <em>Journal of Quantitative Linguistics</em> 32 (2): 103–27. <a href="https://doi.org/10.1080/09296174.2024.2423415">https://doi.org/10.1080/09296174.2024.2423415</a>.
+</div>
+<div id="ref-Soenning2025a" class="csl-entry" role="listitem">
+Sönning, Lukas. 2025a. <span>“Advancing Our Understanding of Dispersion Measures in Corpus Research.”</span> <em>Corpora</em> 20 (1): 3–35. <a href="https://doi.org/10.3366/cor.2025.0326">https://doi.org/10.3366/cor.2025.0326</a>.
+</div>
+<div id="ref-Soenning2025b" class="csl-entry" role="listitem">
+———. 2025b. <span>“Dispersion Analysis.”</span> <em>OSF Preprints</em>. <a href="https://doi.org/10.31219/osf.io/h3dyx_v2">https://doi.org/10.31219/osf.io/h3dyx_v2</a>.
+</div>
+<div id="ref-tlda_package" class="csl-entry" role="listitem">
+———. 2025c. <em>Tlda: Tools for Language Data Analysis</em>. <a href="https://github.com/lsoenning/tlda">https://github.com/lsoenning/tlda</a>.
+</div>
+</div></section><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>However, computational cost arises at the stage of data preparation: for each item, the corpus needs to be divided anew, into <em>f</em> parts.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{sönning2025,
+  author = {Sönning, Lukas},
+  title = {Nelson’s (2025) {Poisson-based} Dispersion Measure},
+  date = {2025-10-30},
+  url = {https://lsoenning.github.io/posts/2025-10-23_dispersion_nelson_poissonness/},
+  langid = {en}
+}
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-sönning2025" class="csl-entry quarto-appendix-citeas" role="listitem">
+Sönning, Lukas. 2025. <span>“Nelson’s (2025) Poisson-Based Dispersion
+Measure.”</span> October 30, 2025. <a href="https://lsoenning.github.io/posts/2025-10-23_dispersion_nelson_poissonness/">https://lsoenning.github.io/posts/2025-10-23_dispersion_nelson_poissonness/</a>.
+</div></div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/lsoenning\.github\.io");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

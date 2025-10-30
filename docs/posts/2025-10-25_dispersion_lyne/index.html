@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Lukas Sönning">
+<meta name="dcterms.date" content="2025-10-27">
+<meta name="description" content="In this blog post, I revisit the graphical strategy used by Lyne (1985) to study the behavior of the dispersion measures D, D2, and S, and then apply it to a number of other parts-based indices that have been proposed more recently.">
+
+<title>Lyne’s (1985) graphical technique for the evaluation of dispersion measures – Lukas Sönning</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Lukas Sönning</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../research.html"> 
+<span class="menu-text">Research</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../resources.html"> 
+<span class="menu-text">Resources</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts.html"> 
+<span class="menu-text">Blog</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Lyne’s (1985) graphical technique for the evaluation of dispersion measures</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">corpus linguistics</div>
+    <div class="quarto-category">dispersion</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    In this blog post, I revisit the graphical strategy used by Lyne (1985) to study the behavior of the dispersion measures <em>D</em>, <em>D<sub>2</sub></em>, and <em>S</em>, and then apply it to a number of other parts-based indices that have been proposed more recently.
+  </div>
+</div>
+
+<div class="quarto-title-meta-author">
+  <div class="quarto-title-meta-heading">Author</div>
+  <div class="quarto-title-meta-heading">Affiliation</div>
+  
+    <div class="quarto-title-meta-contents">
+    <p class="author"><a href="https://lsoenning.github.io/">Lukas Sönning</a> <a href="https://orcid.org/0000-0002-2705-395X" class="quarto-title-author-orcid"> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg=="></a></p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            University of Bamberg
+          </p>
+      </div>
+  </div>
+
+<div class="quarto-title-meta">
+
+      
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">October 27, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="cell">
+<details class="code-fold">
+<summary>R setup</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tlda)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lattice)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gtools)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="lyne-1985s-graphical-technique" class="level4">
+<h4 class="anchored" data-anchor-id="lyne-1985s-graphical-technique">Lyne (1985)’s graphical technique</h4>
+<p>In his dissertation, <span class="citation" data-cites="Lyne1985">Lyne (<a href="#ref-Lyne1985" role="doc-biblioref">1985</a>)</span> presents a corpus-based analysis of <em>The vocabulary of French business correspondence</em>. The book includes a chapter that examines the behavior of three dispersion measures: <em>D</em>, <em>D<sub>2</sub></em>, and <em>S</em>. The question of main interest is whether Carroll’s <em>D<sub>2</sub></em> <span class="citation" data-cites="Carroll1970">(<a href="#ref-Carroll1970" role="doc-biblioref">Carroll 1970</a>)</span> and Rosengren’s <em>S</em> <span class="citation" data-cites="Rosengren1971">(<a href="#ref-Rosengren1971" role="doc-biblioref">Rosengren 1971</a>)</span> can really be considered an improvement over Juilland’s <em>D</em>, as claimed by these authors. To shed light on the way these measures respond to different subfrequency patterns, <span class="citation" data-cites="Lyne1985">Lyne (<a href="#ref-Lyne1985" role="doc-biblioref">1985</a>)</span> considers an item that occurs 10 times in a corpus that is divided into five parts. He then looks at all possible ways in which this item could be distributed over the five parts.</p>
+<p>In R, we can use the function <code>combinations()</code> in the package <code>{gtools}</code> <span class="citation" data-cites="Warnes_etal2023">(<a href="#ref-Warnes_etal2023" role="doc-biblioref">Warnes et al. 2023</a>)</span> to find the number of ways in which 10 occurrences can be distributed across 5 corpus parts. It turns out that there are 30 possible ways, which are here listed from the most uneven distribution (dispersion pessimum) to the most even distribution (dispersion optimum).</p>
+<div class="cell">
+<details class="code-fold">
+<summary>R code: Create all possible combinations of subfrequencies</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>comb <span class="ot">&lt;-</span> gtools<span class="sc">::</span><span class="fu">combinations</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="dv">5</span>, </span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">r =</span> <span class="dv">10</span>, </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">v =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>, </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">repeats.allowed =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>comb_tbl <span class="ot">&lt;-</span> <span class="fu">matrix</span>(</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="cn">NA</span>, </span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">nrow =</span> <span class="fu">nrow</span>(comb), </span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">ncol =</span> <span class="fu">ncol</span>(comb))</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(comb)){</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    comb_tbl[i,] <span class="ot">&lt;-</span> <span class="fu">sort</span>(<span class="fu">table</span>(<span class="fu">factor</span>(comb[i,], <span class="at">levels =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)), <span class="at">decreasing =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>combs <span class="ot">&lt;-</span> <span class="fu">str_split</span>(</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">unique</span>(<span class="fu">paste</span>(</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>        comb_tbl[,<span class="dv">1</span>],</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>        comb_tbl[,<span class="dv">2</span>],</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>        comb_tbl[,<span class="dv">3</span>],</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>        comb_tbl[,<span class="dv">4</span>],</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>        comb_tbl[,<span class="dv">5</span>],</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>        <span class="at">sep =</span> <span class="st">"-"</span>)),</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="st">"-"</span>, <span class="at">simplify =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>combs <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(combs)</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>){</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>    combs[,i] <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(combs[,i])</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>combs<span class="sc">$</span>n_zeros <span class="ot">&lt;-</span> <span class="fu">rowSums</span>(combs[,<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>] <span class="sc">==</span> <span class="dv">0</span>)</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a><span class="co"># print all combinations</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>distr_matrix <span class="ot">&lt;-</span> (<span class="fu">t</span>(combs[,<span class="sc">-</span><span class="dv">6</span>]))</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a><span class="fu">write.table</span>(</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">format</span>(</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>    distr_matrix, </span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">justify=</span><span class="st">"right"</span>),</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>  <span class="at">row.names=</span>F, <span class="at">col.names=</span>F, <span class="at">quote=</span>F)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>10  9  8  8  7  7  7  6  6  6  6  6  5  5  5  5  5  5  4  4  4  4  4  4  4  3  3  3  3  2
+ 0  1  2  1  3  2  1  4  3  2  2  1  5  4  3  3  2  2  4  4  3  3  3  2  2  3  3  3  2  2
+ 0  0  0  1  0  1  1  0  1  2  1  1  0  1  2  1  2  1  2  1  3  2  1  2  2  3  2  2  2  2
+ 0  0  0  0  0  0  1  0  0  0  1  1  0  0  0  1  1  1  0  1  0  1  1  2  1  1  2  1  2  2
+ 0  0  0  0  0  0  0  0  0  0  0  1  0  0  0  0  0  1  0  0  0  0  1  0  1  0  0  1  1  2</code></pre>
+</div>
+</div>
+<p>To reproduce <span class="citation" data-cites="Lyne1985">Lyne (<a href="#ref-Lyne1985" role="doc-biblioref">1985</a>)</span>’s graphical analyses of the three indices, we calculate dispersion scores for these 30 distributions. We will make use of the function <code>disp()</code> in the R package <code>{tlda}</code> <span class="citation" data-cites="tlda_package">(<a href="#ref-tlda_package" role="doc-biblioref">Soenning 2025</a>)</span>. Further below, we will extend <span class="citation" data-cites="Lyne1985">Lyne (<a href="#ref-Lyne1985" role="doc-biblioref">1985</a>)</span>’s approach to a total of six dispersion measures:</p>
+<ul>
+<li><em>D</em> <span class="citation" data-cites="Juilland_ChangRodriguez1964">(<a href="#ref-Juilland_ChangRodriguez1964" role="doc-biblioref">Juilland and Chang-Rodriguez 1964</a>)</span></li>
+<li><em>D<sub>2</sub></em> <span class="citation" data-cites="Carroll1970">(<a href="#ref-Carroll1970" role="doc-biblioref">Carroll 1970</a>)</span></li>
+<li><em>S</em> <span class="citation" data-cites="Rosengren1971">(<a href="#ref-Rosengren1971" role="doc-biblioref">Rosengren 1971</a>)</span></li>
+<li><em>D<sub>P</sub></em> <span class="citation" data-cites="Gries2008">(<a href="#ref-Gries2008" role="doc-biblioref">Gries 2008</a>)</span></li>
+<li><em>D<sub>A</sub></em> <span class="citation" data-cites="Burch_etal2017">(<a href="#ref-Burch_etal2017" role="doc-biblioref">Burch, Egbert, and Biber 2017</a>)</span></li>
+<li><em>D<sub>KL</sub></em> <span class="citation" data-cites="Gries2021">(<a href="#ref-Gries2021" role="doc-biblioref">Gries 2021</a>)</span></li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>R code: Calculate dispersion scores for the 30 combinations</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">matrix</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="cn">NA</span>, </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">nrow =</span> <span class="fu">nrow</span>(combs),</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">ncol =</span> <span class="dv">6</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(combs)){</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  results[i,] <span class="ot">&lt;-</span> <span class="fu">disp</span>(</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">subfreq =</span> <span class="fu">as.numeric</span>(combs[i, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]), </span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">partsize =</span> <span class="fu">rep</span>(<span class="dv">1000</span>, <span class="dv">5</span>),</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">verbose =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">print_score =</span> <span class="cn">FALSE</span>)[<span class="sc">-</span><span class="dv">1</span>]</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(results) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"D"</span>, <span class="st">"D2"</span>, <span class="st">"S"</span>, <span class="st">"DP"</span>, <span class="st">"DA"</span>, <span class="st">"DKL"</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>combs <span class="ot">&lt;-</span> <span class="fu">cbind</span>(combs, results)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>combs<span class="sc">$</span>D_x_location <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">factor</span>(<span class="fu">rank</span>(<span class="sc">-</span>combs<span class="sc">$</span>D, <span class="at">ties.method =</span> <span class="st">"min"</span>)))</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>combs<span class="sc">$</span>D2_x_location <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">factor</span>(<span class="fu">rank</span>(<span class="sc">-</span>combs<span class="sc">$</span>D2, <span class="at">ties.method =</span> <span class="st">"min"</span>)))</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>combs<span class="sc">$</span>S_x_location <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">factor</span>(<span class="fu">rank</span>(<span class="sc">-</span>combs<span class="sc">$</span>S, <span class="at">ties.method =</span> <span class="st">"min"</span>)))</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>combs<span class="sc">$</span>DP_x_location <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">factor</span>(<span class="fu">rank</span>(<span class="sc">-</span>combs<span class="sc">$</span>DP, <span class="at">ties.method =</span> <span class="st">"min"</span>)))</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>combs<span class="sc">$</span>DA_x_location <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">factor</span>(<span class="fu">rank</span>(<span class="sc">-</span>combs<span class="sc">$</span>DA, <span class="at">ties.method =</span> <span class="st">"min"</span>)))</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>combs<span class="sc">$</span>DKL_x_location <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">factor</span>(<span class="fu">rank</span>(<span class="sc">-</span>combs<span class="sc">$</span>DKL, <span class="at">ties.method =</span> <span class="st">"min"</span>)))</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>combs<span class="sc">$</span>disp_avg <span class="ot">&lt;-</span> <span class="fu">rowMeans</span>(combs[,<span class="dv">7</span><span class="sc">:</span><span class="dv">12</span>])</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>combs<span class="sc">$</span>disp_avg_x_location <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">factor</span>(<span class="fu">rank</span>(<span class="sc">-</span>combs<span class="sc">$</span>disp_avg, <span class="at">ties.method =</span> <span class="st">"min"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p><span class="citation" data-cites="Lyne1985">Lyne (<a href="#ref-Lyne1985" role="doc-biblioref">1985</a>)</span> uses an elegant graphical technique to evaluate the behavior of <em>D</em>, <em>D<sub>2</sub></em> and <em>S</em>. In his study, Juilland’s <em>D</em> serves as a point of reference, so he starts by ordering the 30 possible combinations according to <em>D</em>. Then he draws this distribution of <em>D</em> scores into a scatterplot. In <a href="#fig-lyne-D2-D" class="quarto-xref">Figure&nbsp;1</a> this sequence of <em>D</em> scores appears as a curved grey reference line, which runs from the top left corner (dispersion optimum: <code>2 2 2 2 2</code>) to the bottom right corner (dispersion pessimum: <code>10 0 0 0 0</code>). In a few cases, two combinations produce the same <em>D</em> score (e.g.&nbsp;<code>4 2 2 1 1</code> and <code>3 3 2 2 0</code>), so there are only 22 <em>D</em> scores for the total set of 30 possible combinations.</p>
+<p>In a second step, <span class="citation" data-cites="Lyne1985">Lyne (<a href="#ref-Lyne1985" role="doc-biblioref">1985</a>)</span> adds the <em>D<sub>2</sub></em> scores for all 30 distributions to the scatterplot. He groups them visually according to the number of zeros they contain. The <em>D<sub>2</sub></em> scores therefore form five traces, which are connected using lines. The top-most trace in <a href="#fig-lyne-D2-D" class="quarto-xref">Figure&nbsp;1</a>, for instance, connects <em>D<sub>2</sub></em> scores for those patterns that do not contain any zeros. This graphical arrangement allows Lyne <span class="citation" data-cites="Lyne1985">(<a href="#ref-Lyne1985" role="doc-biblioref">1985, 107</a>)</span> to make the following observations when comparing <em>D<sub>2</sub></em> against <em>D</em>:</p>
+<ul>
+<li>“<em>D<sub>2</sub></em> gives consistently higher values, except at the two end points, where they coincide”</li>
+<li>“<em>D<sub>2</sub></em> favours the absence of zeros”</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Draw Figure</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>combs <span class="ot">&lt;-</span> combs[<span class="fu">order</span>(combs<span class="sc">$</span>D),]</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>zeros_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"no zeros"</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>                  <span class="st">"one zero"</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>                  <span class="st">"two zeros"</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>                  <span class="st">"three zeros"</span>,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>                  <span class="st">"four zeros"</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(<span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">length</span>(<span class="fu">unique</span>(combs<span class="sc">$</span>D))), <span class="at">type =</span> <span class="st">"n"</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">par.settings =</span> my_settings, <span class="at">axis =</span> axis_L,</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">scales =</span> <span class="fu">list</span>(<span class="at">x =</span> <span class="fu">list</span>(<span class="at">draw =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>                     <span class="at">y =</span> <span class="fu">list</span>(<span class="at">at =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">25</span>, .<span class="dv">5</span>, .<span class="dv">75</span>, <span class="dv">1</span>), <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"(uneven) 0"</span>, <span class="st">".25"</span>, <span class="st">".50"</span>, <span class="st">".75"</span>, <span class="st">"(even) 1"</span>))),</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">ylab =</span> <span class="st">"</span><span class="sc">\n\n</span><span class="st">Dispersion"</span>, <span class="at">xlab =</span> <span class="fu">list</span>(<span class="at">label =</span> <span class="st">"</span><span class="sc">\n\n\n</span><span class="st">Distribution</span><span class="sc">\n</span><span class="st">(ranked from most to least even (according to D)"</span>, <span class="at">lineheight =</span> .<span class="dv">85</span>, <span class="at">cex =</span> .<span class="dv">9</span>),</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">panel =</span> <span class="cf">function</span>(x,y){</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.segments</span>(<span class="at">x0 =</span> <span class="dv">9</span>, <span class="at">x1 =</span> <span class="dv">9</span>, <span class="at">y0 =</span> <span class="dv">0</span>, <span class="at">y1 =</span> .<span class="dv">75</span>, <span class="at">col =</span> <span class="st">"grey"</span>, <span class="at">lty =</span> <span class="st">"13"</span>)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.points</span>(<span class="at">x =</span> combs<span class="sc">$</span>D_x_location, <span class="at">y =</span> combs<span class="sc">$</span>D, <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">col =</span> <span class="st">"grey"</span>)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.points</span>(<span class="at">x =</span> combs<span class="sc">$</span>D_x_location, <span class="at">y =</span> combs<span class="sc">$</span>D, <span class="at">pch =</span> <span class="dv">21</span>, <span class="at">col =</span> <span class="st">"grey"</span>, <span class="at">fill =</span> <span class="st">"white"</span>)</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.points</span>(<span class="at">x =</span> combs<span class="sc">$</span>D_x_location, <span class="at">y =</span> combs<span class="sc">$</span>D2, <span class="at">cex =</span> .<span class="dv">8</span>)</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="dv">3</span>, <span class="at">y =</span> .<span class="dv">6</span>, <span class="at">label =</span> <span class="st">"D"</span>, <span class="at">col =</span> <span class="st">"grey40"</span>)</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="dv">10</span>, <span class="at">y =</span> .<span class="dv">95</span>, <span class="at">label =</span> <span class="fu">expression</span>(D[<span class="dv">2</span>]))</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> ( i <span class="cf">in</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">4</span>){</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>            data_subset <span class="ot">&lt;-</span> <span class="fu">subset</span>(combs, n_zeros <span class="sc">==</span> i)</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>            <span class="fu">panel.points</span>(<span class="at">x =</span> data_subset<span class="sc">$</span>D_x_location, <span class="at">y =</span> data_subset<span class="sc">$</span>D2, <span class="at">type =</span> <span class="st">"l"</span>)</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>            <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fu">max</span>(data_subset<span class="sc">$</span>D_x_location <span class="sc">+</span> <span class="dv">1</span>), </span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>                       <span class="at">y =</span> data_subset<span class="sc">$</span>D2[<span class="fu">which.max</span>(data_subset<span class="sc">$</span>D_x_location)]<span class="sc">+</span>.<span class="dv">02</span>,</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>                       <span class="at">label =</span> zeros_labels[i<span class="sc">+</span><span class="dv">1</span>],</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>                       <span class="at">adj =</span> <span class="dv">0</span>, <span class="at">cex =</span> .<span class="dv">8</span>)</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>        })</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1, <span class="at">position =</span> <span class="fu">c</span>(<span class="sc">-</span>.<span class="dv">04</span>,.<span class="dv">08</span>,.<span class="dv">8</span>,<span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-lyne-D2-D" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-lyne-D2-D-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-lyne-D2-D-1.png" class="img-fluid figure-img" width="336">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-lyne-D2-D-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Figure 3 in Lyne <span class="citation" data-cites="Lyne1985">(<a href="#ref-Lyne1985" role="doc-biblioref">1985, 106</a>)</span>, comparing <em>D<sub>2</sub></em> against <em>D</em> for all possible combinations of subfrequencies for 10 occurrences in 5 parts.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The fact that <em>D<sub>2</sub></em> favors zeros is evident from the layered structure of the traces. Thus, in cases where two distributions receive the same value of <em>D</em>, <em>D<sub>2</sub></em> assigns a higher score to the pattern with fewer zeros. The dotted vertical line in <a href="#fig-lyne-D2-D" class="quarto-xref">Figure&nbsp;1</a> points out one such pair of distributions: A <code>5 3 1 1 0</code> and B <code>4 4 2 0 0</code>. Both have a <em>D</em> score of .55, but <code>A</code> (one zero), has a <em>D<sub>2</sub></em> score of .66 compared with .73 for <code>B</code> (two zeros).</p>
+<p>This leads Lyne <span class="citation" data-cites="Lyne1985">(<a href="#ref-Lyne1985" role="doc-biblioref">1985, 107</a>)</span> to consider the question of whether it is appropriate for a dispersion measure to be overly sensitive to the presence of zeros. He compares two sets of subfrequencies,</p>
+<ul>
+<li>A: <code>8  3  3  3  3</code></li>
+<li>B: <code>0  5  5  5  5</code></li>
+</ul>
+<p>for which <em>D</em> yields the same score (.75) while <em>D<sub>2</sub></em> produces different scores (A .95, B .86). Since, in his eyes, the two distributions are “mirror images of each other”, he argues that <em>D</em> treats zeros impartially, while <em>D<sub>2</sub></em> penalizes them.</p>
+<p>Lyne <span class="citation" data-cites="Lyne1985">(<a href="#ref-Lyne1985" role="doc-biblioref">1985, 110</a>)</span> makes the same graphical comparison for <em>S</em> (vs.&nbsp;<em>D</em>) and observes similar patterns. <a href="#fig-lyne-S-D" class="quarto-xref">Figure&nbsp;2</a> reproduces his Figure 4, which shows that “<em>S</em> penalizes zeros to an even greater extent than <em>D<sub>2</sub></em>”.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Draw Figure</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(<span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">length</span>(<span class="fu">unique</span>(combs<span class="sc">$</span>D))), <span class="at">type =</span> <span class="st">"n"</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>       <span class="at">par.settings =</span> my_settings, <span class="at">axis =</span> axis_L,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">scales =</span> <span class="fu">list</span>(<span class="at">x =</span> <span class="fu">list</span>(<span class="at">draw =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">y =</span> <span class="fu">list</span>(<span class="at">at =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">25</span>, .<span class="dv">5</span>, .<span class="dv">75</span>, <span class="dv">1</span>), <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"(uneven) 0"</span>, <span class="st">".25"</span>, <span class="st">".50"</span>, <span class="st">".75"</span>, <span class="st">"(even) 1"</span>))),</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">ylab =</span> <span class="st">"</span><span class="sc">\n\n</span><span class="st">Dispersion"</span>, <span class="at">xlab =</span> <span class="fu">list</span>(<span class="at">label =</span> <span class="st">"</span><span class="sc">\n\n\n</span><span class="st">Distribution</span><span class="sc">\n</span><span class="st">(ranked from most to least even according to D)"</span>, <span class="at">lineheight =</span> .<span class="dv">85</span>, <span class="at">cex =</span> .<span class="dv">9</span>),</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">panel =</span> <span class="cf">function</span>(x,y){</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.points</span>(<span class="at">x =</span> combs<span class="sc">$</span>D_x_location, <span class="at">y =</span> combs<span class="sc">$</span>D, <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">col =</span> <span class="st">"grey"</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.points</span>(<span class="at">x =</span> combs<span class="sc">$</span>D_x_location, <span class="at">y =</span> combs<span class="sc">$</span>D, <span class="at">pch =</span> <span class="dv">21</span>, <span class="at">col =</span> <span class="st">"grey"</span>, <span class="at">fill =</span> <span class="st">"white"</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.points</span>(<span class="at">x =</span> combs<span class="sc">$</span>D_x_location, <span class="at">y =</span> combs<span class="sc">$</span>S, <span class="at">cex =</span> .<span class="dv">8</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="dv">3</span>, <span class="at">y =</span> .<span class="dv">6</span>, <span class="at">label =</span> <span class="st">"D"</span>, <span class="at">col =</span> <span class="st">"grey40"</span>)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="dv">10</span>, <span class="at">y =</span> .<span class="dv">95</span>, <span class="at">label =</span> <span class="st">"S"</span>)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> ( i <span class="cf">in</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">4</span>){</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>            data_subset <span class="ot">&lt;-</span> <span class="fu">subset</span>(combs, n_zeros <span class="sc">==</span> i)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>            <span class="fu">panel.points</span>(<span class="at">x =</span> data_subset<span class="sc">$</span>D_x_location, <span class="at">y =</span> data_subset<span class="sc">$</span>S, <span class="at">type =</span> <span class="st">"l"</span>)</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>            <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fu">max</span>(data_subset<span class="sc">$</span>D_x_location <span class="sc">+</span> <span class="dv">1</span>), </span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>                       <span class="at">y =</span> data_subset<span class="sc">$</span>S[<span class="fu">which.max</span>(data_subset<span class="sc">$</span>D_x_location)]<span class="sc">+</span>.<span class="dv">02</span>,</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>                       <span class="at">label =</span> zeros_labels[i<span class="sc">+</span><span class="dv">1</span>],</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>                       <span class="at">adj =</span> <span class="dv">0</span>, <span class="at">cex =</span> .<span class="dv">8</span>)</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>        })</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1, <span class="at">position =</span> <span class="fu">c</span>(<span class="sc">-</span>.<span class="dv">04</span>,.<span class="dv">08</span>,.<span class="dv">8</span>,<span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-lyne-S-D" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-lyne-S-D-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-lyne-S-D-1.png" class="img-fluid figure-img" width="336">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-lyne-S-D-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Figure 4 in Lyne <span class="citation" data-cites="Lyne1985">(<a href="#ref-Lyne1985" role="doc-biblioref">1985, 110</a>)</span>, comparing <em>S</em> against <em>D</em> for all possible combinations of subfrequencies for 10 occurrences in 5 parts.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>In the course of this evaluation, Lyne <span class="citation" data-cites="Lyne1985">(<a href="#ref-Lyne1985" role="doc-biblioref">1985, 107</a>)</span> raises an important question:</p>
+<blockquote class="blockquote">
+<p>[I]s it desirable that a dispersion measure for word frequency counts should penalize zeros in this way? This question is of a different order […], since it is about the real world rather than the world of statistical models.</p>
+</blockquote>
+<p>He later returns to this question, when discussing an example given by Rosengren <span class="citation" data-cites="Rosengren1971">(<a href="#ref-Rosengren1971" role="doc-biblioref">1971, 115</a>)</span>, for which, she argues, it is inappropriate for a dispersion measure to give the same score:</p>
+<ul>
+<li>A: <code>3  2  1  1  1</code></li>
+<li>B: <code>2  2  2  2  0</code></li>
+</ul>
+<p>As Lyne <span class="citation" data-cites="Lyne1985">(<a href="#ref-Lyne1985" role="doc-biblioref">1985, 115</a>)</span> rightly notes, it is essential to state in the first place <em>why</em> B should receive a lower score than A. To him, the reason why <em>D<sub>2</sub></em> and <em>S</em> give lower scores to B is the fact that they penalize zeros. And here, Lyne <span class="citation" data-cites="Lyne1985">(<a href="#ref-Lyne1985" role="doc-biblioref">1985, 115</a>)</span> clearly states his point of view:</p>
+<blockquote class="blockquote">
+<p>But surely it is not the business of a dispersion measure to discriminate against particular distributions in this way. In the above example, […] it seems to us quite proper that B should be rated as highly as A, because the presence of a single low sub-frequency, 0, in B is balanced by the perfectly even distribution across the remaining four sections.</p>
+</blockquote>
+<p>Even though I will not pursue this point further here, I am not sure whether we are able to answer this question so confidently. Rather, the answer would seem to depend primarily on the linguistic purpose underlying a dispersion analysis. It is easy to imagine settings where the question of whether an item is used at all (i.e.&nbsp;the difference between 0 and 1 occurrence) is more important than the question of whether the item occurs repeatedly (i.e.&nbsp;the difference between 1 and 2 occurrences). In such settings, the feature of main interest may be pervasiveness rather than evenness of distribution, and penalization of zeros may be an attractive feature of a dispersion measure. Further, it seems that the answer would also depend on the kinds of linguistic units that are represented by the corpus parts (e.g.&nbsp;texts, genres, or arbitrary corpus chunks of the same length). The smaller the corpus parts, the more zeros there will be in the resulting set of subfrequencies, which could make penalization, if it is indeed considered an issue, even more of a concern.</p>
+</section>
+<section id="application-of-lyne-1985s-graphical-technique-to-other-parts-based-dispersion-measures" class="level4">
+<h4 class="anchored" data-anchor-id="application-of-lyne-1985s-graphical-technique-to-other-parts-based-dispersion-measures">Application of Lyne (1985)’s graphical technique to other parts-based dispersion measures</h4>
+<p>Seeing that <span class="citation" data-cites="Lyne1985">Lyne (<a href="#ref-Lyne1985" role="doc-biblioref">1985</a>)</span>’s technique provides insights into the behavior of dispersion measures, I will now apply it to the other parts-based measures listed above. I will modify the strategy in one important regard: Instead of using <em>D</em> as a baseline, I will rely on a consensus opinion: The 30 combinations will be ordered according to the average score they receive across the six dispersion measures. For illustration, <a href="#fig-all-illustration-S" class="quarto-xref">Figure&nbsp;3</a> compares <em>S</em> against the consensus profile, which is again shown in grey. We also introduce color coding for signaling the number of zeros in a pattern, ranging from dark blue (no zeros) to dark red (four zeros).</p>
+<div class="cell preview-image">
+<details class="code-fold">
+<summary>Draw Figure</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>combs <span class="ot">&lt;-</span> combs[<span class="fu">order</span>(combs<span class="sc">$</span>disp_avg),]</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>my_cols <span class="ot">&lt;-</span> <span class="fu">rev</span>(scales<span class="sc">::</span><span class="fu">pal_brewer</span>(<span class="at">palette =</span> <span class="st">"RdBu"</span>)(<span class="dv">8</span>)[<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>,<span class="dv">6</span>,<span class="dv">7</span>)])</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(<span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">length</span>(<span class="fu">unique</span>(combs<span class="sc">$</span>disp_avg_x_location))), <span class="at">type =</span> <span class="st">"n"</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">par.settings =</span> my_settings, <span class="at">axis =</span> axis_L,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">scales =</span> <span class="fu">list</span>(<span class="at">x =</span> <span class="fu">list</span>(<span class="at">draw =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>                     <span class="at">y =</span> <span class="fu">list</span>(<span class="at">at =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">25</span>, .<span class="dv">5</span>, .<span class="dv">75</span>, <span class="dv">1</span>), <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"(uneven) 0"</span>, <span class="st">".25"</span>, <span class="st">".50"</span>, <span class="st">".75"</span>, <span class="st">"(even) 1"</span>))),</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">ylab =</span> <span class="st">"</span><span class="sc">\n\n</span><span class="st">Dispersion"</span>, <span class="at">xlab =</span> <span class="fu">list</span>(<span class="at">label =</span> <span class="st">"</span><span class="sc">\n\n\n\n</span><span class="st">Distribution</span><span class="sc">\n</span><span class="st">(ranked from most to least even based</span><span class="sc">\n</span><span class="st">on the average across all measures)"</span>, <span class="at">lineheight =</span> .<span class="dv">85</span>, <span class="at">cex =</span> .<span class="dv">9</span>),</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">panel =</span> <span class="cf">function</span>(x,y){</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.points</span>(<span class="at">x =</span> combs<span class="sc">$</span>disp_avg_x_location, <span class="at">y =</span> combs<span class="sc">$</span>disp_avg, <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">col =</span> <span class="st">"grey"</span>)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.points</span>(<span class="at">x =</span> combs<span class="sc">$</span>disp_avg_x_location, <span class="at">y =</span> combs<span class="sc">$</span>disp_avg, <span class="at">pch =</span> <span class="dv">21</span>, <span class="at">col =</span> <span class="st">"grey"</span>, <span class="at">fill =</span> <span class="st">"white"</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        <span class="co">#panel.points(x = combs$disp_avg_x_location, y = combs$D2, cex = .8)</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="dv">8</span>, <span class="at">y =</span> .<span class="dv">5</span>, <span class="at">label =</span> <span class="st">"All six</span><span class="sc">\n</span><span class="st">dispersion</span><span class="sc">\n</span><span class="st">measures"</span>, <span class="at">col =</span> <span class="st">"grey40"</span>, <span class="at">lineheight =</span> .<span class="dv">85</span>, <span class="at">cex =</span> .<span class="dv">8</span>)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> ( i <span class="cf">in</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">4</span>){</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>            data_subset <span class="ot">&lt;-</span> <span class="fu">subset</span>(combs, n_zeros <span class="sc">==</span> i)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>            <span class="fu">panel.points</span>(<span class="at">x =</span> data_subset<span class="sc">$</span>disp_avg_x_location, <span class="at">y =</span> data_subset<span class="sc">$</span>S, <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">col =</span> my_cols[i<span class="sc">+</span><span class="dv">1</span>])</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>            <span class="fu">panel.points</span>(<span class="at">x =</span> data_subset<span class="sc">$</span>disp_avg_x_location, <span class="at">y =</span> data_subset<span class="sc">$</span>S, <span class="at">col =</span> my_cols[i<span class="sc">+</span><span class="dv">1</span>], <span class="at">cex =</span> .<span class="dv">8</span>, <span class="at">pch =</span> <span class="dv">16</span>)</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>            <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fu">max</span>(data_subset<span class="sc">$</span>disp_avg_x_location <span class="sc">+</span> <span class="dv">1</span>), </span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>                       <span class="at">y =</span> data_subset<span class="sc">$</span>S[<span class="fu">which.max</span>(data_subset<span class="sc">$</span>disp_avg_x_location)]<span class="sc">+</span>.<span class="dv">02</span>,</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>                       <span class="at">label =</span> zeros_labels[i<span class="sc">+</span><span class="dv">1</span>],</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>                       <span class="at">adj =</span> <span class="dv">0</span>, <span class="at">cex =</span> .<span class="dv">8</span>, <span class="at">col =</span> my_cols[i<span class="sc">+</span><span class="dv">1</span>])</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fl">15.5</span>, <span class="at">y =</span> <span class="fl">1.1</span>, <span class="at">label =</span> <span class="fu">expression</span>(S))</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>        })</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1, <span class="at">position =</span> <span class="fu">c</span>(<span class="sc">-</span>.<span class="dv">04</span>,.<span class="dv">15</span>,.<span class="dv">8</span>,.<span class="dv">925</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-all-illustration-S" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-all-illustration-S-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-all-illustration-S-1.png" class="img-fluid figure-img" width="336">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-all-illustration-S-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Comparison of S vs.&nbsp;baseline for all possible combinations of subfrequencies for 10 occurrences in 5 parts.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-all" class="quarto-xref">Figure&nbsp;4</a> compares each of the six dispersion measures against the consensus benchmark. A number of instructive insights emerge:</p>
+<ul>
+<li>The only measure that shows a clear “penalization” of zeros is <em>S</em>.</li>
+<li>Following the change in reference distribution (consensus opinion instead of <em>D</em> only), <em>D<sub>2</sub></em> no longer appears to penalize zeros.</li>
+<li>Compared against the average behavior over the six indices, <em>D</em> favors the presence of zeros: Compared to <em>S</em>, it produces the reversed layering.</li>
+<li>There is also some indication that <em>D<sub>P</sub></em> favors zeros.</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>Draw Figure</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>combs <span class="ot">&lt;-</span> combs[<span class="fu">order</span>(combs<span class="sc">$</span>disp_avg),]</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>p_D <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(<span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">length</span>(<span class="fu">unique</span>(combs<span class="sc">$</span>disp_avg_x_location))), <span class="at">type =</span> <span class="st">"n"</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">par.settings =</span> my_settings, <span class="at">axis =</span> axis_L,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">scales =</span> <span class="fu">list</span>(<span class="at">x =</span> <span class="fu">list</span>(<span class="at">draw =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>                     <span class="at">y =</span> <span class="fu">list</span>(<span class="at">at =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))),</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">ylab =</span> <span class="st">" "</span>, <span class="at">xlab =</span> <span class="st">""</span>,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">panel =</span> <span class="cf">function</span>(x,y){</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.points</span>(<span class="at">x =</span> combs<span class="sc">$</span>disp_avg_x_location, <span class="at">y =</span> combs<span class="sc">$</span>disp_avg, <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">col =</span> <span class="st">"grey"</span>)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.points</span>(<span class="at">x =</span> combs<span class="sc">$</span>disp_avg_x_location, <span class="at">y =</span> combs<span class="sc">$</span>disp_avg, <span class="at">pch =</span> <span class="dv">21</span>, <span class="at">col =</span> <span class="st">"grey"</span>, <span class="at">fill =</span> <span class="st">"white"</span>)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> ( i <span class="cf">in</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">4</span>){</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>            data_subset <span class="ot">&lt;-</span> <span class="fu">subset</span>(combs, n_zeros <span class="sc">==</span> i)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>            <span class="fu">panel.points</span>(<span class="at">x =</span> data_subset<span class="sc">$</span>disp_avg_x_location, <span class="at">y =</span> data_subset<span class="sc">$</span>D, <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">col =</span> my_cols[i<span class="sc">+</span><span class="dv">1</span>])</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>            <span class="fu">panel.points</span>(<span class="at">x =</span> data_subset<span class="sc">$</span>disp_avg_x_location, <span class="at">y =</span> data_subset<span class="sc">$</span>D, <span class="at">cex =</span> .<span class="dv">8</span>, <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">col =</span> my_cols[i<span class="sc">+</span><span class="dv">1</span>])</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fl">15.5</span>, <span class="at">y =</span> <span class="fl">1.1</span>, <span class="at">label =</span> <span class="fu">expression</span>(D))</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>        })</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>p_D2 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(<span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">length</span>(<span class="fu">unique</span>(combs<span class="sc">$</span>disp_avg_x_location))), <span class="at">type =</span> <span class="st">"n"</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>       <span class="at">par.settings =</span> my_settings, <span class="at">axis =</span> axis_L,</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>       <span class="at">scales =</span> <span class="fu">list</span>(<span class="at">x =</span> <span class="fu">list</span>(<span class="at">draw =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>                     <span class="at">y =</span> <span class="fu">list</span>(<span class="at">at =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))),</span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>       <span class="at">ylab =</span> <span class="st">" "</span>, <span class="at">xlab =</span> <span class="st">""</span>,</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>       <span class="at">panel =</span> <span class="cf">function</span>(x,y){</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.points</span>(<span class="at">x =</span> combs<span class="sc">$</span>disp_avg_x_location, <span class="at">y =</span> combs<span class="sc">$</span>disp_avg, <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">col =</span> <span class="st">"grey"</span>)</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.points</span>(<span class="at">x =</span> combs<span class="sc">$</span>disp_avg_x_location, <span class="at">y =</span> combs<span class="sc">$</span>disp_avg, <span class="at">pch =</span> <span class="dv">21</span>, <span class="at">col =</span> <span class="st">"grey"</span>, <span class="at">fill =</span> <span class="st">"white"</span>)</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> ( i <span class="cf">in</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">4</span>){</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>            data_subset <span class="ot">&lt;-</span> <span class="fu">subset</span>(combs, n_zeros <span class="sc">==</span> i)</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>            <span class="fu">panel.points</span>(<span class="at">x =</span> data_subset<span class="sc">$</span>disp_avg_x_location, <span class="at">y =</span> data_subset<span class="sc">$</span>D2, <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">col =</span> my_cols[i<span class="sc">+</span><span class="dv">1</span>])</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>            <span class="fu">panel.points</span>(<span class="at">x =</span> data_subset<span class="sc">$</span>disp_avg_x_location, <span class="at">y =</span> data_subset<span class="sc">$</span>D2, <span class="at">cex =</span> .<span class="dv">8</span>, <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">col =</span> my_cols[i<span class="sc">+</span><span class="dv">1</span>])</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fl">15.5</span>, <span class="at">y =</span> <span class="fl">1.1</span>, <span class="at">label =</span> <span class="fu">expression</span>(D[<span class="dv">2</span>]))</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>        })</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>p_S <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(<span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">length</span>(<span class="fu">unique</span>(combs<span class="sc">$</span>disp_avg_x_location))), <span class="at">type =</span> <span class="st">"n"</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>       <span class="at">par.settings =</span> my_settings, <span class="at">axis =</span> axis_L,</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>       <span class="at">scales =</span> <span class="fu">list</span>(<span class="at">x =</span> <span class="fu">list</span>(<span class="at">draw =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a>                     <span class="at">y =</span> <span class="fu">list</span>(<span class="at">at =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))),</span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>       <span class="at">ylab =</span> <span class="st">" "</span>, <span class="at">xlab =</span> <span class="st">""</span>,</span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a>       <span class="at">panel =</span> <span class="cf">function</span>(x,y){</span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.points</span>(<span class="at">x =</span> combs<span class="sc">$</span>disp_avg_x_location, <span class="at">y =</span> combs<span class="sc">$</span>disp_avg, <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">col =</span> <span class="st">"grey"</span>)</span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.points</span>(<span class="at">x =</span> combs<span class="sc">$</span>disp_avg_x_location, <span class="at">y =</span> combs<span class="sc">$</span>disp_avg, <span class="at">pch =</span> <span class="dv">21</span>, <span class="at">col =</span> <span class="st">"grey"</span>, <span class="at">fill =</span> <span class="st">"white"</span>)</span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> ( i <span class="cf">in</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">4</span>){</span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>            data_subset <span class="ot">&lt;-</span> <span class="fu">subset</span>(combs, n_zeros <span class="sc">==</span> i)</span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>            <span class="fu">panel.points</span>(<span class="at">x =</span> data_subset<span class="sc">$</span>disp_avg_x_location, <span class="at">y =</span> data_subset<span class="sc">$</span>S, <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">col =</span> my_cols[i<span class="sc">+</span><span class="dv">1</span>])</span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>            <span class="fu">panel.points</span>(<span class="at">x =</span> data_subset<span class="sc">$</span>disp_avg_x_location, <span class="at">y =</span> data_subset<span class="sc">$</span>S, <span class="at">cex =</span> .<span class="dv">8</span>, <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">col =</span> my_cols[i<span class="sc">+</span><span class="dv">1</span>])</span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fl">15.5</span>, <span class="at">y =</span> <span class="fl">1.1</span>, <span class="at">label =</span> <span class="fu">expression</span>(S))</span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>        })</span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a>p_DP <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(<span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">length</span>(<span class="fu">unique</span>(combs<span class="sc">$</span>disp_avg_x_location))), <span class="at">type =</span> <span class="st">"n"</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),</span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a>       <span class="at">par.settings =</span> my_settings, <span class="at">axis =</span> axis_L,</span>
+<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a>       <span class="at">scales =</span> <span class="fu">list</span>(<span class="at">x =</span> <span class="fu">list</span>(<span class="at">draw =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a>                     <span class="at">y =</span> <span class="fu">list</span>(<span class="at">at =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))),</span>
+<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a>       <span class="at">ylab =</span> <span class="st">" "</span>, <span class="at">xlab =</span> <span class="st">""</span>,</span>
+<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a>       <span class="at">panel =</span> <span class="cf">function</span>(x,y){</span>
+<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.points</span>(<span class="at">x =</span> combs<span class="sc">$</span>disp_avg_x_location, <span class="at">y =</span> combs<span class="sc">$</span>disp_avg, <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">col =</span> <span class="st">"grey"</span>)</span>
+<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.points</span>(<span class="at">x =</span> combs<span class="sc">$</span>disp_avg_x_location, <span class="at">y =</span> combs<span class="sc">$</span>disp_avg, <span class="at">pch =</span> <span class="dv">21</span>, <span class="at">col =</span> <span class="st">"grey"</span>, <span class="at">fill =</span> <span class="st">"white"</span>)</span>
+<span id="cb8-62"><a href="#cb8-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-63"><a href="#cb8-63" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> ( i <span class="cf">in</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">4</span>){</span>
+<span id="cb8-64"><a href="#cb8-64" aria-hidden="true" tabindex="-1"></a>            data_subset <span class="ot">&lt;-</span> <span class="fu">subset</span>(combs, n_zeros <span class="sc">==</span> i)</span>
+<span id="cb8-65"><a href="#cb8-65" aria-hidden="true" tabindex="-1"></a>            <span class="fu">panel.points</span>(<span class="at">x =</span> data_subset<span class="sc">$</span>disp_avg_x_location, <span class="at">y =</span> data_subset<span class="sc">$</span>DP, <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">col =</span> my_cols[i<span class="sc">+</span><span class="dv">1</span>])</span>
+<span id="cb8-66"><a href="#cb8-66" aria-hidden="true" tabindex="-1"></a>            <span class="fu">panel.points</span>(<span class="at">x =</span> data_subset<span class="sc">$</span>disp_avg_x_location, <span class="at">y =</span> data_subset<span class="sc">$</span>DP, <span class="at">cex =</span> .<span class="dv">8</span>, <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">col =</span> my_cols[i<span class="sc">+</span><span class="dv">1</span>])</span>
+<span id="cb8-67"><a href="#cb8-67" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb8-68"><a href="#cb8-68" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fl">15.5</span>, <span class="at">y =</span> <span class="fl">1.1</span>, <span class="at">label =</span> <span class="fu">expression</span>(D[P]))</span>
+<span id="cb8-69"><a href="#cb8-69" aria-hidden="true" tabindex="-1"></a>        })</span>
+<span id="cb8-70"><a href="#cb8-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-71"><a href="#cb8-71" aria-hidden="true" tabindex="-1"></a>p_DA <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(<span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">length</span>(<span class="fu">unique</span>(combs<span class="sc">$</span>disp_avg_x_location))), <span class="at">type =</span> <span class="st">"n"</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),</span>
+<span id="cb8-72"><a href="#cb8-72" aria-hidden="true" tabindex="-1"></a>       <span class="at">par.settings =</span> my_settings, <span class="at">axis =</span> axis_L,</span>
+<span id="cb8-73"><a href="#cb8-73" aria-hidden="true" tabindex="-1"></a>       <span class="at">scales =</span> <span class="fu">list</span>(<span class="at">x =</span> <span class="fu">list</span>(<span class="at">draw =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb8-74"><a href="#cb8-74" aria-hidden="true" tabindex="-1"></a>                     <span class="at">y =</span> <span class="fu">list</span>(<span class="at">at =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))),</span>
+<span id="cb8-75"><a href="#cb8-75" aria-hidden="true" tabindex="-1"></a>       <span class="at">ylab =</span> <span class="st">" "</span>, <span class="at">xlab =</span> <span class="st">""</span>,</span>
+<span id="cb8-76"><a href="#cb8-76" aria-hidden="true" tabindex="-1"></a>       <span class="at">panel =</span> <span class="cf">function</span>(x,y){</span>
+<span id="cb8-77"><a href="#cb8-77" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.points</span>(<span class="at">x =</span> combs<span class="sc">$</span>disp_avg_x_location, <span class="at">y =</span> combs<span class="sc">$</span>disp_avg, <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">col =</span> <span class="st">"grey"</span>)</span>
+<span id="cb8-78"><a href="#cb8-78" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.points</span>(<span class="at">x =</span> combs<span class="sc">$</span>disp_avg_x_location, <span class="at">y =</span> combs<span class="sc">$</span>disp_avg, <span class="at">pch =</span> <span class="dv">21</span>, <span class="at">col =</span> <span class="st">"grey"</span>, <span class="at">fill =</span> <span class="st">"white"</span>)</span>
+<span id="cb8-79"><a href="#cb8-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-80"><a href="#cb8-80" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> ( i <span class="cf">in</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">4</span>){</span>
+<span id="cb8-81"><a href="#cb8-81" aria-hidden="true" tabindex="-1"></a>            data_subset <span class="ot">&lt;-</span> <span class="fu">subset</span>(combs, n_zeros <span class="sc">==</span> i)</span>
+<span id="cb8-82"><a href="#cb8-82" aria-hidden="true" tabindex="-1"></a>            <span class="fu">panel.points</span>(<span class="at">x =</span> data_subset<span class="sc">$</span>disp_avg_x_location, <span class="at">y =</span> data_subset<span class="sc">$</span>DA, <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">col =</span> my_cols[i<span class="sc">+</span><span class="dv">1</span>])</span>
+<span id="cb8-83"><a href="#cb8-83" aria-hidden="true" tabindex="-1"></a>            <span class="fu">panel.points</span>(<span class="at">x =</span> data_subset<span class="sc">$</span>disp_avg_x_location, <span class="at">y =</span> data_subset<span class="sc">$</span>DA, <span class="at">cex =</span> .<span class="dv">8</span>, <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">col =</span> my_cols[i<span class="sc">+</span><span class="dv">1</span>])</span>
+<span id="cb8-84"><a href="#cb8-84" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb8-85"><a href="#cb8-85" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fl">15.5</span>, <span class="at">y =</span> <span class="fl">1.1</span>, <span class="at">label =</span> <span class="fu">expression</span>(D[A]))</span>
+<span id="cb8-86"><a href="#cb8-86" aria-hidden="true" tabindex="-1"></a>        })</span>
+<span id="cb8-87"><a href="#cb8-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-88"><a href="#cb8-88" aria-hidden="true" tabindex="-1"></a>p_DKL <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(<span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">length</span>(<span class="fu">unique</span>(combs<span class="sc">$</span>disp_avg_x_location))), <span class="at">type =</span> <span class="st">"n"</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),</span>
+<span id="cb8-89"><a href="#cb8-89" aria-hidden="true" tabindex="-1"></a>       <span class="at">par.settings =</span> my_settings, <span class="at">axis =</span> axis_L,</span>
+<span id="cb8-90"><a href="#cb8-90" aria-hidden="true" tabindex="-1"></a>       <span class="at">scales =</span> <span class="fu">list</span>(<span class="at">x =</span> <span class="fu">list</span>(<span class="at">draw =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb8-91"><a href="#cb8-91" aria-hidden="true" tabindex="-1"></a>                     <span class="at">y =</span> <span class="fu">list</span>(<span class="at">at =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))),</span>
+<span id="cb8-92"><a href="#cb8-92" aria-hidden="true" tabindex="-1"></a>       <span class="at">ylab =</span> <span class="st">" "</span>, <span class="at">xlab =</span> <span class="st">""</span>,</span>
+<span id="cb8-93"><a href="#cb8-93" aria-hidden="true" tabindex="-1"></a>       <span class="at">panel =</span> <span class="cf">function</span>(x,y){</span>
+<span id="cb8-94"><a href="#cb8-94" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.points</span>(<span class="at">x =</span> combs<span class="sc">$</span>disp_avg_x_location, <span class="at">y =</span> combs<span class="sc">$</span>disp_avg, <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">col =</span> <span class="st">"grey"</span>)</span>
+<span id="cb8-95"><a href="#cb8-95" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.points</span>(<span class="at">x =</span> combs<span class="sc">$</span>disp_avg_x_location, <span class="at">y =</span> combs<span class="sc">$</span>disp_avg, <span class="at">pch =</span> <span class="dv">21</span>, <span class="at">col =</span> <span class="st">"grey"</span>, <span class="at">fill =</span> <span class="st">"white"</span>)</span>
+<span id="cb8-96"><a href="#cb8-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-97"><a href="#cb8-97" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> ( i <span class="cf">in</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">4</span>){</span>
+<span id="cb8-98"><a href="#cb8-98" aria-hidden="true" tabindex="-1"></a>            data_subset <span class="ot">&lt;-</span> <span class="fu">subset</span>(combs, n_zeros <span class="sc">==</span> i)</span>
+<span id="cb8-99"><a href="#cb8-99" aria-hidden="true" tabindex="-1"></a>            <span class="fu">panel.points</span>(<span class="at">x =</span> data_subset<span class="sc">$</span>disp_avg_x_location, <span class="at">y =</span> data_subset<span class="sc">$</span>DKL, <span class="at">type =</span> <span class="st">"l"</span>, <span class="at">col =</span> my_cols[i<span class="sc">+</span><span class="dv">1</span>])</span>
+<span id="cb8-100"><a href="#cb8-100" aria-hidden="true" tabindex="-1"></a>            <span class="fu">panel.points</span>(<span class="at">x =</span> data_subset<span class="sc">$</span>disp_avg_x_location, <span class="at">y =</span> data_subset<span class="sc">$</span>DKL, <span class="at">cex =</span> .<span class="dv">8</span>, <span class="at">pch =</span> <span class="dv">16</span>, <span class="at">col =</span> my_cols[i<span class="sc">+</span><span class="dv">1</span>])</span>
+<span id="cb8-101"><a href="#cb8-101" aria-hidden="true" tabindex="-1"></a>            }</span>
+<span id="cb8-102"><a href="#cb8-102" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fl">15.5</span>, <span class="at">y =</span> <span class="fl">1.1</span>, <span class="at">label =</span> <span class="fu">expression</span>(D[KL]))</span>
+<span id="cb8-103"><a href="#cb8-103" aria-hidden="true" tabindex="-1"></a>        })</span>
+<span id="cb8-104"><a href="#cb8-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-105"><a href="#cb8-105" aria-hidden="true" tabindex="-1"></a>cowplot<span class="sc">::</span><span class="fu">plot_grid</span>(</span>
+<span id="cb8-106"><a href="#cb8-106" aria-hidden="true" tabindex="-1"></a>  <span class="cn">NULL</span>, <span class="cn">NULL</span>, <span class="cn">NULL</span>,</span>
+<span id="cb8-107"><a href="#cb8-107" aria-hidden="true" tabindex="-1"></a>  p_D, p_D2, p_S, </span>
+<span id="cb8-108"><a href="#cb8-108" aria-hidden="true" tabindex="-1"></a>  <span class="cn">NULL</span>, <span class="cn">NULL</span>, <span class="cn">NULL</span>,</span>
+<span id="cb8-109"><a href="#cb8-109" aria-hidden="true" tabindex="-1"></a>  p_DP, p_DA, p_DKL, <span class="at">nrow =</span> <span class="dv">4</span>, </span>
+<span id="cb8-110"><a href="#cb8-110" aria-hidden="true" tabindex="-1"></a>  <span class="at">rel_heights =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">8</span>,<span class="dv">1</span>,<span class="dv">8</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-all" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-all-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-all-1.png" class="img-fluid figure-img" width="576">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-all-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Comparison of all dispersion measures against baseline for all possible combinations of subfrequencies for 10 occurrences in 5 parts. See Figure 3 for a key.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The graphical technique developed by <span class="citation" data-cites="Lyne1985">Lyne (<a href="#ref-Lyne1985" role="doc-biblioref">1985</a>)</span> proves to be a useful tool for studying the behavior of indices. Considering the fact that Anthony Lyne drew all of his graphs by hand makes his methodological contribution even more impressive. In general, this examination is instructive for understanding how dispersion measures behave in settings where there are few corpus parts. Unfortunately, the technique does not scale well, meaning that it cannot be applied to study distributions across a much larger number of corpus parts. This is because the number of possible combinations grows exponentially as we increase the number of corpus parts and/or the number of occurrences of the item. Nevertheless, <span class="citation" data-cites="Lyne1985">Lyne (<a href="#ref-Lyne1985" role="doc-biblioref">1985</a>)</span>’s graphical technique has managed to shed more light on the performance of indices and, perhaps more importantly, it has confronted us with a deeper question, which is “beyond the world of statistical models” [p.&nbsp;107] and needs to be answered from a linguistic perspective: Should dispersion measures deal with subfrequencies of 0 in a special way, i.e.&nbsp;should a drop from 1 to 0 depress a score more noticeably than a drop from 2 to 1?</p>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-Burch_etal2017" class="csl-entry" role="listitem">
+Burch, Brent, Jesse Egbert, and Douglas Biber. 2017. <span>“Measuring and Interpreting Lexical Dispersion in Corpus Linguistics.”</span> <em>Journal of Research Design and Statistics in Linguistics and Communication Science</em> 3 (2): 189–216. <a href="https://doi.org/10.1558/jrds.33066">https://doi.org/10.1558/jrds.33066</a>.
+</div>
+<div id="ref-Carroll1970" class="csl-entry" role="listitem">
+Carroll, John B. 1970. <span>“An Alternative to Juilland’s Usage Coefficient for Lexical Frequencies and a Proposal for a Standard Frequency Index.”</span> <em>Computer Studies in the Humanities and Verbal Behaviour</em> 3 (2): 61–65. <a href="https://doi.org/10.1002/j.2333-8504.1970.tb00778.x">https://doi.org/10.1002/j.2333-8504.1970.tb00778.x</a>.
+</div>
+<div id="ref-Gries2008" class="csl-entry" role="listitem">
+Gries, Stefan Th. 2008. <span>“Dispersions and Adjusted Frequencies in Corpora.”</span> <em>International Journal of Corpus Linguistics</em> 13 (4): 403–37. <a href="https://doi.org/10.1075/ijcl.13.4.02gri">https://doi.org/10.1075/ijcl.13.4.02gri</a>.
+</div>
+<div id="ref-Gries2021" class="csl-entry" role="listitem">
+———. 2021. <span>“A New Approach to (Key) Keywords Analysis: Using Frequency, and Now Also Dispersion.”</span> <em>Research in Corpus Linguistics</em> 9 (2): 1–33. <a href="https://doi.org/10.32714/ricl.09.02.02">https://doi.org/10.32714/ricl.09.02.02</a>.
+</div>
+<div id="ref-Juilland_ChangRodriguez1964" class="csl-entry" role="listitem">
+Juilland, Alphonse, and E. Chang-Rodriguez. 1964. <em>Frequency Dictionary of Spanish Words</em>. The Hague: De Gruyter. <a href="https://doi.org/10.1515/9783112415467">https://doi.org/10.1515/9783112415467</a>.
+</div>
+<div id="ref-Lyne1985" class="csl-entry" role="listitem">
+Lyne, Anthony A. 1985. <em>The Vocabulary of <span>F</span>rench Business Correspondence</em>. Paris: Slatkine-Champion.
+</div>
+<div id="ref-Rosengren1971" class="csl-entry" role="listitem">
+Rosengren, Inger. 1971. <span>“The Quantitative Concept of Language and Its Relation to the Structure of Frequency Dictionaries.”</span> <em>Etudes de Linguistique Appliquee (Nouvelle Serie)</em> 1: 103–27.
+</div>
+<div id="ref-tlda_package" class="csl-entry" role="listitem">
+Soenning, Lukas. 2025. <em>Tlda: Tools for Language Data Analysis</em>. <a href="https://github.com/lsoenning/tlda">https://github.com/lsoenning/tlda</a>.
+</div>
+<div id="ref-Warnes_etal2023" class="csl-entry" role="listitem">
+Warnes, Gregory R., Ben Bolker, Thomas Lumley, Arni Magnusson, Bill Venables, Genei Ryodan, and Steffen Moeller. 2023. <em>Gtools: Various r Programming Tools</em>. <a href="https://doi.org/10.32614/CRAN.package.gtools">https://doi.org/10.32614/CRAN.package.gtools</a>.
+</div>
+</div></section><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{sönning2025,
+  author = {Sönning, Lukas},
+  title = {Lyne’s (1985) Graphical Technique for the Evaluation of
+    Dispersion Measures},
+  date = {2025-10-27},
+  url = {https://lsoenning.github.io/posts/2025-10-25_dispersion_lyne/},
+  langid = {en}
+}
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-sönning2025" class="csl-entry quarto-appendix-citeas" role="listitem">
+Sönning, Lukas. 2025. <span>“Lyne’s (1985) Graphical Technique for the
+Evaluation of Dispersion Measures .”</span> October 27, 2025. <a href="https://lsoenning.github.io/posts/2025-10-25_dispersion_lyne/">https://lsoenning.github.io/posts/2025-10-25_dispersion_lyne/</a>.
+</div></div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/lsoenning\.github\.io");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

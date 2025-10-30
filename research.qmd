@@ -26,6 +26,7 @@ editor: source
 
 - **Sönning**, Lukas. (in preparation). Random forests in corpus research: A systematic review. 
 
+- **Sönning**, Lukas. (in preparation). Distributional latent-variable modeling of ordinal outcomes in language data analysis.
 
 - **Sönning**, Lukas. (unpublished manuscript). Evaluation of text-level measures of lexical dispersion: Robustness and consistency.   {{< ai psyarxiv >}} [Working paper](https://psyarxiv.com/h9mvs/){target="_blank"}  | {{< ai dataverse >}} [Data](https://doi.org/10.18710/MNVB36){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/rpfb8/){target="_blank"} 
 
