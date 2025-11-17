@@ -1,0 +1,189 @@
+---
+title: "Drawing spike graphs to examine dispersion across text files"
+description: "This blog post describes how to draw spike graphs that visualize the dispersion of an item across the text files in a corpus. These graphs are enriched with information about corpus design (and structure)."
+date: 2025-11-12
+categories: [corpus linguistics, dispersion, data visualization]
+citation: 
+  url: https://lsoenning.github.io/posts/2025-11-12_dispersion_spike_graph/
+editor: source
+---
+
+
+```{r warning=F, message=F}
+#| code-fold: true
+#| code-summary: "R setup"
+#| message: false
+#| warning: false
+
+# install development version directly from Github
+#pak::pak("lsoenning/tlda")
+#pak::pak("lsoenning/wls")
+
+library(tlda)      # for access to datasets
+library(wls)       # for custom ggplot theme
+library(tidyverse) # for data wrangling
+library(ggh4x)     # for drawing nested facets in ggplot
+
+source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
+```
+
+I first came across spike graphs as a tool for visualizing the dispersion of an item in a corpus in a paper by @Church_Gale1995. Since this graph type is a great visual aid for examining and illustrating the distribution of an item across the text files in a corpus, I have since started to use spike graphs in my own work (e.g. Figure 8 in Sönning -@Soenning2025a and Figure 2 in Sönning -@Soenning2025b). The following figure, which appears in @Soenning2025a [p. 21], shows the distribution of *which* across the 500 text files in the Brown Corpus. Each spike denotes a text file, and gaps represent documents that contain no instances of this item. Text files are grouped by macro genre (four categories marked at the bottom), and genre (15 categories marked at the top). The ‘hairy’ appearance of the spike graph indicates that *which* is a common word – it appears in almost every document. In this blog post, I describe how to draw such annotated spike graphs in R using the `{ggplot2}` package.
+
+
+![Spike graph showing the distribution of *which* in the Brown Corpus](spike_graph.png){width=70%}
+
+
+
+#### Data format
+
+To draw a spike graph, we need the following data for each text file in the corpus:
+
+- The frequency of the item in the text file
+- The length of the text file (number of word (and non-word) tokens)
+- Text metadata (e.g. mode, macro genre, genre, subgenre)
+
+Our illustrative item will be *actually*, and we will look at its distribution in ICE-GB [@Nelson_etal2002]. Frequency information for *actually* in the 500 text files in ICE-GB is available in the dataset `biber150_ice_gb` (see `help("biber150_ice_gb")`), which is part of the `{tlda}` package [@tlda_package]. Let's look at a small excerpt from this object, which is a term-document matrix:
+
+- Each column represents a text file
+- Each row represents an item (except for row 1, `word_count`, which gives the length of the text file)
+
+```{r}
+biber150_ice_gb[1:10, 1:8]
+```
+
+We extract the relevant data for *actually*. Importantly, this table includes *every* text file in the corpus, even if the number of occurrences of *actually* is 0.
+
+```{r}
+ice_actually <- data.frame(
+  text_file = colnames(biber150_ice_gb),
+	n_tokens = biber150_ice_gb[4,],
+	word_count = biber150_ice_gb[1,]
+)
+
+str(ice_actually)
+```
+
+Now we need to add metadata for the 500 text files, which are provided in the dataset `metadata_ice_gb` in the `{tlda}` package [@tlda_package]. See `help("metadata_ice_gb")` for more information about this data table.
+
+```{r}
+str(metadata_ice_gb)
+```
+
+Importantly, the classification variables denoting text varieties (`text_category`, `macro_genre`, and `genre`) are already **ordered** based on the sampling frame that informs the design of the ICE family of corpora. In `metadata_ice_gb`, they are represented as **ordered factors**. This is important for visualization, because we want to order the text files (and higher-level text categories) in a sensible way.
+
+Next, we combine the two tables. The linking column is `text_file`, which allows us to join `ice_gb` with `metadata_ice_gb`:
+
+```{r}
+#| message: false
+#| warning: false
+
+ice_actually <- full_join(
+  ice_actually, 
+  metadata_ice_gb)
+```
+
+This yields a data frame with more information about each token in the corpus:
+
+```{r}
+str(ice_actually)
+```
+And finally, to have nicer labels in the plot, I will replace the "_" symbols in the macro genre labels with an empty space. This is optional.
+
+```{r}
+ice_actually$macro_genre_nice <- factor(
+	ice_actually$macro_genre,
+	labels = str_replace(
+	  levels(ice_actually$macro_genre), 
+	  pattern = "_",
+	  replacement = " "))
+
+saveRDS(ice_actually, "ice_actually.rds")
+```
+
+
+#### Drawing the spike graph
+
+Now we are ready for plotting. The following annotated code draws a spike graph. It uses the function `facet_nested()` from the `{ggh4x}` package [@ggh4x_package] to draw nested facets. The function `theme_spike_graph()` from the `{wls}` package [@wls_package] adjusts the ggplot2 theme for a clean appearance. In the following figure, we add two structural annotation layers as facets above the graph: **mode** (2 categories) and **macro genre** (12 categories):
+
+```{r}
+#| fig-width: 7
+#| fig-height: 3.5
+#| label: fig-absolute-frequency
+#| fig-cap: "Spike graph showing the distribution of *actually* in ICE-GB: Number of occurrences (absolute frequency) in each text file."
+#| message: false
+#| warning: false
+
+ice_actually |> 
+  ggplot(aes(x = text_file,            # text_file as x-variable
+             y = n_tokens)) +          # frequency of item as y-variable
+  geom_segment(aes(xend = text_file),  # draw spikes for each text file
+               yend = 0,               #   spike starts at 0
+               linewidth = .2) +       #   draw thin lines
+  facet_nested(                        # nested facets with the {ggh4x} package:
+    . ~ mode + macro_genre_nice,       #   macro genre facets nested within mode 
+    scales = "free",                   #   allow x-scale to vary across facets
+    space = "free_x",                  #   facet width proportional to # of texts
+    strip = strip_nested(              #   allow height of facet labels above
+      size = "variable")) +            #     graph to vary 
+  theme_bw() +                         # specify theme_bw() as basis
+  theme_spike_graph() +                # custom theme for spike graph
+	scale_x_discrete(expand = c(0,0)) +  # avoid left/right padding in facets 
+  ylab("Number of\noccurrences") +     # add y-axis title
+  xlab("")  +                          # no title on x-axis
+  theme(                               # 
+    strip.text.x.top = element_text(   # format facet labels
+      angle = 90, hjust = 0))          #   rotate by 90 degrees and left-align
+
+
+```
+
+
+#### Spike graph showing normalized frequencies
+
+Since the text files in ICE-GB are all around 2,000 words long, it was OK for our spike graph to show the number of occurrences of *actually* in each text file (i.e. absolute frequencies). It is usually more appropriate, however, to show relative frequencies (i.e. normalized frequencies), because text files will differ in length. Doing so requires an intermediate step: We add a column to the data frame `ice_actually`, which gives the normalized frequency of *actually* in the text file. Here, we opt for frequency *per 1,000 words* as a basis:
+
+```{r}
+ice_actually$rate_ptw <- (ice_actually$n_tokens / ice_actually$word_count) * 1000
+str(ice_actually)
+```
+
+Then we can draw the plot. The annotations in the code below flag the changes we have made.
+
+```{r}
+#| fig-width: 7
+#| fig-height: 3.5
+#| label: fig-normalized-frequency
+#| fig-cap: "Spike graph showing the distribution of *actually* in ICE-GB: Rate of occurrence (normalized frequency) in each text file."
+#| message: false
+#| warning: false
+
+ice_actually |> 
+  mutate(                                    # add column with normalized frequency
+    rate_ptw = n_tokens / word_count * 1000  #   (per thousand words)
+  ) |> 
+  ggplot(aes(x = text_file,
+             y = rate_ptw)) +                # normalized frequency as y-variable
+  geom_segment(aes(xend = text_file),
+               yend = 0,
+               linewidth = .2) +
+  facet_nested(
+    . ~ mode + macro_genre_nice,
+    scales = "free",
+    space = "free_x",
+    strip = strip_nested(
+      size = "variable")) +
+  theme_bw() +
+  theme_spike_graph() +
+	scale_x_discrete(expand = c(0,0)) +
+  ylab("Frequency\n per 1,000 words") +      # change title of y-axis
+  scale_y_continuous(breaks = c(0, 5, 10)) + # nicer tick marks on y-axis
+  xlab("")  +
+  theme(
+    strip.text.x.top = element_text(
+      angle = 90, hjust = 0))
+```
+
+
+
+
+

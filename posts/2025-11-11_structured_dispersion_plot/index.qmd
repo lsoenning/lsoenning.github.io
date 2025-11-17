@@ -1,0 +1,272 @@
+---
+title: "Drawing structured dispersion plots in R"
+description: "This short note describes how to draw dispersion plots that include information about the design (and structure) of a corpus in R."
+date: 2025-11-11
+categories: [corpus linguistics, dispersion, data visualization]
+citation: 
+  url: https://lsoenning.github.io/posts/2025-11-11_structured_dispersion_plot/
+editor: source
+---
+
+
+```{r warning=F, message=F}
+#| code-fold: true
+#| code-summary: "R setup"
+#| message: false
+#| warning: false
+
+# install development version directly from Github
+#pak::pak("lsoenning/tlda")
+#pak::pak("lsoenning/wls")
+
+library(tlda)      # for access to datasets
+library(wls)       # for custom ggplot theme
+library(tidyverse) # for data wrangling
+library(ggh4x)     # for drawing nested facets in ggplot
+
+source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
+```
+
+Dispersion plots were introduced into corpus linguistics in the mid-1990s by Mike Scott and his popular software [WordSmith Tools](https://www.lexically.net/wordsmith/). They are useful for examining the distribution of an item in a text or corpus. The typical layout of a dispersion plot shows a layered arrangement, with each row showing a text file in the corpus. Thin vertical bars then show where in the document a word occurs. If you want to draw such a plot in R, the `{quanteda}` package [@quanteda_package] is worth checking out (see Section [Lexical dispersion plot](https://quanteda.io/articles/pkgdown/examples/plotting.html#lexical-dispersion-plot) on the package website). 
+
+If we are working with a corpus that consists of different text categories (such as registers, genres, etc.), it makes sense to enrich dispersion plots with information about the structure of the corpus. In this blog post, we look at one way of doing so, which I will refer to as a *structured dispersion plot*. It strings together all text files in the corpus and locates the occurrences of an item throughout the entire corpus. The structure of the text files is reflected through one or several annotation layers above the dispersion plot; this way, we can see in which sub-corpus a particular instance occurred.
+
+#### Information about corpus position and source text of item
+
+To draw a dispersion plot, we need information about the location (or position) of each occurrence of the item in the corpus. For illustration, we will consider the distribution of two word forms, *methods* and *thirteen*, in ICE-GB [@Nelson_etal2002]. @Biber_etal2016 expect *methods* to be writing-skewed and *thirteen* to be speech-skewed. Both word forms are part of a list of items that was compiled by @Biber_etal2016 to study the behavior of dispersion measures in different distributional settings. The 150 items are intended to cover a broad range of frequency and dispersion levels [see @ATCQZW_2025 and `help("biber150_ice_gb")`].
+
+We start by loading a data frame that lists every word and non-word token in the corpus and contains 1,072,393 rows in total. The table has three columns:
+
+- `text_file` the text files in which the item occurs
+- `item` the item, i.e. word form
+- `corpus_position` the corpus position of the item
+
+```{r}
+ice_gb <- readRDS("ice_gb.rds")
+str(ice_gb)
+```
+
+The column `item` only identifies the word forms that are part of Biber et al.'s [-@Biber_etal2016] list; other tokens have been replaced by `NA`. The item *methods* occurs 63 times in ICE-GB, *thirteen* 27 times:
+
+```{r}
+sum(ice_gb$item == "methods", 
+    na.rm = TRUE)
+```
+
+
+```{r}
+sum(ice_gb$item == "thirteen", 
+    na.rm = TRUE)
+```
+
+
+#### Information about corpus structure
+
+The ICE family corpora rely on a standardized sampling frame (see [here](https://www.ice-corpora.uzh.ch/en/design.html)). Relevant metadata about the 500 text files in ICE-GB is provided in the data object `metadata_ice_gb` in the `{tlda}` package [@tlda_package]. See `help("metadata_ice_gb")` for more information about this data table.
+
+```{r}
+str(metadata_ice_gb)
+```
+
+Let us briefly explore the structure of ICE-GB. Starting at the broadest level of classification, it covers two modes of production. The number of spoken and written text files differs:
+
+```{r}
+ftable(
+  metadata_ice_gb$mode, 
+  row.vars = 1)
+```
+
+At the next level, the corpus is divided into four text categories:
+
+```{r}
+ftable(
+  metadata_ice_gb$text_category, 
+  row.vars = 1)
+```
+
+And these break down further into 12 macro genres:
+
+```{r}
+ftable(
+  metadata_ice_gb$macro_genre, 
+  row.vars = 1)/500
+```
+
+When analyzing the dispersion of an item in ICE-GB, this structure needs to be taken into account.
+
+
+
+#### Data preparation
+
+Importantly, the classification variables denoting text varieties (`text_category`, `macro_genre`, and `genre`) are already **ordered** based on the sampling frame that informs the design of the ICE family of corpora. In `metadata_ice_gb`, they are represented as **ordered factors** (see above). This is important for visualization later on, because we want to order the text files (and higher-level text categories) in a sensible way.
+
+We now need to combine the information contained in the two tables. The linking column is `text_file`, which allows us to join `ice_gb` with `metadata_ice_gb`:
+
+```{r}
+#| message: false
+#| warning: false
+
+ice_gb <- full_join(
+  ice_gb, 
+  metadata_ice_gb)
+```
+
+This yields a data frame with more information about each token in the corpus:
+
+```{r}
+str(ice_gb)
+```
+
+
+#### Preparation for plotting
+
+Three more preparatory steps are necessary. First, we replace the `NA` code in the column `item` with a blank space (" "), as this will make it easier to plot the data:
+
+```{r}
+ice_gb$item <- ifelse(
+  is.na(ice_gb$item), 
+  " ",
+  ice_gb$item)
+```
+
+Then we convert `corpus_position` into a factor (`position_fct`):
+
+```{r}
+ice_gb <- ice_gb |> 
+	mutate(position_fct = factor(
+		corpus_position, levels = 1:nrow(ice_gb)
+	))
+```
+
+And finally, to have nicer labels in the plot, I will replace the "_" symbols in the macro genre labels with line breaks. This is optional.
+
+```{r}
+ice_gb$macro_genre_nice <- factor(
+	ice_gb$macro_genre,
+	labels = str_replace(
+	  levels(ice_gb$macro_genre), 
+	  pattern = "_", replacement = "\n"))
+
+ice_gb$text_category_nice <- factor(
+	ice_gb$text_category,
+	labels = str_replace(
+	  levels(ice_gb$text_category), 
+	  pattern = "_", replacement = "-"))
+```
+
+
+#### Drawing the structured dispersion plot
+
+Now we are ready for plotting. The following annotated code draws a structured dispersion plot. It uses the function `facet_nested()` from the `{ggh4x}` package [@ggh4x_package] to draw nested facets. The function `theme_dispersion_plot()` from the `{wls}` package [@wls_package] adjusts the ggplot2 theme for a nicer appearance. We start by drawing a structured dispersion plot for *methods*, with two structural annotation layers: **text category** (4 categories) nested within **mode** (2 categories):
+
+```{r}
+#| fig-width: 7
+#| fig-height: 1
+#| label: fig-methods
+#| fig-cap: "Structured dispersion plot showing the distribution of *methods* in ICE-GB."
+#| message: false
+#| warning: false
+
+ice_gb |> 
+  mutate(item_location = ifelse(          # create new column indicating the
+    item == "methods",                    #   occurrence of the item (for color 
+    item, "other")) |>                    #   coding further below)
+  ggplot(aes(x = position_fct)) +         # corpus position as the x-variable
+  geom_segment(aes(                       # draw vertical bars at location of
+    x = position_fct,                     #   occurrence (position_fct),
+    xend = position_fct,                  #   extending from 0 to 1 vertically  
+    y = 0, yend = 1,                      #
+    color = item_location)) +             # only draw bars where item occurs
+  facet_nested(                           # nested facets with the {ggh4x} package:
+    . ~ mode + text_category_nice,        #   text categ. facets nested within mode
+    scales = "free",                      #   allow x-scale to vary across facets
+    space = "free_x") +                   #   facet width proportional to length
+  scale_color_manual(                     # set color manually so bars appear 
+    values = c("black", "transparent")) + #   only where item occurs
+  scale_x_discrete(expand = c(0,0)) +     # avoid left/right padding in facets 
+  scale_y_continuous(expand = c(.1,.1)) + # add some top/bottom padding
+  theme_bw() +                            # specify theme_bw() as basis
+  theme_dispersion_plot() +               # custom theme for dispersion plot
+  xlab(NULL) + ylab(NULL)                 # no axis labels
+```
+
+In line with @Biber_etal2016's expectation, *methods* is skewed toward written usage. The vertical bars gravitate toward the right, where written texts are located. Let us zoom in to the written part, to examine whether this item is associated with specific genres. Using the `filter()` function in the `{dplyr}` package, we can isolate the written part of the corpus. We also change the facetting scheme -- annotation layers now show **macro genre** (8 categories) nested within **text category** (2 categories), nested within **mode** (here only 1 category):
+
+```{r}
+#| fig-width: 7
+#| fig-height: 1.6
+#| code-fold: true
+#| code-summary: "Draw Figure" 
+#| label: fig-methods-written
+#| fig-cap: "Structured dispersion plot showing the distribution of *methods* in the written part of ICE-GB."
+#| message: false
+#| warning: false
+
+ice_gb |> 
+	mutate(item_location = ifelse(
+			item == "methods",
+			item, "other")) |>
+	filter(mode == "written") |>             # filter: written texts only
+	ggplot(aes(x = position_fct)) +
+	geom_segment(aes(
+		x = position_fct,
+		xend = position_fct,
+		y = 0, yend = 1,
+		color = item_location)) +
+	facet_nested(
+	  . ~ mode + text_category_nice + macro_genre_nice,  # new facetting scheme
+	  scales = "free",
+	  space = "free_x") +
+	scale_color_manual(
+	  values = c("black", "transparent")) +
+	scale_x_discrete(expand = c(0,0)) +
+	scale_y_continuous(expand = c(.1,.1)) +
+	theme_bw() +
+	theme_dispersion_plot() +
+	xlab(NULL) + ylab(NULL)
+
+```
+
+Perhaps unsurprisingly, occurrences of *methods* are most densely clustered in the macro genre academic writing.
+
+
+
+Let's also look at a structured dispersion plot for *thirteen*, which shows the reverse pattern -- it is more common in speech. Note that the annotation layers above the plot now include **mode** (2 categories) and **text category** (4 categories).
+
+```{r}
+#| fig-width: 6
+#| fig-height: .95
+#| code-fold: true
+#| code-summary: "Draw Figure" 
+#| label: fig-thirteen
+#| fig-cap: "Structured dispersion plot showing the distribution of *thirteen* in ICE-GB."
+#| message: false
+#| warning: false
+#| classes: preview-image
+
+ice_gb |> 
+	mutate(item_location = ifelse(          # 
+			item == "thirteen",                 # select new item 
+			item, "other")) |>                  #
+	ggplot(aes(x = position_fct)) +
+	geom_segment(aes(
+		x = position_fct,
+		xend = position_fct,
+		y = 0, yend = 1,
+		color = item_location)) +
+	facet_nested(
+	  . ~ mode + text_category_nice,
+	  scales = "free",
+	  space = "free_x") +
+	scale_color_manual(
+	  values = c("transparent", "black")) +
+	scale_x_discrete(expand = c(0,0)) +
+	scale_y_continuous(expand = c(.1,.1)) +
+	theme_bw() +
+	theme_dispersion_plot() +
+	xlab(NULL) + ylab(NULL)
+```
+
+While I think structured dispersion plots can be useful in corpus analysis, I am not really happy with the way they are implemented here: Slow and lots of (unelegant) code. If you have a better idea of how to draw such plots in R, please let me know!
+
+

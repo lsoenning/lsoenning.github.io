@@ -2,7 +2,7 @@
 title: "Lyne's (1985) graphical technique for the evaluation of dispersion measures "
 description: "In this blog post, I revisit the graphical strategy used by Lyne (1985) to study the behavior of the dispersion measures *D*, *D~2~*, and *S*, and then apply it to a number of other parts-based indices that have been proposed more recently."
 date: 2025-10-27
-categories: [corpus linguistics, dispersion]
+categories: [corpus linguistics, dispersion, data visualization]
 citation: 
   url: https://lsoenning.github.io/posts/2025-10-25_dispersion_lyne/
 editor: source

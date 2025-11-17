@@ -1,0 +1,848 @@
+---
+title: "Causally informed regression modeling: The dative alternation"
+description: "This blog post describes how assumed causal relations among variables may inform the analysis and interpretation of corpus-linguistic datasets. For illustration, I will rely on Bresnan et al.'s (2007) data on the English dative alternation."
+date: 2025-10-31
+categories: [corpus linguistics, regression, bias, causal inference, binary data]
+citation: 
+  url: https://lsoenning.github.io/posts/2025-10-31_causally_informed_modeling/ 
+draft: true
+---
+
+```{r}
+library(rethinking)
+library(dagitty)
+library(languageR)
+library(marginaleffects)
+library(lattice)
+
+source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
+
+```
+
+```{r fig.height=2.5, fig.width=4}
+#| fig-cap: " Directed acyclic graph for internal variables characterizing the noun phrases realizing the recipient or the theme in the ditransitive construction."
+
+
+dag_dative <- dagitty( "dag{Accessibility -> Pronominality; 
+                       Pronominality -> Length; 
+                       Length -> Realization; 
+                       Accessibility -> Definiteness;
+                       Accessibility -> Length;
+                       Pronominality -> Realization;
+                       Definiteness -> Realization;
+                       Accessibility -> Realization}")
+
+coordinates(dag_dative) <- list(
+  x=c(Accessibility = 0, Pronominality = 1, Length = 1, Definiteness = 1, Realization = 2),
+  y=c(Accessibility = 1, Pronominality = 3, Length = 1.8, Definiteness = 0, Realization = 1)
+)
+
+drawdag(dag_dative)
+```
+
+The typical approach is then to fit a regression model and look at the coefficients and standard errors for the individual predictors. This information is provided in Table #, where the internal variables are grouped by semantic role. Reassuringly, the estimates for characteristics of the recipient and the theme are, to a first approximation, mirror images of one another, meaning that they are similar in magnitude but differ in sign. This makes sense, since the dative alternation is essentially a question about the order of theme and recipient. The outcome variable is coded to indicate a noun phrase realization (i.e. recipient first): Given, pronominal, definite, and short recipients forge ahead, favoring the recipient-first order. Given, pronominal, definite, and short themes likewise forge ahead, disfavoring the recipient-first order.
+
+Before studying this table in any detail, it is important to call into mind what the coefficients express. They reflect the association between predictor and outcome that remains once we adjust for all the other variables in the model. Since these coefficients are blind to causal structure, however, the DAG is a valuable tool for putting them into perspective. The coefficients for discourse status, for instance, along with their standard errors, reflect the direct causal effect of this variable. This is to say that the model compares a given and a new recipient (or theme) that are identical on all other variables: They have the same pronominality, definiteness, and length. According to Figure #, however, this predictor also operates indirectly, via other causal channels.
+
+Once a DAG is drawn, we can distinguish between direct and indirect effects and recognize whether pairwise associations between variables are due to confounding or whether they reflect a genuine relationship. Among other things, this allows us to see why there is a difference between the adjusted and the overall (marginal) association of a predictor with the outcome. Definiteness, for instance, shows a relatively strong marginal association with the outcome. This is indicated by the letter “M” in Figure #. Overall, there is a 20-point difference in the percentage of NP realizations between definite and indefinite recipients. Almost all of this association, however, is due to the confounder discourse status. Once we adjust for this variable, the association drops to(ward) zero.
+
+More generally, the structure of a DAG tells us what kind of model specification will produce a coefficient with the desired interpretation, i.e. a direct or a total effect. In order to arrive at unbiased estimates of both types of effects, so-called backdoor paths, which often reflect confounding, need to be closed. This is usually accomplished by including certain variables into the model. For definiteness, for instance, we need to adjust for discourse status to block confounding paths.
+
+If we want to estimate the total effect of a variable in a situation where there are mediators through which it transmits indirect effects, these causal pathways must remain open, which is to say that no adjustment should take place. For discourse status, for instance, we must not adjust for any variables, since all of them (may) operate as mediators and therefore contribute to its overall causal association with the outcome. Table \# lists the model specifications that, according to Figure #, are needed to estimate the total causal association of each predictor with the outcome.
+
+Direct effect\
+All predictors NP \~ given + pronoun + length + definite Total effect\
+Discourse status NP \~ given Pronominality NP \~ given + pronoun Definiteness NP \~ given + definite Length NP \~ given + pronoun + length
+
+Figure \# compares, for each predictor, is marginal association with the outcome (M), its total effect (T), and its direct effect (D). The fact that the constellations resemble mirror images of one another provides reassurance that the causal diagram in Figure \# is not entirely unreasonable: • Discourse status: There is more to discourse status than its direct effect suggests; much of its causal effect (or, in the case of the theme, most of it) flows indirectly. • Pronominality: The marginal association of this variable with the outcome conflates a direct effect, an indirect effect (via length), and a confounding relationship with discourse status. Removing the non-causal part that is due to confounding leaves us with a smaller (in the case of the recipient, much smaller) total effect. For recipients, there appears to be little evidence for a direct effect of pronominality, which means that it operates exclusively via the mediator length. For the theme, however, a relatively strong direct effect remains. • Definiteness: The marginal association between definiteness and the outcome appears to be largely attributable to confounding; after adjusting for discourse status, there is little evidence for a noticeable total or direct effect. • Length: About half of the marginal association seems to be due to the confounders discourse status and pronominality; the total and direct effect are virtually identical since there are no indirect effects flowing from length. This summary shows that, for internal variables, we must always be careful not to draw incomplete conclusions from regression tables or the pairwise association between a particular predictor and the outcome.
+
+```{r}
+dative_give <- subset(dative, Verb == "give")
+
+dative_give$NP <- ifelse(dative_give$RealizationOfRecipient == "NP", 1, 0)
+
+dative_give$log_length_thm <- log(dative_give$LengthOfTheme)
+dative_give$log_length_rec <- log(dative_give$LengthOfRec)
+dative_give$given_rec <- ifelse(dative_give$AccessOfRec == "given", 1, 0)
+dative_give$given_thm <- ifelse(dative_give$AccessOfTheme == "given", 1, 0)
+dative_give$pronoun_thm <- ifelse(dative_give$PronomOfTheme == "pronominal", 1, 0)
+dative_give$pronoun_rec <- ifelse(dative_give$PronomOfRec == "pronominal", 1, 0)
+dative_give$definite_thm <- ifelse(dative_give$DefinOfTheme == "definite", 1, 0)
+dative_give$definite_rec <- ifelse(dative_give$DefinOfRec == "definite", 1, 0)
+dative_give$animate_rec <- ifelse(dative_give$AnimacyOfRec == "animate", 1, 0)
+#dative_give$animate_thm <- ifelse(dative_give$AnimacyOfTheme == "animate", 1, 0)
+dative_give$spoken <- ifelse(dative_give$Modality == "written", 0, 1)
+
+str(dative_give)
+```
+
+Full regression model
+
+```{r}
+m_full <- glm(
+  NP ~ 
+    given_thm + log_length_thm + pronoun_thm + definite_thm + 
+    given_rec + log_length_rec + pronoun_rec + definite_rec + animate_rec +
+    SemanticClass + spoken,
+  data = dative_give,
+  family = binomial)
+
+arm::display(m_full)
+```
+
+```{r}
+marginaleffects::avg_predictions(
+  m_full
+)
+```
+
+```{r}
+marginaleffects::avg_predictions(
+  m_full,
+  newdata = datagrid(spoken = unique)
+)
+```
+
+#### Pairwise distribution of variables
+
+```{r}
+round(
+  with(
+    dative_give, 
+    tapply(exp(log_length_rec), given_rec, mean)),
+  2)
+round(
+  with(
+    dative_give, 
+    tapply(exp(log_length_thm), given_thm, mean)),
+  2)
+```
+
+```{r}
+round(
+  with(
+    dative_give, 
+    tapply(exp(log_length_rec), pronoun_rec, mean)),
+  1)
+round(
+  with(
+    dative_give, 
+    tapply(exp(log_length_thm), pronoun_thm, mean)),
+  1)
+```
+
+```{r}
+round(
+  prop.table(
+    xtabs(~ pronoun_rec + given_rec, data = dative_give),
+    margin = 2), 2)
+
+round(
+  prop.table(
+    xtabs(~ pronoun_thm + given_thm, data = dative_give),
+    margin = 2), 2)
+```
+
+### Different types of causal effects: Dative alternation
+
+#### Recipient: Models
+
+Monofactorial models
+
+```{r}
+m_marginal_given <- glm(
+  NP ~ given_rec, 
+  family = binomial,
+  data = dative_give)
+
+m_marginal_pronoun <- glm(
+  NP ~ pronoun_rec, 
+  family = binomial,
+  data = dative_give)
+
+m_marginal_length <- glm(
+  NP ~ log_length_rec, 
+  family = binomial,
+  data = dative_give)
+
+m_marginal_definite <- glm(
+  NP ~ definite_rec, 
+  family = binomial,
+  data = dative_give)
+
+
+```
+
+Total causal effects
+
+```{r}
+m_total_pronoun <- glm(
+  NP ~ pronoun_rec + given_rec, 
+  family = binomial,
+  data = dative_give)
+
+m_total_length <- glm(
+  NP ~ log_length_rec + given_rec + pronoun_rec, 
+  family = binomial,
+  data = dative_give)
+
+m_total_definite <- glm(
+  NP ~ definite_rec + given_rec, 
+  family = binomial,
+  data = dative_give)
+```
+
+Full regression model
+
+```{r}
+m_full <- glm(
+  NP ~ given_rec + log_length_rec + definite_rec + pronoun_rec +
+    given_thm + log_length_thm + definite_thm + pronoun_thm, 
+  family = binomial,
+  data = dative_give)
+
+arm::display(m_full)
+```
+
+```{r}
+summary(m_full)
+```
+
+#### Recipient: Average comparisons
+
+##### Given
+
+```{r}
+# direct causal effect
+
+given_direct_preds_rec <- marginaleffects::avg_predictions(
+  m_full,
+  variables = "given_rec"
+)
+given_direct_comp_rec <- marginaleffects::avg_comparisons(
+  m_full,
+  variables = "given_rec"
+)
+
+# marginal association
+
+given_marginal_preds_rec <- marginaleffects::avg_predictions(
+  m_marginal_given,
+  variables = "given_rec"
+)
+given_marginal_comp_rec <- marginaleffects::avg_comparisons(
+  m_marginal_given,
+  variables = "given_rec"
+)
+
+# total association
+
+given_total_preds_rec <- marginaleffects::avg_predictions(
+  m_marginal_given,
+  variables = "given_rec"
+)
+given_total_comp_rec <- marginaleffects::avg_comparisons(
+  m_marginal_given,
+  variables = "given_rec"
+)
+```
+
+##### Pronoun
+
+```{r}
+# direct causal effect
+
+pronoun_direct_preds_rec <- marginaleffects::avg_predictions(
+  m_full,
+  variables = "pronoun_rec"
+)
+pronoun_direct_comp_rec <- marginaleffects::avg_comparisons(
+  m_full,
+  variables = "pronoun_rec"
+)
+
+# marginal association
+
+pronoun_marginal_preds_rec <- marginaleffects::avg_predictions(
+  m_marginal_pronoun,
+  variables = "pronoun_rec"
+)
+pronoun_marginal_comp_rec <- marginaleffects::avg_comparisons(
+  m_marginal_pronoun,
+  variables = "pronoun_rec"
+)
+
+# total association
+
+pronoun_total_preds_rec <- marginaleffects::avg_predictions(
+  m_total_pronoun,
+  variables = "pronoun_rec"
+)
+pronoun_total_comp_rec <- marginaleffects::avg_comparisons(
+  m_total_pronoun,
+  variables = "pronoun_rec"
+)
+```
+
+##### Definiteness
+
+```{r}
+# direct causal effect
+
+definite_direct_preds_rec <- marginaleffects::avg_predictions(
+  m_full,
+  variables = "definite_rec"
+)
+definite_direct_comp_rec <- marginaleffects::avg_comparisons(
+  m_full,
+  variables = "definite_rec"
+)
+
+# marginal association
+
+definite_marginal_preds_rec <- marginaleffects::avg_predictions(
+  m_marginal_definite,
+  variables = "definite_rec"
+)
+definite_marginal_comp_rec <- marginaleffects::avg_comparisons(
+  m_marginal_definite,
+  variables = "definite_rec"
+)
+
+# total association
+
+definite_total_preds_rec <- marginaleffects::avg_predictions(
+  m_total_definite,
+  variables = "definite_rec"
+)
+definite_total_comp_rec <- marginaleffects::avg_comparisons(
+  m_total_definite,
+  variables = "definite_rec"
+)
+```
+
+##### Length
+
+```{r}
+# direct causal effect
+
+length_direct_preds_rec <- marginaleffects::avg_predictions(
+  m_full,
+  variables = list(log_length_rec = log(c(1, 4))))
+
+length_direct_comp_rec <- marginaleffects::avg_comparisons(
+  m_full,
+  variables = list(log_length_rec = log(c(1, 4))))
+
+# marginal association
+
+length_marginal_preds_rec <- marginaleffects::avg_predictions(
+  m_marginal_length,
+  variables = list(log_length_rec = log(c(1, 4))))
+
+length_marginal_comp_rec <- marginaleffects::avg_comparisons(
+  m_marginal_length,
+  variables = list(log_length_rec = log(c(1, 4))))
+
+
+# total association
+
+length_total_preds_rec <- marginaleffects::avg_predictions(
+  m_total_length,
+  variables = list(log_length_rec = log(c(1, 4))))
+
+length_total_comp_rec <- marginaleffects::avg_comparisons(
+  m_total_length,
+  variables = list(log_length_rec = log(c(1, 4))))
+
+```
+
+```{r}
+str(length_total_comp_rec)
+length_total_comp_rec$estimate
+```
+
+##### Plot
+
+```{r}
+#| fig-width: 4.5
+#| fig-height: 2.5
+
+
+p1 <- xyplot(1~1, type = "n", xlim = c(-.1, .55), ylim = c(.5, 4.5),
+       par.settings = my_settings, #axis = axis_bottom,
+       scales = list(y = list(at = 4:1, labels = c("given",
+           "pronominal",
+           "definite",
+           "shorter\n(1 vs. 4 words)"), lineheight = .8),
+       x = list(at = c(0, .2, .4)),
+       labels = c("0", "+20", "+40")),
+       xlab = list(label = "                                                      Predicted difference in the share of NP realizations (percentage points)"),
+       ylab = NULL,
+       panel = function(x,y){
+         panel.abline(h = c(1.5, 2.5, 3.5), col = "lightgrey")
+         panel.abline(v = 0)
+         panel.segments(
+           x0 = c(given_total_comp_rec$conf.low,
+                  pronoun_total_comp_rec$conf.low,
+                  definite_total_comp_rec$conf.low,
+                  -length_total_comp_rec$conf.low),
+           x1 = c(given_total_comp_rec$conf.high,
+                  pronoun_total_comp_rec$conf.high,
+                  definite_total_comp_rec$conf.high,
+                  -length_total_comp_rec$conf.high),     
+           y0 = (4:1), y1 = (4:1), col = "grey"
+         )
+         panel.segments(
+           x0 = c(given_marginal_comp_rec$conf.low,
+                  pronoun_marginal_comp_rec$conf.low,
+                  definite_marginal_comp_rec$conf.low,
+                  -length_marginal_comp_rec$conf.low),
+           x1 = c(given_marginal_comp_rec$conf.high,
+                  pronoun_marginal_comp_rec$conf.high,
+                  definite_marginal_comp_rec$conf.high,
+                  -length_marginal_comp_rec$conf.high),     
+           y0 = (4:1)+.2, y1 = (4:1)+.2, col = "grey"
+         )
+         panel.segments(
+           x0 = c(given_direct_comp_rec$conf.low,
+                  pronoun_direct_comp_rec$conf.low,
+                  definite_direct_comp_rec$conf.low,
+                  -length_direct_comp_rec$conf.low),
+           x1 = c(given_direct_comp_rec$conf.high,
+                  pronoun_direct_comp_rec$conf.high,
+                  definite_direct_comp_rec$conf.high,
+                  -length_direct_comp_rec$conf.high),     
+           y0 = (4:1)-.2, y1 = (4:1)-.2, col = "grey"
+         )
+         
+         # panel.points(x = c(
+         #   given_total_comp_rec$estimate,
+         #   pronoun_total_comp_rec$estimate,
+         #   definite_total_comp_rec$estimate,
+         #   -length_total_comp_rec$estimate
+         # ), y = (4:1), pch = 19, cex = 2, col = "white")
+         # 
+         # panel.points(x = c(
+         #   given_marginal_comp_rec$estimate,
+         #   pronoun_marginal_comp_rec$estimate,
+         #   definite_marginal_comp_rec$estimate,
+         #   -length_marginal_comp_rec$estimate
+         # ), y = (4:1) + .2, pch = 19, cex = 2, col = "white")
+         # 
+         # panel.points(x = c(
+         #   given_direct_comp_rec$estimate,
+         #   pronoun_direct_comp_rec$estimate,
+         #   definite_direct_comp_rec$estimate,
+         #   -length_direct_comp_rec$estimate
+         # ), y = (4:1) - .2, pch = 19, cex = 2, col = "white")
+         
+         panel.points(x = c(
+           given_total_comp_rec$estimate,
+           pronoun_total_comp_rec$estimate,
+           definite_total_comp_rec$estimate,
+           -length_total_comp_rec$estimate
+         ), y = (4:1), pch = "T", cex = 1.6, col = "white", fontface = "bold")
+         
+         panel.points(x = c(
+           given_marginal_comp_rec$estimate,
+           pronoun_marginal_comp_rec$estimate,
+           definite_marginal_comp_rec$estimate,
+           -length_marginal_comp_rec$estimate
+         ), y = (4:1) + .2, pch = "M", cex = 1.6, col = "white", fontface = "bold")
+         
+         panel.points(x = c(
+           given_direct_comp_rec$estimate,
+           pronoun_direct_comp_rec$estimate,
+           definite_direct_comp_rec$estimate,
+           -length_direct_comp_rec$estimate
+         ), y = (4:1) - .2, pch = "D", cex = 1.6, col = "white", fontface = "bold")
+         
+         
+         panel.points(x = c(
+           given_total_comp_rec$estimate,
+           pronoun_total_comp_rec$estimate,
+           definite_total_comp_rec$estimate,
+           -length_total_comp_rec$estimate
+         ), y = (4:1), pch = "T", cex = 1.5)
+         
+         panel.points(x = c(
+           given_marginal_comp_rec$estimate,
+           pronoun_marginal_comp_rec$estimate,
+           definite_marginal_comp_rec$estimate,
+           -length_marginal_comp_rec$estimate
+         ), y = (4:1) + .2, pch = "M", cex = 1.5)
+         
+         panel.points(x = c(
+           given_direct_comp_rec$estimate,
+           pronoun_direct_comp_rec$estimate,
+           definite_direct_comp_rec$estimate,
+           -length_direct_comp_rec$estimate
+         ), y = (4:1) - .2, pch = "D", cex = 1.5)
+         
+         panel.text(x = .8, y = 5.5, label = "The percentage of NP realizations is:", cex = .8, lineheight = .8)
+         panel.text(x = .225, y = 5, label = "Higher if the RECIPIENT is:", cex = .8, lineheight = .8)
+
+         
+         panel.segments(x0=-.1, x1 = .55, y0 = .5, y1 = .5)
+         panel.segments(x0=seq(0, .4, .2), x1=seq(0, .4, .2),
+                        y0 = .5, y1 = .4)
+       })
+
+print(p1, position=c(0,0,.7,.85))
+
+```
+
+#### Theme: Models
+
+Monofactorial models
+
+```{r}
+m_marginal_given <- glm(
+  NP ~ given_thm, 
+  family = binomial,
+  data = dative_give)
+
+m_marginal_pronoun <- glm(
+  NP ~ pronoun_thm, 
+  family = binomial,
+  data = dative_give)
+
+m_marginal_length <- glm(
+  NP ~ log_length_thm, 
+  family = binomial,
+  data = dative_give)
+
+m_marginal_definite <- glm(
+  NP ~ definite_thm, 
+  family = binomial,
+  data = dative_give)
+
+
+```
+
+Total causal effects
+
+```{r}
+m_total_pronoun <- glm(
+  NP ~ pronoun_thm + given_thm, 
+  family = binomial,
+  data = dative_give)
+
+m_total_length <- glm(
+  NP ~ log_length_thm + given_thm + pronoun_thm, 
+  family = binomial,
+  data = dative_give)
+
+m_total_definite <- glm(
+  NP ~ definite_thm + given_thm, 
+  family = binomial,
+  data = dative_give)
+```
+
+Full regression model
+
+```{r}
+m_full <- glm(
+  NP ~ given_thm + log_length_thm + definite_thm + pronoun_thm, 
+  family = binomial,
+  data = dative_give)
+
+arm::display(m_full)
+```
+
+#### Theme: Average comparisons
+
+##### Given
+
+```{r}
+# direct causal effect
+
+given_direct_preds_thm <- marginaleffects::avg_predictions(
+  m_full,
+  variables = "given_thm"
+)
+given_direct_comp_thm <- marginaleffects::avg_comparisons(
+  m_full,
+  variables = "given_thm"
+)
+
+# marginal association
+
+given_marginal_preds_thm <- marginaleffects::avg_predictions(
+  m_marginal_given,
+  variables = "given_thm"
+)
+given_marginal_comp_thm <- marginaleffects::avg_comparisons(
+  m_marginal_given,
+  variables = "given_thm"
+)
+
+# total association
+
+given_total_preds_thm <- marginaleffects::avg_predictions(
+  m_marginal_given,
+  variables = "given_thm"
+)
+given_total_comp_thm <- marginaleffects::avg_comparisons(
+  m_marginal_given,
+  variables = "given_thm"
+)
+```
+
+##### Pronoun
+
+```{r}
+# direct causal effect
+
+pronoun_direct_preds_thm <- marginaleffects::avg_predictions(
+  m_full,
+  variables = "pronoun_thm"
+)
+pronoun_direct_comp_thm <- marginaleffects::avg_comparisons(
+  m_full,
+  variables = "pronoun_thm"
+)
+
+# marginal association
+
+pronoun_marginal_preds_thm <- marginaleffects::avg_predictions(
+  m_marginal_pronoun,
+  variables = "pronoun_thm"
+)
+pronoun_marginal_comp_thm <- marginaleffects::avg_comparisons(
+  m_marginal_pronoun,
+  variables = "pronoun_thm"
+)
+
+# total association
+
+pronoun_total_preds_thm <- marginaleffects::avg_predictions(
+  m_total_pronoun,
+  variables = "pronoun_thm"
+)
+pronoun_total_comp_thm <- marginaleffects::avg_comparisons(
+  m_total_pronoun,
+  variables = "pronoun_thm"
+)
+```
+
+##### Definiteness
+
+```{r}
+# direct causal effect
+
+definite_direct_preds_thm <- marginaleffects::avg_predictions(
+  m_full,
+  variables = "definite_thm"
+)
+definite_direct_comp_thm <- marginaleffects::avg_comparisons(
+  m_full,
+  variables = "definite_thm"
+)
+
+# marginal association
+
+definite_marginal_preds_thm <- marginaleffects::avg_predictions(
+  m_marginal_definite,
+  variables = "definite_thm"
+)
+definite_marginal_comp_thm <- marginaleffects::avg_comparisons(
+  m_marginal_definite,
+  variables = "definite_thm"
+)
+
+# total association
+
+definite_total_preds_thm <- marginaleffects::avg_predictions(
+  m_total_definite,
+  variables = "definite_thm"
+)
+definite_total_comp_thm <- marginaleffects::avg_comparisons(
+  m_total_definite,
+  variables = "definite_thm"
+)
+```
+
+##### Length
+
+```{r}
+# direct causal effect
+
+length_direct_preds_thm <- marginaleffects::avg_predictions(
+  m_full,
+  variables = list(log_length_thm = log(c(1, 4))))
+
+length_direct_comp_thm <- marginaleffects::avg_comparisons(
+  m_full,
+  variables = list(log_length_thm = log(c(1, 4))))
+
+# marginal association
+
+length_marginal_preds_thm <- marginaleffects::avg_predictions(
+  m_marginal_length,
+  variables = list(log_length_thm = log(c(1, 4))))
+
+length_marginal_comp_thm <- marginaleffects::avg_comparisons(
+  m_marginal_length,
+  variables = list(log_length_thm = log(c(1, 4))))
+
+
+# total association
+
+length_total_preds_thm <- marginaleffects::avg_predictions(
+  m_total_length,
+  variables = list(log_length_thm = log(c(1, 4))))
+
+length_total_comp_thm <- marginaleffects::avg_comparisons(
+  m_total_length,
+  variables = list(log_length_thm = log(c(1, 4))))
+
+```
+
+```{r}
+str(length_total_comp_thm)
+length_total_comp_thm$estimate
+```
+
+##### Plot
+
+```{r}
+#| fig-width: 4.5
+#| fig-height: 2.5
+
+
+p2 <- xyplot(1~1, type = "n", xlim = c(-.85, .05), ylim = c(.5, 4.5),
+       par.settings = my_settings, #axis = axis_bottom,
+       scales = list(y = list(at = 4:1, labels = NULL),
+                     x = list(at = c(-.8, -.6, -.4, -.2, 0)),
+       labels = c("\u221280", "\u221260", "\u221240", "\u221220", "0")),
+       xlab = list(label = " ", lineheight = .8),
+       ylab = NULL,
+       panel = function(x,y){
+         panel.abline(h = c(1.5, 2.5, 3.5), col = "lightgrey")
+         panel.abline(v = 0)
+         panel.segments(
+           x0 = c(given_total_comp_thm$conf.low,
+                  pronoun_total_comp_thm$conf.low,
+                  definite_total_comp_thm$conf.low,
+                  -length_total_comp_thm$conf.low),
+           x1 = c(given_total_comp_thm$conf.high,
+                  pronoun_total_comp_thm$conf.high,
+                  definite_total_comp_thm$conf.high,
+                  -length_total_comp_thm$conf.high),     
+           y0 = (4:1), y1 = (4:1), col = "grey"
+         )
+         panel.segments(
+           x0 = c(given_marginal_comp_thm$conf.low,
+                  pronoun_marginal_comp_thm$conf.low,
+                  definite_marginal_comp_thm$conf.low,
+                  -length_marginal_comp_thm$conf.low),
+           x1 = c(given_marginal_comp_thm$conf.high,
+                  pronoun_marginal_comp_thm$conf.high,
+                  definite_marginal_comp_thm$conf.high,
+                  -length_marginal_comp_thm$conf.high),     
+           y0 = (4:1)+.2, y1 = (4:1)+.2, col = "grey"
+         )
+         panel.segments(
+           x0 = c(given_direct_comp_thm$conf.low,
+                  pronoun_direct_comp_thm$conf.low,
+                  definite_direct_comp_thm$conf.low,
+                  -length_direct_comp_thm$conf.low),
+           x1 = c(given_direct_comp_thm$conf.high,
+                  pronoun_direct_comp_thm$conf.high,
+                  definite_direct_comp_thm$conf.high,
+                  -length_direct_comp_thm$conf.high),     
+           y0 = (4:1)-.2, y1 = (4:1)-.2, col = "grey"
+         )
+         
+         # panel.points(x = c(
+         #   given_total_comp_thm$estimate,
+         #   pronoun_total_comp_thm$estimate,
+         #   definite_total_comp_thm$estimate,
+         #   -length_total_comp_thm$estimate
+         # ), y = (4:1), pch = 19, cex = 2, col = "white")
+         # 
+         # panel.points(x = c(
+         #   given_marginal_comp_thm$estimate,
+         #   pronoun_marginal_comp_thm$estimate,
+         #   definite_marginal_comp_thm$estimate,
+         #   -length_marginal_comp_thm$estimate
+         # ), y = (4:1) + .2, pch = 19, cex = 2, col = "white")
+         # 
+         # panel.points(x = c(
+         #   given_direct_comp_thm$estimate,
+         #   pronoun_direct_comp_thm$estimate,
+         #   definite_direct_comp_thm$estimate,
+         #   -length_direct_comp_thm$estimate
+         # ), y = (4:1) - .2, pch = 19, cex = 2, col = "white")
+         
+         
+         panel.points(x = c(
+           given_total_comp_thm$estimate,
+           pronoun_total_comp_thm$estimate,
+           definite_total_comp_thm$estimate,
+           -length_total_comp_thm$estimate
+         ), y = (4:1), pch = "T", cex = 1.6, col = "white", fontface = "bold")
+         
+         panel.points(x = c(
+           given_marginal_comp_thm$estimate,
+           pronoun_marginal_comp_thm$estimate,
+           definite_marginal_comp_thm$estimate,
+           -length_marginal_comp_thm$estimate
+         ), y = (4:1) + .2, pch = "M", cex = 1.6, col = "white", fontface = "bold")
+         
+         panel.points(x = c(
+           given_direct_comp_thm$estimate,
+           pronoun_direct_comp_thm$estimate,
+           definite_direct_comp_thm$estimate,
+           -length_direct_comp_thm$estimate
+         ), y = (4:1) - .2, pch = "D", cex = 1.6, col = "white", fontface = "bold")
+         
+         panel.points(x = c(
+           given_total_comp_thm$estimate,
+           pronoun_total_comp_thm$estimate,
+           definite_total_comp_thm$estimate,
+           -length_total_comp_thm$estimate
+         ), y = (4:1), pch = "T", cex = 1.5)
+         
+         panel.points(x = c(
+           given_marginal_comp_thm$estimate,
+           pronoun_marginal_comp_thm$estimate,
+           definite_marginal_comp_thm$estimate,
+           -length_marginal_comp_thm$estimate
+         ), y = (4:1) + .2, pch = "M", cex = 1.5)
+         
+         panel.points(x = c(
+           given_direct_comp_thm$estimate,
+           pronoun_direct_comp_thm$estimate,
+           definite_direct_comp_thm$estimate,
+           -length_direct_comp_thm$estimate
+         ), y = (4:1) - .2, pch = "D", cex = 1.5)
+         
+         panel.text(x = -.4, y = 5, label = "Lower if the THEME is:", cex = .8, lineheight = .8)
+         panel.text(x = .1, y = 4:1, label = c(
+           "given",
+           "pronominal",
+           "definite",
+           "shorter\n(1 vs. 4 words)"
+         ), adj = 0, cex = .8, lineheight = .8)
+         
+         panel.segments(x0=-.85, x1 = .05, y0 = .5, y1 = .5)
+         panel.segments(x0=seq(-.8, 0, .2), x1=seq(-.8, 0, .2),
+                        y0 = .5, y1 = .4)
+       })
+
+print(p2, position=c(0,0,.7,.8))
+
+```
+
+```{r}
+#| fig-width: 5
+#| fig-height: 2.5
+
+print(p1, position=c(0,0,.45,.84), more = TRUE)
+print(p2, position=c(.5,0,.85,.84))
+
+
+```

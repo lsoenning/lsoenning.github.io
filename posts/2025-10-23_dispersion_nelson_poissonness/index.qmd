@@ -9,7 +9,7 @@ editor: source
 ---
 
 
-```{r warning=F, message=F}
+```{r}
 #| code-fold: true
 #| code-summary: "R setup"
 #| message: false

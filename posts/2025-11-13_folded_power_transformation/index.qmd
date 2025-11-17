@@ -1,0 +1,407 @@
+---
+title: "Tukey's folded power transformation in R"
+description: "This blog post demonstrates a new functionality of the `{tlda}` package: The implementation of Tukey's folded power transformation for proportions (and percentages), including its use in data visualization with `{ggplot2}`."
+date: 2025-11-14
+categories: [corpus linguistics, dispersion, data visualization, tlda, binary data]
+citation: 
+  url: https://lsoenning.github.io/posts/2025-11-13_folded_power_transformation/
+editor: source
+draft: true
+---
+
+
+Atkinson, A. C. (1985). Plots, Transformations, and Regression. New York: Oxford University Press. [page 139]
+
+
+
+
+```{r warning=F, message=F}
+#| code-fold: true
+#| code-summary: "R setup"
+#| message: false
+#| warning: false
+
+# may need to install latest development version directly from Github
+#pak::pak("lsoenning/tlda")
+#pak::pak("lsoenning/wls")
+
+library(tlda)      # for access to datasets
+library(lattice)   # for data visualization
+library(tidyverse) # for data wrangling
+
+source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
+```
+
+In corpus linguistics, we often deal with quantities that range between 0 and 1. Examples are proportions (and percentages) and dispersion scores. Sometimes the distribution we observe gravitates toward the upper and/or lower end of the scale, which degrades resolution. In such cases, a transformation that stretches the scale near the endpoints can help. Three transformations are often applied to scores in the unit interval [0, 1] [see @Fox2016, pp. 72-75]. In the following, $x$ refers to these bounded scores (e.g. proportions or dispersion scores):
+
+- The *logit* transformation, i.e. the (natural) log of the odds: $\textrm{log}_e(\frac{x}{1-x})$; this transformation is unable to handle the endpoints, i.e. scores of 0 and 1
+- The *probit* transformation, i.e. the inverse standard normal distribution function; this transformation likewise shuns 0 and 1
+- The *arcsine square-root* (or angular) transformation: $\textrm{sin}^{-1}\sqrt{x}$; this form of re-expression accepts the values 0 and 1
+
+#### Folded power transformation
+
+In his landmark work *Exploratory data analysis*, @Tukey1977 [pp. 498-502] introduced *folded roots* and *folded logs* for the transformation of proportions. Both are special cases of what are known as *folded power transformations* [see also @Mosteller_Tukey1977, p. 92]. The formula for this class of re-expressions is the following, where $x$ again refers to the bounded quantity that is to be transformed and $\lambda$ is the power to which the two terms, $x$ and $(1-x)$, are raised:
+
+$$
+x^\lambda - (1-x)^\lambda
+$$
+
+The choice of `lambda` affects how much the ends of the unit interval are stretched out relative to the center. Interestingly, the folded power transformation includes (approximations to) a number of familiar forms of re-expression: 
+
+- *folded roots*: `$\lambda = 0.5$
+- *arcsine-square-root* (or angular) transformation: a close approximation is given by $\lambda = 0.41$ [see @Fox2016, p. 74]
+- *folded cube roots*: $\lambda = 1/3$
+- *probit* transformation: a close approximation is given by $\lambda = 0.14$ [see @Fox2016, p. 74] while accepting input scores of 0 and 1
+- For $\lambda = 0$ , the *logit* transformation is the limiting case; note that input scores of 0 and 1 are not allowed when $\lambda$ is set to 0
+
+The following graph shows how the amount of local compression/expansion of the unit interval changes with the choice of $\lambda$, which ranges from 1 at the bottom (no transformation, i.e. identity) to 0.14 at the top. As $\lambda$ increases, the ends of the unit interval are stretched out more and more vigorously.
+
+```{r}
+#| fig-height: 2.5
+#| fig-width: 4.5
+#| code-fold: true
+#| code-summary: "Draw Figure" 
+#| label: fig-transformation-1
+#| fig-cap: "Diagram showing how the choice of lambda affects how much the center of the unit interval is compressed relative to the edges."
+#| message: false
+#| warning: false
+#| classes: preview-image
+
+x_seq <- seq(0, 1, .05)
+lambda <- seq(1, .14, -.0215)
+
+x_trans <- matrix(
+	NA, nrow = 21, ncol = 41)
+
+
+
+for(i in 1:41){
+	x_trans[,i] <- fpower(x_seq, lambda[i], scaling = "plus_minus_1")
+}
+
+
+p1 <- xyplot(1~1, ylim=c(1,.14), xlim = c(-1, 1),
+	   ylab = "Lambda", xlab = "Unit interval",
+	   par.settings = my_settings, axis = axis_L,
+	   scales = list(x = list(at = seq(-1, 1, .2), 
+	   					   label = c("0", ".10", ".20", ".30", ".40", ".50", ".60", ".70", ".80", ".90", "1")),
+	   			  y = list(at = c(1, .5, .41, 1/3, .14)), label = c("1", ".5", ".41", "1/3", ".14")),
+	   panel = function(x,y){
+	   	panel.segments(y0 = .5, y1 = .5, x0 = -1, x1 = 1, col = "grey")
+	   	panel.segments(y0 = .41, y1 = .41, x0 = -1, x1 = 1, col = "grey")
+	   	panel.segments(y0 = 1/3, y1 = 1/3, x0 = -1, x1 = 1, col = "grey")
+	   	panel.segments(y0 = .14, y1 = .14, x0 = -1, x1 = 1, col = "grey")
+	   	for(i in 1:21){
+	   		panel.points(y = lambda, x = x_trans[i,], type = "l", 
+	   					 col = c(rep(c("black", "grey"), 10), "black")[i])
+	   	}
+	   	panel.text(y = c(1, .5, .41, 1/3, .14), x = 1.1, label = c(
+	   		"identity", "folded square root", "\u2248 arcsine square-root",
+	   		"folded cube root", "\u2248 probit"
+	   	), adj = 0, col = "grey50", cex = .9)
+	   })
+
+print(p1, position = c(0,0,.7,0.95))
+```
+
+The power ($\lambda$) typically ranges between 0 and 1 (no transformation). For $\lambda = 0$, the logit transformation is used. However, the logit of 0 and 1 is not defined, which is why $\lambda = 0$ is not included in the figure above.
+
+
+#### Another version of the folded power transformation
+
+The version of the folded power transformation we have encountered so far maps scores to the interval $[-1, +1]$, irrespective of the choice of power. There is another version that is frequently used, which does not impose these constraints:
+
+$$
+\frac{x^\lambda - (1-x)^\lambda}{\lambda}
+$$
+
+We can also inspect this version graphically, by mimicking a plot that @Tukey1977 [p. 502] drew. I really like the way he introduces this graph: "As always, it is nice to look at changes of expression graphically as well as in numbers. In this situation, where we think and write of 'stretching the tails', it is usually desirable to compare the different scales side by side and both watch and feel -- to the extent that the feeling can be given -- the tails stretch more and more [...]." [@Tukey1977, pp. 501-502]
+
+@fig-transformation-2 gives us a feel for the folded power transformation. It provides another way of appreciating the way in which different values of $\lambda$ stretch the ends of the interval relative to the middle.
+
+```{r}
+#| fig-height: 3
+#| fig-width: 7
+#| code-fold: true
+#| code-summary: "Draw Figure" 
+#| label: fig-transformation-2
+#| fig-cap: "Diagram showing how the choice of lambda affects how much the edges of the unit interval are stretched out relative to the center."
+#| message: false
+#| warning: false
+
+x_seq <- seq(0, 1, .05)
+lambda <- seq(1, .14, -.0215)
+
+x_trans <- matrix(
+	NA, nrow = 21, ncol = 41)
+
+for(i in 1:41){
+	x_trans[,i] <- fpower(x_seq, lambda[i], scaling = "free")
+}
+
+p1 <- xyplot(1~1, ylim=c(1,.14), xlim = c(-7, 7),
+	   ylab = NULL, xlab = "Unit interval",
+	   par.settings = my_settings, 
+	   scales = list(x = list(at = c(-1, 1), 
+	   					   label = c("0", "1")),
+	   			  y = list(draw = FALSE)),
+	   panel = function(x,y){
+	   	panel.segments(y0 = .50, y1 = .50, 
+	   	               x0 = (0^.50 - (1-0)^.50) / .50,
+	   	               x1 = (1^.50 - (1-1)^.50) / .50)
+	   	panel.segments(y0 = .41, y1 = .41, 
+	   	               x0 = (0^.41 - (1-0)^.41) / .41,
+	   	               x1 = (1^.41 - (1-1)^.41) / .41)
+	   	panel.segments(y0 = (1/3), y1 = (1/3), 
+	   	               x0 = (0^(1/3) - (1-0)^(1/3)) / (1/3),
+	   	               x1 = (1^(1/3) - (1-1)^(1/3)) / (1/3))
+	   	panel.segments(y0 = .14, y1 = .14, 
+	   	               x0 = (0^.14 - (1-0)^.14) / .14,
+	   	               x1 = (1^.14 - (1-1)^.14) / .14)
+	   	
+	   	panel.points(x = (c(0,1)^.50 - (1-c(0,1))^.50) / .50, y = .50, pch = 19, cex = 1)
+	   	panel.points(x = (c(0,1)^.41 - (1-c(0,1))^.41) / .41, y = .41, pch = 19, cex = 1)
+	   	panel.points(x = (c(0,1)^(1/3) - (1-c(0,1))^(1/3)) / (1/3), y = (1/3), pch = 19, cex = 1)
+	   	panel.points(x = (c(0,1)^.14 - (1-c(0,1))^.14) / .14, y = .14, pch = 19, cex = 1)
+	   	
+	   	for(i in 1:21){
+	   		panel.points(y = lambda, x = x_trans[i,], type = "l", 
+	   					 col = c(rep(c("black", "grey"), 10), "black")[i])
+	   	}
+	   	panel.text(x = x_trans[,41][c(1,3,11,19,21)], y = .05, 
+	   	           label = c("0",".10",".50",".90","1"))
+	   	panel.text(y = c(.5, .41, 1/3, .14), x = c(
+	   	  (1^.50 - (1-1)^.50) / .50,
+	   	  (1^.41 - (1-1)^.41) / .41,
+	   	  (1^(1/3) - (1-1)^(1/3)) / (1/3),
+	   	  (1^.14 - (1-1)^.14) / .14)+.2, label = c(
+	   		"folded square root", "\u2248 arcsine square-root", " folded cube root", "\u2248 probit"
+	   	), adj = 0, col = "grey50", cex = .9)
+	   	
+	   	panel.text(y = -.05, x = c(-1,1), label = c(0,1), cex = .8)
+	   	
+	   	panel.segments(x0 = -1, x1 = 1, y0 = 1, y1 = 1)
+	   	panel.segments(x0 = c(-1, 1), x1 = c(-1, 1), y0 = 1, y1 = 1.03)
+	   	panel.segments(x0 = x_trans[,41][c(1,3,11,19,21)], 
+	   	               x1 = x_trans[,41][c(1,3,11,19,21)], y0 = .14, y1 = .11)
+	   })
+
+print(p1, position = c(.01,0,.92,.9))
+```
+
+There are two reasons why folded power transformations are attractive when working with scores in the unit interval. First, with the exception of the logit transformation, they can handle the endpoints (0 and 1). Further, they give the user flexibility in the choice of $\lambda$, with (approximations to) various special cases along the continuum from 0 to 1.
+
+
+#### Implementation in the `{tlda}` package
+
+Folded power transformations are implemented in the R package `{tlda}` [@tlda_package]. You may need to install the development version from Github:
+
+```{r}
+#| eval: false
+
+pak::pak("lsoenning/tlda")
+```
+
+
+The function `fpower()` can be used to re-express proportions using different powers (i.e. values for `lambda`). For illustration, consider the following sequence of proportions:
+
+```{r}
+x_seq <- seq(0, 1, .1)
+x_seq
+```
+
+The following code transforms this sequence to folded roots ($\lambda = 0.5$), mapped to the interval [-1, +1]:
+
+```{r}
+fpower(
+  x_seq,
+  lambda = .5,
+  scaling = "plus_minus_1")
+```
+
+To switch to the version that returns scores that may exceed $-1$ and $+1$, we use `scaling = "free"`:
+
+```{r}
+fpower(
+  x_seq,
+  lambda = .5,
+  scaling = "free")
+```
+
+The function `invfpower()` allows us to back-transform folded powers to the unit interval:
+
+```{r}
+x_seq_folded_roots_free <- fpower(
+  x_seq,
+  lambda = .5,
+  scaling = "free")
+
+invfpower(
+  x_seq_folded_roots_free,
+  lambda = 0.5,
+  scaling = "free")
+```
+
+
+#### Using folded-power-transformed scales with `{ggplot2}`
+
+The `{tlda}` package also offers the functions `scale_x_fpower()` and `scale_y_fpower()`, which can be integrated into `{ggplot2}` code to plot data on a transformed scale (while keeping the original units as tick mark labels). For illustration, we consider a set of dispersion scores: Specifically, Rosengren's *S* [@Rosengren1971] for the dispersion of 150 selected items [@Biber_etal2016] across speakers in the Spoken BNC2014. In this analysis, then, the speakers are the corpus parts. The data are available as the dataset `biber150_spokenBNC2014` in the `{tlda}` package. We start by calculating Rosengren's *S* for the 150 items (since two items from the list do not appear in the Spoken BNC2014, we are actually looking at only 148 items):
+
+```{r}
+#| warning: false
+#| message: false
+
+S_spokenBNC2014 <- disp_S_tdm(
+  tdm = biber150_spokenBNC2014, 
+  row_partsize = "first",
+  print_score = FALSE,
+  verbose = FALSE)
+```
+
+If we look at the distribution of these dispersion scores, we note that they are pushing against the ceiling: as the following dot diagram shows, there are many items with a  dispersion score near 1 (which indicates a very even, or balanced, distribution across speakers):
+
+```{r}
+#| fig-width: 2.5
+#| fig-height: 1.9
+#| label: fig-S
+#| fig-cap: "Dot diagram showing the distribution of *S* scores for the 148 items."
+#| warning: false
+#| message: false
+
+S_spokenBNC2014 |> 
+	ggplot(aes(x = S)) +
+	geom_dotplot(
+	  method = "histodot",
+	  binwidth = .025) +
+  theme_dotplot() +
+  xlab("Rosengren's S")
+```
+
+It helps if we apply a folded power transformation with $\lambda = 0.14$, which approximates the shape of the probit transformation and stretches the tails considerably. We simply add the function `scale_x_fpower()` to the plotting call:
+
+
+```{r}
+#| fig-width: 3
+#| fig-height: 1.2
+#| label: fig-S-transformed
+#| fig-cap: "Dot diagram showing the distribution of the transformed *S* scores for the 148 items."
+#| warning: false
+#| message: false
+
+S_spokenBNC2014 |> 
+  ggplot(aes(x = S)) +
+  geom_dotplot(
+    method = "histodot",
+    binwidth = .15) +
+  xlab("Transformed Rosengren's S\n(folded powers, lambda = 0.14)") +
+    theme_dotplot() +
+  scale_x_fpower(
+    lambda = .14, 
+    breaks = c(.02, .1, .25, .5, .75, .9, .98))
+```
+
+As a second example, let us compute the dispersion measure *D~A~* [@Burch_etal2017] for the 150 items, this time in the Spoken BNC1994 (four items from the list do not appear in the Spoken BNC1994, so we are looking at only 146 items):
+
+```{r}
+#| warning: false
+#| message: false
+
+DA_spokenBNC1994 <- disp_DA_tdm(
+  tdm = biber150_spokenBNC1994, 
+  row_partsize = "first",
+  unit_interval = TRUE,
+  print_score = FALSE,
+  verbose = FALSE)
+```
+
+Now, many scores a clustered near the lower end of the scale:
+
+```{r}
+#| fig-width: 2.5
+#| fig-height: 1.9
+#| label: fig-DA
+#| fig-cap: "Dot diagram showing the distribution of *D~A~* scores for the 146 items."
+#| warning: false
+#| message: false
+
+DA_spokenBNC1994 |> 
+	ggplot(aes(x = DA)) +
+	geom_dotplot(
+	  method = "histodot",
+	  binwidth = .025) +
+  xlim(0,1) +
+  theme_dotplot() +
+  xlab(expression(D[A]))
+```
+
+We can alleviate the skew with a folded power transformations, setting $\lambda = 0.41$. Recall that this gives us a close approximation to the arcsine-square-root (angular) transformation:
+
+```{r}
+#| fig-width: 2.75
+#| fig-height: 1.2
+#| label: fig-DA-transformed
+#| fig-cap: "Dot diagram showing the distribution of the transformed *D~A~* scores for the 146 items."
+#| warning: false
+#| message: false
+
+DA_spokenBNC1994 |> 
+  ggplot(aes(x = DA)) +
+  geom_dotplot(
+    method = "histodot",
+    binwidth = .07) +
+  xlab("Transformed DA\n(folded powers, lambda = 0.41)") +
+    theme_dotplot() +
+  scale_x_fpower(
+    lambda = .41, 
+    breaks = c(0, .02, .1, .25, .5, .75))
+```
+
+
+As a final example, we will draw a scatterplot with a transformed y-axis. The following graph looks at the association between dispersion (as measured by *D~KL~*, standardization using base *e*) and the corpus frequency of the 150 items in the Spoken BNC2014. The top panel shows untransfored dispersion scores on the y-axis, the bottom panel folded-power-transformed scores ($\lambda = 1/3$, i.e. folded cube roots).
+
+```{r}
+#| fig-width: 3.4
+#| fig-height: 5.5
+#| label: fig-DKL-frequency
+#| fig-cap: "Scatterplot graphing *D~KL~* scores against frequency for the 148 items."
+#| warning: false
+#| code-fold: true
+#| code-summary: "Draw figure"
+#| message: false
+
+DKL_spokenBNC2014 <- disp_DKL_tdm(
+  tdm = biber150_spokenBNC2014, 
+  row_partsize = "first",
+  standardization = "base_e",
+  print_score = FALSE,
+  verbose = FALSE)
+
+p1 <- DKL_spokenBNC2014 |> 
+  ggplot(aes(x = frequency, y = DKL)) +
+  geom_point() +
+  ylab("\nDKL") +
+  xlab("Frequency") +
+	scale_x_log10(labels = scales::comma) +
+  theme_classic() +
+  labs(caption = " ")
+
+p2 <- DKL_spokenBNC2014 |> 
+  ggplot(aes(x = frequency, y = DKL)) +
+  geom_point() +
+  ylab("Transformed DKL\n(folded powers, lambda = 1/3)") +
+  xlab("Frequency") +
+	scale_x_log10(labels = scales::comma) +
+  theme_classic() +
+  scale_y_fpower(
+    lambda = 1/3, 
+    breaks = c(0, .01, .1, .5, .9, .99)) +
+  labs(caption = "Standardization to the unit interval using base e")
+
+
+cowplot::plot_grid(p1, p2, nrow = 2)
+```
+
+
+
+
+
