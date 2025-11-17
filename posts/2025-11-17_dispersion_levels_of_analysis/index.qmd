@@ -1,0 +1,97 @@
+---
+title: "Dispersion: Levels of analysis"
+description: "This blog post argues that there are three basic levels at which dispersion analysis isolates a particular distributional feature and thereby returns clear and interpretable scores. In corpus-based work, these levels are often compounded, and dispersion scores therefore represent a mix of differnet types of distributional information."
+date: 2025-11-17
+categories: [corpus linguistics, dispersion]
+citation: 
+  url: https://lsoenning.github.io/posts/2025-11-17_dispersion_levels_of_analysis/
+editor: source
+---
+
+
+```{r warning=F, message=F}
+#| code-fold: true
+#| code-summary: "R setup"
+#| message: false
+#| warning: false
+
+library(knitr)
+```
+
+When using parts-based dispersion measures, the choice of corpus parts is critical, as it determines the linguistic meaning of the scores we obtain [@Egbert_etal2020]. In this blog post, I outline three basic levels at which dispersion analysis can isolate a particular type of distributional information and return scores with a relatively clear-cut meaning. In applied work, different levels are often combined or mixed, and the resulting scores then blend different types of distributional information. It would be a mistake to go as far as stating that contaminated dispersion scores are linguistically useless. However, their interpretation can be clouded considerably, and the goal of this blog post is to draw attention to this point.
+
+
+#### Dispersion analysis: Three levels
+
+Conceptually, we can distinguish between three levels at which dispersion can be analyzed. The first one is dispersion *within a text*. At this level of analysis, the dispersion plot is a very useful graphical tool: It shows us where in a text an item occurs, which provides insights into plotline, discourse structure, and (shifts in) topicality. Parts-based measures can also be applied at this level -- the text is then divided into equal-sized chunks (or chapters). 
+
+The second level at which dispersion can be assessed is *within a text category* or language variety. This means that the corpus parts chosen for analysis all provide information about the same domain of language use and do not differ systematically in terms of the frequency of the item. It usually makes sense for the corpus parts to represent linguistically meaningful units such as texts, text files or individuals (speakers or authors). At this level, dispersion analysis tells us about the item's **generality in the text category**, i.e. how widely and/or evenly the item is spread across texts representing this language variety. 
+
+The third level we will consider is dispersion *across text categories*. These may represent different registers or genres, different socio-stylistic categories, or other types of language varieties. Text categories are usually closely aligned with the design of a corpus, and the corpus parts therefore represent categories that are selected purposefully by the corpus compilers, and along which language use is known to vary. At this level, dispersion analysis reveals the **register-specificity** or **social stratification** of the item, i.e. the extent to which its usage rate depends on the dimension of variation represented by the text (or speaker) categories.
+
+Here is a short summary of the three basic levels for dispersion analysis:
+
+- Level I: Within a text (corpus parts: equal-sized chunks) to examine discourse structure
+- Level II: Within a text category (corpus parts: texts/speakers) to assess the generality of the item
+- Level III: Across text categories (corpus parts: text categories) to quantify register-specifcity of the item
+
+
+#### Blended levels
+
+In corpus-based work, these three levels are often blended. If a corpus is divided into equal-sized chunks, the resulting dispersion score conflates distributional information at all three levels: within-text discourse structure, the generality of the item in each of the text varities covered, and the register-specificity of the item.
+
+It is particularly common in corpus analysis to measure dispersion across all text files in a corpus. This approach blends levels II and III, since we are comparing subfrequencies within and across different text categories. Dispersion score therefore conflate information about the generality of the item in each of the text categories as well as the register-specificity of the item, i.e. the degree to which its usage rate varies across the text categories. The amount of influence of each text category on the score depends on its proportional share in the corpus.
+
+The combination of levels can yield counter-intuitive results. For illustration, let us consider the distribution of four items in ICE-GB [@Nelson_etal2002]: *another*, *actually*, *however*, and *wants*. Frequency information for these items in the 500 text files in ICE-GB is available in the dataset `biber150_ice_gb`, which is part of the `{tlda}` package [@tlda_package]. 
+
+Let us consider, as two broad text categories, the spoken part (60% of the text files) and the written part of the corpus (40% of the text files). The following table lists the dispersion scores we obtain for these items (Rosengren's *S* [@Rosengren1971], frequency-adjusted using the `{tlda}` package):
+
+- Within speech (i.e. across the 300 spoken text files)
+- Within writing (i.e. across the 200 written text files)
+- In the whole corpus (i.e. across all 500 text files)
+
+```{r}
+#| echo: false
+
+data.frame(
+  Analysis = c("Spoken (n = 300 text files)", "Written (n = 200 text files)", "Whole corpus (n = 500 text files)"),
+  "another" =  c(.59, .59, .59),
+  "wants" =    c(.68, .47, .59),
+  "actually" = c(.64, .66, .48),
+  "however" =  c(.45, .67, .39)) |> 
+  kable()
+```
+
+Let us consider these triples of dispersion scores in turn:
+
+- For *another*, the results make sense: The dispersion is .59 in speech and .59 writing, and for the whole corpus it is also .59. 
+- For *wants*, the results also make sense: The dispersion score for the whole corpus (.59) is intermediate between that in speech (.68) and that in writing (.47).
+- For *actually*, we observe very similar dispersion scores in speech (.64) and writing (.66). The score for the whole corpus, however, is .48 and therefore considerably lower.
+- For *however*, the score for the entire corpus (.39) likewise does not fall in between the one for the spoken (.45) and the written part (.67).
+
+To understand how the dispersion scores for the whole corpus relate to those for the two text categories, we must take into consideration the frequency of the item in each sub-corpus. If it occurs at similar rates in the two text varieties, the dispersion score for the whole corpus represents a weighted average over the two category-specific scores. This is the case for *another* and *wants*, both of which have similar frequencies in speech and writing. The whole-corpus dispersion score for *wants* gravitates to that in speech since it contributes 60% of the texts to the corpus. The frequency of the other two items differs in the two sub-corpora. The way in which this affects the dispersion score is best considered visually.
+
+
+#### Visual illustration
+
+To get a visual impression of the frequency and dispersion of the four items in ICE-GB, we draw a [spike graph](https://lsoenning.github.io/posts/2025-11-12_dispersion_spike_graph/) for each word form, starting with the item *another*. In the figure below, each spike shows the number of occurrences of *another* in one of the 500 text files in ICE-GB. Text files are grouped by mode (marked below the graph) and genre (marked above the figure). The plot looks like a lawn, with relatively few gaps (denoting text files in which the item does not occur) and very similar frequencies across the 500 files. The graph shows that the distributional profile of *another*, as expressed by its frequency and its dispersion, is very similar in the spoken and written part. The item occurs with an average rate of 1.2 words per text file in both modes. 
+
+![Spike graph showing the distribution of *another* in ICE-GB](spikegraph_another_ice.png){width=70%}
+
+The next spike graph shows the distribution of *wants* in ICE-GB. While the average frequency is very similar in the two modes (0.6 occurrences per text file), the distribution is less balanced in writing (.47) compared to speech (.68). When measuring dispersion across all 500 text files, we obtain a compromise score (.59).
+
+![Spike graph showing the distribution of *wants* in ICE-GB](spikegraph_wants_ice.png){width=70%}
+
+Next, we consider *actually*. The spike graph below shows that it is considerably more common in speech (though not in all genres: scripted monologues in fact pattern with written genres). If we isolate speech, by covering the right half of the figure, we note that the usage rate of *actually* is fairly balanced (*S* = .64). If we cover the spoken side of the figure, the distribution across written texts likewise shows a good spread (*S* = .66). If we consider the entire corpus, however, the frequency gap between speech and writing yields a less balanced profile, and therefore a lower dispersion score (.48).
+
+
+![Spike graph showing the distribution of *actually* in ICE-GB](spikegraph_actually_ice.png){width=70%}
+
+We finally consider *however*, which yields the mirror image of the spike graph for *actually*. In writing, *however* is quite dispersed (*S* = .67), in speech less so (.45) -- in private dialogues, it is particularly uncommon. Looking at the whole corpus, the higher usage rate in writing yields an even less balanced profile (*S* = .39).
+
+![Spike graph showing the distribution of *however* in ICE-GB](spikegraph_however_ice.png){width=70%}
+
+
+#### Summary
+
+We have seen that dispersion analysis can isolate information on the *generality of an item in a particular text category* (level-2 analysis), or information on the *register-specificity of an item* (level-3 analysis). These are distinct pieces of distributional information -- the purpose and linguistic goals of the analysis will determine which one is of primary interest. If we measure dispersion across the text files in a structured corpus, i.e. one that is composed of sub-corpora representing different language varieties, we combine these distributional features. This makes it more difficult to interpret (and compare) the scores we obtain.

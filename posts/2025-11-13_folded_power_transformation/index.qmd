@@ -6,13 +6,7 @@ categories: [corpus linguistics, dispersion, data visualization, tlda, binary da
 citation: 
   url: https://lsoenning.github.io/posts/2025-11-13_folded_power_transformation/
 editor: source
-draft: true
 ---
-
-
-Atkinson, A. C. (1985). Plots, Transformations, and Regression. New York: Oxford University Press. [page 139]
-
-
 
 
 ```{r warning=F, message=F}
@@ -23,7 +17,6 @@ Atkinson, A. C. (1985). Plots, Transformations, and Regression. New York: Oxford
 
 # may need to install latest development version directly from Github
 #pak::pak("lsoenning/tlda")
-#pak::pak("lsoenning/wls")
 
 library(tlda)      # for access to datasets
 library(lattice)   # for data visualization
