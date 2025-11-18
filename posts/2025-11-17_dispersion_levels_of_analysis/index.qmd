@@ -33,7 +33,7 @@ Here is a short summary of the three basic levels for dispersion analysis:
 
 - Level I: Within a text (corpus parts: equal-sized chunks) to examine discourse structure
 - Level II: Within a text category (corpus parts: texts/speakers) to assess the generality of the item
-- Level III: Across text categories (corpus parts: text categories) to quantify register-specifcity of the item
+- Level III: Across text categories (corpus parts: text categories) to quantify register-specificity of the item
 
 
 #### Blended levels

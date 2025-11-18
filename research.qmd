@@ -6,11 +6,11 @@ editor: source
 
 #### Unpublished
 
-- **Sönning**, Lukas. (forthcoming). Count regression models for keyness analysis. Chapter for: Carolin Cholotta & Christine Renker (eds.), *META-LING 2023 - Methodological Exploration and Technological Advances in Linguistics*  [Accepted manuscript](https://doi.org/10.31234/osf.io/25mwj){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/mc26t/){target="_blank"} 
+- **Sönning**, Lukas. (forthcoming). Count regression models for keyness analysis. Chapter for: Carolin Cholotta & Christine Renker (eds.), *META-LING 2023 - Methodological Exploration and Technological Advances in Linguistics*  [Accepted manuscript](https://osf.io/preprints/psyarxiv/25mwj_v2){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/mc26t/){target="_blank"} 
 
 - **Sönning**, Lukas & Jesse Egbert. (forthcoming). Sensitivity of dispersion measures to distributional patterns and corpus design. *International Journal of Corpus Linguistics* [Submitted manuscript](https://doi.org/10.31234/osf.io/rz8qn){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/mfjst/){target="_blank"}
 
-- **Sönning**, Lukas. (under review). Dispersion analysis. In Hilary Nesi & Petar Milin (eds.), *International Encyclopedia of Language and Linguistics*, 3rd ed. Amsterdam: Elsevier. [Submitted manuscript](https://osf.io/preprints/osf/h3dyx){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/epvk2/){target="_blank"} 
+- **Sönning**, Lukas. (under review). Dispersion analysis. In Hilary Nesi & Petar Milin (eds.), *International Encyclopedia of Language and Linguistics*, 3rd ed. Amsterdam: Elsevier. [Submitted manuscript](https://osf.io/preprints/osf/h3dyx_v2){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/epvk2/){target="_blank"} 
 
 - Schützler, Ole, Lukas **Sönning**, Fabian Vetter & Manfred Krug. (under review). The morpho-syntax of Standard Scottish English: Questionnaire-based insights. [Submitted manuscript](http://dx.doi.org/10.2139/ssrn.5381956){target="_blank"} | {{< ai osf >}} [OSF](https://osf.io/hykq5/){target="_blank"}
 
