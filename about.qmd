@@ -38,6 +38,7 @@ University courses
 
 Workshops
 
+- 2025 (University of Cologne) *Dispersion analysis in corpus-based research: Purpose, problems, practice* {{< ai osf >}} [OSF](https://osf.io/rsvu2/){target="_blank"} \| [slides part 1](https://osf.io/rsvu2/files/tbqjg){target="_blank"} \| [slides part 2](https://osf.io/rsvu2/files/ge7bh){target="_blank"} \| [slides part 3](https://osf.io/rsvu2/files/ap5r9){target="_blank"}
 - 2025 (TU Dresden) *Deskriptive und inferentielle Statistik für Korpusdaten* {{< ai osf >}} [OSF](https://osf.io/82rty/){target="_blank"} \| [slides Teil 1](https://osf.io/gmf8b){target="_blank"} \| [slides Teil 2](https://osf.io/4evtj){target="_blank"} \| [slides Teil 3](https://osf.io/apqjk){target="_blank"}
 - 2025 (Ghent University, Belgium) *Random Forests in language data analysis: Tutorial* {{< ai osf >}} [OSF](https://osf.io/p749a/){target="_blank"} \| [slides](https://osf.io/ybxst){target="_blank"}
 - 2024 (Ghent University, Belgium) *Tutorial: Latent-variable modeling of ordinal data* {{< ai osf >}} [OSF](https://osf.io/7ur98/){target="_blank"} \| [slides part I](https://osf.io/2gd49){target="_blank"} \| [slides part II](https://osf.io/t2ce4) \| [slides part III](https://osf.io/kqp3g){target="_blank"}
