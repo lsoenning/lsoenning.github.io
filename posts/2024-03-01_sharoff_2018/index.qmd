@@ -1,6 +1,6 @@
 ---
 title: "Custom scoring systems in ordinal data analysis: A tribute to Sharoff (2018)"
-description: "This blog post discusses the issue of representing an ordinal response scale using numeric scores. It shows how psychometric research may suggest deviations from the near-universal use of equally spaced integers. The blog post was inspired by Sharoff (2018), the only study in an extensive review of the linguistic research literature that deviated from this default approach."
+description: "This blog post discusses the issue of representing an ordinal response scale using numeric scores. It shows how psychometric research may suggest deviations from the near-universal use of equally spaced integers."
 date: 2025-11-30
 categories: [ordinal data]
 citation: 
@@ -151,7 +151,6 @@ More importantly, however, it is clear that it was appropriate for @Sharoff2018 
 #| echo: false
 #| message: false
 #| warning: false
-#| classes: preview-image
 
 p1 <- xyplot(score_mean ~ rep(2, 6), data=d_subset, pch=1, col=1, cex=1.5,
        par.settings=lattice_ls, axis=axis_left, ylim=c(0,10), xlim=c(-5,13),
@@ -195,9 +194,9 @@ p1 <- xyplot(score_mean ~ rep(2, 6), data=d_subset, pch=1, col=1, cex=1.5,
 #| fig-cap: "Comparison of @Sharoff2018's scoring system to the psychometric spacing of relevant intensity adverbs"
 #| fig-width: 4.6
 #| fig-height: 2.5
+#| classes: preview-image
 
 print(p1, position=c(.02,-.12,.68,.9))
-
 ```
 
 #### Conclusion
