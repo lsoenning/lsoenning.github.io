@@ -1,5 +1,5 @@
 ---
-title: "Drawing panel charts in R`"
+title: "Drawing panel charts in R"
 description: "In this blog post, I describe how to draw panel charts as an alternative to stacked bar charts in R, using the `{ggplot2}` package."
 date: 2025-11-29
 categories: [data visualization, dot plot, corpus linguistics, frequency data, binary data]
@@ -8,7 +8,7 @@ citation:
 editor: source
 ---
 
-I recently wrote a paper on the use of bar charts in corpus-linguistic research articles (see [here](https://osf.io/preprints/osf/ahyz4_v1)). One of the questions of this systematic review was whether the bar chart is always the best choice. In Section 6.1 of the paper I discuss panel charts (see @camoes2016 \[pp. 217-218\], @schwabish2021 [pp. 88-89]) as an alternative to stacked bar charts. In this blog post, I describe how to draw such a chart using the R package `{ggplot2}`.
+I recently wrote a paper on the use of bar charts in corpus-linguistic research articles (see [here](https://osf.io/preprints/osf/ahyz4_v1)). One of the questions of this systematic review was whether the bar chart is always the best choice. In Section 6.1 of the paper I discuss panel charts (see @camoes2016 [pp. 217-218], @schwabish2021 [pp. 88-89]) as an alternative to stacked bar charts. In this blog post, I describe how to draw such a chart using the R package `{ggplot2}`.
 
 ```{r}
 #| code-fold: true
