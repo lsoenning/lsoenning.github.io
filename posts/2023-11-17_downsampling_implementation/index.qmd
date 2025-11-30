@@ -6,7 +6,6 @@ categories: [corpus linguistics, down-sampling]
 citation: 
   url: https://lsoenning.github.io/posts/2023-11-17_downsampling_implementation/
 editor: source
-draft: false
 ---
 
 I recently consulted colleagues on how to down-sample their corpus data. Their study deals with modal auxiliaries in learner writing, and they are also interested in the semantics of modal verbs. This means that they have to manually annotate individual tokens of modals. In this blog post, I describe how we implemented structured down-sampling [@Soenning_Krug2022] in R. The data we use for illustration is a simplified subset of the originial list of corpus hits. We will concentrate on the modal verb *can*.
@@ -20,7 +19,6 @@ I recently consulted colleagues on how to down-sample their corpus data. Their s
 library(tidyverse)
 
 d <- read_tsv("./data/modals_data.tsv")
-#d <- read_tsv("./posts/2023-11-17_downsampling_implementation/data/modals_data.tsv")
 ```
 
 

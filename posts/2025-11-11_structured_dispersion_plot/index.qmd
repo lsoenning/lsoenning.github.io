@@ -23,8 +23,7 @@ library(tlda)      # for access to datasets
 library(wls)       # for custom ggplot theme
 library(tidyverse) # for data wrangling
 library(ggh4x)     # for drawing nested facets in ggplot
-
-source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
+library(uls)       # pak::pak("lsoenning/uls")
 ```
 
 Dispersion plots were introduced into corpus linguistics in the mid-1990s by Mike Scott and his popular software [WordSmith Tools](https://www.lexically.net/wordsmith/). They are useful for examining the distribution of an item in a text or corpus. The typical layout of a dispersion plot shows a layered arrangement, with each row showing a text file in the corpus. Thin vertical bars then show where in the document a word occurs. If you want to draw such a plot in R, the `{quanteda}` package [@quanteda_package] is worth checking out (see Section [Lexical dispersion plot](https://quanteda.io/articles/pkgdown/examples/plotting.html#lexical-dispersion-plot) on the package website). 

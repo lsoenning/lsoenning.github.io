@@ -23,8 +23,6 @@ library(tlda)      # for access to datasets
 library(wls)       # for custom ggplot theme
 library(tidyverse) # for data wrangling
 library(ggh4x)     # for drawing nested facets in ggplot
-
-source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
 ```
 
 I first came across spike graphs as a tool for visualizing the dispersion of an item in a corpus in a paper by @Church_Gale1995. Since this graph type is a great visual aid for examining and illustrating the distribution of an item across the text files in a corpus, I have since started to use spike graphs in my own work (e.g. Figure 8 in Sönning -@Soenning2025a and Figure 2 in Sönning -@Soenning2025b). The following figure, which appears in @Soenning2025a [p. 21], shows the distribution of *which* across the 500 text files in the Brown Corpus. Each spike denotes a text file, and gaps represent documents that contain no instances of this item. Text files are grouped by macro genre (four categories marked at the bottom), and genre (15 categories marked at the top). The ‘hairy’ appearance of the spike graph indicates that *which* is a common word – it appears in almost every document. In this blog post, I describe how to draw such annotated spike graphs in R using the `{ggplot2}` package.

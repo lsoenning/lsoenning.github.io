@@ -19,8 +19,7 @@ library(tlda)
 library(lattice)
 library(knitr)
 library(kableExtra)
-
-source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
+library(uls)             # pak::pak("lsoenning/uls")
 ```
 
 #### The idea behind *MB*
@@ -110,108 +109,108 @@ The third and final issue that needs to be pointed out is the variation in the s
 
 
 breakpoints <- c(
-	min(which(metadata_ice$macro_genre == "private_dialogues"))-.5,
-	min(which(metadata_ice$macro_genre == "public_dialogues"))-.5,
-	min(which(metadata_ice$macro_genre == "unscripted_monologues"))-.5,
-	min(which(metadata_ice$macro_genre == "scripted_monologues"))-.5,
-	min(which(metadata_ice$macro_genre == "student_writing"))-.5,
-	min(which(metadata_ice$macro_genre == "letters"))-.5,
-	min(which(metadata_ice$macro_genre == "academic_writing"))-.5,
-	min(which(metadata_ice$macro_genre == "popular_writing"))-.5,
-	min(which(metadata_ice$macro_genre == "reportage"))-.5,
-	min(which(metadata_ice$macro_genre == "instructional_writing"))-.5,
-	min(which(metadata_ice$macro_genre == "persuasive_writing"))-.5,
-	min(which(metadata_ice$macro_genre == "creative_writing"))+.5
+	min(which(metadata_ice_gb$macro_genre == "private_dialogues"))-.5,
+	min(which(metadata_ice_gb$macro_genre == "public_dialogues"))-.5,
+	min(which(metadata_ice_gb$macro_genre == "unscripted_monologues"))-.5,
+	min(which(metadata_ice_gb$macro_genre == "scripted_monologues"))-.5,
+	min(which(metadata_ice_gb$macro_genre == "student_writing"))-.5,
+	min(which(metadata_ice_gb$macro_genre == "letters"))-.5,
+	min(which(metadata_ice_gb$macro_genre == "academic_writing"))-.5,
+	min(which(metadata_ice_gb$macro_genre == "popular_writing"))-.5,
+	min(which(metadata_ice_gb$macro_genre == "reportage"))-.5,
+	min(which(metadata_ice_gb$macro_genre == "instructional_writing"))-.5,
+	min(which(metadata_ice_gb$macro_genre == "persuasive_writing"))-.5,
+	min(which(metadata_ice_gb$macro_genre == "creative_writing"))+.5
 )
 
 breakpoints_2 <- c(
-	min(which(metadata_ice$genre == "face_to_face_conversations"))-.5,
-	min(which(metadata_ice$genre == "phonecalls"))-.5,
-	min(which(metadata_ice$genre == "classroom_lessons"))-.5,
-	min(which(metadata_ice$genre == "broadcast_discussions"))-.5,
-	min(which(metadata_ice$genre == "broadcast_interviews"))-.5,
-	min(which(metadata_ice$genre == "parliamentary_debates"))-.5,
-	min(which(metadata_ice$genre == "legal_cross_examinations"))-.5,
-	min(which(metadata_ice$genre == "business_transactions"))-.5,
-	min(which(metadata_ice$genre == "spontaneous_commentaries"))-.5,
-	min(which(metadata_ice$genre == "unscripted_speeches"))-.5,
-	min(which(metadata_ice$genre == "demonstrations"))-.5,
-	min(which(metadata_ice$genre == "legal_presentations"))-.5,
-	min(which(metadata_ice$genre == "broadcast_news"))-.5,
-	min(which(metadata_ice$genre == "broadcast_talks"))-.5,
-	min(which(metadata_ice$genre == "non_broadcast_talks"))-.5,
-	min(which(metadata_ice$genre == "student_essays"))-.5,
-	min(which(metadata_ice$genre == "exam_scripts"))-.5,
-	min(which(metadata_ice$genre == "social_letters"))-.5,
-	min(which(metadata_ice$genre == "business_letters"))-.5,
-	min(which(metadata_ice$genre == "acad_humanities"))-.5,
-	min(which(metadata_ice$genre == "acad_social_sciences"))-.5,
-	min(which(metadata_ice$genre == "acad_natural_sciences"))-.5,
-	min(which(metadata_ice$genre == "acad_technology"))-.5,
-	min(which(metadata_ice$genre == "pop_humanities"))-.5,
-	min(which(metadata_ice$genre == "pop_social_sciences"))-.5,
-	min(which(metadata_ice$genre == "pop_natural_sciences"))-.5,
-	min(which(metadata_ice$genre == "pop_technology"))-.5,
-	min(which(metadata_ice$genre == "press_news_reports"))-.5,
-	min(which(metadata_ice$genre == "administrative_writing"))-.5,
-	min(which(metadata_ice$genre == "skills_hobbies"))-.5,
-	min(which(metadata_ice$genre == "press_editorials"))-.5,
-	min(which(metadata_ice$genre == "novels_short_stories"))+.5
+	min(which(metadata_ice_gb$genre == "face_to_face_conversations"))-.5,
+	min(which(metadata_ice_gb$genre == "phonecalls"))-.5,
+	min(which(metadata_ice_gb$genre == "classroom_lessons"))-.5,
+	min(which(metadata_ice_gb$genre == "broadcast_discussions"))-.5,
+	min(which(metadata_ice_gb$genre == "broadcast_interviews"))-.5,
+	min(which(metadata_ice_gb$genre == "parliamentary_debates"))-.5,
+	min(which(metadata_ice_gb$genre == "legal_cross_examinations"))-.5,
+	min(which(metadata_ice_gb$genre == "business_transactions"))-.5,
+	min(which(metadata_ice_gb$genre == "spontaneous_commentaries"))-.5,
+	min(which(metadata_ice_gb$genre == "unscripted_speeches"))-.5,
+	min(which(metadata_ice_gb$genre == "demonstrations"))-.5,
+	min(which(metadata_ice_gb$genre == "legal_presentations"))-.5,
+	min(which(metadata_ice_gb$genre == "broadcast_news"))-.5,
+	min(which(metadata_ice_gb$genre == "broadcast_talks"))-.5,
+	min(which(metadata_ice_gb$genre == "non_broadcast_talks"))-.5,
+	min(which(metadata_ice_gb$genre == "student_essays"))-.5,
+	min(which(metadata_ice_gb$genre == "exam_scripts"))-.5,
+	min(which(metadata_ice_gb$genre == "social_letters"))-.5,
+	min(which(metadata_ice_gb$genre == "business_letters"))-.5,
+	min(which(metadata_ice_gb$genre == "acad_humanities"))-.5,
+	min(which(metadata_ice_gb$genre == "acad_social_sciences"))-.5,
+	min(which(metadata_ice_gb$genre == "acad_natural_sciences"))-.5,
+	min(which(metadata_ice_gb$genre == "acad_technology"))-.5,
+	min(which(metadata_ice_gb$genre == "pop_humanities"))-.5,
+	min(which(metadata_ice_gb$genre == "pop_social_sciences"))-.5,
+	min(which(metadata_ice_gb$genre == "pop_natural_sciences"))-.5,
+	min(which(metadata_ice_gb$genre == "pop_technology"))-.5,
+	min(which(metadata_ice_gb$genre == "press_news_reports"))-.5,
+	min(which(metadata_ice_gb$genre == "administrative_writing"))-.5,
+	min(which(metadata_ice_gb$genre == "skills_hobbies"))-.5,
+	min(which(metadata_ice_gb$genre == "press_editorials"))-.5,
+	min(which(metadata_ice_gb$genre == "novels_short_stories"))+.5
 )
 label_locations <- c(
-	mean(which(metadata_ice$macro_genre == "private_dialogues")),
-	mean(which(metadata_ice$macro_genre == "public_dialogues")),
-	mean(which(metadata_ice$macro_genre == "unscripted_monologues")),
-	mean(which(metadata_ice$macro_genre == "scripted_monologues")),
-	mean(which(metadata_ice$macro_genre == "student_writing")),
-	mean(which(metadata_ice$macro_genre == "letters")),
-	mean(which(metadata_ice$macro_genre == "academic_writing")),
-	mean(which(metadata_ice$macro_genre == "popular_writing")),
-	mean(which(metadata_ice$macro_genre == "reportage")),
-	mean(which(metadata_ice$macro_genre == "instructional_writing")),
-	mean(which(metadata_ice$macro_genre == "persuasive_writing")),
-	mean(which(metadata_ice$macro_genre == "creative_writing"))	
+	mean(which(metadata_ice_gb$macro_genre == "private_dialogues")),
+	mean(which(metadata_ice_gb$macro_genre == "public_dialogues")),
+	mean(which(metadata_ice_gb$macro_genre == "unscripted_monologues")),
+	mean(which(metadata_ice_gb$macro_genre == "scripted_monologues")),
+	mean(which(metadata_ice_gb$macro_genre == "student_writing")),
+	mean(which(metadata_ice_gb$macro_genre == "letters")),
+	mean(which(metadata_ice_gb$macro_genre == "academic_writing")),
+	mean(which(metadata_ice_gb$macro_genre == "popular_writing")),
+	mean(which(metadata_ice_gb$macro_genre == "reportage")),
+	mean(which(metadata_ice_gb$macro_genre == "instructional_writing")),
+	mean(which(metadata_ice_gb$macro_genre == "persuasive_writing")),
+	mean(which(metadata_ice_gb$macro_genre == "creative_writing"))	
 )
 
 label_locations_2 <- c(
-	mean(which(metadata_ice$genre == "face_to_face_conversations")),
-	mean(which(metadata_ice$genre == "phonecalls")),
-	mean(which(metadata_ice$genre == "classroom_lessons")),
-	mean(which(metadata_ice$genre == "broadcast_discussions")),
-	mean(which(metadata_ice$genre == "broadcast_interviews")),
-	mean(which(metadata_ice$genre == "parliamentary_debates")),
-	mean(which(metadata_ice$genre == "legal_cross_examinations")),
-	mean(which(metadata_ice$genre == "business_transactions")),
-	mean(which(metadata_ice$genre == "spontaneous_commentaries")),
-	mean(which(metadata_ice$genre == "unscripted_speeches")),
-	mean(which(metadata_ice$genre == "demonstrations")),
-	mean(which(metadata_ice$genre == "legal_presentations")),
-	mean(which(metadata_ice$genre == "broadcast_news")),
-	mean(which(metadata_ice$genre == "broadcast_talks")),
-	mean(which(metadata_ice$genre == "non_broadcast_talks")),
-	mean(which(metadata_ice$genre == "student_essays")),
-	mean(which(metadata_ice$genre == "exam_scripts")),
-	mean(which(metadata_ice$genre == "social_letters")),
-	mean(which(metadata_ice$genre == "business_letters")),
-	mean(which(metadata_ice$genre == "acad_humanities")),
-	mean(which(metadata_ice$genre == "acad_social_sciences")),
-	mean(which(metadata_ice$genre == "acad_natural_sciences")),
-	mean(which(metadata_ice$genre == "acad_technology")),
-	mean(which(metadata_ice$genre == "pop_humanities")),
-	mean(which(metadata_ice$genre == "pop_social_sciences")),
-	mean(which(metadata_ice$genre == "pop_natural_sciences")),
-	mean(which(metadata_ice$genre == "pop_technology")),
-	mean(which(metadata_ice$genre == "press_news_reports")),
-	mean(which(metadata_ice$genre == "administrative_writing")),
-	mean(which(metadata_ice$genre == "skills_hobbies")),
-	mean(which(metadata_ice$genre == "press_editorials")),
-	mean(which(metadata_ice$genre == "novels_short_stories")))
+	mean(which(metadata_ice_gb$genre == "face_to_face_conversations")),
+	mean(which(metadata_ice_gb$genre == "phonecalls")),
+	mean(which(metadata_ice_gb$genre == "classroom_lessons")),
+	mean(which(metadata_ice_gb$genre == "broadcast_discussions")),
+	mean(which(metadata_ice_gb$genre == "broadcast_interviews")),
+	mean(which(metadata_ice_gb$genre == "parliamentary_debates")),
+	mean(which(metadata_ice_gb$genre == "legal_cross_examinations")),
+	mean(which(metadata_ice_gb$genre == "business_transactions")),
+	mean(which(metadata_ice_gb$genre == "spontaneous_commentaries")),
+	mean(which(metadata_ice_gb$genre == "unscripted_speeches")),
+	mean(which(metadata_ice_gb$genre == "demonstrations")),
+	mean(which(metadata_ice_gb$genre == "legal_presentations")),
+	mean(which(metadata_ice_gb$genre == "broadcast_news")),
+	mean(which(metadata_ice_gb$genre == "broadcast_talks")),
+	mean(which(metadata_ice_gb$genre == "non_broadcast_talks")),
+	mean(which(metadata_ice_gb$genre == "student_essays")),
+	mean(which(metadata_ice_gb$genre == "exam_scripts")),
+	mean(which(metadata_ice_gb$genre == "social_letters")),
+	mean(which(metadata_ice_gb$genre == "business_letters")),
+	mean(which(metadata_ice_gb$genre == "acad_humanities")),
+	mean(which(metadata_ice_gb$genre == "acad_social_sciences")),
+	mean(which(metadata_ice_gb$genre == "acad_natural_sciences")),
+	mean(which(metadata_ice_gb$genre == "acad_technology")),
+	mean(which(metadata_ice_gb$genre == "pop_humanities")),
+	mean(which(metadata_ice_gb$genre == "pop_social_sciences")),
+	mean(which(metadata_ice_gb$genre == "pop_natural_sciences")),
+	mean(which(metadata_ice_gb$genre == "pop_technology")),
+	mean(which(metadata_ice_gb$genre == "press_news_reports")),
+	mean(which(metadata_ice_gb$genre == "administrative_writing")),
+	mean(which(metadata_ice_gb$genre == "skills_hobbies")),
+	mean(which(metadata_ice_gb$genre == "press_editorials")),
+	mean(which(metadata_ice_gb$genre == "novels_short_stories")))
 
 p1 <- xyplot(1 ~ 1, 
 	   xlim=c(0, 580), ylim=c(5, 60),
 	   scales=list(draw=F), 
 	   xlab="", ylab="",
-	   par.settings=my_settings,
+	   par.settings=lattice_ls,
 	   panel=function(x,y){
 	     #panel.segments(x0 = .5, x1 = 500.5, y0 = 8, y1 = 8, col = "grey80", lwd = .5)
 	     
@@ -254,16 +253,16 @@ p1 <- xyplot(1 ~ 1,
 		
 		
 		panel.segments(
-			x0 = c(min(which(metadata_ice$mode == "spoken"))-.5,
-				   max(which(metadata_ice$mode == "spoken"))+.5,
-				   max(which(metadata_ice$mode == "written"))+.5),
-			x1 = c(min(which(metadata_ice$mode == "spoken"))-.5,
-				   max(which(metadata_ice$mode == "spoken"))+.5,
-				   max(which(metadata_ice$mode == "written"))+.5),
+			x0 = c(min(which(metadata_ice_gb$mode == "spoken"))-.5,
+				   max(which(metadata_ice_gb$mode == "spoken"))+.5,
+				   max(which(metadata_ice_gb$mode == "written"))+.5),
+			x1 = c(min(which(metadata_ice_gb$mode == "spoken"))-.5,
+				   max(which(metadata_ice_gb$mode == "spoken"))+.5,
+				   max(which(metadata_ice_gb$mode == "written"))+.5),
 			y0 = 5, y1 = 60, lwd = .5, col = "grey")
 		
-		panel.text(x=c(mean(which(metadata_ice$mode == "spoken")),
-					   mean(which(metadata_ice$mode == "written"))),
+		panel.text(x=c(mean(which(metadata_ice_gb$mode == "spoken")),
+					   mean(which(metadata_ice_gb$mode == "written"))),
 				   y=60, label=c("Spoken", "Written"))
 		
 		panel.text(x = 515, y = c(7, 15, 40), label = c(
@@ -300,7 +299,7 @@ To see the range of interpretations we would need to attach to items in differen
 
 p1 <- histogram(
   log(rowSums(biber150_ice_gb_macro_genre[-1,])),
-  par.settings = my_settings, axis = axis_bottom,
+  par.settings = lattice_ls, axis = axis_bottom,
   col = "grey", breaks = seq(log(1), log(100000), length = 26) - 0.460517/2, ylim = c(0, 22),
   xlab = "Corpus frequency", ylab = "",
   scales = list(x = list(at = log(c(1, 10, 100, 1000, 10000, 100000)),
@@ -537,7 +536,7 @@ p1 <- histogram(
   scales = list(x = list(at = c(0, 1),
                          label = c("0\n(uneven)", "1\n(even)"))),
   ylab = NULL, xlab = NULL, xlab.top = expression(MB),
-  par.settings = my_settings, axis = axis_bottom)
+  par.settings = lattice_ls, axis = axis_bottom)
 
 p2 <- histogram(
   ~ DMB, data = ice_gb_150_nelson,
@@ -546,7 +545,7 @@ p2 <- histogram(
   scales = list(x = list(at = c(0, 1),
                          label = c("0\n(uneven)", "1\n(even)"))),
   ylab = NULL, xlab = NULL, xlab.top = expression(D[MB]),
-  par.settings = my_settings, axis = axis_bottom)
+  par.settings = lattice_ls, axis = axis_bottom)
 
 cowplot::plot_grid(NULL, p1, NULL, p2, NULL,
                    nrow = 1, rel_widths = c(-.1, 1, .1, 1, .07))
@@ -570,7 +569,7 @@ p1 <- xyplot(
              label = c(1,10,100, 1000, 10000)),
     y = list(at = c(0, 1),
              label = c("\n0\n(uneven)", "(even)\n1\n"))),
-  par.settings = my_settings, axis = axis_L,
+  par.settings = lattice_ls, axis = axis_L,
   panel = function(x,y,...){
     panel.points(x,y,...)
     panel.text(x = log(300), y = 1.15, label = "MB")
@@ -583,7 +582,7 @@ p2 <- xyplot(
     x = list(at = log(c(1,10,100, 1000, 10000)),
              label = c(1,10,100, 1000, 10000)),
     y = list(at = c(0, 1))),
-  par.settings = my_settings, axis = axis_L,
+  par.settings = lattice_ls, axis = axis_L,
   panel = function(x,y,...){
     panel.points(x,y,...)
     panel.text(x = log(300), y = 1.15, label = expression(D[MB]))
@@ -612,7 +611,7 @@ p1 <- xyplot(
   ylab = expression(D[MB]), xlab = "MB", axis = axis_L,
   scales = list(
     x = list(at = c(0, 1)),
-    y = list(at = c(0, 1))),       par.settings = my_settings,
+    y = list(at = c(0, 1))),       par.settings = lattice_ls,
   panel = function(x,y){
     panel.abline(a = 0, b = 1, col = "grey")
     panel.text(x, y, label = as.character(ice_gb_150_nelson$item), 

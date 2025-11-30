@@ -6,7 +6,6 @@ categories: [corpus linguistics, dispersion, negative binomial]
 citation: 
   url: https://lsoenning.github.io/posts/2023-11-16_negative_binomial/
 editor: source
-draft: false
 ---
 
 ```{r}
@@ -18,8 +17,7 @@ draft: false
 library(lattice)
 library(tidyverse)
 library(gamlss)
-
-source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
+library(uls)      # pak::pak("lsoenning/uls")
 ```
 
 The negative binomial distribution is a useful device for modeling word counts. A typical setting for its application in corpus linguistics is the modeling of word frequency data -- for instance, if we wish to summarize (or compare) occurrence rates of an item in a corpus (or across sub-corpora). Each text then contributes information about the frequency of the item in the form of (i) a *token count* (the number of times the word occurs in the text) and (ii) a *word count* (the length of the text). Based on the token and word count we can calculate an occurrence rate (or normalized frequency) for each text, and these rates are then directly comparable across texts.
@@ -68,7 +66,7 @@ token_count <- as.integer(names(table(n_tokens)))
 
 p1 <- xyplot(
   n_texts ~ token_count,
-  par.settings=my_settings, axis=axis_L, ylim=c(0, 53), xlim=c(-1.5, NA),
+  par.settings=lattice_ls, axis=axis_L, ylim=c(0, 53), xlim=c(-1.5, NA),
   xlab.top = "(a)\n",
   scales=list(y=list(at=c(0,20,40,60,80))),
   type="h", lwd=6, lineend="butt", col="grey",
@@ -82,7 +80,7 @@ p1 <- xyplot(
 
 p2 <- xyplot(
   n_texts ~ token_count,
-  par.settings=my_settings, axis=axis_L, ylim=c(0, 85), xlim=c(-1.5, NA),
+  par.settings=lattice_ls, axis=axis_L, ylim=c(0, 85), xlim=c(-1.5, NA),
   xlab.top = "(b)\n",
   scales=list(y=list(at=c(0,20,40,60,80))),
   type="h", lwd=6, lineend="butt", col="grey",
@@ -138,7 +136,7 @@ delta_sample = rGA(20, mu=1, sigma=.1)
 lambda_plot = 7
 plot1 = xyplot(
   1~1, type="n", xlim=c(0, 20), ylim=c(0,.2),
-  par.settings=my_settings, axis=axis_L,
+  par.settings=lattice_ls, axis=axis_L,
   scales=list(y=list(at=0), x=list(at=c(0,5,10,15, 20))),
   ylab="Density", xlab="Frequency",
   panel=function(x,y,...){
@@ -155,7 +153,7 @@ delta_sample2 = rGA(20, mu=1, sigma=.25)
 lambda_plot = 7
 plot2 = xyplot(
   1~1, type="n", xlim=c(0, 20), ylim=c(0,.2),
-  par.settings=my_settings, axis=axis_L,
+  par.settings=lattice_ls, axis=axis_L,
   scales=list(y=list(at=0), x=list(at=c(0,5,10,15, 20))),
   ylab="Density", xlab="",
   panel=function(x,y,...){
@@ -202,7 +200,7 @@ lambda_plot = 7
 
 p1 <- xyplot(
   1~1, type="n", xlim=c(0, 20/7), ylim=c(0,4.5),
-  par.settings=my_settings, axis=axis_L,
+  par.settings=lattice_ls, axis=axis_L,
   xlab.top="(a)\n",
   scales=list(y=list(at=0), x=list(at=c(0,.5,1,1.5, 2, 2.5))),
   ylab="Density", xlab="Multiplicative factor",
@@ -218,7 +216,7 @@ p1 <- xyplot(
 
 p2 <- xyplot(
   1~1, type="n", xlim=c(0, 20), ylim=c(0,4.5),
-  par.settings=my_settings, axis=axis_L,
+  par.settings=lattice_ls, axis=axis_L,
   xlab.top="(b)\n",
   scales=list(y=list(at=0), x=list(at=c(0,5,10,15, 20))),
   ylab="Density", xlab=expression("Number of instances of "~italic(which)),
@@ -281,7 +279,7 @@ nb_density <- dNBI(
 
 xyplot(
   n_texts ~ token_count,
-  par.settings=my_settings, axis=axis_L, ylim=c(0, 77), xlim=c(-1.5, NA),
+  par.settings=lattice_ls, axis=axis_L, ylim=c(0, 77), xlim=c(-1.5, NA),
   scales=list(y=list(at=c(0,20,40,60,80))),
   type="h", lwd=6, lineend="butt", col="grey",
   xlab = expression("Number of instances of "~italic(which)),
@@ -311,7 +309,7 @@ Let us consider the gamma distribution that describes the text-to-text variabili
 
 p1 <- xyplot(
   1~1, type="n", xlim=c(0, 21/7), ylim=c(0,1.4),
-  par.settings=my_settings, axis=axis_L,
+  par.settings=lattice_ls, axis=axis_L,
   scales=list(y=list(at=0), x=list(at=c(0,.5,1,1.5, 2, 2.5))),
   ylab="Density", xlab="Multiplicative factor",
   panel=function(x,y,...){
@@ -397,7 +395,7 @@ for (i in 1:1000){
 }
 p1 <- xyplot(
   1~1, type="n", xlim=c(0, 20), ylim=c(0,.45),
-  par.settings=my_settings, axis=axis_L,
+  par.settings=lattice_ls, axis=axis_L,
   scales=list(y=list(at=0), x=list(at=c(0,5,10,15, 20))),
   ylab="Density", xlab="Frequency",
   panel=function(x,y){

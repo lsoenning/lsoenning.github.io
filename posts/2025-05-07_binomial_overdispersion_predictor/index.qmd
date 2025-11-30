@@ -5,10 +5,11 @@ date: 2025-05-08
 categories: [corpus linguistics, regression, clustered data, binary data]
 citation: 
   url: https://lsoenning.github.io/posts/2025-05-07_binomial_overdispersion_predictor/ 
+editor: source
 draft: true
 ---
 
-Corpus data often have a hierarchical structure, which means that there are usually  multiple tokens, or data points, from the same text (or speaker). Observations from the same text tend to be more similar to one another, due to speaker idiosyncracies or particularities of the communicative situation. For binary outcome variables, there are different options for modeling such data. This blog post builds on a paper by @Anderson1988 and contrasts approaches that differ in the way they represent (or account for) the non-independence of data points. It extends the analyses presented in an earlier blog post by including a cluster-level predictor into the analysis.
+Corpus data often have a hierarchical structure, which means that there are usually multiple tokens, or data points, from the same text (or speaker). Observations from the same text tend to be more similar to one another, due to speaker idiosyncracies or particularities of the communicative situation. For binary outcome variables, there are different options for modeling such data. This blog post builds on a paper by @Anderson1988 and contrasts approaches that differ in the way they represent (or account for) the non-independence of data points. It extends the analyses presented in an earlier blog post by including a cluster-level predictor into the analysis.
 
 ```{r}
 #| warning: false
@@ -27,9 +28,8 @@ library(aod)               # to fit a beta-binomial model
 library(PropCIs)           # to calculate WIlson score CIs
 library(doBy)              # to convert data from short to long format
 library(lme4)              # to fit mixed-effects regression models
+library(uls)               # pak::pak("lsoenning/uls")
 
-
-source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
 ```
 
 #### Data: Passives in academic writing
@@ -56,12 +56,11 @@ str(d)
 d$corpus <- droplevels(d$corpus)
 ```
 
-For a visual examination of the data, please refer to [this blog post](https://lsoenning.github.io/posts/2025-05-05_binomial_overdispersion). 
+For a visual examination of the data, please refer to [this blog post](https://lsoenning.github.io/posts/2025-05-05_binomial_overdispersion).
 
-The key question we will address in this blog post is whether the usage rate of the passive, expressed as the proportion of passive verb phrases among all verb phrases in a text file, has declined in the second half of the 20th century. Brown represents the year 1961 and Frown the year 1991. 
+The key question we will address in this blog post is whether the usage rate of the passive, expressed as the proportion of passive verb phrases among all verb phrases in a text file, has declined in the second half of the 20th century. Brown represents the year 1961 and Frown the year 1991.
 
 We will consider different approaches to modeling these data. More background on the different types of model and their assumptions can be found in [this blog post](https://lsoenning.github.io/posts/2025-05-05_binomial_overdispersion). Here, we will concentrate on the diachronic results returned by the different models.
-
 
 #### Binomial model
 
@@ -77,6 +76,7 @@ m <- glm(
 ```{r}
 summary(m)
 ```
+
 We record the coefficient for the predictor Corpus (and its standard error) for later comparison:
 
 ```{r}
@@ -86,7 +86,6 @@ tmp <- summary(m)
 coef_binomial <- tmp$coefficients[2,1:2]
 
 ```
-
 
 Model-based estimates on the proportion scale are easy to obtain using the `{marginaleffects}` package [@ArelBundock_etal2024]. The function `avg_predictions()` returns a model-based prediction of the average probability of a passive verb phrase for each level of the predictor Corpus, along with a 95% CI.
 
@@ -125,9 +124,6 @@ comp_binomial <- avg_comparisons(
 
 ```
 
-
-
-
 #### Quasi-binomial model including a heterogeneity parameter
 
 A quasi-binomial model can also be fit using the `glm()` function in R:
@@ -154,7 +150,6 @@ tmp <- summary(m)
 coef_quasibin <- tmp$coefficients[2,1:2]
 
 ```
-
 
 We calculate model-based estimates using `avg_predictions()`:
 
@@ -204,9 +199,6 @@ tibble(
 
 ```
 
-
-
-
 #### Beta-binomial model
 
 A beta-binomial model can be run using the function `betabin()` in the R package `{aod}` [@Lesnoff_Lancelot2012]:
@@ -221,7 +213,6 @@ m <- betabin(
 ```{r}
 summary(m)
 ```
-
 
 We record the coefficient for the predictor Corpus (and its standard error) for later comparison:
 
@@ -267,8 +258,6 @@ comp_betabin <- avg_comparisons(
   dplyr::select(estimate, std.error, conf.low, conf.high)
 
 ```
-
-
 
 #### Random-effects model with identity link
 
@@ -369,7 +358,6 @@ comp_ord_ranef_m <- avg_comparisons(
 
 ```
 
-
 #### Random-effects model with logit link
 
 Finally, we fit a logistic random-effects model, with the `glmer()` function in the `{lme4}` package:
@@ -380,7 +368,6 @@ m <- glmer(
   data = d, 
   family = binomial)
 ```
-
 
 We record the coefficient for the predictor Corpus (and its standard error) for later comparison:
 
@@ -458,7 +445,6 @@ comp_log_ranef_m <- avg_comparisons(
 
 ```
 
-
 #### Comparison
 
 Model-based predictions and comparisons.
@@ -517,7 +503,6 @@ pred_models |>
   xlab(NULL)
 ```
 
-
 ```{r}
 #| fig-width: 4.5
 #| fig-height: 1.8
@@ -571,7 +556,6 @@ comp_models |>
   ylab(NULL)
 ```
 
-
 Standard errors and log-odds estimates
 
 ```{r}
@@ -615,4 +599,3 @@ coefs_models |>
   xlab("Difference") +
   ylab(NULL)
 ```
-

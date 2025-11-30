@@ -271,30 +271,29 @@ window.Quarto = {
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tictoc)</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(uls)        <span class="co"># pak::pak("lsoenning/uls")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p>The dispersion measure <em>D<sub>A</sub></em> was proposed by <span class="citation" data-cites="Burch_etal2017">Burch, Egbert, and Biber (<a href="#ref-Burch_etal2017" role="doc-biblioref">2017</a>)</span> as a way of quantifying how evenly an item is distributed across the texts (or, more generally, the units) in a corpus. The authors attribute this measure to <span class="citation" data-cites="Wilcox1973">Wilcox (<a href="#ref-Wilcox1973" role="doc-biblioref">1973</a>)</span>, a nice and very readable paper that compares different indices of qualitative variation, i.e.&nbsp;measures of variability for nominal-scale variables. While <span class="citation" data-cites="Wilcox1973">Wilcox (<a href="#ref-Wilcox1973" role="doc-biblioref">1973</a>)</span> focuses on categorical variables (with 10 or fewer levels), the measures discussed in that paper are also relevant for quantifying what lexicographers and corpus linguists refer to as “dispersion”. Interestingly, as <span class="citation" data-cites="Burch_etal2017">Burch, Egbert, and Biber (<a href="#ref-Burch_etal2017" role="doc-biblioref">2017, 193</a>)</span> note, a measure equivalent to <em>DP</em> <span class="citation" data-cites="Gries2008">(<a href="#ref-Gries2008" role="doc-biblioref">Gries 2008</a>)</span> can be found in the 1973 paper (the <em>average deviation analog</em> ADA). The index on which <em>D<sub>A</sub></em> is based appears in <span class="citation" data-cites="Wilcox1973">Wilcox (<a href="#ref-Wilcox1973" role="doc-biblioref">1973</a>)</span> as the <em>mean difference analog</em> (MDA). Both <span class="citation" data-cites="Wilcox1973">Wilcox (<a href="#ref-Wilcox1973" role="doc-biblioref">1973</a>)</span> and <span class="citation" data-cites="Burch_etal2017">Burch, Egbert, and Biber (<a href="#ref-Burch_etal2017" role="doc-biblioref">2017</a>)</span> argue that <em>D<sub>A</sub></em> (or MDA) has a number of advantages over <em>DP</em> (or ADA). An intuitive explanation of the rationale underlying <em>D<sub>A</sub></em> can be found in <span class="citation" data-cites="Soenning2023">Sönning (<a href="#ref-Soenning2023" role="doc-biblioref">2023</a>)</span>.</p>
-<p><span class="citation" data-cites="Gries2020">Gries (<a href="#ref-Gries2020" role="doc-biblioref">2020, 116</a>)</span> has pointed out, however, that <em>D<sub>A</sub></em> is computationally expensive. This is because the measure relies on pairwise differences between texts. To calculate <em>D<sub>A</sub></em>, we first obtain the occurrence rate (or normalized frequency) of a given item in each text. These occurrences rates can then be compared, to see how evenly the item is distributed across texts. The basic formula for <em>D<sub>A</sub></em> requires pairwise comparisons between all texts. If we have 10 texts, the number of pairwise comparisons is 45; for 20 texts, this number climbs to 190. In general, if there are <em>n</em> texts (or units), the number of pairwise comparisons is <span class="math inline">\((n(n-1))/2\)</span>. This number (and hence the computational task) grows exponentially: For 500 texts (e.g.&nbsp;ICE or Brown Corpus), 124,750 comparisons are involved. For the BNC2014, with 88,171 texts, there are almost 4 billion comparisons to compute.</p>
-<p>The purpose of this blog post is to draw attention to a shortcut formula <span class="citation" data-cites="Wilcox1973">Wilcox (<a href="#ref-Wilcox1973" role="doc-biblioref">1973</a>)</span> gives in the Appendix of his paper. There, he distinguishes between “basic formulas” and “computational formulas”, which run faster. The formula we will use here is the one listed in the rightmost column (Computational Formulas: Proportions). We will give R code for both the basic and the computational procedure and then compare them in terms of speed.</p>
-<p>We start by writing two R functions:</p>
+<p>The dispersion measure <em>D<sub>A</sub></em> was proposed by <span class="citation" data-cites="Burch_etal2017">Burch, Egbert, and Biber (<a href="#ref-Burch_etal2017" role="doc-biblioref">2017</a>)</span> as a way of quantifying how evenly an item is distributed across corpus parts. The authors attribute this measure to <span class="citation" data-cites="Wilcox1973">Wilcox (<a href="#ref-Wilcox1973" role="doc-biblioref">1973</a>)</span>, a nice and very readable paper that compares different indices of qualitative variation, i.e.&nbsp;measures of variability for nominal-scale variables. While <span class="citation" data-cites="Wilcox1973">Wilcox (<a href="#ref-Wilcox1973" role="doc-biblioref">1973</a>)</span> focuses on categorical variables (with 10 or fewer levels), the measures discussed in that paper are also relevant for quantifying what lexicographers and corpus linguists refer to as “dispersion”. Interestingly, as <span class="citation" data-cites="Burch_etal2017">Burch, Egbert, and Biber (<a href="#ref-Burch_etal2017" role="doc-biblioref">2017, 193</a>)</span> note, a measure equivalent to <em>DP</em> <span class="citation" data-cites="Gries2008">(<a href="#ref-Gries2008" role="doc-biblioref">Gries 2008</a>)</span> can be found in the 1973 paper (the <em>average deviation analog</em> ADA). The index on which <em>D<sub>A</sub></em> is based appears in <span class="citation" data-cites="Wilcox1973">Wilcox (<a href="#ref-Wilcox1973" role="doc-biblioref">1973</a>)</span> as the <em>mean difference analog</em> (MDA). Both <span class="citation" data-cites="Wilcox1973">Wilcox (<a href="#ref-Wilcox1973" role="doc-biblioref">1973</a>)</span> and <span class="citation" data-cites="Burch_etal2017">Burch, Egbert, and Biber (<a href="#ref-Burch_etal2017" role="doc-biblioref">2017</a>)</span> argue that <em>D<sub>A</sub></em> (or MDA) has a number of advantages over <em>DP</em> (or ADA). An intuitive explanation of the rationale underlying <em>D<sub>A</sub></em> can be found in <span class="citation" data-cites="Soenning2023">Sönning (<a href="#ref-Soenning2023" role="doc-biblioref">2023</a>)</span>.</p>
+<p><span class="citation" data-cites="Gries2020">Gries (<a href="#ref-Gries2020" role="doc-biblioref">2020, 116</a>)</span> has pointed out, however, that <em>D<sub>A</sub></em> is computationally expensive. This is because the measure relies on pairwise differences between corpus parts. To calculate <em>D<sub>A</sub></em>, we first obtain the occurrence rate (or normalized frequency) of a given item in each corpus part. These occurrence rates can then be compared, to see how evenly the item is distributed. The basic formula for <em>D<sub>A</sub></em> requires pairwise comparisons between all corpus parts. If there are 10, the number of pairwise comparisons is 45; for 20 corpus parts, this number climbs to 190. In general, if there are <em>n</em> corpus parts, the number of pairwise comparisons is <span class="math inline">\((n(n-1))/2\)</span>. This number (and hence the computational task) grows exponentially: If we measure dispersion across 500 texts (e.g.&nbsp;ICE or Brown Corpus), 124,750 comparisons are involved. For the BNC2014, which has around 90,000 text files, there are more than 4 billion comparisons to compute.</p>
+<p>The purpose of this blog post is to draw attention to a shortcut formula <span class="citation" data-cites="Wilcox1973">Wilcox (<a href="#ref-Wilcox1973" role="doc-biblioref">1973</a>)</span> gives in the Appendix of his paper. There, he distinguishes between “basic formulas” and “computational formulas”, which run faster. The formula we will use here is the one listed in the rightmost column (Computational Formulas: Proportions). We will give R code for both the basic and the computational procedure and then compare them in terms of speed. Note that both versions of <em>D<sub>A</sub></em> are now available in the function <code>disp_DA()</code> in the <code>{tlda}</code> package <span class="citation" data-cites="tlda_package">(<a href="#ref-tlda_package" role="doc-biblioref">Sönning 2025</a>)</span>.</p>
+<p>For the prpose of the following evaluation, we start by writing two R functions:</p>
 <ul>
 <li><code>DA_basic()</code>, which uses the basic, slow formula; and</li>
 <li><code>DA_quick()</code>, which implements the shortcut given in <span class="citation" data-cites="Wilcox1973">Wilcox (<a href="#ref-Wilcox1973" role="doc-biblioref">1973</a>)</span>.</li>
 </ul>
-<p>These functions also work if texts differ in length. They take two arguments:</p>
+<p>These functions also work if corpus parts differ in length. They take two arguments:</p>
 <ul>
-<li><code>n_tokens</code>: A vector of length <em>n</em>, giving the number occurrences of the item in each of the <em>n</em> texts</li>
-<li><code>word_count</code>: A vector of length <em>n</em>, giving the length of each text (number of running words)</li>
+<li><code>subfreq</code>: A vector of length <em>n</em>, giving the subfrequencies, i.e.&nbsp;the number occurrences of the item in each of the <em>n</em> corpus parts</li>
+<li><code>partsize</code>: A vector of length <em>n</em>, giving the length of each corpus part (number of running words)</li>
 </ul>
-<p>For the rationale underlying the intermediate quantities <code>R_i</code> and <code>r_i</code>, please refer to <span class="citation" data-cites="Soenning2023">Sönning (<a href="#ref-Soenning2023" role="doc-biblioref">2023</a>)</span>. We first define the basic formula:</p>
+<p>For the rationale underlying the intermediate quantities <code>R_i</code> and <code>r_i</code>, please refer to <span class="citation" data-cites="Soenning2023">Sönning (<a href="#ref-Soenning2023" role="doc-biblioref">2023</a>)</span>. We first define the basic formula :</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>DA_basic <span class="ot">&lt;-</span> <span class="cf">function</span>(n_tokens, word_count){</span>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>DA_basic <span class="ot">&lt;-</span> <span class="cf">function</span>(subfreq, partsize){</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    R_i <span class="ot">&lt;-</span> n_tokens <span class="sc">/</span> word_count</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    R_i <span class="ot">&lt;-</span> subfreq <span class="sc">/</span> partsize</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    r_i <span class="ot">&lt;-</span> R_i <span class="sc">/</span> <span class="fu">sum</span>(R_i)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    k   <span class="ot">&lt;-</span> <span class="fu">length</span>(n_tokens)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    k   <span class="ot">&lt;-</span> <span class="fu">length</span>(subfreq)</span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    dist_r <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(<span class="fu">dist</span>(r_i))</span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    DA <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> ( <span class="fu">mean</span>(dist_r[<span class="fu">lower.tri</span>(dist_r)]) <span class="sc">/</span> (<span class="dv">2</span><span class="sc">/</span>k) )</span>
@@ -305,11 +304,11 @@ window.Quarto = {
 </div>
 <p>And now the computational formula:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>DA_quick <span class="ot">&lt;-</span> <span class="cf">function</span>(n_tokens, word_count){</span>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>DA_quick <span class="ot">&lt;-</span> <span class="cf">function</span>(subfreq, partsize){</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    R_i <span class="ot">&lt;-</span> n_tokens <span class="sc">/</span> word_count</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    R_i <span class="ot">&lt;-</span> subfreq <span class="sc">/</span> partsize</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    r_i <span class="ot">&lt;-</span> R_i <span class="sc">/</span> <span class="fu">sum</span>(R_i)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    k   <span class="ot">&lt;-</span> <span class="fu">length</span>(n_tokens)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    k   <span class="ot">&lt;-</span> <span class="fu">length</span>(subfreq)</span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    DA <span class="ot">&lt;-</span> (<span class="dv">2</span><span class="sc">*</span><span class="fu">sum</span>((<span class="fu">sort</span>(r_i, <span class="at">decreasing=</span><span class="cn">TRUE</span>) <span class="sc">*</span> <span class="dv">1</span><span class="sc">:</span>k)) <span class="sc">-</span><span class="dv">1</span>) <span class="sc">/</span> (k<span class="dv">-1</span>)</span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
@@ -322,57 +321,74 @@ window.Quarto = {
 <details class="code-fold">
 <summary>R code for comparison of computation time</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We start by creating synthetic data. We use the Poisson distribution to </span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># generate tokens counts for the smaller corpus (n_tokens_4000) and the </span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># larger corpus (n_tokens_20000)</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># generate tokens counts for the smaller corpus (subfreq_4000) and the </span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># larger corpus (subfreq_20000)</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>n_tokens_4000 <span class="ot">&lt;-</span> <span class="fu">rpois</span>(<span class="at">n =</span> <span class="dv">4000</span>, <span class="at">lambda =</span> <span class="dv">2</span>)</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>n_tokens_20000 <span class="ot">&lt;-</span> <span class="fu">rpois</span>(<span class="at">n =</span> <span class="dv">20000</span>, <span class="at">lambda =</span> <span class="dv">2</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>subfreq_4000 <span class="ot">&lt;-</span> <span class="fu">rpois</span>(<span class="at">n =</span> <span class="dv">4000</span>, <span class="at">lambda =</span> <span class="dv">2</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>subfreq_20000 <span class="ot">&lt;-</span> <span class="fu">rpois</span>(<span class="at">n =</span> <span class="dv">20000</span>, <span class="at">lambda =</span> <span class="dv">2</span>)</span>
 <span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Then we create corresponding vectors giving the length of the texts (each is </span></span>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 2,000 words long):</span></span>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>word_count_4000 <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">2000</span>, <span class="fu">length</span>(n_tokens_4000))</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>word_count_20000  <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">2000</span>, <span class="fu">length</span>(n_tokens_20000))</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>partsize_4000 <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">2000</span>, <span class="fu">length</span>(subfreq_4000))</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>partsize_20000  <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">2000</span>, <span class="fu">length</span>(subfreq_20000))</span>
 <span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Next, we use the R package {tictoc} to compare the two functions (i.e. </span></span>
 <span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co"># computational procedures) in terms of speed, starting with the 4,000-text </span></span>
 <span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co"># setting. We start with the basic formula:</span></span>
 <span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="fu">tic</span>()</span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>DA_basic_4000 <span class="ot">&lt;-</span> <span class="fu">DA_basic</span>(n_tokens_4000, word_count_4000)</span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>time_basic_4000 <span class="ot">&lt;-</span> <span class="fu">toc</span>()</span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="co"># And now we use the computational formula:</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>DA_basic_4000 <span class="ot">&lt;-</span> <span class="fu">DA_basic</span>(</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">subfreq =</span> subfreq_4000, </span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">partsize =</span> partsize_4000)</span>
 <span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="fu">tic</span>()</span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>DA_quick_4000 <span class="ot">&lt;-</span> <span class="fu">DA_quick</span>(n_tokens_4000, word_count_4000)</span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>time_quick_4000 <span class="ot">&lt;-</span> <span class="fu">toc</span>()</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>time_basic_4000 <span class="ot">&lt;-</span> <span class="fu">toc</span>()</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="co"># And now we use the computational formula:</span></span>
 <span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Next, we compare the 20,000-text setting:</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="fu">tic</span>()</span>
 <span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a><span class="fu">tic</span>()</span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>DA_basic_20000 <span class="ot">&lt;-</span> <span class="fu">DA_basic</span>(n_tokens_20000, word_count_20000)</span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>time_basic_20000 <span class="ot">&lt;-</span> <span class="fu">toc</span>()</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>DA_quick_4000 <span class="ot">&lt;-</span> <span class="fu">DA_quick</span>(</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">subfreq =</span> subfreq_4000, </span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">partsize =</span> partsize_4000)</span>
 <span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a><span class="fu">tic</span>()</span>
-<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>DA_quick_20000 <span class="ot">&lt;-</span> <span class="fu">DA_quick</span>(n_tokens_20000, word_count_20000)</span>
-<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>time_quick_20000 <span class="ot">&lt;-</span> <span class="fu">toc</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>time_quick_4000 <span class="ot">&lt;-</span> <span class="fu">toc</span>()</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a><span class="co"># Next, we compare the 20,000-text setting:</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a><span class="fu">tic</span>()</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>DA_basic_20000 <span class="ot">&lt;-</span> <span class="fu">DA_basic</span>(</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>  <span class="at">subfreq =</span> subfreq_20000, </span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>  <span class="at">partsize =</span> partsize_20000)</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>time_basic_20000 <span class="ot">&lt;-</span> <span class="fu">toc</span>()</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a><span class="fu">tic</span>()</span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>DA_quick_20000 <span class="ot">&lt;-</span> <span class="fu">DA_quick</span>(</span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>  <span class="at">subfreq =</span> subfreq_20000, </span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>  <span class="at">partsize =</span> partsize_20000)</span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>time_quick_20000 <span class="ot">&lt;-</span> <span class="fu">toc</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p><a href="#tbl-time" class="quarto-xref">Table&nbsp;1</a> shows the results: let us first consider computation time. For 4,000 texts, the basic procedure takes 0.84 seconds to run. The computational formula is quicker – it completes the calculations in only 0.02 seconds. For the 20,000-word corpus, the difference is much more dramatic: The basic formula takes 24.2 seconds to run; the shortcut procedure, on the other hand, is done after 0.03 seconds. This is an impressive improvement in efficiency.</p>
+<p><a href="#tbl-time" class="quarto-xref">Table&nbsp;1</a> shows the results: let us first consider computation time. For 4,000 texts, the basic procedure takes 0.75 seconds to run. The computational formula is quicker – it completes the calculations in only 0 seconds. For the 20,000-word corpus, the difference is much more dramatic: The basic formula takes 18.29 seconds to run; the shortcut procedure, on the other hand, is done after 0 seconds. This is an impressive improvement in efficiency.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>R code for Table 1</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tibble</span>(</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">Formula =</span> <span class="fu">c</span>(<span class="st">"Basic"</span>, <span class="st">"Computational"</span>),</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">4,000 texts</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>((time_basic_4000<span class="sc">$</span>toc <span class="sc">-</span> time_basic_4000<span class="sc">$</span>tic), </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">4,000 parts</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>((time_basic_4000<span class="sc">$</span>toc <span class="sc">-</span> time_basic_4000<span class="sc">$</span>tic), </span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>                    (time_quick_4000<span class="sc">$</span>toc <span class="sc">-</span> time_quick_4000<span class="sc">$</span>tic)) ,</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">20,000 texts</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>((time_basic_20000<span class="sc">$</span>toc <span class="sc">-</span> time_basic_20000<span class="sc">$</span>tic), </span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">20,000 parts</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>((time_basic_20000<span class="sc">$</span>toc <span class="sc">-</span> time_basic_20000<span class="sc">$</span>tic), </span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>                     (time_quick_20000<span class="sc">$</span>toc <span class="sc">-</span> time_quick_20000<span class="sc">$</span>tic)),</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">4,000 texts </span><span class="st">`</span> <span class="ot">=</span> <span class="fu">round</span>(<span class="fu">c</span>(DA_basic_4000, DA_quick_4000), <span class="dv">4</span>) ,</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">20,000 texts </span><span class="st">`</span> <span class="ot">=</span> <span class="fu">round</span>(<span class="fu">c</span>(DA_basic_20000, DA_quick_20000), <span class="dv">4</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">4,000 parts </span><span class="st">`</span> <span class="ot">=</span> <span class="fu">round</span>(<span class="fu">c</span>(DA_basic_4000, DA_quick_4000), <span class="dv">4</span>) ,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">20,000 parts </span><span class="st">`</span> <span class="ot">=</span> <span class="fu">round</span>(<span class="fu">c</span>(DA_basic_20000, DA_quick_20000), <span class="dv">4</span>)) <span class="sc">|&gt;</span> </span>
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kbl</span>() <span class="sc">|&gt;</span> </span>
 <span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_header_above</span>(<span class="fu">c</span>(<span class="st">" "</span> <span class="ot">=</span> <span class="dv">1</span>, <span class="st">"Time (seconds)"</span> <span class="ot">=</span> <span class="dv">2</span>, <span class="st">"Dispersion score"</span> <span class="ot">=</span> <span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
@@ -403,24 +419,24 @@ Dispersion score
 </tr>
 <tr class="odd">
 <th style="text-align: left;" data-quarto-table-cell-role="th">Formula</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">4,000 texts</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">20,000 texts</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">4,000 texts</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">20,000 texts</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">4,000 parts</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">20,000 parts</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">4,000 parts</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">20,000 parts</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Basic</td>
-<td style="text-align: right;">0.84</td>
-<td style="text-align: right;">24.20</td>
+<td style="text-align: right;">0.75</td>
+<td style="text-align: right;">18.29</td>
 <td style="text-align: right;">0.6003</td>
 <td style="text-align: right;">0.6139</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Computational</td>
-<td style="text-align: right;">0.02</td>
-<td style="text-align: right;">0.03</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">0.00</td>
 <td style="text-align: right;">0.6005</td>
 <td style="text-align: right;">0.6140</td>
 </tr>
@@ -450,6 +466,9 @@ Gries, Stefan Th. 2008. <span>“Dispersions and Adjusted Frequencies in Corpora
 </div>
 <div id="ref-Soenning2023" class="csl-entry" role="listitem">
 Sönning, Lukas. 2023. <span>“Advancing Our Understanding of Dispersion Measures in Corpus Research.”</span> <em>PsyArxiv Preprint</em>. <a href="https://doi.org/10.31234/osf.io/ns4q9">https://doi.org/10.31234/osf.io/ns4q9</a>.
+</div>
+<div id="ref-tlda_package" class="csl-entry" role="listitem">
+———. 2025. <em>Tlda: Tools for Language Data Analysis</em>. <a href="https://github.com/lsoenning/tlda">https://github.com/lsoenning/tlda</a>.
 </div>
 <div id="ref-Wilcox1973" class="csl-entry" role="listitem">
 Wilcox, Allen R. 1973. <span>“Indices of Qualitative Variation and Political Measurement.”</span> <em>The Western Political Quarterly</em> 26 (2): 325–43. <a href="https://doi.org/10.2307/446831">https://doi.org/10.2307/446831</a>.

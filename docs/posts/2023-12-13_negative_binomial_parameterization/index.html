@@ -275,8 +275,7 @@ window.Quarto = {
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rstanarm)</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(uls)         <span class="co"># pak::pak("lsoenning/uls")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>One complication that arises when working with the negative binomial distribution is the fact that it can be written down in two different ways. These different parameterizations yield the same results for the mean of the distribution, i.e.&nbsp;the expected count or rate. Thus, if we are only interested in the occurrence rate (or normalized frequency) of an item, including a 95% statistical uncertainty interval, no problems arise. If we are interested in the negative binomial dispersion parameter, however, we must know which parameterization is implemented in the R package or R function we are using. The main purpose of this blog post is to divide R functions into two groups, depending on which version of the negative binomial distribution they use.</p>
@@ -386,7 +385,7 @@ Table&nbsp;1: Parameterization of the negative binomial distribution in various 
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="fu">xyplot</span>(</span>
 <span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  n_texts <span class="sc">~</span> token_count,</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings=</span>my_settings, <span class="at">axis=</span>axis_L, <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">53</span>), <span class="at">xlim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="fl">1.5</span>, <span class="cn">NA</span>),</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings=</span>lattice_ls, <span class="at">axis=</span>axis_L, <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">53</span>), <span class="at">xlim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="fl">1.5</span>, <span class="cn">NA</span>),</span>
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales=</span><span class="fu">list</span>(<span class="at">y=</span><span class="fu">list</span>(<span class="at">at=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">20</span>,<span class="dv">40</span>,<span class="dv">60</span>,<span class="dv">80</span>))),</span>
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">type=</span><span class="st">"h"</span>, <span class="at">lwd=</span><span class="dv">6</span>, <span class="at">lineend=</span><span class="st">"butt"</span>, <span class="at">col=</span><span class="st">"grey"</span>,</span>
 <span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="fu">expression</span>(<span class="st">"Number of instances of "</span><span class="sc">~</span><span class="fu">italic</span>(which)),</span>
@@ -505,7 +504,7 @@ alpha       0.4792296 0.04059087 11.80634 0.3996715 0.5587877</code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(<span class="fu">as.data.frame</span>(m)<span class="sc">$</span>shape)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 2.085009</code></pre>
+<pre><code>[1] 2.08578</code></pre>
 </div>
 </div>
 <p>&nbsp;</p>
@@ -524,7 +523,7 @@ alpha       0.4792296 0.04059087 11.80634 0.3996715 0.5587877</code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(<span class="fu">as.data.frame</span>(m)<span class="sc">$</span>reciprocal_dispersion)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 2.077596</code></pre>
+<pre><code>[1] 2.074137</code></pre>
 </div>
 </div>
 

@@ -5,6 +5,7 @@ date: 2025-05-14
 categories: [corpus linguistics, regression, clustered data, frequency data, negative binomial]
 citation: 
   url: https://lsoenning.github.io/posts/2025-05-09_counts_overdispersion/
+editor: source
 ---
 
 When describing or modeling corpus-based frequency counts, the fact that a corpus is divided into texts has consequences for statistical modeling. For count variables, there are different options for modeling such data. This blog post contrasts approaches that differ in the way they represent (or account for) the non-independence of data points and looks at a setting where texts are very similar in length.
@@ -27,8 +28,6 @@ library(gamlss)             # for drawing gamma densities
 
 # pak::pak("lsoenning/uls") # install package "uls"
 library(uls)                # for ggplot2 dotplot theme
-
-source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
 ```
 
 #### Case study: The frequency of *should* in written AmE of the 1960s and 1990s
@@ -218,7 +217,6 @@ A model summary appears in the following table:
 
 summary(m)
 ```
-
 
 We use the `{marginaleffects}` package [@ArelBundock_etal2024] to calculate model-based predictions for the frequency of *should* in each corpus. These coincide with the plain *corpus frequencies* reported above. We specify the `n_words = 1000` to get normalized frequencies 'per thousand words'.
 
@@ -415,9 +413,6 @@ comp_negbin <- avg_comparisons(
 
 ```
 
-
-
-
 #### Poisson regression with random intercepts
 
 Another way of accounting for the structure in the data is to use a Poisson regression model with random intercepts on Speaker. This model also represents the observed variation among speakers using a probability distribution. Between-speaker variation is modeled on the scale of natural logarithms using a normal distribution. On the scale of the actual occurrence rates, this translates into a log-normal distribution. For a more detailed discussion of the structure of this model, see [this blog post](https://lsoenning.github.io/posts/2025-05-12_poisson_random_intercept/).
@@ -439,12 +434,12 @@ We print a condensed regression table:
 arm::display(m)
 ```
 
-The table tells us that the standard deviation of the random intercepts, i.e. the parameter describing the spread of the normal distribution representing text-to-text variation in the occurrence rate of *should*, is 0.76. 
+The table tells us that the standard deviation of the random intercepts, i.e. the parameter describing the spread of the normal distribution representing text-to-text variation in the occurrence rate of *should*, is 0.76.
 
 As discussed in detail in [this blog post](https://lsoenning.github.io/posts/2025-05-12_poisson_random_intercept/), there are two types of predictions we can calculate for the random-intercept Poisson model. Seeing that we are interested in the normalized frequency of *should* rather than its natural logarithm, we will want to back-transform model-based predictions to the scale of normalized frequencies. Since there is between-speaker variation, our model-based estimate will have to somehow average over speakers. The question is whether we want to average over speakers on the scale of natural logarithms (the model scale) or on the scale of normalized frequencies (the data scale).
 
-- By averaging on the data scale of normalized frequencies, we obtain the **mean occurrence rate** across texts. 
-- By averaging on the model scale of log normalized frequencies, and then back-transforming this mean log rate, we obtain the **median occurrence rate** across texts.
+-   By averaging on the data scale of normalized frequencies, we obtain the **mean occurrence rate** across texts.
+-   By averaging on the model scale of log normalized frequencies, and then back-transforming this mean log rate, we obtain the **median occurrence rate** across texts.
 
 [This blog post](https://lsoenning.github.io/posts/2025-05-12_poisson_random_intercept/) provides a detailed illustration of these two types of frequency estimates.
 
@@ -572,14 +567,12 @@ comp_ranef_m <- avg_comparisons(
 
 ```
 
-
 #### Comparison
 
 @fig-comparison-preds compares the estimated average predictions we have collected in this blog post. Two points are noteworthy:
 
-- The uncertainty intervals suggested by the Poisson model are narrower than the ones based on the other models. This is because the other model explicitly take into account the non-independence of observations.
-- Except for the median occurrence rate estimate based on the random-intercept Poisson model, all models return nearly identical estimates of the normalized frequency of should in Brown and Frown.
-
+-   The uncertainty intervals suggested by the Poisson model are narrower than the ones based on the other models. This is because the other model explicitly take into account the non-independence of observations.
+-   Except for the median occurrence rate estimate based on the random-intercept Poisson model, all models return nearly identical estimates of the normalized frequency of should in Brown and Frown.
 
 ```{r}
 #| fig-width: 7

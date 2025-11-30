@@ -274,10 +274,18 @@ window.Quarto = {
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(kableExtra)</span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sjPlot)</span>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lmtest)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R"</span>)</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>directory_path <span class="ot">&lt;-</span> <span class="st">"C:/Users/ba4rh5/Work Folders/My Files/R projects/_lsoenning.github.io/posts/2024-01-11_beta_regression_quantifiers/"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(uls)         <span class="co"># pak::pak("lsoenning/uls")</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>directory_path <span class="ot">&lt;-</span> <span class="st">"C:/Users/ba4rh5/Work Folders/My Files/R projects/_lsoenning.github.io/posts/2024-01-11_beta_regression_quantifiers/"</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># function for formatting score in the unit inteval [0,1]</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>numformat <span class="ot">&lt;-</span> <span class="cf">function</span>(x, <span class="at">digits =</span> <span class="dv">2</span>, <span class="at">omit_zero=</span><span class="cn">FALSE</span>) { </span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ifelse</span>(<span class="fu">round</span>(x,<span class="dv">2</span>)<span class="sc">==</span><span class="dv">1</span>,</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>           <span class="st">"1.0"</span>,</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>           <span class="fu">ifelse</span>(x <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> omit_zero<span class="sc">==</span><span class="cn">TRUE</span>, <span class="st">"\u2013"</span>,</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>           {ncode <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"%."</span>, digits, <span class="st">"f"</span>)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>            <span class="fu">sub</span>(<span class="st">"^(-?)0."</span>, <span class="st">"</span><span class="sc">\\</span><span class="st">1."</span>, <span class="fu">sprintf</span>(ncode, x))}))</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>The purpose of this blog post is to show how to model proportions using beta regression. This procedure is particularly suitable for outcome variables that assume values in the interval (0, 1) – but excluding 0 and 1 –, and which do not summarize underlying raw counts (e.g.&nbsp;.30 for 3 out of 10 “successes”), in which case they could be handled using logistic regression. Examples are proportions, rates, and other indices such as corpus-linguistic dispersion measures.</p>
@@ -662,7 +670,7 @@ Phi coefficients (precision model with identity link):
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>m_diagnostics<span class="sc">$</span>cooks_distance <span class="ot">&lt;-</span> <span class="fu">cooks.distance</span>(m1)</span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(residual <span class="sc">~</span> fitted, <span class="at">data=</span>m_diagnostics,</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">axis=</span>axis_L, <span class="at">par.settings=</span>my_settings,</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">axis=</span>axis_L, <span class="at">par.settings=</span>lattice_ls,</span>
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab=</span><span class="st">"Fitted values (logit scale)"</span>,</span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">ylab=</span><span class="st">"Std. weighted residuals 2"</span>,</span>
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab.top=</span><span class="st">"(a) Constant variance</span><span class="sc">\n</span><span class="st">"</span>,</span>
@@ -682,7 +690,7 @@ Phi coefficients (precision model with identity link):
 <span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>normal_quantiles <span class="ot">&lt;-</span> (<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(m_diagnostics) <span class="sc">-</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>)<span class="sc">/</span><span class="fu">nrow</span>(m_diagnostics)</span>
 <span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">qqmath</span>(<span class="sc">~</span>residual, <span class="at">data =</span> m_diagnostics,</span>
-<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>              <span class="at">axis=</span>axis_L, <span class="at">par.settings=</span>my_settings,</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>              <span class="at">axis=</span>axis_L, <span class="at">par.settings=</span>lattice_ls,</span>
 <span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab=</span><span class="st">"Normal quantiles    "</span>,</span>
 <span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>       <span class="at">ylab=</span><span class="st">"Std. weighted residuals 2"</span>,</span>
 <span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab.top=</span><span class="st">"(b) Normality of residuals</span><span class="sc">\n</span><span class="st">"</span>,</span>
@@ -699,7 +707,7 @@ Phi coefficients (precision model with identity link):
 <span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>p3 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(cooks_distance <span class="sc">~</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(m_diagnostics), <span class="at">data=</span>m_diagnostics, </span>
 <span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>       <span class="at">type=</span><span class="st">"h"</span>, <span class="at">col=</span><span class="dv">1</span>,</span>
-<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>       <span class="at">axis=</span>axis_L, <span class="at">par.settings=</span>my_settings,</span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>       <span class="at">axis=</span>axis_L, <span class="at">par.settings=</span>lattice_ls,</span>
 <span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>       <span class="at">scales=</span><span class="fu">list</span>(<span class="at">y=</span><span class="fu">list</span>(<span class="at">at=</span><span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">1</span>, .<span class="dv">2</span>, .<span class="dv">3</span>)),</span>
 <span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>                   <span class="at">x=</span><span class="fu">list</span>(<span class="at">at=</span><span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">60</span>, <span class="dv">80</span>))),</span>
 <span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab=</span><span class="st">"Observation number"</span>,</span>
@@ -715,7 +723,7 @@ Phi coefficients (precision model with identity link):
 <span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>p4 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(residual <span class="sc">~</span> subj_index, <span class="at">data=</span>m_diagnostics,</span>
-<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>       <span class="at">axis=</span>axis_L, <span class="at">par.settings=</span>my_settings,</span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a>       <span class="at">axis=</span>axis_L, <span class="at">par.settings=</span>lattice_ls,</span>
 <span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab=</span><span class="st">"Subject ID"</span>,</span>
 <span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a>       <span class="at">ylab=</span><span class="st">"Std. weighted residuals 2"</span>,</span>
 <span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab.top=</span><span class="st">"(d) Correlated errors</span><span class="sc">\n</span><span class="st">"</span>,</span>
@@ -769,7 +777,7 @@ Figure&nbsp;5: Diagnostic plots for Model I.
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>m_diagnostics<span class="sc">$</span>cooks_distance <span class="ot">&lt;-</span> <span class="fu">cooks.distance</span>(m1)</span>
 <span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(residual <span class="sc">~</span> fitted, <span class="at">data=</span>m_diagnostics,</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">axis=</span>axis_L, <span class="at">par.settings=</span>my_settings,</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">axis=</span>axis_L, <span class="at">par.settings=</span>lattice_ls,</span>
 <span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab=</span><span class="st">"Fitted values (logit scale)"</span>,</span>
 <span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">ylab=</span><span class="st">"Std. weighted residuals 2"</span>,</span>
 <span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab.top=</span><span class="st">"(a) Constant variance</span><span class="sc">\n</span><span class="st">"</span>,</span>
@@ -789,7 +797,7 @@ Figure&nbsp;5: Diagnostic plots for Model I.
 <span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>normal_quantiles <span class="ot">&lt;-</span> (<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(m_diagnostics) <span class="sc">-</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>)<span class="sc">/</span><span class="fu">nrow</span>(m_diagnostics)</span>
 <span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">qqmath</span>(<span class="sc">~</span>residual, <span class="at">data =</span> m_diagnostics,</span>
-<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>              <span class="at">axis=</span>axis_L, <span class="at">par.settings=</span>my_settings,</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>              <span class="at">axis=</span>axis_L, <span class="at">par.settings=</span>lattice_ls,</span>
 <span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab=</span><span class="st">"Normal quantiles    "</span>,</span>
 <span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>       <span class="at">ylab=</span><span class="st">"Std. weighted residuals 2"</span>,</span>
 <span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab.top=</span><span class="st">"(b) Normality of residuals</span><span class="sc">\n</span><span class="st">"</span>,</span>
@@ -806,7 +814,7 @@ Figure&nbsp;5: Diagnostic plots for Model I.
 <span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>p3 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(cooks_distance <span class="sc">~</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(m_diagnostics), <span class="at">data=</span>m_diagnostics, </span>
 <span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>       <span class="at">type=</span><span class="st">"h"</span>, <span class="at">col=</span><span class="dv">1</span>,</span>
-<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>       <span class="at">axis=</span>axis_L, <span class="at">par.settings=</span>my_settings,</span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>       <span class="at">axis=</span>axis_L, <span class="at">par.settings=</span>lattice_ls,</span>
 <span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>       <span class="at">scales=</span><span class="fu">list</span>(<span class="at">y=</span><span class="fu">list</span>(<span class="at">at=</span><span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">05</span>)),</span>
 <span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>                   <span class="at">x=</span><span class="fu">list</span>(<span class="at">at=</span><span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">60</span>))),</span>
 <span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab=</span><span class="st">"Observation number"</span>,</span>
@@ -822,7 +830,7 @@ Figure&nbsp;5: Diagnostic plots for Model I.
 <span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a>p4 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(residual <span class="sc">~</span> subj_index, <span class="at">data=</span>m_diagnostics,</span>
-<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a>       <span class="at">axis=</span>axis_L, <span class="at">par.settings=</span>my_settings,</span>
+<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a>       <span class="at">axis=</span>axis_L, <span class="at">par.settings=</span>lattice_ls,</span>
 <span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab=</span><span class="st">"Subject ID"</span>,</span>
 <span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a>       <span class="at">ylab=</span><span class="st">"Std. weighted residuals 2"</span>,</span>
 <span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab.top=</span><span class="st">"(d) Correlated errors</span><span class="sc">\n</span><span class="st">"</span>,</span>
@@ -1043,7 +1051,7 @@ Table&nbsp;2: 50% and 80% coverage intervals, based on Model I.
 <summary>Draw figure</summary>
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type=</span><span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">16</span>),</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings=</span>my_settings, <span class="at">axis=</span>axis_bottom,</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings=</span>lattice_ls, <span class="at">axis=</span>axis_bottom,</span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales=</span><span class="fu">list</span>(<span class="at">x=</span><span class="fu">list</span>(<span class="at">at=</span><span class="fu">c</span>(<span class="dv">0</span>,.<span class="dv">2</span>,.<span class="dv">4</span>,.<span class="dv">6</span>,.<span class="dv">8</span>,<span class="dv">1</span>),</span>
 <span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels=</span><span class="fu">c</span>(<span class="st">"0"</span>,<span class="st">".20"</span>,<span class="st">".40"</span>,<span class="st">".60"</span>,<span class="st">".80"</span>,<span class="st">"1"</span>))),</span>
 <span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab=</span><span class="st">"Proporiton"</span>, <span class="at">ylab=</span><span class="st">"Density               "</span>,</span>
@@ -1281,7 +1289,7 @@ Table&nbsp;4: 50% and 80% coverage intervals, based on Model II.
 <summary>Draw figure</summary>
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type=</span><span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">16</span>),</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings=</span>my_settings, <span class="at">axis=</span>axis_bottom,</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings=</span>lattice_ls, <span class="at">axis=</span>axis_bottom,</span>
 <span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales=</span><span class="fu">list</span>(<span class="at">x=</span><span class="fu">list</span>(<span class="at">at=</span><span class="fu">c</span>(<span class="dv">0</span>,.<span class="dv">2</span>,.<span class="dv">4</span>,.<span class="dv">6</span>,.<span class="dv">8</span>,<span class="dv">1</span>),</span>
 <span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels=</span><span class="fu">c</span>(<span class="st">"0"</span>,<span class="st">".20"</span>,<span class="st">".40"</span>,<span class="st">".60"</span>,<span class="st">".80"</span>,<span class="st">"1"</span>))),</span>
 <span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab=</span><span class="st">"Proportion"</span>, <span class="at">ylab=</span><span class="st">"Density               "</span>,</span>
@@ -1389,7 +1397,7 @@ Figure&nbsp;10: Visual summary of Model II: Estimates, confidence intervals and 
 <span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(residual <span class="sc">~</span> fitted_quantifier, <span class="at">data=</span>m3_diagnostics,</span>
-<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>       <span class="at">axis=</span>axis_L, <span class="at">par.settings=</span>my_settings,</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>       <span class="at">axis=</span>axis_L, <span class="at">par.settings=</span>lattice_ls,</span>
 <span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab=</span><span class="st">"Fitted values (logit scale)"</span>,</span>
 <span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a>       <span class="at">ylab=</span><span class="st">"Pearson residuals"</span>,</span>
 <span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab.top=</span><span class="st">"(a) Constant variance</span><span class="sc">\n</span><span class="st">"</span>,</span>
@@ -1409,7 +1417,7 @@ Figure&nbsp;10: Visual summary of Model II: Estimates, confidence intervals and 
 <span id="cb25-33"><a href="#cb25-33" aria-hidden="true" tabindex="-1"></a>normal_quantiles <span class="ot">&lt;-</span> (<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(m3_diagnostics) <span class="sc">-</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">2</span>)<span class="sc">/</span><span class="fu">nrow</span>(m3_diagnostics)</span>
 <span id="cb25-34"><a href="#cb25-34" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-35"><a href="#cb25-35" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">qqmath</span>(<span class="sc">~</span>residual, <span class="at">data =</span> m3_diagnostics,</span>
-<span id="cb25-36"><a href="#cb25-36" aria-hidden="true" tabindex="-1"></a>              <span class="at">axis=</span>axis_L, <span class="at">par.settings=</span>my_settings,</span>
+<span id="cb25-36"><a href="#cb25-36" aria-hidden="true" tabindex="-1"></a>              <span class="at">axis=</span>axis_L, <span class="at">par.settings=</span>lattice_ls,</span>
 <span id="cb25-37"><a href="#cb25-37" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab=</span><span class="st">"Normal quantiles    "</span>,</span>
 <span id="cb25-38"><a href="#cb25-38" aria-hidden="true" tabindex="-1"></a>       <span class="at">ylab=</span><span class="st">"Pearson residuals"</span>,</span>
 <span id="cb25-39"><a href="#cb25-39" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab.top=</span><span class="st">"(b) Normality of residuals</span><span class="sc">\n</span><span class="st">"</span>,</span>
@@ -1426,7 +1434,7 @@ Figure&nbsp;10: Visual summary of Model II: Estimates, confidence intervals and 
 <span id="cb25-50"><a href="#cb25-50" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-51"><a href="#cb25-51" aria-hidden="true" tabindex="-1"></a>p3 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(influence_pareto_k <span class="sc">~</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(m3_diagnostics), <span class="at">data=</span>m3_diagnostics, </span>
 <span id="cb25-52"><a href="#cb25-52" aria-hidden="true" tabindex="-1"></a>       <span class="at">type=</span><span class="st">"h"</span>, <span class="at">col=</span><span class="dv">1</span>,</span>
-<span id="cb25-53"><a href="#cb25-53" aria-hidden="true" tabindex="-1"></a>       <span class="at">axis=</span>axis_L, <span class="at">par.settings=</span>my_settings,</span>
+<span id="cb25-53"><a href="#cb25-53" aria-hidden="true" tabindex="-1"></a>       <span class="at">axis=</span>axis_L, <span class="at">par.settings=</span>lattice_ls,</span>
 <span id="cb25-54"><a href="#cb25-54" aria-hidden="true" tabindex="-1"></a>       <span class="at">scales=</span><span class="fu">list</span>(<span class="at">y=</span><span class="fu">list</span>(<span class="at">at=</span><span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">5</span>, .<span class="dv">7</span>, <span class="dv">1</span>)),</span>
 <span id="cb25-55"><a href="#cb25-55" aria-hidden="true" tabindex="-1"></a>                   <span class="at">x=</span><span class="fu">list</span>(<span class="at">at=</span><span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">60</span>, <span class="dv">80</span>))),</span>
 <span id="cb25-56"><a href="#cb25-56" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab=</span><span class="st">"Observation number"</span>,</span>
@@ -1448,7 +1456,7 @@ Figure&nbsp;10: Visual summary of Model II: Estimates, confidence intervals and 
 <span id="cb25-72"><a href="#cb25-72" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb25-73"><a href="#cb25-73" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-74"><a href="#cb25-74" aria-hidden="true" tabindex="-1"></a>p4 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(influence_pareto_k <span class="sc">~</span> subj_index, <span class="at">data=</span>m3_diagnostics,</span>
-<span id="cb25-75"><a href="#cb25-75" aria-hidden="true" tabindex="-1"></a>       <span class="at">axis=</span>axis_L, <span class="at">par.settings=</span>my_settings,</span>
+<span id="cb25-75"><a href="#cb25-75" aria-hidden="true" tabindex="-1"></a>       <span class="at">axis=</span>axis_L, <span class="at">par.settings=</span>lattice_ls,</span>
 <span id="cb25-76"><a href="#cb25-76" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab=</span><span class="st">"Subject ID"</span>,</span>
 <span id="cb25-77"><a href="#cb25-77" aria-hidden="true" tabindex="-1"></a>       <span class="at">ylab=</span><span class="st">"Influence (Pareto k)"</span>,</span>
 <span id="cb25-78"><a href="#cb25-78" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab.top=</span><span class="st">"(d) Influence by subject</span><span class="sc">\n</span><span class="st">"</span>,</span>
@@ -1570,7 +1578,7 @@ Table&nbsp;5: Typical values and 95% posterior intervals based on Model III.
 <summary>Draw figure</summary>
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(</span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type=</span><span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">16</span>),</span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings=</span>my_settings, <span class="at">axis=</span>axis_bottom,</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings=</span>lattice_ls, <span class="at">axis=</span>axis_bottom,</span>
 <span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales=</span><span class="fu">list</span>(<span class="at">x=</span><span class="fu">list</span>(<span class="at">at=</span><span class="fu">c</span>(<span class="dv">0</span>,.<span class="dv">2</span>,.<span class="dv">4</span>,.<span class="dv">6</span>,.<span class="dv">8</span>,<span class="dv">1</span>),</span>
 <span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels=</span><span class="fu">c</span>(<span class="st">"0"</span>,<span class="st">".20"</span>,<span class="st">".40"</span>,<span class="st">".60"</span>,<span class="st">".80"</span>,<span class="st">"1"</span>))),</span>
 <span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab=</span><span class="st">"Proportion"</span>, <span class="at">ylab=</span><span class="st">"Density               "</span>,</span>
@@ -1768,7 +1776,7 @@ Table&nbsp;7: 50% and 80% coverage intervals, based on Model III (random interce
 <summary>Draw figure</summary>
 <div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(</span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type=</span><span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">16</span>),</span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings=</span>my_settings, <span class="at">axis=</span>axis_bottom,</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings=</span>lattice_ls, <span class="at">axis=</span>axis_bottom,</span>
 <span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales=</span><span class="fu">list</span>(<span class="at">x=</span><span class="fu">list</span>(<span class="at">at=</span><span class="fu">c</span>(<span class="dv">0</span>,.<span class="dv">2</span>,.<span class="dv">4</span>,.<span class="dv">6</span>,.<span class="dv">8</span>,<span class="dv">1</span>),</span>
 <span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels=</span><span class="fu">c</span>(<span class="st">"0"</span>,<span class="st">"20"</span>,<span class="st">"40"</span>,<span class="st">"60"</span>,<span class="st">"80"</span>,<span class="st">"100  "</span>))),</span>
 <span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab=</span><span class="st">"Estimated percentage"</span>, <span class="at">ylab=</span><span class="st">"Density               "</span>,</span>
@@ -1814,7 +1822,7 @@ Figure&nbsp;14: Visual summary of Model III: Estimates, confidence intervals and
 <summary>Draw figure</summary>
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(</span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type=</span><span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span>.<span class="dv">2</span>, <span class="fl">4.5</span>),</span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings=</span>my_settings, <span class="at">axis=</span>axis_bottom,</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings=</span>lattice_ls, <span class="at">axis=</span>axis_bottom,</span>
 <span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales=</span><span class="fu">list</span>(<span class="at">x=</span><span class="fu">list</span>(<span class="at">at=</span><span class="fu">c</span>(<span class="dv">0</span>,.<span class="dv">2</span>,.<span class="dv">4</span>,.<span class="dv">6</span>,.<span class="dv">8</span>,<span class="dv">1</span>),</span>
 <span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels=</span><span class="fu">c</span>(<span class="st">"0"</span>,<span class="st">"20"</span>,<span class="st">"40"</span>,<span class="st">"60"</span>,<span class="st">"80"</span>,<span class="st">"100  "</span>))),</span>
 <span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab=</span><span class="st">"Estimated percentage"</span>, <span class="at">ylab=</span><span class="st">""</span>,</span>
@@ -1839,7 +1847,7 @@ Figure&nbsp;14: Visual summary of Model III: Estimates, confidence intervals and
 <span id="cb34-25"><a href="#cb34-25" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb34-26"><a href="#cb34-26" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(</span>
 <span id="cb34-27"><a href="#cb34-27" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type=</span><span class="st">"n"</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span>.<span class="dv">2</span>,<span class="fl">4.5</span>),</span>
-<span id="cb34-28"><a href="#cb34-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings=</span>my_settings, <span class="at">axis=</span>axis_bottom,</span>
+<span id="cb34-28"><a href="#cb34-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings=</span>lattice_ls, <span class="at">axis=</span>axis_bottom,</span>
 <span id="cb34-29"><a href="#cb34-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales=</span><span class="fu">list</span>(<span class="at">x=</span><span class="fu">list</span>(<span class="at">at=</span><span class="fu">c</span>(<span class="dv">0</span>,.<span class="dv">2</span>,.<span class="dv">4</span>,.<span class="dv">6</span>,.<span class="dv">8</span>,<span class="dv">1</span>),</span>
 <span id="cb34-30"><a href="#cb34-30" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels=</span><span class="fu">c</span>(<span class="st">"0"</span>,<span class="st">"20"</span>,<span class="st">"40"</span>,<span class="st">"60"</span>,<span class="st">"80"</span>,<span class="st">"100  "</span>))),</span>
 <span id="cb34-31"><a href="#cb34-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab=</span><span class="st">"Estimated percentage"</span>, <span class="at">ylab=</span><span class="st">""</span>,</span>

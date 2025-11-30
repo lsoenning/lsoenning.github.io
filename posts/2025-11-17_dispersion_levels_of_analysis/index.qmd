@@ -8,7 +8,6 @@ citation:
 editor: source
 ---
 
-
 ```{r warning=F, message=F}
 #| code-fold: true
 #| code-summary: "R setup"

@@ -17,12 +17,12 @@ editor: source
 
 # may need to install latest development version directly from Github
 #pak::pak("lsoenning/tlda")
+#pak::pak("lsoenning/uls")
 
 library(tlda)      # for access to datasets
 library(lattice)   # for data visualization
 library(tidyverse) # for data wrangling
-
-source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
+library(uls)       # for plotting themes
 ```
 
 In corpus linguistics, we often deal with quantities that range between 0 and 1. Examples are proportions (and percentages) and dispersion scores. Sometimes the distribution we observe gravitates toward the upper and/or lower end of the scale, which degrades resolution. In such cases, a transformation that stretches the scale near the endpoints can help. Three transformations are often applied to scores in the unit interval [0, 1] [see @Fox2016, pp. 72-75]. In the following, $x$ refers to these bounded scores (e.g. proportions or dispersion scores):
@@ -33,7 +33,7 @@ In corpus linguistics, we often deal with quantities that range between 0 and 1.
 
 #### Folded power transformation
 
-In his landmark work *Exploratory data analysis*, @Tukey1977 [pp. 498-502] introduced *folded roots* and *folded logs* for the transformation of proportions. Both are special cases of what are known as *folded power transformations* [see also @Mosteller_Tukey1977, p. 92]. The formula for this class of re-expressions is the following, where $x$ again refers to the bounded quantity that is to be transformed and $\lambda$ is the power to which the two terms, $x$ and $(1-x)$, are raised:
+In his landmark work *Exploratory data analysis*, @Tukey1977 [pp. 498-502] introduced *folded roots* and *folded logs* for the transformation of proportions. Both are special cases of what are known as *folded power transformations* [see also @Mosteller_Tukey1977, p. 92; @Atkinson1985, chap. 7]. The formula for this class of re-expressions is the following, where $x$ again refers to the bounded quantity that is to be transformed and $\lambda$ is the power to which the two terms, $x$ and $(1-x)$, are raised:
 
 $$
 x^\lambda - (1-x)^\lambda
@@ -75,7 +75,7 @@ for(i in 1:41){
 
 p1 <- xyplot(1~1, ylim=c(1,.14), xlim = c(-1, 1),
 	   ylab = "Lambda", xlab = "Unit interval",
-	   par.settings = my_settings, axis = axis_L,
+	   par.settings = lattice_ls, axis = axis_L,
 	   scales = list(x = list(at = seq(-1, 1, .2), 
 	   					   label = c("0", ".10", ".20", ".30", ".40", ".50", ".60", ".70", ".80", ".90", "1")),
 	   			  y = list(at = c(1, .5, .41, 1/3, .14)), label = c("1", ".5", ".41", "1/3", ".14")),
@@ -134,7 +134,7 @@ for(i in 1:41){
 
 p1 <- xyplot(1~1, ylim=c(1,.14), xlim = c(-7, 7),
 	   ylab = NULL, xlab = "Unit interval",
-	   par.settings = my_settings, 
+	   par.settings = lattice_ls, 
 	   scales = list(x = list(at = c(-1, 1), 
 	   					   label = c("0", "1")),
 	   			  y = list(draw = FALSE)),

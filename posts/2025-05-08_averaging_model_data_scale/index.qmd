@@ -6,10 +6,9 @@ date: 2025-05-01
 categories: [corpus linguistics, replication, regression]
 citation: 
   url: https://lsoenning.github.io/posts/2025-05-08-averaging_model_data_scale/ 
+editor: source
 draft: true
 ---
-
-
 
 ```{r}
 #| warning: false
@@ -24,9 +23,7 @@ library(MASS)            # to fit a negative binomial regression model
 library(corpora)         # to calculate a log-likelihood score
 library(ggthemes)        # for colorblind color theme
 library(kableExtra)      # for drawing html tables
-
-
-source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
+library(uls)             # pak::pak("lsoenning/uls")
 ```
 
 ### Terminology
@@ -161,6 +158,7 @@ should_Brown |>
   kbl()
 ```
 
+
 #### Crude answers to our research questions
 
 We may obtain a quick (and dirty) answer to our questions as follows. To measure the frequency of *should* in Brown, we divide its corpus frequency by the size of the corpus. We can do the same for Frown. We will multiply these rates by 1,000, to get normalized frequencies 'per 1,000 words':
@@ -197,9 +195,6 @@ These crude ways of assessing and testing frequencies and their differences in c
 
 Before we go further, however, we should note that the following elaborations are not meant to discredit the work done by Geoffrey Leech in the early 2000s. In fact, @Leech2003 provides a balanced assessment of frequency changes in the English modal system. The diachronic patterns he observed were remarkably consistent across the 11 modal verbs he studied, which strengthened the conclusion he drew. Further, when he referring to the log-likelihood scores for time differences, @Leech2003 explicitly noted that "too much should not be made of significance tests in comparative corpus studies" [-@Leech2003, p. 228].
 
-
-
-
 ##### Model-based estimates
 
 Let us again look at how to obtain these two types of comparisons using a regression model. We start by fitting a negative binomial model that includes two predictors, Corpus and Genre, as well as their interaction.
@@ -230,8 +225,6 @@ comparisons(
   dplyr::select(genre, contrast, estimate, conf.low, conf.high) |> 
     mutate(across(where(is.numeric), \(x) round(x, 2)))
 ```
-
-
 
 Try: Averaging on the model scale vs. the data scale
 

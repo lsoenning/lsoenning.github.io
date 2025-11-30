@@ -5,7 +5,8 @@ description: "This blog post is part of a small series on obstacles to replicati
 date: 2025-05-04
 categories: [corpus linguistics, replication crisis, regression, bias, imbalance]
 citation: 
-  url: https://lsoenning.github.io/posts/2025-05-03-imbalance_bias/ 
+  url: https://lsoenning.github.io/posts/2025-05-03-imbalance_bias/
+editor: source
 ---
 
 Corpus data are often characterized by a lack of balance. In contrast to experiments, where the researcher has (almost) full control over the distribution of data points across the conditions of interest, the spread of observations across the levels of relevant predictor variables is virtually always uneven in observational research. When the data break down into subgroups, many quantities of interest essentially represent some kind of average over these conditions. When dealing with unbalanced data, the researcher should actively decide whether they want subgroups to influence this average in proportion to their size, or whether a simple average is preferred. These are two different estimands, and in order for the estimates based on an original and a replication study to be comparable, they need to target the same estimand.
@@ -24,10 +25,9 @@ library(corpora)         # to calculate a log-likelihood score
 library(ggthemes)        # for colorblind color theme
 library(kableExtra)      # for drawing html tables
 library(ggthemes)        # for color-blind palette
-
-
-source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
+library(uls)             # pak::pak("lsoenning/uls")
 ```
+
 
 #### Terminology
 
@@ -314,7 +314,6 @@ should_data |>
   ggplot(aes(x = corpus, y = ptw, size = n_words, group = genre, color = genre)) +
   geom_point(shape = 1) +
   geom_point(shape = 16, size = 1) +
-  #geom_line(size = .5) +
   scale_color_colorblind() +
   theme_classic_ls() +
   ylab("Normalized frequency\n(per 1,000 words)") +

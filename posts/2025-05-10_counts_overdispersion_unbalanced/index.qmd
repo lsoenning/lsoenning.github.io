@@ -5,6 +5,7 @@ date: 2025-05-15
 categories: [corpus linguistics, regression, clustered data, frequency data, bias, imbalance, negative binomial]
 citation: 
   url: https://lsoenning.github.io/posts/2025-05-09_counts_overdispersion_unbalanced/ 
+editor: source
 ---
 
 When describing or modeling corpus-based frequency data, the fact that a corpus is divided into text files has consequences for statistical modeling. For count variables (which corpus linguists often summarize using normalized frequencies), there are several options. This blog post contrasts different regression approaches to clustered count data and clarifies how they deal with unequal text lengths.
@@ -23,8 +24,7 @@ library(kableExtra)      # for drawing html tables
 library(lme4)            # to fit mixed-effects regression models
 library(lattice)         # for data visualization
 library(gamlss)          # to draw the density of the gamma distribution
-
-source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
+library(uls)             # pak::pak("lsoenning/uls")
 ```
 
 #### Case study: *Actually* in the Spoken BNC2014
@@ -100,7 +100,6 @@ The key interest in the following is in the usage rate of *actually* (expressed 
 
 -   What is the normalized frequency of *actually* in the two groups?
 -   Does the usage rate of *actually* differ between the groups?
-
 
 #### Data description
 
@@ -189,7 +188,7 @@ d |>
   ggplot(aes(x = gender, y = rate_ptw)) +
   geom_boxplot() +
   scale_y_sqrt(breaks = 0:10) +
-  theme_classic() +
+  theme_classic_ls() +
   ylab("Normalized frequency of actually\n(per thousand words, square-root-scaled)\n") +
   xlab(NULL)
 ```
@@ -215,7 +214,7 @@ d |>
   ggplot(aes(x = gender, y = rate_ptw, size = n_words)) +
   geom_jitter(shape = 1, width = .25, alpha=.7) +
   scale_y_sqrt(breaks = 0:10) +
-  theme_classic() +
+  theme_classic_ls() +
   ylab("Normalized frequency of actually\n(per thousand words, square-root-scaled)\n") +
   scale_size_area(max_size = 15) +
   theme(legend.position = "none") +
@@ -223,7 +222,6 @@ d |>
 ```
 
 A key insight that will emerge from our comparison of modeling approaches will be that they respond differently to this data feature, i.e. the combination of disproportionately high word counts and relatively high or low occurrences rates, for specific texts or speakers. Before we turn to regression analysis, however, let us jot down numerical summaries for the data.
-
 
 #### Descriptive measures: Subcorpus frequencies and mean speaker frequency
 
@@ -449,7 +447,7 @@ This is illustrated in @fig-gamma, which shows high variability among speakers.
 
 xyplot(
   1~1, type="n", xlim=c(0, 4.2), ylim=c(0,1.5),
-  par.settings=my_settings, axis=axis_L,
+  par.settings=lattice_ls, axis=axis_L,
   scales=list(y=list(at=0), x=list(at=c(0,1,2,3,4))),
   ylab="Density", xlab="Multiplicative factor",
   panel=function(x,y,...){
@@ -587,7 +585,7 @@ The table tells us that the standard deviation of the random intercepts, i.e. th
 
 xyplot(
   1~1, type="n", xlim=fixef(m)[1] + c(-3.4, 3.5), ylim=c(0,.45),
-  par.settings=my_settings, axis=axis_bottom,
+  par.settings=lattice_ls, axis=axis_bottom,
   scales=list(y=list(at=0), x=list(at=-10:-4)),
   ylab="Density", xlab="Natural logarithm",
   panel=function(x,y,...){
@@ -600,8 +598,8 @@ xyplot(
 
 As discussed in detail in [this blog post](https://lsoenning.github.io/posts/2025-05-12_poisson_random_intercept/), there are two types of predictions we can calculate for the random-intercept Poisson model. Seeing that we are interested in the occurrence rate of *actually* rather than its natural logarithm, we will want to back-transform model-based predictions to the scale of normalized frequencies. Since there is between-speaker variation, our model-based estimate will have to somehow average over speakers. The question is whether we want to average over speakers on the scale of natural logarithms (the model scale) or on the scale of normalized frequencies (the data scale).
 
-- By averaging on the data scale of normalized frequencies, we obtain the **mean usage rate** across speakers. 
-- By averaging on the model scale of log normalized frequencies, and then back-transforming this mean log rate, we obtain the **median usage rate** across speakers.
+-   By averaging on the data scale of normalized frequencies, we obtain the **mean usage rate** across speakers.
+-   By averaging on the model scale of log normalized frequencies, and then back-transforming this mean log rate, we obtain the **median usage rate** across speakers.
 
 [This blog post](https://lsoenning.github.io/posts/2025-05-12_poisson_random_intercept/) provides a detailed illustration of these two types of frequency estimates.
 
@@ -623,8 +621,7 @@ As illustrated in [this blog post](https://lsoenning.github.io/posts/2025-05-12_
 
 $$
 \textrm{mean normalized frequency} = \textrm{exp}(\textrm{intercept} + \frac{\textrm{random-intercept variance}}{2})
-$$
-We first extract the random-intercept variance from the model object:
+$$ We first extract the random-intercept variance from the model object:
 
 ```{r}
 intercept_variance <- as.numeric(
@@ -845,8 +842,6 @@ pred_models |>
   coord_cartesian(clip="off")
 
 ```
-
-
 
 ```{r}
 #| fig-width: 4.5

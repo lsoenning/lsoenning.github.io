@@ -5,6 +5,7 @@ date: 2025-05-13
 categories: [corpus linguistics, regression, clustered data, frequency data, negative binomial]
 citation: 
   url: https://lsoenning.github.io/posts/2025-05-12_poisson_random_intercept/ 
+editor: source
 ---
 
 When modeling frequency counts, the Poisson model is often inappropriate since the observed variation from text to text (or speaker to speaker) is greater than anticipated by this simple model. The observed overdispersion can be addressed using Poisson mixture models, which include an additional parameter that captures the variation among texts. A frequently used variant is the negative binomial model (also called a Poisson-gamma mixture model), which represents text-to-text variation using a gamma distribution. This blog post discusses another option, a random-effects Poisson regression model (also called a Poisson-lognormal mixture model). We look at the structure of this model and how it represents text-to-text variation, and draw comparisons with the negative binomial model. We will see that a Poisson random-intercept model yields two different types of average frequencies.
@@ -26,8 +27,6 @@ library(gamlss)             # for drawing gamma densities
 
 # pak::pak("lsoenning/uls") # install package "uls"
 library(uls)                # for ggplot2 dotplot theme
-
-source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
 ```
 
 #### Case study: *Actually* in the Spoken BNC2014
@@ -167,7 +166,7 @@ This is illustrated in @fig-gamma, which shows considerable variation among spea
 
 xyplot(
   1~1, type="n", xlim=c(0, 3.1), ylim=c(0,1),
-  par.settings=my_settings, axis=axis_L,
+  par.settings=lattice_ls, axis=axis_L,
   scales=list(y=list(at=0), x=list(at=c(0,1,2,3,4))),
   ylab="Density", xlab="Multiplicative factor",
   panel=function(x,y,...){
@@ -286,7 +285,7 @@ The table tells us that the standard deviation of the random intercepts, i.e. th
 
 xyplot(
   1~1, type="n", xlim=c(-8.2, -4.9), ylim=c(0,1.5),
-  par.settings=my_settings, axis=axis_bottom,
+  par.settings=lattice_ls, axis=axis_bottom,
   scales=list(y=list(at=0), x=list(
     at=-9:-3,
     label = c("\u22129", "\u22128", "\u22127","\u22126", "\u22125", "\u22124", "\u22123"))),
@@ -329,7 +328,7 @@ x_seq <- seq(0, .006, length = 100)
 
 xyplot(
   1~1, type="n", xlim=c(0, exp(-4.99)), ylim=c(0,1.5),
-  par.settings=my_settings, axis=axis_bottom,
+  par.settings=lattice_ls, axis=axis_bottom,
   scales=list(y=list(at=0), x=list(at=(0:7)/1000, label=0:7)),
   ylab="Density           ", xlab="Occurrences per thousand words",
   panel=function(x,y,...){
@@ -381,7 +380,7 @@ sample_speakers <- dnorm_to_dots(
 
 p1 <- xyplot(
   1~1, type="n", xlim=c(-8.3, -4.8), ylim=c(0,2.2),
-  par.settings=my_settings, axis=axis_bottom,
+  par.settings=lattice_ls, axis=axis_bottom,
   scales=list(y=list(at=0), x=list(at=-9:-3)),
   ylab=NULL, xlab="Model scale: Log usage rate (base e)",
   panel=function(x,y,...){
@@ -433,7 +432,7 @@ The normalized frequency of 1.4 per thousand words is one kind of average usage 
 
 p1 <- xyplot(
   1~1, type="n", xlim=c(0, .0071), ylim=c(0,2.5),
-  par.settings=my_settings, axis=axis_bottom,
+  par.settings=lattice_ls, axis=axis_bottom,
   scales=list(y=list(at=0), x=list(at=(0:7)/1000, label=0:7)),
   ylab=NULL, xlab="Data scale: Usage rate (per thousand words)",
   panel=function(x,y,...){
@@ -557,7 +556,7 @@ x_seq <- seq(0, .006, length = 100)
 
 p1 <- xyplot(
   1~1, type="n", xlim=c(0, .006), ylim=c(0,1.1),
-  par.settings=my_settings, axis=axis_L,
+  par.settings=lattice_ls, axis=axis_L,
   scales=list(y=list(at=0), x=list(at=(0:6)/1000, label=c(0,1,2,3,4,5,6))),
   ylab="Density", xlab="Ocurrences per thousand words",
   panel=function(x,y,...){

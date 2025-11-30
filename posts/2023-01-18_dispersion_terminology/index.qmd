@@ -5,7 +5,7 @@ date: 2023-11-16
 categories: [corpus linguistics, dispersion]
 citation: 
   url: https://lsoenning.github.io/posts/2023-01-18_dispersion_terminology/
-draft: false
+editor: source
 ---
 
 ```{r}
@@ -15,8 +15,7 @@ draft: false
 #| warning: false
 
 library(lattice)
-
-source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
+library(uls)     # pak::pak("lsoenning/uls")
 ```
 
 In corpus linguistics, the term *dispersion* is used to describe the distribution of an item or structure in a corpus [see @Gries2008; @Gries2020]. For most dispersion measures, a corpus must first be divided into units (or parts). These units commonly reflect the design of the corpus -- they can be text files, for instance, or text categories. A dispersion index then describes the distribution of an item across these units. There are two general classes of measures:
@@ -52,7 +51,7 @@ B_loc <- rep((1:n_texts)[n_tokens_B!=0], n_tokens_B[n_tokens_B!=0])+runif(sum(n_
 
 xyplot(
   1~1, type="n", xlim=c(-1,14), ylim=c(2.8,6),
-  par.settings=my_settings, scales=list(draw=F), xlab="", ylab="",
+  par.settings=lattice_ls, scales=list(draw=F), xlab="", ylab="",
   panel=function(...){
     panel.rect(xleft=c(1,3,5,7), xright=c(2,4,6,8), ytop=5.1, ybottom=4.75, 
                border=FALSE, col="grey90", lwd=1)
@@ -114,7 +113,7 @@ Note how each corpus is divided into 8 texts, which are shown in @fig-1 using gr
 
 xyplot(
   1~1, type="n", xlim=c(-1,7.5), ylim=c(-.35,2.3),
-  par.settings=my_settings, scales=list(draw=F), xlab="", ylab="",
+  par.settings=lattice_ls, scales=list(draw=F), xlab="", ylab="",
   panel=function(...){
     panel.dotdiagram(1+(n_tokens_A/5), y_anchor=1, scale_y=.125, set_cex=1.3)
     panel.dotdiagram(1+(n_tokens_B/5), y_anchor=0, scale_y=.125, set_cex=1.3)

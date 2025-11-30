@@ -17,11 +17,11 @@ editor: source
 
 # install development version directly from Github
 #pak::pak("lsoenning/tlda")
+#pak::pak("lsoenning/uls")
 
 library(tlda)      # for access to datasets
 library(tidyverse) # for data wrangling
-
-source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
+library(uls)       # for plotting themes
 ```
 
 

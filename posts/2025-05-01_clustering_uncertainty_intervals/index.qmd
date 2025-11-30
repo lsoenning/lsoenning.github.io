@@ -5,7 +5,8 @@ description: "This blog post is part of a small series on obstacles to replicati
 date: 2025-05-02
 categories: [corpus linguistics, replication crisis, regression, clustered data]
 citation: 
-  url: https://lsoenning.github.io/posts/2025-05-01_clustering_uncertainty_intervals/ 
+  url: https://lsoenning.github.io/posts/2025-05-01_clustering_uncertainty_intervals/
+editor: source
 ---
 
 The data points drawn from a corpus often come in groups: There are typically multiple observations from the same text (or speaker). If this kind of data layout is not represented in the analysis, this will often yield spuriously precise estimates of the quantities of interest. This blog post describes how this can interfere with replication efforts in corpus linguistics.
@@ -22,9 +23,7 @@ library(marginaleffects) # to compute model-based estimates
 library(MASS)            # to fit a negative binomial regression model
 library(corpora)         # to calculate a log-likelihood score
 library(kableExtra)      # for drawing html tables
-
-
-source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
+library(uls)             # pak::pak("lsoenning/uls")
 ```
 
 #### Terminology
@@ -247,7 +246,7 @@ d_modals |> filter(
   mutate(rate_ptw = n_tokens / n_words * 1e3) |> 
   ggplot(aes(x = rate_ptw)) +
   geom_dotplot(method = "histodot", binwidth = .2, stackratio = 1) +
-  theme_dotplot_vertical() +
+  theme_dotplot(vertical = TRUE) +
   scale_y_continuous(expand = c(.004,0)) +
   scale_x_continuous(expand = c(0,0), breaks = c(0, 5, 10)) +
   xlab("Normalized frequency of should\n(per 1,000 words)") +
@@ -277,7 +276,7 @@ d_modals |> filter(
   mutate(rate_ptw = n_tokens / n_words * 1e3) |> 
   ggplot(aes(x = rate_ptw)) +
   geom_dotplot(method = "histodot", binwidth = .2, stackratio = 1) +
-  theme_dotplot_vertical() +
+  theme_dotplot(vertical = TRUE) +
   facet_grid(. ~ genre_nice) +
   scale_y_continuous(expand = c(.008,0)) +
   scale_x_continuous(expand = c(0,0), breaks = c(0, 5, 10)) +

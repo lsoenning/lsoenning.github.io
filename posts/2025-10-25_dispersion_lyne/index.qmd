@@ -21,9 +21,7 @@ library(knitr)
 library(kableExtra)
 library(gtools)
 library(tidyverse)
-
-
-source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
+library(uls)             # pak::pak("lsoenning/uls")
 ```
 
 #### Lyne (1985)'s graphical technique
@@ -149,7 +147,7 @@ zeros_labels <- c("no zeros",
                   "four zeros")
 
 p1 <- xyplot(1~1, xlim = c(0, length(unique(combs$D))), type = "n", ylim = c(0,1),
-       par.settings = my_settings, axis = axis_L,
+       par.settings = lattice_ls, axis = axis_L,
        scales = list(x = list(draw = FALSE),
                      y = list(at = c(0, .25, .5, .75, 1), label = c("(uneven) 0", ".25", ".50", ".75", "(even) 1"))),
        ylab = "\n\nDispersion", xlab = list(label = "\n\n\nDistribution\n(ranked from most to least even (according to D)", lineheight = .85, cex = .9),
@@ -197,7 +195,7 @@ Lyne [-@Lyne1985, p. 110] makes the same graphical comparison for *S* (vs. *D*) 
 
 
 p1 <- xyplot(1~1, xlim = c(0, length(unique(combs$D))), type = "n", ylim = c(0,1),
-       par.settings = my_settings, axis = axis_L,
+       par.settings = lattice_ls, axis = axis_L,
        scales = list(x = list(draw = FALSE),
                      y = list(at = c(0, .25, .5, .75, 1), label = c("(uneven) 0", ".25", ".50", ".75", "(even) 1"))),
        ylab = "\n\nDispersion", xlab = list(label = "\n\n\nDistribution\n(ranked from most to least even according to D)", lineheight = .85, cex = .9),
@@ -256,7 +254,7 @@ combs <- combs[order(combs$disp_avg),]
 my_cols <- rev(scales::pal_brewer(palette = "RdBu")(8)[c(1,2,3,6,7)])
 
 p1 <- xyplot(1~1, xlim = c(0, length(unique(combs$disp_avg_x_location))), type = "n", ylim = c(0,1),
-       par.settings = my_settings, axis = axis_L,
+       par.settings = lattice_ls, axis = axis_L,
        scales = list(x = list(draw = FALSE),
                      y = list(at = c(0, .25, .5, .75, 1), label = c("(uneven) 0", ".25", ".50", ".75", "(even) 1"))),
        ylab = "\n\nDispersion", xlab = list(label = "\n\n\n\nDistribution\n(ranked from most to least even based\non the average across all measures)", lineheight = .85, cex = .9),
@@ -302,7 +300,7 @@ print(p1, position = c(-.04,.15,.8,.925))
 combs <- combs[order(combs$disp_avg),]
 
 p_D <- xyplot(1~1, xlim = c(0, length(unique(combs$disp_avg_x_location))), type = "n", ylim = c(0,1),
-       par.settings = my_settings, axis = axis_L,
+       par.settings = lattice_ls, axis = axis_L,
        scales = list(x = list(draw = FALSE),
                      y = list(at = c(0, 1))),
        ylab = " ", xlab = "",
@@ -319,7 +317,7 @@ p_D <- xyplot(1~1, xlim = c(0, length(unique(combs$disp_avg_x_location))), type 
 	   	})
 
 p_D2 <- xyplot(1~1, xlim = c(0, length(unique(combs$disp_avg_x_location))), type = "n", ylim = c(0,1),
-       par.settings = my_settings, axis = axis_L,
+       par.settings = lattice_ls, axis = axis_L,
        scales = list(x = list(draw = FALSE),
                      y = list(at = c(0, 1))),
        ylab = " ", xlab = "",
@@ -336,7 +334,7 @@ p_D2 <- xyplot(1~1, xlim = c(0, length(unique(combs$disp_avg_x_location))), type
 	   	})
 
 p_S <- xyplot(1~1, xlim = c(0, length(unique(combs$disp_avg_x_location))), type = "n", ylim = c(0,1),
-       par.settings = my_settings, axis = axis_L,
+       par.settings = lattice_ls, axis = axis_L,
        scales = list(x = list(draw = FALSE),
                      y = list(at = c(0, 1))),
        ylab = " ", xlab = "",
@@ -353,7 +351,7 @@ p_S <- xyplot(1~1, xlim = c(0, length(unique(combs$disp_avg_x_location))), type 
 	   	})
 
 p_DP <- xyplot(1~1, xlim = c(0, length(unique(combs$disp_avg_x_location))), type = "n", ylim = c(0,1),
-       par.settings = my_settings, axis = axis_L,
+       par.settings = lattice_ls, axis = axis_L,
        scales = list(x = list(draw = FALSE),
                      y = list(at = c(0, 1))),
        ylab = " ", xlab = "",
@@ -370,7 +368,7 @@ p_DP <- xyplot(1~1, xlim = c(0, length(unique(combs$disp_avg_x_location))), type
 	   	})
 
 p_DA <- xyplot(1~1, xlim = c(0, length(unique(combs$disp_avg_x_location))), type = "n", ylim = c(0,1),
-       par.settings = my_settings, axis = axis_L,
+       par.settings = lattice_ls, axis = axis_L,
        scales = list(x = list(draw = FALSE),
                      y = list(at = c(0, 1))),
        ylab = " ", xlab = "",
@@ -387,7 +385,7 @@ p_DA <- xyplot(1~1, xlim = c(0, length(unique(combs$disp_avg_x_location))), type
 	   	})
 
 p_DKL <- xyplot(1~1, xlim = c(0, length(unique(combs$disp_avg_x_location))), type = "n", ylim = c(0,1),
-       par.settings = my_settings, axis = axis_L,
+       par.settings = lattice_ls, axis = axis_L,
        scales = list(x = list(draw = FALSE),
                      y = list(at = c(0, 1))),
        ylab = " ", xlab = "",

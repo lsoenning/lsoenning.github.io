@@ -18,7 +18,7 @@ editor: source
 
 - **Sönning**, Lukas. (under review). An analysis of bar chart usage in corpus data visualization. [Submitted manuscript](https://osf.io/preprints/osf/ahyz4_v1){target="_blank"}   | {{< ai osf >}} [OSF](https://osf.io/a5p4s/){target="_blank"}
 
-- **Sönning**, Lukas. (under review). Case-control down-sampling in corpus-based research. [Submitted manuscript](https://osf.io/preprints/osf/g74bk_v1){target="_blank"}   | {{< ai osf >}} [OSF](https://osf.io/t59h6/){target="_blank"}
+- **Sönning**, Lukas. (under review). Case-control down-sampling in corpus-based research. [Submitted manuscript](https://osf.io/preprints/osf/g74bk_v1){target="_blank"} | {{< ai zenodo >}} [Data](https://doi.org/10.5281/zenodo.17736042) | {{< ai osf >}} [OSF](https://osf.io/t59h6/){target="_blank"}
 
 - **Sönning**, Lukas & Timo Roettger. (under review). Reproducibility, replication, and preregistration. In Stefan Hartmann & Laura J. Speed (eds.), *Handbook of language and cognition*. Bloomsbury. [Submitted manuscript](https://osf.io/preprints/psyarxiv/drvnz_v1){target="_blank"}   | {{< ai osf >}} [OSF](https://osf.io/yhv8n/){target="_blank"}
 
@@ -102,6 +102,9 @@ Software
 
 #### Datasets
 
+- Sönning, Lukas. 2025. *Background data for: Random forests in corpus research: A systematic review*. [10.5281/zenodo.17755086](10.5281/zenodo.17755086). Zenodo, V1.
+
+- Sönning, Lukas. 2025. *Background data for: Case-control down-sampling in corpus research*. [https://doi.org/10.5281/zenodo.17736042](https://doi.org/10.5281/zenodo.17736042). Zenodo, V1.
 
 - Braun, Albert & Lukas Sönning. 2025. *The comparative and superlative alternation in 1960s and 1970s written British English: Data from Braun (1982)*. [https://doi.org/10.18710/4Z7OJG](https://doi.org/10.18710/4Z7OJG), DataverseNO, V1.
 

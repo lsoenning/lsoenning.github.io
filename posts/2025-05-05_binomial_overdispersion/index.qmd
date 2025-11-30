@@ -4,7 +4,8 @@ description: "This blog post illustrates a number of strategies for modeling clu
 date: 2025-05-09
 categories: [corpus linguistics, regression, clustered data, binary data]
 citation: 
-  url: https://lsoenning.github.io/posts/2025-05-05_binomial_overdispersion/ 
+  url: https://lsoenning.github.io/posts/2025-05-05_binomial_overdispersion/
+editor: source 
 ---
 
 A typical feature of corpus data is their hierarchical layout. Observations are usually clustered, which is the case if multiple data points are from the same text (or speaker). Observations from the same source are usually more similar to one another, reflecting idiosyncracies of the author/speaker or particularities of the context of language use. For binary outcome variables, there are different options for modeling such data. This blog post builds on a paper by @Anderson1988 and contrasts approaches that differ in the way they represent (or account for) the non-independence of data points.
@@ -26,9 +27,7 @@ library(aod)               # to fit a beta-binomial model
 library(PropCIs)           # to calculate Wilson score CIs
 library(doBy)              # to convert data from short to long format
 library(lme4)              # to fit mixed-effects regression models
-
-
-source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
+library(uls)               # pak::pak("lsoenning/uls")
 ```
 
 #### Data: Passives in academic writing
@@ -125,7 +124,7 @@ This is indeed the case for the present data. The point cloud in the @fig-scatte
 
 d |> ggplot(aes(x = verbs, y = prop_passive)) +
   geom_point() +
-  theme_classic() +
+  theme_classic_ls() +
   scale_y_continuous(
     limits = c(0,1), expand = c(0,0),
     breaks = c(0, .5, 1),
@@ -157,7 +156,7 @@ for(i in 1:160){
 }
 
 p1 <- xyplot(1~1, type = "n", ylim=c(0,1), xlim = c(0,163),
-       par.settings = my_settings, axis = axis_left,
+       par.settings = lattice_ls, axis = axis_left,
        scales = list(
          y = list(
                at = c(0, .5, 1),
@@ -197,7 +196,7 @@ Point (ii) deserves some more comment. For binomial data, sampling variation is 
 
 xyplot(
   1~1, type = "n", xlim=c(0,1), ylim = c(0,.25),
-  par.settings = my_settings, axis = axis_L,
+  par.settings = lattice_ls, axis = axis_L,
   scales = list(y = list(
     at = c(0, .1, .2, .3, .4, .5),
     label = c("0", ".1", ".2", ".3", ".4", ".5")),
@@ -272,7 +271,7 @@ To check how well the binomial model fits the data, we can ask it to "retrodict"
 
 xyplot(
   1 ~ 1, type = "n", xlim=c(0,1), ylim = c(0,.16),
-  par.settings = my_settings, axis = axis_bottom,
+  par.settings = lattice_ls, axis = axis_bottom,
   scales = list(
     x = list(
       at = c(0, .25, .5, .75, 1),
@@ -362,7 +361,7 @@ m <- gamlss(cbind(pass, act) ~ 1, data=d, family="DBI",
 
 xyplot(
   1 ~ 1, type = "n", xlim=c(0,1), ylim = c(0,.06),
-  par.settings = my_settings, axis = axis_bottom,
+  par.settings = lattice_ls, axis = axis_bottom,
   scales = list(
     x = list(
       at = c(0, .25, .5, .75, 1),
@@ -447,7 +446,7 @@ We can now graph the beta distribution:
 
 xyplot(
   1~1, type = "n", xlim=c(0,1), ylim = c(0,5),
-  par.settings = my_settings, axis = axis_bottom,
+  par.settings = lattice_ls, axis = axis_bottom,
   scales = list(x = list(
       at = c(0, .25, .5, .75, 1),
       labels = c("0", ".25", ".50", ".75", "1"))),
@@ -502,7 +501,7 @@ Finally, we check the fit between model and data visually (see @fig-betabinomial
 #| warning: false
 
 xyplot(1 ~ 1, type = "n", xlim=c(0,1), ylim = c(0,.03),
-       par.settings = my_settings, axis = axis_bottom,
+       par.settings = lattice_ls, axis = axis_bottom,
        scales = list(
          x = list(
                at = c(0, .25, .5, .75, 1),
@@ -606,7 +605,7 @@ In @fig-ranef-ordinary-fit, the density curve shows what the model *thinks* the 
 #| warning: false
 
 xyplot(1 ~ 1, type = "n", xlim=c(0,1), ylim = c(0,.03),
-       par.settings = my_settings, axis = axis_bottom,
+       par.settings = lattice_ls, axis = axis_bottom,
        scales = list(
          x = list(
                at = c(0, .25, .5, .75, 1),
@@ -728,7 +727,7 @@ The model therefore assumes that the distribution of the random intercepts is sy
 #| warning: false
 
 xyplot(1 ~ 1, type = "n", xlim=c(-3.5, 1.1), ylim = c(0,.02),
-       par.settings = my_settings, axis = axis_bottom,
+       par.settings = lattice_ls, axis = axis_bottom,
        xlab.top = "Logistic regression with random intercepts\n",
        xlab = "Text-specific logit of passive verb phrases", ylab = NULL,
        panel = function(x,y){
@@ -765,7 +764,7 @@ interpolated_to_100_steps <- approx(
         xout = seq(0, 1, length=100))
 
 xyplot(1 ~ 1, type = "n", xlim=c(0,1), ylim = c(0,.03),
-       par.settings = my_settings, axis = axis_bottom,
+       par.settings = lattice_ls, axis = axis_bottom,
        scales = list(
          x = list(
                at = c(0, .25, .5, .75, 1),

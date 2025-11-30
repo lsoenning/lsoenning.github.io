@@ -6,7 +6,6 @@ categories: [corpus linguistics, dispersion, negative binomial]
 citation: 
   url: https://lsoenning.github.io/posts/2023-12-13_negative_binomial_parameterization/
 editor: source
-draft: false
 ---
 
 ```{r}
@@ -24,8 +23,7 @@ library(brms)
 library(rstanarm)
 library(knitr)
 library(kableExtra)
-
-source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
+library(uls)         # pak::pak("lsoenning/uls")
 ```
 
 One complication that arises when working with the negative binomial distribution is the fact that it can be written down in two different ways. These different parameterizations yield the same results for the mean of the distribution, i.e. the expected count or rate. Thus, if we are only interested in the occurrence rate (or normalized frequency) of an item, including a 95% statistical uncertainty interval, no problems arise. If we are interested in the negative binomial dispersion parameter, however, we must know which parameterization is implemented in the R package or R function we are using. The main purpose of this blog post is to divide R functions into two groups, depending on which version of the negative binomial distribution they use.
@@ -123,7 +121,7 @@ nb_density <- dNBI(
 
 xyplot(
   n_texts ~ token_count,
-  par.settings=my_settings, axis=axis_L, ylim=c(0, 53), xlim=c(-1.5, NA),
+  par.settings=lattice_ls, axis=axis_L, ylim=c(0, 53), xlim=c(-1.5, NA),
   scales=list(y=list(at=c(0,20,40,60,80))),
   type="h", lwd=6, lineend="butt", col="grey",
   xlab = expression("Number of instances of "~italic(which)),

@@ -6,7 +6,6 @@ categories: [corpus linguistics, down-sampling]
 citation: 
   url: https://lsoenning.github.io/posts/2023-11-17_downsampling_two_types/
 editor: source
-draft: false
 ---
 
 The data available from corpora are often too vast for certain types of linguistic analysis. Researchers are then forced to select a subset of the data, and this selection process can be referred to as "down-sampling". Currently, the term is used to refer to two very different types of down-sizing. 

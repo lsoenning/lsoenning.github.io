@@ -1,12 +1,11 @@
 ---
 title: "Custom scoring systems in ordinal data analysis: A tribute to Sharoff (2018)"
-description: "This blog post ..."
-date: 2024-02-29
-categories: [ordinal data, scoring system, rating scales]
+description: "This blog post discusses the issue of representing an ordinal response scale using numeric scores. It shows how psychometric research may suggest deviations from the near-universal use of equally spaced integers. The blog post was inspired by Sharoff (2018), the only study in an extensive review of the linguistic research literature that deviated from this default approach."
+date: 2025-11-30
+categories: [ordinal data]
 citation: 
   url: https://lsoenning.github.io/posts/2024-03-01_sharoff_2018/
 editor: source
-draft: true
 ---
 
 
@@ -18,28 +17,27 @@ draft: true
 
 library(tidyverse)
 library(lattice)
-
-source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
+library(uls)         # pak::pak("lsoenning/uls")
 
 directory_path <- "C:/Users/ba4rh5/Work Folders/My Files/R projects/_lsoenning.github.io/posts/2024-03-01_sharoff_2018/"
 
 ```
 
-I recently did a literature survey on how ordinal rating scale data are handled in linguistic research [see @Soenning2024]. It included 4,441 publications from 16 linguistic journals (published between 2012 and 2022), covering a broad range of sub-disciplines. It turned out that a vast majority of researchers take a numeric-conversion approach: They translate the response categories into numeric scores and then analyze the data as though ratings were actually collected on a continuous scale. Further, almost all of these studies use a linear scoring system, i.e. equally-spaced integers, to analyze their data. The current blog post is devoted to @Sharoff2018, the only paper in our survey that used a custom set of scale values for the ordered response set.
+I recently did a systematic review on how ordinal rating scale data are handled in linguistic research [see @Soenning2024]. It included 4,441 publications from 16 linguistic journals (published between 2012 and 2022), covering a broad range of sub-disciplines. It turned out that a vast majority of researchers take a numeric-conversion approach: They translate the response categories into numeric scores and then analyze the data as though ratings were actually collected on a continuous scale. Further, almost all of these studies use a linear scoring system, i.e. equally-spaced integers, to analyze their data. The current blog post is devoted to @Sharoff2018, the only paper in my survey that used a custom set of scale values for the ordered response set.
 
 #### Numeric-conversion approach to ordinal data
 
-In what follows, we will use the term *scoring system* [see @Labovitz1967] to refer to the set of values that are used to represent the ordinal responses. Analyses based on scoring systems involve the calculation of averages or the use of ordinary (mixed-effects) regression. This practice, which is widespread in linguistics [see @Soenning_etal2024; @Soenning2024], has sparked heated methodological debates. The widely accepted belief that an interval-level analysis of ordinal data is inappropriate goes back to an influential paper by @Stevens1946, who proposed a taxonomy of scale types (nominal, ordinal, interval, and ratio) along with “permissible statistics” for each. Among the caveats of the numeric-conversion approach is the fact that distances between consecutive categories are usually unknown. In particular, when all scale points are verbalized, the perceived distance between categories will depend on how informants interpret the labels. It turns out that experimental research has produced insights into the perception of quantificational expressions that are frequently used to build graded scales.
+In what follows, I will use the term *scoring system* [see @Labovitz1967] to refer to the set of values that are used to represent the ordinal responses. Analyses based on scoring systems involve the calculation of averages or the use of ordinary (mixed-effects) regression. This practice, which is widespread in linguistics [see @Soenning_etal2024; @Soenning2024], has sparked heated methodological debates. The widely accepted belief that an interval-level analysis of ordinal data is inappropriate goes back to an influential paper by @Stevens1946, who proposed a taxonomy of scale types (nominal, ordinal, interval, and ratio) along with “permissible statistics” for each. Among the caveats of the numeric-conversion approach is the fact that distances between consecutive categories are usually unknown. In particular, when all scale points are verbalized, the perceived distance between categories will depend on how informants interpret the labels.
 
 
 #### Psychometric research
 
-Psycholinguistic research on intensifiers, for instance, has shown that English native speakers recognize similar increments in intensity between *hardly*-*slightly* and *considerably*-*highly* [@Rohrmann2007]. Such insights can inform the design and analysis stage of a study. Earlier methodological work has mainly focused on scale construction, i.e. the selection of approximately equal-interval sequences [e.g. @Friedman_Amoo1999; @Rohrmann2007; @Beckstead2014]. As discussed in @Soenning2024, psychometric scale values can also suggest more appropriate scoring systems for data analysis. As our literature survey shows, custom scale values are virtually never used in current research, and only few methodological studies acknowledge this possibility [@Labovitz1967, p. 155; @Worcester_Burns1975, p. 191]. Instead, researchers almost universally assign equally-spaced integers to the categories. The only exception we have found in our survey is the study by @Sharoff2018.
+Experimental research has produced insights into the perception of quantificational expressions that are frequently used to build graded scales. Psycholinguistic studies on intensifiers, for instance, have shown that English native speakers recognize similar increments in intensity between *hardly*-*slightly* and *considerably*-*highly* [@Rohrmann2007]. Such insights can inform the design and analysis stage of a study. Earlier methodological work has mainly focused on scale construction, i.e. the selection of approximately equal-interval sequences [e.g. @Friedman_Amoo1999; @Rohrmann2007; @Beckstead2014]. As discussed in @Soenning2024, psychometric scale values can also suggest more appropriate scoring systems for data analysis. I find it surprising that only few methodological studies acknowledge this possibility [@Labovitz1967, p. 155; @Worcester_Burns1975, p. 191]. In applied work, researchers almost universally assign equally-spaced integers to the categories. This is also true for linguistics -- in my systematic review, custom scale values are virtually never found. The only exception is a paper by @Sharoff2018, which inspired the present blog post.
 
 
 #### Sharoff (2018)
 
-The paper by @Sharoff2018, which appeared in the journal *Corpora*, presents an approach to classifying texts that appear in large web corpora into genres. To this end, a text-external framework relying on Functional Text Dimensions is used. Examples for such dimensions are ‘informative reporting’ or ‘argumentation’, and raters were asked to indicate the extent to which a text represents a certain functional category. To answer questions such as "To what extent does the text appear to be an informative report of events recent at the time of writing (for example, a news item)?", informants were provided with four response options:
+The paper by @Sharoff2018, which appeared in the journal *Corpora*, presents an approach to classifying texts into genres. To this end, a text-external framework relying on Functional Text Dimensions is used. Examples for such dimensions are ‘informative reporting’ or ‘argumentation’. Raters were asked to indicate the extent to which a text represents a certain functional category. To answer questions such as "To what extent does the text appear to be an informative report of events recent at the time of writing (for example, a news item)?", informants were provided with four response options:
 
 - "strongly or very much so"
 - "somewhat or partly"
@@ -58,7 +56,7 @@ The step from “somewhat or partly” to “strongly or very much so” was mad
 
 #### The psychometrics of intensifiers
 
-A number of studies have looked into how speakers interpret intensifying adverbs. Here, we bring together results from three studies that used similar methods to scale the meaning of relevant adverbs [@Matthews_etal1978; @Krsacok2001; @Rohrmann2007]. To measure the relative level of intensity assigned to a specific expression, subjects are typically asked to locate it on an equally-apportioned 11-point scale. We map this scale to the [0,10] interval. @fig-intensity gives an overview of and summarizes the findings reported in the three studies:
+A number of studies have looked into how speakers interpret intensifying adverbs. Here, I collect results from three studies that used similar methods to scale the meaning of relevant adverbs [@Matthews_etal1978; @Krsacok2001; @Rohrmann2007]. To measure the relative level of intensity assigned to a specific expression, subjects are typically asked to locate it on an equally-apportioned 11-point scale. I map this scale to the [0,10] interval. @fig-intensity gives an overview of the findings reported in the three studies:
 
 - The grey dot diagrams indicate the ratings for four speaker groups (@Krsacok2001 studied two groups, male vs. female subjects).
 - The black dots denote the average across the groups, which is recorded at the left end of the graph.
@@ -140,7 +138,7 @@ We can make an attempt to roughly pin down the psychometric scale values that ma
 - `1.5` *hardly*
 - `0.4` *not*
 
-Then we average across double designations (e.g. *hardly*/*not*; *somewhat*/*partly*). This allows us to establish an empirically grounded spacing between the response options. @fig-sharoff compares these relative distances to the ones used by @Sharoff2018. It lends empirical support to the custom scores used in that study: Three (roughly) equally-spaced categories at the lower end of the scale, with a disproportionate gap to the highest response option. In fact, the psychometric evidence would have licensed a more pronounced numeric gap between *very much* and *somewhat*/*partly*, roughly:
+Then we average across double designations (e.g. *hardly*/*not*; *somewhat*/*partly*). This allows us to establish an empirically grounded spacing between the response options. @fig-sharoff compares these relative distances to the ones used by @Sharoff2018. It lends empirical support to the custom scores used in that study: Three (roughly) equally-spaced categories at the lower end of the scale, with a disproportionate gap to the highest response option. In fact, the psychometric evidence would even have licensed a more pronounced numeric gap between *very much* and *somewhat*/*partly*, roughly:
 
 - `2.0` "strongly or very much so"
 - `0.7` "somewhat or partly"
@@ -153,9 +151,10 @@ More importantly, however, it is clear that it was appropriate for @Sharoff2018 
 #| echo: false
 #| message: false
 #| warning: false
+#| classes: preview-image
 
 p1 <- xyplot(score_mean ~ rep(2, 6), data=d_subset, pch=1, col=1, cex=1.5,
-       par.settings=my_settings, axis=axis_left, ylim=c(0,10), xlim=c(-5,13),
+       par.settings=lattice_ls, axis=axis_left, ylim=c(0,10), xlim=c(-5,13),
        scales=list(y=list(at=c(0,5,10), cex=.9)),
        ylab="Average score\n(on a scale from 0 to 10)\n", xlab=NULL,
        panel=function(x,y,...){
@@ -183,7 +182,7 @@ p1 <- xyplot(score_mean ~ rep(2, 6), data=d_subset, pch=1, col=1, cex=1.5,
                             '"somewhat or partly"', '"strongly or very much so"'),
                     adj=0, font="italic")
          
-         panel.text(x=17, y=11, label="Scoring system in Sharoff 2018")
+         panel.text(x=17, y=11, label="Scoring system in Sharoff (2018)")
          panel.text(x=2, y=11, label="Psychometric scale values")
        })
 ```
@@ -203,6 +202,5 @@ print(p1, position=c(.02,-.12,.68,.9))
 
 #### Conclusion
 
-We have seen how experimental findings may inform the arrangement of custom scoring systems for the analysis of ordinal rating scale data. The fact that researchers almost exclusively rely on equal-spaced integers is clearly unsatisfactory. Following the good example of @Sharoff2018, more frequent use should be made of custom scoring systems. This methodological topic is discussed much more detail in @Soenning2024, where further psychometric insights are summarized and the inherent limitations of the numeric-conversion approach to ordinal data are given due consideration. The paper discusses measurement-theoretic and statistical issues surrounding this strategy and clearly states their consequences for the analysis and interpretation of rating scale data. 
-
+We have seen how experimental findings may inform the arrangement of custom scoring systems for the analysis of ordinal rating scale data. The fact that researchers almost exclusively rely on equal-spaced integers may be considered unsatisfactory. Following the good example of @Sharoff2018, more frequent use should be made of custom scoring systems. This methodological topic is discussed much more detail in @Soenning2024, where further psychometric insights are summarized and the inherent limitations of the numeric-conversion approach to ordinal data are given due consideration.
 
