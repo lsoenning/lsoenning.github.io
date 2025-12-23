@@ -6,33 +6,36 @@ editor: source
 
 #### Unpublished
 
-- **Sönning**, Lukas. (forthcoming). Count regression models for keyness analysis. Chapter for: Carolin Cholotta & Christine Renker (eds.), *META-LING 2023 - Methodological Exploration and Technological Advances in Linguistics*  [Accepted manuscript](https://osf.io/preprints/psyarxiv/25mwj_v2){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/mc26t/){target="_blank"} 
+
+- **Sönning**, Lukas. (forthcoming). Case-control down-sampling in corpus research. *Corpus Linguistics and Linguistic Theory* [Submitted manuscript](https://osf.io/preprints/osf/g74bk_v1){target="_blank"} | [Data](https://doi.org/10.5281/zenodo.17736042) | {{< ai osf >}} [OSF](https://osf.io/t59h6/){target="_blank"}
 
 - **Sönning**, Lukas & Jesse Egbert. (forthcoming). Sensitivity of dispersion measures to distributional patterns and corpus design. *International Journal of Corpus Linguistics* [Submitted manuscript](https://osf.io/preprints/psyarxiv/rz8qn_v1){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/mfjst/){target="_blank"}
+
+- **Sönning**, Lukas. (forthcoming). An analysis of bar chart usage in corpus data visualization. *ICAME Journal* [Submitted manuscript](https://osf.io/preprints/osf/ahyz4_v1){target="_blank"}   | {{< ai osf >}} [OSF](https://osf.io/a5p4s/){target="_blank"}
+
+- **Sönning**, Lukas & Timo Roettger. (forthcoming). Reproducibility, replication, and preregistration. In Stefan Hartmann & Laura J. Speed (eds.), *Handbook of language and cognition*. Bloomsbury. [Submitted manuscript](https://osf.io/preprints/psyarxiv/drvnz_v1){target="_blank"}   | {{< ai osf >}} [OSF](https://osf.io/yhv8n/){target="_blank"}
+
+- **Sönning**, Lukas. (forthcoming). Down-sampling strategies in corpus phonology. Chapter for: Philipp Meer & Ulrike Gut (eds.) *English corpus phonetics and phonology: Current approaches and future directions* [Submitted manuscript](https://osf.io/preprints/osf/5hduq_v2){target="_blank"}   {{< ai osf >}} [OSF](https://osf.io/67ya5/){target="_blank"}
+
+- **Sönning**, Lukas. (forthcoming). Count regression models for keyness analysis. Chapter for: Carolin Cholotta & Christine Renker (eds.), *META-LING 2023 - Methodological Exploration and Technological Advances in Linguistics*  [Accepted manuscript](https://osf.io/preprints/psyarxiv/25mwj_v2){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/mc26t/){target="_blank"} 
+
+- **Sönning**, Lukas. (forthcoming). Juggling internal and external factors when modeling natural language data.
+
 
 - **Sönning**, Lukas. (under review). Dispersion analysis. In Hilary Nesi & Petar Milin (eds.), *International Encyclopedia of Language and Linguistics*, 3rd ed. Amsterdam: Elsevier. [Submitted manuscript](https://osf.io/preprints/osf/h3dyx_v2){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/epvk2/){target="_blank"} 
 
 - Schützler, Ole, Lukas **Sönning**, Fabian Vetter & Manfred Krug. (under review). The morpho-syntax of Standard Scottish English: Questionnaire-based insights. [Submitted manuscript](http://dx.doi.org/10.2139/ssrn.5381956){target="_blank"} | {{< ai osf >}} [OSF](https://osf.io/hykq5/){target="_blank"}
 
-- **Sönning**, Lukas. (under review). Down-sampling strategies in corpus phonology. Chapter for: Philipp Meer & Ulrike Gut (eds.) *English corpus phonetics and phonology: Current approaches and future directions* [Submitted manuscript](https://osf.io/preprints/osf/5hduq_v1){target="_blank"}   {{< ai osf >}} [OSF](https://osf.io/67ya5/){target="_blank"}
+- Mühlbauer, Michael & Lukas **Sönning**. (under review). Ordinal random forests in language data analysis. [Submitted manuscript](https://osf.io/preprints/psyarxiv/s4bv2_v1) | [Data](https://doi.org/10.5281/zenodo.18020809)
 
-- **Sönning**, Lukas. (under review). An analysis of bar chart usage in corpus data visualization. [Submitted manuscript](https://osf.io/preprints/osf/ahyz4_v1){target="_blank"}   | {{< ai osf >}} [OSF](https://osf.io/a5p4s/){target="_blank"}
-
-- **Sönning**, Lukas. (under review). Case-control down-sampling in corpus-based research. [Submitted manuscript](https://osf.io/preprints/osf/g74bk_v1){target="_blank"} | {{< ai zenodo >}} [Data](https://doi.org/10.5281/zenodo.17736042) | {{< ai osf >}} [OSF](https://osf.io/t59h6/){target="_blank"}
-
-- **Sönning**, Lukas & Timo Roettger. (under review). Reproducibility, replication, and preregistration. In Stefan Hartmann & Laura J. Speed (eds.), *Handbook of language and cognition*. Bloomsbury. [Submitted manuscript](https://osf.io/preprints/psyarxiv/drvnz_v1){target="_blank"}   | {{< ai osf >}} [OSF](https://osf.io/yhv8n/){target="_blank"}
-
-- **Sönning**, Lukas, Jason Grafmiller & Raquel Romasanta. (under review). Regression and random forests: Synergies for variationist corpus research. [Working paper](https://doi.org/10.31234/osf.io/afuh9){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/5u8bt/){target="_blank"} 
-
-- **Sönning**, Lukas. (under review). Juggling internal and external factors when modeling natural language data.
 
 - **Sönning**, Lukas. (in preparation). Random forests in corpus research: A systematic review. 
-
-- Mühlbauer, Michael & Lukas **Sönning**. (in preparation). Ordinal random forests in language data analysis. 
 
 - **Sönning**, Lukas. (in preparation). Distributional latent-variable modeling of ordinal outcomes in language data analysis.
 
 - **Sönning**, Lukas. (unpublished manuscript). Evaluation of text-level measures of lexical dispersion: Robustness and consistency.   {{< ai psyarxiv >}} [Working paper](https://psyarxiv.com/h9mvs/){target="_blank"}  | {{< ai dataverse >}} [Data](https://doi.org/10.18710/MNVB36){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/rpfb8/){target="_blank"} 
+
+- **Sönning**, Lukas, Jason Grafmiller & Raquel Romasanta. (unpublished manuscript). Regression and random forests: Synergies for variationist corpus research. [Working paper](https://doi.org/10.31234/osf.io/afuh9){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/5u8bt/){target="_blank"} 
 
 \  
 
@@ -102,9 +105,15 @@ Software
 
 #### Datasets
 
-- Sönning, Lukas. 2025. *Background data for: Random forests in corpus research: A systematic review*. [10.5281/zenodo.17755086](10.5281/zenodo.17755086). Zenodo, V1.
+- Sönning, Lukas. 2025. *Background data for: An analysis of bar chart usage in corpus data visualization*. [https://doi.org/10.18710/ILJY4U](https://doi.org/10.18710/ILJY4U), DataverseNO, V1.
 
-- Sönning, Lukas. 2025. *Background data for: Case-control down-sampling in corpus research*. [https://doi.org/10.5281/zenodo.17736042](https://doi.org/10.5281/zenodo.17736042). Zenodo, V1.
+- Sönning, Lukas. 2025. *Background data for: Down-sampling strategies in corpus phonology*. [https://doi.org/10.5281/zenodo.17877929](https://doi.org/10.5281/zenodo.17877929). Zenodo, V1.
+
+- Krug, Manfred, Fabian Vetter & Lukas Sönning. 2025. *Background data for: Ordinal random forests in language data analysis*.  [https://doi.org/10.5281/zenodo.18020809](https://doi.org/10.5281/zenodo.18020809). Zenodo, V2.
+
+- Sönning, Lukas. 2025. *Background data for: Random forests in corpus research: A systematic review*. [https://doi.org/10.5281/zenodo.17755086](https://doi.org/10.5281/zenodo.17755086). Zenodo, V1.
+
+- Sönning, Lukas. 2025. *Background data for: Case-control down-sampling in corpus research*. [https://doi.org/10.5281/zenodo.17877420](https://doi.org/10.5281/zenodo.17877420). Zenodo, V2.
 
 - Braun, Albert & Lukas Sönning. 2025. *The comparative and superlative alternation in 1960s and 1970s written British English: Data from Braun (1982)*. [https://doi.org/10.18710/4Z7OJG](https://doi.org/10.18710/4Z7OJG), DataverseNO, V1.
 
@@ -112,9 +121,7 @@ Software
 
 - Sönning, Lukas. 2024. *Background data for: Advancing our understanding of dispersion measures in corpus research*. [https://doi.org/10.18710/FVHTFM](https://doi.org/10.18710/FVHTFM), DataverseNO, V1.
 
-
 - Sönning, Lukas. 2024. *Background data for: Some obstacles to replication in corpus linguistics*. [https://doi.org/10.18710/7LNWJX](https://doi.org/10.18710/7LNWJX), DataverseNO, V1.
-
 
 - Sönning, Lukas. 2024. *Background data for: Ordinal response scales: Psychometric grounding for design and analysis*, [https://doi.org/10.18710/0VLSLW](https://doi.org/10.18710/0VLSLW){target="_blank"}, DataverseNO, V1.
 

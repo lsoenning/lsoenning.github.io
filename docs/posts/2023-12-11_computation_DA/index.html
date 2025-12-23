@@ -310,7 +310,7 @@ window.Quarto = {
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    r_i <span class="ot">&lt;-</span> R_i <span class="sc">/</span> <span class="fu">sum</span>(R_i)</span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    k   <span class="ot">&lt;-</span> <span class="fu">length</span>(subfreq)</span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    DA <span class="ot">&lt;-</span> (<span class="dv">2</span><span class="sc">*</span><span class="fu">sum</span>((<span class="fu">sort</span>(r_i, <span class="at">decreasing=</span><span class="cn">TRUE</span>) <span class="sc">*</span> <span class="dv">1</span><span class="sc">:</span>k)) <span class="sc">-</span><span class="dv">1</span>) <span class="sc">/</span> (k<span class="dv">-1</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    DA <span class="ot">&lt;-</span> (<span class="dv">2</span> <span class="sc">*</span> (<span class="fu">sum</span>(<span class="fu">sort</span>(r_i, <span class="at">decreasing=</span><span class="cn">TRUE</span>) <span class="sc">*</span> <span class="dv">1</span><span class="sc">:</span>k) <span class="sc">-</span> <span class="dv">1</span>)) <span class="sc">/</span> (k<span class="dv">-1</span>)</span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">names</span>(DA) <span class="ot">&lt;-</span> <span class="st">"DA"</span></span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(DA)</span>
@@ -377,7 +377,7 @@ window.Quarto = {
 <span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>time_quick_20000 <span class="ot">&lt;-</span> <span class="fu">toc</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<p><a href="#tbl-time" class="quarto-xref">Table&nbsp;1</a> shows the results: let us first consider computation time. For 4,000 texts, the basic procedure takes 0.75 seconds to run. The computational formula is quicker – it completes the calculations in only 0 seconds. For the 20,000-word corpus, the difference is much more dramatic: The basic formula takes 18.29 seconds to run; the shortcut procedure, on the other hand, is done after 0 seconds. This is an impressive improvement in efficiency.</p>
+<p><a href="#tbl-time" class="quarto-xref">Table&nbsp;1</a> shows the results: let us first consider computation time. For 4,000 texts, the basic procedure takes 1.74 seconds to run. The computational formula is quicker – it completes the calculations in only 0 seconds. For the 20,000-word corpus, the difference is much more dramatic: The basic formula takes 39.33 seconds to run; the shortcut procedure, on the other hand, is done after 0.02 seconds. This is an impressive improvement in efficiency.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>R code for Table 1</summary>
@@ -428,17 +428,17 @@ Dispersion score
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Basic</td>
-<td style="text-align: right;">0.75</td>
-<td style="text-align: right;">18.29</td>
+<td style="text-align: right;">1.74</td>
+<td style="text-align: right;">39.33</td>
 <td style="text-align: right;">0.6003</td>
 <td style="text-align: right;">0.6139</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Computational</td>
 <td style="text-align: right;">0.00</td>
-<td style="text-align: right;">0.00</td>
-<td style="text-align: right;">0.6005</td>
-<td style="text-align: right;">0.6140</td>
+<td style="text-align: right;">0.02</td>
+<td style="text-align: right;">0.6003</td>
+<td style="text-align: right;">0.6139</td>
 </tr>
 </tbody>
 </table>

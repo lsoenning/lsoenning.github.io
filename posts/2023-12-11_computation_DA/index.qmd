@@ -67,7 +67,7 @@ DA_quick <- function(subfreq, partsize){
 	r_i <- R_i / sum(R_i)
 	k   <- length(subfreq)
 
-	DA <- (2*sum((sort(r_i, decreasing=TRUE) * 1:k)) -1) / (k-1)
+	DA <- (2 * (sum(sort(r_i, decreasing=TRUE) * 1:k) - 1)) / (k-1)
 
 	names(DA) <- "DA"
 	return(DA)
