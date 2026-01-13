@@ -1,0 +1,416 @@
+---
+title: "Issues in random forest modeling: Partial dependence plots"
+description: "In this blog post, I argue that the manual specification and inclusion of interaction predictors into a random-forest model is not advisable."
+date: 2026-01-12
+categories: [corpus linguistics, bias, binary data, random forests]
+citation: 
+  url: https://lsoenning.github.io/posts/2026-01-12_random_forest_interaction_predictors/
+editor: source
+draft: true
+---
+
+In a recent survey on the use of random-forest models in corpus data analysis [@Soenning2026], I came across
+
+
+```{r}
+#| code-fold: true
+#| code-summary: "R setup"
+#| message: false
+#| warning: false
+
+library(party)
+library(permimp)
+library(lattice)
+library(vcdExtra)
+library(tidyverse)
+library(uls)
+```
+
+
+
+
+
+
+
+## Data discussed in Sigley (2003)
+
+```{r}
+#| eval: false
+
+dat <- data.frame(
+  stress = rep(c("stressed", "unstressed"), each = 3),
+  foll_segment = rep(c("C", "V", "Pause"), 2),
+  reduced = c(1065, 167, 76,
+              337, 128, 28),
+  total = c(1996, 1019, 455, 
+            679, 297, 219)
+) |> 
+  mutate(unreduced = total - reduced) |> 
+  #select(-total) |> 
+  pivot_longer(
+    cols = c("reduced", "unreduced"), 
+    names_to = "variant", 
+    values_to = "freq")
+
+d <- expand.dft(dat, freq = "freq") 
+
+d$stress <- factor(d$stress)
+d$foll_segment <- factor(d$foll_segment)
+d$variant <- factor(d$variant)
+d$interaction <- factor(d$stress:d$foll_segment)
+d$random_numeric <- rnorm(nrow(d))
+d$random_binary <- factor(rbinom(nrow(d), 1, .5))
+
+str(d)
+```
+
+```{r}
+#| eval: false
+
+round(prop.table(table(d$stress)), 2)
+```
+
+
+```{r}
+#| fig-width: 3.5
+#| fig-height: 2
+#| eval: false
+
+dat |> 
+  filter(variant == "reduced") |> 
+  mutate(prop_reduced = freq/total) |> 
+  ggplot(aes(
+    x = foll_segment, 
+    y = prop_reduced, 
+    group = stress, 
+    color = stress,
+    size = total,
+    linetype = stress)) +
+  geom_point(shape = 1) +
+  geom_line(linewidth = .5) +
+  scale_y_continuous(limits = c(0,1), breaks = c(0, .5, 1), expand = c(0,0),
+                     label = c("0", ".5", "1")) +
+  scale_linetype_manual(values = c("solid", "11")) +
+  xlab("Following segment") +
+  ylab("Proportion reduced") +
+  theme_classic_ls() +
+  scale_color_manual(values = c("black", "grey60"))
+
+```
+
+
+```{r}
+#| eval: false
+
+set.seed(2025)
+
+rf <- party::cforest(
+  variant ~ stress + foll_segment +
+    random_numeric + random_binary, 
+  control = party::cforest_unbiased(
+    mtry = 2, 
+    ntree = 500), d)
+
+```
+
+
+
+```{r}
+#| fig-width: 4.5
+#| fig-height: 2.5
+#| eval: false
+
+pdp_foll_segment <- pdp::partial(
+  rf, 
+  pred.var = "foll_segment",
+  prob = TRUE,
+  which.class = "variant.reduced")
+
+cond_pdp <- pdp::partial(
+  rf, 
+  pred.var = c("stress", "foll_segment"),
+  prob = TRUE,
+  which.class = "variant.reduced")
+
+saveRDS(pdp_foll_segment, "./tutorial/pdp_foll_segment.rds")
+saveRDS(cond_pdp, "./tutorial/cond_pdp.rds")
+
+```
+
+
+```{r}
+#| fig-width: 3
+#| fig-height: 2
+#| eval: false
+
+pdp_foll_segment <- readRDS("./tutorial/pdp_foll_segment.rds")
+cond_pdp <- readRDS("./tutorial/cond_pdp.rds")
+
+xyplot(
+  1 ~ 1, type = "n", ylim = c(0,1), xlim = c(.8, 3.2),
+  par.settings = my_settings, axis = axis_L,
+  xlab = "Following segment", ylab = "Proportion reduced",
+  scales = list(x = list(at = 1:3, labels = c("C", "Pause", "V")),
+                y = list(at = c(0, .5, 1), label = c("0", ".5", "1"))),
+  panel = function(x,y){
+    panel.points(x = 1:3, y = subset(cond_pdp, stress == "stressed",)$yhat, type="l")
+    panel.points(x = 1:3, y = subset(cond_pdp, stress == "unstressed",)$yhat, type="l", lty = 2, lineend = "butt")
+    panel.points(x = 1:3, y = subset(cond_pdp, stress == "stressed",)$yhat, pch = 19, cex = 1)
+    panel.points(x = 1:3, y = subset(cond_pdp, stress == "unstressed",)$yhat, pch = 21, fill = "white", cex = 1)
+    panel.points(x = 1:3, y = pdp_foll_segment$yhat, pch = 3, cex = .8)
+  })
+
+```
+
+
+
+Predictive margins
+
+```{r}
+#| eval: false
+
+tree_preds <- tree_predictions(
+  m = rf,
+  data = data.frame(d),
+  num.trees = 500)
+
+str(tree_preds)
+```
+
+
+Following segment
+
+```{r}
+#| eval: false
+
+pm_foll_segment_balanced <- avg_predictions(
+  tree_preds,
+  target.vars = "foll_segment",
+  equal.wt = "stress",
+  wt = "iso",
+  verbose = F)
+```
+
+```{r}
+#| eval: false
+
+pm_foll_segment_weighted <- avg_predictions(
+  tree_preds,
+  target.vars = "foll_segment",
+  wt = "iso",
+  verbose = F)
+```
+
+Interaction
+
+```{r}
+#| eval: false
+
+pm_interaction <- avg_predictions(
+  tree_preds,
+  target.vars = c("stress", "foll_segment"),
+  wt = "iso",
+  verbose = F)
+```
+
+
+Balanced
+
+```{r fig.height=2.2, fig.width=5.4}
+#| eval: false
+
+p0 <- pdp_foll_segment |> 
+  ggplot(aes(x = foll_segment, y = yhat, group = 1)) +
+  geom_point(size=.75) + 
+  annotate("point", x = 3, y = cond_pdp$yhat[6], size = .75, shape = 19, color = "grey60") +
+  annotate("point", x = 3, y = cond_pdp$yhat[5], size = .75, shape = 19, color = "black") +
+  geom_line() +
+  ylim(0,1) +
+  scale_y_continuous(
+    limits = c(0,1), expand = c(0, 0), 
+    breaks = c(0,.5,1), labels = c("0", ".5", "1")) +
+  scale_x_discrete(expand = c(.025, .025)) +
+  ylab("Proportion reduced") +
+  xlab("Following segment") +
+  theme_minimal()
+
+p1 <- pm_foll_segment_balanced |> 
+  ggplot(aes(x = foll_segment, y = 1-mean_unreduced_pred, group = 1)) +
+  geom_linerange(aes(ymin = 1-lower, ymax=1-upper, x=foll_segment)) +
+  annotate("point", x = 3, y = 1-pm_interaction$mean_unreduced_pred[5], size = .75, shape = 19, color = "grey60") +
+  annotate("point", x = 3, y = 1-pm_interaction$mean_unreduced_pred[3], size = .75, shape = 19, color = "black") +
+  geom_point(size=.75) + 
+  geom_line() +
+  ylim(0,1) +
+  scale_y_continuous(
+    limits = c(0,1), expand = c(0, 0), 
+    breaks = c(0,.5,1), labels = c("0", ".5", "1")) +
+  scale_x_discrete(expand = c(.025, .025)) +
+  ylab("Proportion reduced") +
+  xlab("Following segment") +
+  theme_minimal()
+
+p2 <- pm_foll_segment_weighted |> 
+  ggplot(aes(x = foll_segment, y = 1-mean_unreduced_pred, group = 1)) +
+  geom_linerange(aes(ymin = 1-lower, ymax = 1-upper, x = foll_segment)) +
+  annotate("point", x = 3, y = 1-pm_interaction$mean_unreduced_pred[5], size = .75, shape = 19, color = "grey60") +
+  annotate("point", x = 3, y = 1-pm_interaction$mean_unreduced_pred[3], size = .75, shape = 19, color = "black") +
+  geom_point(size = .75) + 
+  geom_line() +
+  ylim(0,1) +
+  scale_y_continuous(
+    limits = c(0,1), expand = c(0, 0), 
+    breaks = c(0,.5,1), labels = c("0", ".5", "1")) +
+  scale_x_discrete(expand = c(.025, .025)) +
+  ylab("Proportion reduced") +
+  xlab("Following segment") +
+  theme_minimal()
+
+
+cowplot::plot_grid(p0, NULL, p2, NULL, p1, nrow=1, rel_widths = c(1, .1, 1,.1,1))
+
+
+cairo_pdf("./figures/survey/fig_interaction_avg_preds.pdf", width=5, height=2.2)
+cowplot::plot_grid(p0, NULL, p2, NULL, p1, NULL, nrow=1, rel_widths = c(1, .1, 1,.1,1, .1))
+dev.off()
+```
+
+
+
+```{r}
+#| fig-width: 2
+#| fig-height: 2.5
+#| eval: false
+
+
+p1 <- cond_pdp |> 
+  ggplot(aes(x = foll_segment, y = yhat, group = stress, color = stress, linetype = stress)) +
+  geom_point(
+    size=.75) + 
+  geom_line() +
+  scale_y_continuous(
+    limits = c(0,1), expand = c(0, 0), 
+    breaks = c(0,.5,1), labels = c("0", ".5", "1")) +
+  scale_x_discrete(expand = c(.025, .025)) +
+  scale_color_manual(values = c("black", "grey60")) +
+  scale_linetype_manual(values = c("solid", "11")) +
+  scale_shape_manual(values = c(21, 19)) +
+  theme_minimal() +
+  ylab("Proportion reduced") +
+  xlab("Following segment") +
+  theme(legend.position = "none")
+
+p1
+
+cairo_pdf("./figures/survey/fig_cond_pdp_interaction.pdf", width=1.8, height=2.2)
+p1
+dev.off()
+```
+
+
+
+
+```{r}
+#| fig-width: 2
+#| fig-height: 2.5
+#| eval: false
+
+p1 <- pm_interaction |> 
+  ggplot(aes(x = foll_segment, y = 1-mean_unreduced_pred, group = stress, color = stress, linetype = stress)) +
+  geom_linerange(
+    aes(ymin=1-lower, ymax=1-upper, x=foll_segment), 
+    position = position_dodge(width = 0.1), linetype = 1) +
+  geom_point(
+    size=.75, bg = "white",
+    position = position_dodge(width = 0.1)) + 
+  geom_line(
+    position = position_dodge(width = 0.1)) +
+  scale_y_continuous(
+    limits = c(0,1), expand = c(0, 0), 
+    breaks = c(0,.5,1), labels = c("0", ".5", "1")) +
+  scale_x_discrete(expand = c(.025, .025)) +
+  scale_color_manual(values = c("black", "grey60")) +
+  scale_linetype_manual(values = c("solid", "11")) +
+  scale_shape_manual(values = c(21, 19)) +
+  theme_minimal() +
+  ylab("Proportion reduced") +
+  xlab("Following segment") +
+  theme(legend.position = "none")
+
+p1
+
+cairo_pdf("./figures/survey/fig_pred_margin_interaction.pdf", width=1.8, height=2.2)
+p1
+dev.off()
+```
+
+
+
+
+
+
+# Data from Gries 2020
+
+Small version
+
+```{r}
+#| eval: false
+
+P1s <- factor(rep(c("b","a","b","a"), c(1,7,9,3)) ) # predictor 1 small
+P2s <- factor(rep(c("e","f","e"), c(6,10,4)))       # predictor 2 small
+P3s <- factor(rep(c("m","n","m","n"), c(6,4,6,4)))  # predictor 3 small
+DVs <- factor(rep(c("x","y"), c(10, 10)))           # response small
+summary((D1 <- data.frame(P1s, P2s, P3s, DVs)))
+
+```
+
+
+Large version
+
+```{r}
+#| eval: false
+
+P1l <- rep(P1s, 10) # predictor 1 large
+P2l <- rep(P2s, 10) # predictor 2 large
+P3l <- rep(P3s, 10) # predictor 3 large
+DVl <- rep(DVs, 10) # response large
+summary(D2 <- data.frame(P1l, P2l, P3l, DVl))
+```
+
+```{r}
+#| eval: false
+
+library(randomForest)
+(rfs <- randomForest(DVl ~ P1l+P2l+P3l, data = D2, mtry=2))
+
+
+```
+
+```{r}
+#| eval: false
+
+pdp_interaction <- pdp::partial(
+  rfs, 
+  pred.var = c("P2l", "P3l"),
+  type = "classification",
+  prob = TRUE)
+
+```
+
+```{r}
+#| eval: false
+
+pdp::plotPartial(pdp_interaction)
+```
+
+```{r}
+#| eval: false
+
+(m <- glm(DVl ~ P1l+P2l*P3l, family = binomial(link = "logit"), data = D2))
+
+plot(effects::allEffects(m), type ="response",
+   ylim=c(0, 1), ylab="Predicted probability of DV=y",
+   multiline=TRUE, grid=TRUE)
+```
+
+

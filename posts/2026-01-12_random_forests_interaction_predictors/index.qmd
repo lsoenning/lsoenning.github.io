@@ -1,0 +1,713 @@
+---
+title: "Issues in random-forest modeling: Interaction predictors"
+description: "In this blog post, I demonstrate that the inclusion of manually specified interaction predictors into a random-forest model yields biased (or uninterpretable) partial dependence plots."
+date: 2026-01-12
+categories: [corpus linguistics, binary data, random forests, partial dependence plots]
+citation: 
+  url: https://lsoenning.github.io/posts/2026-01-12_random_forest_interaction_predictors/
+editor: source
+---
+
+
+A practice that has emerged fairly recently in random-forest modeling is the inclusion of manually specified interaction predictors into RF models. Two motivations drive this approach: First, in the very unlikely situation where two predictors show no main effect but a perfect crossover interaction (referred to as the XOR problem), classification trees (and hence RF models) fail to recover the interaction. Further, variable importance scores derived from an RF model for a specific predictor conflate its main effect and its interaction effect(s). This means that variable importance scores, which are the most widespread method of interpretation for RF models, give no indication of the relative magnitude of these two types of effects. 
+
+These drawbacks have prompted the suggestion to manually specify interaction variables and include them into the RF model [@gries2020, p. 638–640; see also @strobl_etal2009, p. 341]. For two categorical predictors, for instance, an interaction predictor consists of the pairwise cross-combinations of all levels. For two binary variables -- e.g. male/female and old/young -- the interaction predictor would consist of four subgroups: male-young, male-old, female-young, female-old. Interaction predictors, it is argued, help shed light on the relative importance of interaction vs. main effects of predictors. 
+I recently conducted a survey on the use of RF models in corpus research [@Soenning2026]. In 8 out of 69 articles (12%) that applied an RF to corpus data, use was made of this modeling strategy, with the model including a manually specified interaction variable. 
+
+The recursive splitting algorithm operating under the hood of RF models handles interactions between predictor variables automatically. As such, RFs therefore have no problems detecting interactions (except for the case of the XOR problem mentioned above). The main motivation for including interaction variables, then, is to facilitate model interpretation.
+
+In this blog post, I give two reasons why the practice of including interaction variables into a model is ill-advised. Contrary to the primary motivation behind including interaction predictors into a model, its interpretability actually suffers. This is for two reasons. The first concerns variable importance scores. As demonstrated by @strobl_etal2024 using a simulation study, the importance attributed to an interaction predictor does not necessarily reflect the predictive importance of the interaction component. In fact, the interaction predictor will show spurious importance even if a statistical interaction is absent from the data. The second issue, which does not seem to have received much attention, concerns the construction and interpretation of partial dependence scores. I will show that, in the presence of both main effects and a statistical interaction between two variables, the partial dependence scores we construct from a model including an interaction predictor blend main effects an interaction effects and therefore fail to provide a clear picture of either form of relationship.
+
+
+```{r}
+#| code-fold: true
+#| code-summary: "R setup"
+#| message: false
+#| warning: false
+
+library(party)
+library(permimp)
+library(lattice)
+library(vcdExtra)
+library(tidyverse)
+library(janitor)
+library(uls)
+```
+
+
+### Problem 1: Interaction variables are predictively important even when there is no interaction present
+
+To demonstrate this issue, which was highlighted by @strobl_etal2024, I will create some data that show no statistical interaction, neither on the scale of outcome proportions nor on the logit scale. Then I will fit a number of RF models to these data with different settings for the *m~try~* parameter. For each of these models, I will then obtain two types of variable importance scores: standard and conditional importance scores.
+
+#### Data
+
+The data consist of 1,200 speakers, which are divided into four groups:
+
+- 300 old, male
+- 300 old, female
+- 300 young, male
+- 300 young, female
+
+This means that there are two binary predictors, `gender` (male vs. female) and `age` (young vs. old). For some binary outcome variable of interest, these are the percentages in the four cells:
+
+- 20% old, male
+- 40% old, female
+- 60% young, male
+- 80% young, female
+
+@fig-data-1 shows the structure we have built into the data. 
+
+```{r}
+#| code-fold: true
+#| code-summary: "simulate data"
+#| message: false
+#| warning: false
+
+# set seed for reproducibility
+set.seed(123)
+
+# number of observations per cell
+n_obs_per_cell <- 300
+
+# outcome proportions for each cell
+probs <- c(.2, .4, .6, .8)
+
+# simulate binary outcome
+condition_were <- probs * n_obs_per_cell
+
+
+d <- data.frame(
+  #speaker = paste0("subj_", 1:n_speakers),
+  age = c("old", "old", "young", "young"),
+  gender = c("male", "female", "male", "female"),
+  were = condition_were,
+  was = n_obs_per_cell - condition_were
+) |> 
+  pivot_longer(
+    cols = c("was", "were"), 
+    names_to = "variant", 
+    values_to = "freq")
+
+d <- expand.dft(d, freq = "freq") 
+
+d$age <- factor(d$age)
+d$gender <- factor(d$gender)
+d$variant <- factor(d$variant)
+d$interaction <- factor(d$age:d$gender)
+d$random_continuous <- rnorm(nrow(d))
+d$random_binary <- rbinom(nrow(d), 1, .5)
+
+d <- d[order(d$variant, decreasing = TRUE),]
+
+```
+
+
+
+
+
+
+```{r}
+#| fig-width: 2.1
+#| fig-height: 2.2
+#| code-fold: true
+#| code-summary: "draw graph"
+#| label: fig-data-1
+#| fig-cap: "Line plot showing how the proportion of interest varies with `age` and `gender`."
+#| message: false
+#| warning: false
+
+d |> group_by(age, gender) |> 
+  dplyr::summarize(
+    mean_prop = mean(variant == "were")
+  ) |> ggplot(aes(x = age, y = mean_prop, group = gender)) +
+  geom_point() +
+  scale_y_continuous(
+    limits = c(0,1), expand = c(0,0),
+    breaks = c(0, .5, 1),
+    labels = c("0", ".5", "1")) +
+  geom_line() +
+  annotate("text", x = 2.1, y = c(.6, .8) + .02, 
+           label = c("male", "female"),
+           size = 3.2, adj = 0) +
+  ylab("Proportion of interest") +
+  xlab(NULL) +
+  theme_classic_ls()
+```
+
+
+We also add to the dataset two variables that represent random noise, a binary one (`random_binary`) and a continuous one (`random_continuous`). This is for two reasons:
+
+- First, it will increase the number of predictors, making RF modeling (which includes predictor sampling) feasible
+- Second, and more importantly, the variable importance scores we obtain for these noise variables are a useful point of reference for the predictors of interest. Due to the associations we have built into the model, `age` and `gender` should exceed both noise variables in predictive utility.
+
+This is the dataset:
+
+```{r}
+str(d)
+```
+
+For reassurance, we check that the four cells reflect our intended percentages:
+
+```{r}
+d |> tabyl(variant, gender, age) |> 
+  adorn_percentages("col") |> 
+  adorn_pct_formatting(digits = 0) |>
+  adorn_ns()
+```
+
+
+
+#### Fit RF models and obtain variable importance scores
+
+Next, I will fit a conditional random-forest model to these data using different settings for the *m~try~* parameter. This parameter determines the number of predictor variables that are sampled at each splitting occasion during model fitting. I will let it vary from 2 to the total number of predictor variables (here: 5). If *m~try~* equals the number of predictor variables, no predictor sampling takes place; this special case is referred to as bagging [@breiman1996]. For each RF model, I will then obtain two types of variable importance scores: standard and conditional importance scores.
+
+The following simulation therefore varies two parameters:
+
+- *m~try~* parameter: 2, 3, 4, 5 predictors
+- type of variable importance score: standard vs. conditional
+
+
+```{r}
+#| code-fold: true
+#| code-summary: "run simulation"
+#| eval: false
+
+set_mtry <- 2:5
+
+sim_results <- array(
+  NA, dim = c(5, 4, 2),
+  dimnames = list(
+    c("age", "gender", "interaction", "random_continuous", "random_binary"),
+    set_mtry,
+    c("conditional", "standard")))
+
+
+for (i in 1:length(set_mtry)){
+  
+  # fit RF model
+  rf <- party::cforest(
+  variant ~ age + gender + interaction +
+    random_continuous + random_binary, data = d,
+      control = party::cforest_unbiased(
+        mtry = set_mtry[i], 
+        ntree = 1000))
+  
+  # obtain variable importance scores
+  # conditional
+  varimp_cond <- permimp(
+    rf,
+    conditional = TRUE,
+    progressBar = FALSE)$values
+  
+  sim_results[,i,1] <- varimp_cond
+  
+  # standard
+  varimp_std <- permimp(
+    rf,
+    conditional = FALSE,
+    progressBar = FALSE)$values
+  
+  sim_results[,i,2] <- varimp_std
+
+  }
+
+sim_results_df <- as.data.frame(
+  as.table(sim_results))
+
+colnames(sim_results_df) <- c(
+  "predictor", "mtry", "type", "score"
+)
+```
+
+```{r}
+#| eval: false
+#| echo: false
+
+saveRDS(sim_results_df, "./models/sim_results_df.rds")
+```
+
+
+```{r}
+#| echo: false
+
+sim_results_df <- readRDS("./models/sim_results_df.rds")
+```
+
+
+#### Comparison of importance scores
+
+@fig-vim-1 compares conditional variable importance scores (left panel) and standard variable importance scores (right panel) for different settings of the *m~try~* parameter. The first observation that strikes us is that the interaction predictor always ranks first in terms of importance, despite the fact that the data show no statistical interaction (see @fig-data-1). While smaller values of the *m~try~* parameter bring about some reduction in the importance of the interaction predictor, it always comes out on top. The predictive utility of `age` depends dramatically on the *m~try~* parameter. In the case of bagging (*m~try~* = 5), the predictor receives zero importance. The predictor `gender`, on the other hand, always hovers near zero. Standard and conditional variable importance score yield very similar picture, which is unsurprising seeing that we did not build into the data correlations among predictor variables.
+
+```{r}
+#| fig-width: 4.5
+#| fig-height: 1.5
+#| code-fold: true
+#| code-summary: "draw graph"
+#| label: fig-vim-1
+#| fig-cap: "Dotplot showing standard and conditional variable importance scores for different settings of the *m~try~* parameter."
+
+sim_results_df$predictor <- factor(
+  sim_results_df$predictor,
+  levels = c("interaction", "age", "gender", "random_continuous", "random_binary"),
+  ordered = TRUE
+)
+
+sim_results_df <- sim_results_df[order(sim_results_df$predictor, decreasing = TRUE),]
+
+xyplot(
+  1~1, type = "n", xlim = c(-.12, .35), ylim = c(-1, 7),
+  par.settings = lattice_ls,
+  scales = list(draw = FALSE),
+  xlab = NULL, ylab = NULL,
+  panel = function(x,y){
+    panel.text(x = -.03, y = 1:5, label = c(
+      "(Binary)", "(Continuous)", "Gender", "Age", "Interaction"), adj = 1, cex = .9)
+    panel.segments(x0 = c(0, .2), x1 = c(0, .2), y0 = .3, y1 = 5.5, col = "grey")
+    
+    panel.points(x = subset(sim_results_df, mtry == "2" & type == "conditional")$score, 
+                 y = 1:5, pch = "2", cex = 2.2)
+    panel.points(x = subset(sim_results_df, mtry == "3" & type == "conditional")$score, 
+                 y = 1:5, pch = "3", cex = 2.2)
+    panel.points(x = subset(sim_results_df, mtry == "4" & type == "conditional")$score, 
+                 y = 1:5, pch = "4", cex = 2.2)
+    panel.points(x = subset(sim_results_df, mtry == "5" & type == "conditional")$score, 
+                 y = 1:5, pch = "5", cex = 2.2)
+    
+    panel.points(x = .2 + subset(sim_results_df, mtry == "2" & type == "standard")$score, 
+                 y = 1:5, pch = "2", cex = 2.2)
+    panel.points(x = .2 + subset(sim_results_df, mtry == "3" & type == "standard")$score, 
+                 y = 1:5, pch = "3", cex = 2.2)
+    panel.points(x = .2 + subset(sim_results_df, mtry == "4" & type == "standard")$score, 
+                 y = 1:5, pch = "4", cex = 2.2)
+    panel.points(x = .2 + subset(sim_results_df, mtry == "5" & type == "standard")$score, 
+                 y = 1:5, pch = "5", cex = 2.2)
+    
+    panel.segments(x0 = 0, x1 = .15, y0 = .3, y1 = .3)
+    panel.segments(x0 = c(0, .1), x1 = c(0, .1), y0 = .3, y1 = 0)
+    
+    panel.segments(x0 = .2, x1 = .35, y0 = .3, y1 = .3)
+    panel.segments(x0 = c(.2, .3), x1 = c(.2, .3), y0 = .3, y1 = 0)
+    
+    panel.text(x = c(0, .1, .2, .3), y = -.5, label = c("0", "0.1"), cex = .8)
+    
+    panel.text(x = .175, y = -1.6, label = "Variable importance")
+    panel.text(x = .075, y = 6.75, label = "Conditional")
+    panel.text(x = .275, y = 6.75, label = "Standard")
+  })
+
+
+```
+
+
+#### Understanding why
+
+To understand why an interaction predictor "soaks up" predictive utility even though the data do not include an interaction, consider the situation where the interaction predictor is sampled alongside an unrelated variable (for instance, either the binary or the continuous noise variable). The splitting scheme then treats the interaction variable as a categorical predictor with four distinct levels. Due to the main effects that are present in the data, there are systematic differences among these subgroups. As a result, the algorithm *will* find a predictively useful split. This split will likely partition the data along the predictor `age` or `gender`, as these are related to the response variable. The interaction predictor will receive "Predictive credit" for this split, even though it is the variable `age` or `gender` that should be credited. As a result, the interaction predictor steals predictive power from each of these predictors. The variable importance scores we obtain are therefore not interpretable -- they do not give accurate information and they do not tell us what we wanted to know. For amore in-depth discussion of this issue, please refer to @strobl_etal2024.
+
+
+### Problem 2: Partial dependence plots of interaction variables do not provide a clean picture
+
+To demonstrate the second issue, I will create data that *do* show a statistical interaction, both on the scale of outcome proportions and the logit scale. Then I will fit two RF models to these data, one without and one with an interaction predictor. I will then draw conditional partial dependence plots for both models. 
+
+
+#### Data
+
+The data consist of 1,200 speakers, which are gain divided into four groups:
+
+- 300 old, male
+- 300 old, female
+- 300 young, male
+- 300 young, female
+
+This means that there are again two binary predictors, `gender` (male vs. female) and `age` (young vs. old). For some binary outcome variable of interest, these are the percentages in the four cells:
+
+- 20% old, male
+- 30% old, female
+- 45% young, male
+- 80% young, female
+
+@fig-data-2 shows the structure we have built into the data. 
+
+```{r}
+#| code-fold: true
+#| code-summary: "simulate data"
+
+n_obs_per_cell <- 300
+
+probs <- c(.2, .3, .45, .8)
+
+condition_were <-probs * n_obs_per_cell
+
+
+d <- data.frame(
+  #speaker = paste0("subj_", 1:n_speakers),
+  age = c("old", "old", "young", "young"),
+  gender = c("male", "female", "male", "female"),
+  were = condition_were,
+  was = n_obs_per_cell - condition_were
+) |> 
+  pivot_longer(
+    cols = c("was", "were"), 
+    names_to = "variant", 
+    values_to = "freq")
+
+d <- expand.dft(d, freq = "freq") 
+
+d$age <- factor(d$age)
+d$gender <- factor(d$gender)
+d$variant <- factor(d$variant)
+d$interaction <- factor(d$age:d$gender)
+d$random_continuous <- rnorm(nrow(d))
+d$random_binary <- rbinom(nrow(d), 1, .5)
+
+d <- d[order(d$variant, decreasing = TRUE),]
+```
+
+
+```{r}
+#| fig-width: 2.1
+#| fig-height: 2.2
+#| code-fold: true
+#| code-summary: "draw graph"
+#| label: fig-data-2
+#| fig-cap: "Line plot showing how the proportion of interest varies with `age` and `gender`."
+#| message: false
+#| warning: false
+
+d |> group_by(age, gender) |> 
+  dplyr::summarize(
+    mean_prop = round(mean(variant == "were"), 2)
+  ) |> ggplot(aes(x = age, y = mean_prop, group = gender)) +
+  geom_point() +
+  scale_y_continuous(
+    limits = c(0,1), expand = c(0,0),
+    breaks = c(0, .5, 1),
+    labels = c("0", ".5", "1")) +
+  geom_line() +
+  annotate("text", x = 2.1, y = c(.45, .8) + .02, 
+           label = c("male", "female"),
+           size = 3.2, adj = 0) +
+  ylab("Proportion of interest") +
+  xlab(NULL) +
+  theme_classic_ls()
+```
+
+We also add to the dataset two variables that represent random noise, a binary one (`random_binary`) and a continuous one (`random_continuous`).
+
+
+#### Modeling
+
+To examine the consequences of including the interaction predictor `age:gender` as an additional variable into the model, we will fit and compare two models, M1 and M2:
+
+- **M1** does not include an interaction predictor
+  - formula: `variant ~ age + gender + random_continuous + random_binary`
+- **M2** includes an interaction predictor
+  - formula: `variant ~ age + gender + random_continuous + random_binary + interaction`
+  
+For didactic purposes, we start by fitting a conditional inference tree to the full dataset using the function `ctree()` in the `{party}` package [@party-package]. This conditional inference tree includes the manually specified predictor for the age-by-gender `interaction`. The resulting splitting scheme is shown in @fig-cit. It includes three splits: two according to the `interaction`, and one according to `gender`. Surprisingly, `age` doesn't appear at all as a splitting variable, which should make us skeptical.
+
+```{r}
+#| fig-width: 7.5
+#| fig-height: 5.5
+#| out-width: 75%
+#| label: fig-cit
+#| fig-cap: "Conditional inference tree fit to the full dataset including an interaction predictor."
+
+d_tree <- ctree(
+  variant ~ age + gender + interaction +
+    random_continuous + random_binary, 
+  data = d)
+
+plot(d_tree)
+
+```
+
+The next step is to fit two conditional random forest models (M1 and M2) using the function `cforest()` in the `{party}` package [@party-package].
+
+```{r}
+#| eval: false
+
+rf_inter_1 <- party::cforest(
+   variant ~ age + gender +
+    random_continuous + random_binary, data = d,
+      control = party::cforest_unbiased(
+        mtry = 2, 
+        ntree = 500))
+
+
+rf_inter_2 <- party::cforest(
+  variant ~ age + gender + interaction +
+    random_continuous + random_binary, data = d,
+      control = party::cforest_unbiased(
+        mtry = 2, 
+        ntree = 500))
+
+
+```
+
+```{r}
+#| eval: false
+#| echo: false
+
+saveRDS(rf_inter_1, "./models/rf_inter_1.rds")
+saveRDS(rf_inter_2, "./models/rf_inter_2.rds")
+```
+
+```{r}
+#| echo: false
+
+rf_inter_1 <- readRDS("./models/rf_inter_1.rds")
+rf_inter_2 <- readRDS("./models/rf_inter_2.rds")
+```
+
+Next, we compute conditional variable importance scores for each model, using the `permimp` package [@permimp-package]:
+
+```{r fig.height=1.5, fig.width=3}
+#| eval: false
+
+varimp_rf_inter_1 <- permimp::permimp(
+  rf_inter_1,
+  conditional = TRUE,
+  progressBar = FALSE)$values
+
+
+varimp_rf_inter_2 <- permimp::permimp(
+  rf_inter_2,
+  conditional = TRUE,
+  progressBar = FALSE)$values
+
+
+```
+
+
+```{r}
+#| eval: false
+#| echo: false
+
+
+varimp_rf_inter_1 <- as.data.frame(varimp_rf_inter_1)
+varimp_rf_inter_1$variable <- rownames(varimp_rf_inter_1)
+
+varimp_rf_inter_2 <- as.data.frame(varimp_rf_inter_2)
+varimp_rf_inter_2$variable <- rownames(varimp_rf_inter_2)
+
+saveRDS(varimp_rf_inter_1, "./models/varimp_rf_inter_1.rds")
+saveRDS(varimp_rf_inter_2, "./models/varimp_rf_inter_2.rds")
+
+```
+
+```{r}
+#| echo: false
+
+varimp_rf_inter_1 <- readRDS("./models/varimp_rf_inter_1.rds")
+varimp_rf_inter_2 <- readRDS("./models/varimp_rf_inter_2.rds")
+
+varimp_rf_inter_1$varimp_scaled <- 
+  varimp_rf_inter_1[,1] / max(varimp_rf_inter_1[,1])
+
+varimp_rf_inter_2$varimp_scaled <- 
+  varimp_rf_inter_2[,1] / max(varimp_rf_inter_2[,1])
+```
+
+We start by inspecting the variable importance scores, which are shown in @fig-vim. For comparison, I have scaled these in such a way that each plot extends to the maximum importance score in the respective model. This rescaling does not affect our interpretation here since the relevant benchmarks are the conditional importance scores for the predictors `random_binary` and `random_continuous`. 
+
+- For M1, the importance measures suggest that both `age` and `gender` have predictive utility, in line with the structure we have built into the data.
+- For M2, it is `age`, `gender` and their `interaction` that emerge as predictively important, also in line with the structure we have built into the data.
+
+```{r}
+#| fig-width: 3
+#| fig-height: 2.3
+#| code-fold: true
+#| code-summary: "draw graph"
+#| label: fig-vim
+#| fig-cap: "Conditional variable importance for the predictors in model with and without an interaction predictor."
+#| message: false
+#| warning: false
+
+xyplot(
+  1~1, type = "n", xlim = c(-.2, 1.1), ylim = c(0, 12.5),
+  par.settings = lattice_ls,
+  xlab = "Conditional importance (scaled)",
+  ylab = NULL,
+  scales = list(
+    x = list(at = c(0, 1), label = c("0", "Max.")),
+    y = list(
+      at = c(1:5, 8:11), label = c(
+        "(Binary)", "(Continuous)", "Interaction", "Gender", "Age",
+        "(Binary)", "(Continuous)", "Gender", "Age"
+      )), cex = .9),
+  panel = function(x,y){
+    panel.segments(x0 = -.2, x1 = 1.1, y0 = c(1:5, 8:11), y1 = c(1:5, 8:11), 
+                   col = "grey95")
+    panel.segments(x0 = 0, x1 = 0, y0 = .5, y1 = 5.5)
+    panel.segments(x0 = 0, x1 = 0, y0 = 7.5, y1 = 11.5)
+    panel.segments(x0 = 0, x1 = sort(varimp_rf_inter_2$varimp_scaled),
+                   y0 = 1:5, y1 = 1:5)
+    panel.segments(x0 = 0, x1 = sort(varimp_rf_inter_1$varimp_scaled),
+                   y0 = 8:11, y1 = 8:11)
+    panel.points(x = sort(varimp_rf_inter_2$varimp_scaled), y = 1:5,
+                 pch = 21, fill = "white", cex = 1.1)
+    
+    panel.points(x = sort(varimp_rf_inter_1$varimp_scaled), y = 8:11,
+                 pch = 19, cex = 1)
+    panel.segments(x0 = 0, x1 = 1, y0 = 0, y1 = 0)
+    panel.segments(x0 = 0:1, x1 = 0:1, y0 = 0, y1 = -.3)
+    panel.text(x = .5, y = c(6, 12)+.2, label = c("M2", "M1"), cex = 1)
+  })
+```
+
+
+#### Comparison of partial dependence scores
+
+Finally, we obtain partial dependence scores based on each model. Since the main effects of `age` and `gender` as well as their `interaction` are the only patterns we have built into the data, a partial dependence plot for the predictor `age` conditional on `gender` should recover the pattern we saw in @fig-data-2. We use the `partial()` function in the `pdp` package [@pdp-package] to calculate the following partial dependence scores:
+
+- M1: Partial dependence scores for `age` conditional on `gender`
+- M2: Partial dependence scores for the `interaction` predictor
+- M2: Partial dependence scores for `age` conditional on `gender`
+
+
+```{r}
+#| eval: false
+
+pdp_1 <- pdp::partial(
+  rf_inter_1, 
+  pred.var = c("age", "gender"),
+  type = "classification",
+  #which.class = "were",
+  prob = TRUE)
+
+pdp_2 <- pdp::partial(
+  rf_inter_2, 
+  pred.var = "interaction",
+  type = "classification",
+  #which.class = "were",
+  prob = TRUE)
+
+pdp_2_maineffects <- pdp::partial(
+  rf_inter_2, 
+  pred.var = c("age", "gender"),
+  type = "classification",
+  #which.class = "were",
+  prob = TRUE)
+```
+
+```{r}
+#| eval: false
+#| echo: false
+
+saveRDS(pdp_1, "./models/pdp_1.rds")
+saveRDS(pdp_2, "./models/pdp_2.rds")
+saveRDS(pdp_2_maineffects, "./models/pdp_2_maineffects.rds")
+```
+
+```{r}
+#| echo: false
+
+pdp_1 <- readRDS("./models/pdp_1.rds")
+pdp_2 <- readRDS("./models/pdp_2.rds")
+pdp_2_maineffects <- readRDS("./models/pdp_2_maineffects.rds")
+```
+
+@fig-pdps compares the results. Panel (a) at the far left shows, as a point of reference, descriptive statistics for the dataset. The plot is identical to @fig-data-2 above.
+
+Panel (b) shows a conditional partial dependence plot for M1, the model without an interaction predictor. The partial dependence scores for `age` conditional on `gender` align very closely with the patterns we built into the data.
+
+Panel (c) shows a partial dependence plot for the `interaction` predictor in M2. While the scores do give an idea of the interaction pattern, they also show traces of the two main effects: The scores for female speakers are higher, on average; and the scores for young speakers are also higher, on average.
+
+Panel (d) shows partial dependence scores for `age` conditional on `gender.` The plot also shows a trace of the interaction between `age` and `gender`, indicating that the interaction effect is not entirely captured by the interaction predictor.
+
+```{r}
+#| fig-width: 4.5
+#| fig-height: 2.75
+#| code-fold: true
+#| code-summary: "draw graph"
+#| fig-cap: "Partial dependence plots based on M1 (no interaction predictor) and M2 (with interaction predictor)."
+#| label: fig-pdps
+#| message: false
+#| warning: false
+#| classes: preview-image
+
+d_descr <- d |> group_by(age, gender) |> 
+  dplyr::summarize(
+    prop_were = mean(variant == "were")
+  )
+
+p0 <- xyplot(
+  1 ~ 1, type = "n", ylim = c(0,1), xlim = c(.8, 2.2),
+  par.settings = lattice_ls, axis = axis_L,
+  xlab = NULL, ylab = "Proportion",
+  scales = list(x = list(at = 1:2, labels = c("old", "young"), cex = .85),
+                y = list(at = c(0, .5, 1), label = c("0", ".5", "1"))),
+  xlab.top = list(label = "\n\n\nDescriptive\nstatistics\n", lineheight = .85, cex = .9),
+  panel = function(x,y){
+    panel.points(x = 1:2, y = d_descr$prop_were[c(1,3)], type="l")
+    panel.points(x = 1:2, y = d_descr$prop_were[c(2,4)], type="l")
+    panel.points(x = 1:2, y = d_descr$prop_were[c(1,3)], pch = 19, cex = 1)
+    panel.points(x = 1:2, y = d_descr$prop_were[c(2,4)], pch = 21, fill = "white", cex = 1)
+    panel.text(x = 1.5, y = .95, label = "(a)", col = "grey40")
+  })
+
+
+p1 <- xyplot(
+  1 ~ 1, type = "n", ylim = c(0,1), xlim = c(.8, 2.2),
+  par.settings = lattice_ls, axis = axis_L,
+  xlab = NULL, ylab = NULL,
+  scales = list(x = list(at = 1:2, labels = c("old", "young"), cex = .85),
+                y = list(at = c(0, .5, 1), label = NULL)),
+  xlab.top = list(label = "\n\n\nPDP\nInteraction\n", lineheight = .85, cex = .9),
+  panel = function(x,y){
+    panel.points(x = 1:2, y = 1-pdp_2$yhat[c(1,3)], type="l")
+    panel.points(x = 1:2, y = 1-pdp_2$yhat[c(2,4)], type="l")
+    panel.points(x = 1:2, y = 1-pdp_2$yhat[c(1,3)], pch = 19, cex = 1)
+    panel.points(x = 1:2, y = 1-pdp_2$yhat[c(2,4)], pch = 21, fill = "white", cex = 1)
+    panel.text(x = 2.45, y = 1.4, label = "\nModel including interaction", lineheight = .85, cex = .9)
+    panel.segments(x0 = .8, x1 = 4.1, y0 = 1.27, y1  = 1.27)
+    panel.text(x = 1.5, y = .95, label = "(c)", col = "grey40")
+  })
+
+p2 <- xyplot(
+  1 ~ 1, type = "n", ylim = c(0,1), xlim = c(.8, 2.2),
+  par.settings = lattice_ls, axis = axis_L,
+  xlab = NULL, ylab = NULL,
+  scales = list(x = list(at = 1:2, labels = c("old", "young"), cex = .85),
+                y = list(at = c(0, .5, 1), label = NULL)),
+  xlab.top = list(label = "\n\n\nConditional PDP\nAge, Gender\n", lineheight = .85, cex = .9),
+  panel = function(x,y){
+    panel.points(x = 1:2, y = 1-subset(pdp_2_maineffects, gender == "female",)$yhat, type="l")
+    panel.points(x = 1:2, y = 1-subset(pdp_2_maineffects, gender == "male",)$yhat, type="l")
+    panel.points(x = 1:2, y = 1-subset(pdp_2_maineffects, gender == "female",)$yhat, pch = 19, cex = 1)
+    panel.points(x = 1:2, y = 1-subset(pdp_2_maineffects, gender == "male",)$yhat, pch = 21, fill = "white", cex = 1)
+    panel.text(x = 1.5, y = .95, label = "(d)", col = "grey40")
+    panel.text(x = 1.5, y = c(.25, .7), label = c("male", "female"), cex = .8)
+  })
+
+p3 <- xyplot(
+  1 ~ 1, type = "n", ylim = c(0,1), xlim = c(.8, 2.2),
+  par.settings = lattice_ls, axis = axis_L,
+  xlab = NULL, ylab = NULL,
+  scales = list(x = list(at = 1:2, labels = c("old", "young"), cex = .85),
+                y = list(at = c(0, .5, 1), label = NULL)),
+  xlab.top = list(label = "\n\n\nConditional PDP\nAge, Gender\n", lineheight = .85, cex = .9),
+  panel = function(x,y){
+    panel.points(x = 1:2, y = 1-subset(pdp_1, gender == "female",)$yhat, type="l")
+    panel.points(x = 1:2, y = 1-subset(pdp_1, gender == "male",)$yhat, type="l")
+    panel.points(x = 1:2, y = 1-subset(pdp_1, gender == "female",)$yhat, pch = 19, cex = 1)
+    panel.points(x = 1:2, y = 1-subset(pdp_1, gender == "male",)$yhat, pch = 21, fill = "white", cex = 1)
+    panel.text(x = 1.5, y = 1.4, label = "Model without\ninteraction", lineheight = .85, cex = .9)
+    panel.text(x = 1.5, y = .95, label = "(b)", col = "grey40")
+  })
+
+cowplot::plot_grid(p0, NULL, p3, NULL, p1, NULL, p2, NULL, nrow = 1, rel_widths = c(1, -.1, 1, -.1, 1, -.1, 1, .1))
+```
+
+@fig-pdps therefore shows that if the data include a pattern formed by both main and interaction effects, a model including a manually specified interaction predictor does not allow us to recover this pattern. At the same time, partial dependence scores do not allow us to isolate main-effect and interaction-effect components. Instead, the interaction predictor soaks up traces of the main effects of the constituent predictors and therefore yield a blended assessment. 
+
+In contrast, conditional partial dependence plots based on a model without manually specified interaction variables (panel b in @fig-pdps) provide a faithful representation of the patterns in the data.
+
+
+#### Conclusion
+
+It seems fair to say that the practice of including manually specified interaction variables should be discouraged in random-forest modeling. To detect relevant interactions in a random-forest model, researchers will need to stick to established methods such as Friedman’s H [@friedman_popescu2008], an index of interaction strength. To gauge the relative magnitude of interaction vs. main effects, (conditional) partial dependence plots need to be studied carefully.
+
+
+
+

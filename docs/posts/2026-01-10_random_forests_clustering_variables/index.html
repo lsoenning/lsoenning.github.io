@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Lukas Sönning">
+<meta name="dcterms.date" content="2026-01-10">
+<meta name="description" content="Corpus data often show a hierarchical structure, where observations are grouped by text/speaker or item. In this blog post, I comment on the practice of including clustering variables as predictors into a random-forest model. I demonstrate that this undermines the predictive utility of associated cluster-level predictors.">
+
+<title>Issues in random-forest modeling: Treatment of clustering variables – Lukas Sönning</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Lukas Sönning</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../research.html"> 
+<span class="menu-text">Research</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../resources.html"> 
+<span class="menu-text">Resources</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts.html"> 
+<span class="menu-text">Blog</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Issues in random-forest modeling: Treatment of clustering variables</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">corpus linguistics</div>
+    <div class="quarto-category">clustered data</div>
+    <div class="quarto-category">bias</div>
+    <div class="quarto-category">binary data</div>
+    <div class="quarto-category">random forests</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Corpus data often show a hierarchical structure, where observations are grouped by text/speaker or item. In this blog post, I comment on the practice of including clustering variables as predictors into a random-forest model. I demonstrate that this undermines the predictive utility of associated cluster-level predictors.
+  </div>
+</div>
+
+<div class="quarto-title-meta-author">
+  <div class="quarto-title-meta-heading">Author</div>
+  <div class="quarto-title-meta-heading">Affiliation</div>
+  
+    <div class="quarto-title-meta-contents">
+    <p class="author"><a href="https://lsoenning.github.io/">Lukas Sönning</a> <a href="https://orcid.org/0000-0002-2705-395X" class="quarto-title-author-orcid"> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg=="></a></p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            University of Bamberg
+          </p>
+      </div>
+  </div>
+
+<div class="quarto-title-meta">
+
+      
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">January 10, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>I recently did a systematic review on the use of random-forest models in corpus research <span class="citation" data-cites="Soenning2026">(<a href="#ref-Soenning2026" role="doc-biblioref">Sönning 2026</a>)</span>. Perhaps unsurprisingly, 112 of the 125 RF models (90%) that entered this survey were fit to data with a grouping structure, where observations are clustered by text/speaker or item. In a considerable number of cases, the clustering variable was included into the RF model as an additional predictor variable:</p>
+<ul>
+<li>Of the 112 RF models with data clustered by speaker/text, 20 (18%) included the clustering variable into the analysis.</li>
+<li>Of the 80 RF models with data clustered by item (word form or lexeme), 5 (6%) included the clustering variable as a predictor.</li>
+</ul>
+<p>In all cases, the clustering variable entered the analysis as an additional predictor, which means that the recursive partitioning scheme treated it on a par with the other variables in the model (i.e.&nbsp;as the equivalent of a fixed effect in a regression framework).</p>
+<p>In this blog post, I want to comment on the situation where a clustering variable is included in an RF model alongside an associated cluster-level predictor. This is the case if a model includes, say, (i) the clustering variable speaker as well as speaker-level predictors such as age or gender; or (ii) the clustering variable word as well as word-level predictors such as frequency or word class.</p>
+<p>In the survey I did, around half of the RF models that included a clustering variable also included a predictor that was measured at the cluster level:</p>
+<ul>
+<li>Of the 20 RFs including speaker as a predictor variable, 11 (55%) also had speaker/text-level predictors. Examples included: age, gender, education, generation, year of birth, ethnicity</li>
+<li>Of the 5 RFs that include item as a predictor variable, 3 (60%) also feature item-level predictors. Examples included: verb ending, verb modality, frequency, gradability, semantic category</li>
+</ul>
+<p>I can see why some may think that including a clustering variable into an RF model might be a way of addressing the structure of the data – however, ordinary random forests do not handle clustering variables (e.g.&nbsp;speaker and item) appropriately. By “ordinary”, I mean RFs that do not take a mixed-effects approach to modeling clustering variables. In this blog post, I show that if these variables are included into a random-forest model, the “effect” of cluster-level predictors will be attenuated. Despite prominent precedent <span class="citation" data-cites="tagliamonte_baayen2012">(<a href="#ref-tagliamonte_baayen2012" role="doc-biblioref">Tagliamonte and Baayen 2012</a>)</span>, then, this practice cannot be recommended. In this blog post, I use a simulated set of data to demonstrate this issue.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>R setup</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(party)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(permimp)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lattice)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(vcdExtra)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(uls)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="simulate-data" class="level4">
+<h4 class="anchored" data-anchor-id="simulate-data">Simulate data</h4>
+<p>We start by simulating data with a binary response variable that is sensitive to speaker <code>age</code> and <code>gender</code>. The fictitious data include 50 speakers, with each individual contributing 30 observations to the data.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>simulate data</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># set seed for reproducibility</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">11</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># number of speaker and number of observations per speaker</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>n_speakers <span class="ot">&lt;-</span> <span class="dv">50</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>n_tokens_per_speaker <span class="ot">&lt;-</span> <span class="dv">30</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co"># simulate speaker intercepts (on the logit scale)</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>speaker_intercepts_logit <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_speakers, <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># simulate speaker age and gender</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>speaker_age <span class="ot">&lt;-</span> (<span class="fu">runif</span>(n_speakers) <span class="sc">-</span>.<span class="dv">5</span>) <span class="sc">*</span> <span class="dv">4</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>speaker_gender <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>), <span class="at">each =</span> n_speakers<span class="sc">/</span><span class="dv">2</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="co"># translate speaker intercepts to the proportion scale</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>speaker_intercepts_prob <span class="ot">&lt;-</span> <span class="fu">plogis</span>(</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="sc">-</span>speaker_age<span class="sc">*</span>.<span class="dv">8</span> <span class="sc">+</span> (speaker_gender <span class="sc">-</span> .<span class="dv">5</span>) <span class="sc">+</span> speaker_intercepts_logit)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co"># use speaker-specific proportion to simulate binary outcome</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>speaker_were <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  n_speakers, n_tokens_per_speaker, speaker_intercepts_prob)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="co"># obtain empirical proportion for each speaker</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>speaker_were_prop <span class="ot">&lt;-</span> speaker_were<span class="sc">/</span>n_tokens_per_speaker</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="co"># organize these data into case form (one row per observation):</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">speaker =</span> <span class="fu">paste0</span>(<span class="st">"subj_"</span>, <span class="dv">1</span><span class="sc">:</span>n_speakers),</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">age =</span> speaker_age,</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">gender =</span> speaker_gender,</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">were =</span> speaker_were,</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">was =</span> n_tokens_per_speaker <span class="sc">-</span> speaker_were</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> </span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">c</span>(<span class="st">"was"</span>, <span class="st">"were"</span>), </span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"variant"</span>, </span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"freq"</span>)</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">expand.dft</span>(d, <span class="at">freq =</span> <span class="st">"freq"</span>) </span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>variant <span class="ot">&lt;-</span> <span class="fu">factor</span>(d<span class="sc">$</span>variant)</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>speaker <span class="ot">&lt;-</span> <span class="fu">factor</span>(d<span class="sc">$</span>speaker)</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>gender <span class="ot">&lt;-</span> <span class="fu">factor</span>(d<span class="sc">$</span>gender, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"male"</span>, <span class="st">"female"</span>))</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a><span class="co"># add noise variables</span></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>random_continuous <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="fu">nrow</span>(d))</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>random_binary <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(<span class="fu">nrow</span>(d), <span class="dv">1</span>, .<span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p><a href="#fig-data" class="quarto-xref">Figure&nbsp;1</a> shows the patterns of association we have built into the data:</p>
+<ul>
+<li>The proportion of interest is linked to <code>age</code>: The younger the speaker, the lower the proportion.</li>
+<li>Speaker <code>gender</code> also plays a role, with male speakers showing a higher proportion.</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>draw graph</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  speaker_were_prop <span class="sc">~</span> speaker_age, </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">groups =</span> speaker_gender, <span class="at">pch =</span> <span class="fu">c</span>(<span class="dv">21</span>,<span class="dv">3</span>), <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"black"</span>, <span class="st">"black"</span>), <span class="at">cex =</span> <span class="fu">c</span>(<span class="dv">1</span>, .<span class="dv">8</span>),</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings =</span> lattice_ls, <span class="at">axis =</span> axis_L, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Age"</span>, <span class="at">ylab =</span> <span class="st">"Proportion of interest"</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales =</span> <span class="fu">list</span>(</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">list</span>(<span class="at">at =</span> <span class="sc">-</span><span class="fl">1.5</span><span class="sc">:</span><span class="fl">1.5</span>, <span class="at">label =</span> <span class="fu">rev</span>(<span class="fu">c</span>(<span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">60</span>, <span class="dv">80</span>)), <span class="at">cex =</span> .<span class="dv">9</span>),</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="fu">list</span>(<span class="at">at =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">5</span>, <span class="dv">1</span>), <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">".5"</span>, <span class="st">"1"</span>)), <span class="at">cex =</span> .<span class="dv">9</span>),</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">panel =</span> <span class="cf">function</span>(x,y){</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="co">#panel.abline(h = 0, col = "black")</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(x[speaker_gender <span class="sc">==</span> <span class="dv">0</span>], y[speaker_gender <span class="sc">==</span> <span class="dv">0</span>], <span class="at">lwd =</span> .<span class="dv">75</span>, <span class="at">pch =</span> <span class="dv">3</span>, <span class="at">cex =</span> .<span class="dv">9</span>, <span class="at">col =</span> <span class="st">"black"</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(x[speaker_gender <span class="sc">==</span> <span class="dv">1</span>], y[speaker_gender <span class="sc">==</span> <span class="dv">1</span>], <span class="at">lwd =</span> .<span class="dv">75</span>, <span class="at">pch =</span> <span class="dv">21</span>, <span class="at">cex =</span> <span class="fl">1.1</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.dotdiagram</span>(speaker_were_prop[speaker_gender <span class="sc">==</span> <span class="dv">1</span>], </span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>                     <span class="at">x_anchor =</span> <span class="fl">2.6</span>, <span class="at">seq_min =</span> <span class="dv">0</span>, <span class="at">seq_max =</span> <span class="dv">1</span>, </span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>                     <span class="at">n_bins =</span> n_tokens_per_speaker, <span class="at">scale_y =</span> .<span class="dv">1</span>, <span class="at">vertical =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>                     <span class="at">set_pch =</span> <span class="dv">21</span>, <span class="at">set_lwd =</span> .<span class="dv">75</span>, <span class="at">set_cex =</span> <span class="fl">1.1</span>)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.dotdiagram</span>(speaker_were_prop[speaker_gender <span class="sc">==</span> <span class="dv">0</span>], </span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>                     <span class="at">x_anchor =</span> <span class="fl">3.6</span>, <span class="at">seq_min =</span> <span class="dv">0</span>, <span class="at">seq_max =</span> <span class="dv">1</span>, </span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>                     <span class="at">n_bins =</span> n_tokens_per_speaker, <span class="at">scale_y =</span> .<span class="dv">1</span>, <span class="at">vertical =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>                     <span class="at">set_pch =</span> <span class="dv">3</span>, <span class="at">set_lwd =</span> .<span class="dv">75</span>, <span class="at">set_cex =</span> .<span class="dv">9</span>, <span class="at">set_col =</span> <span class="st">"black"</span>)</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fu">c</span>(<span class="fl">2.6</span>, <span class="fl">3.6</span>), <span class="at">y =</span> <span class="sc">-</span>.<span class="dv">075</span>, <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"Male"</span>, <span class="st">"Female"</span>), <span class="at">adj =</span> <span class="dv">0</span>, <span class="at">cex =</span> <span class="dv">1</span>, <span class="at">col =</span> <span class="fu">c</span>(<span class="st">"black"</span>, <span class="st">"black"</span>))</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1, <span class="at">position=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,.<span class="dv">7</span>,<span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-data" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-data-1.png" class="img-fluid figure-img" width="364">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-data-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Scatterplot showing how the proportion of interest varies with <code>age</code> and <code>gender</code>.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>We also add to the dataset two variables that represent random noise, a binary one (<code>random_binary</code>) and a continuous one (<code>random_continuous</code>). This is for two reasons:</p>
+<ul>
+<li>First, it will increase the number of predictors, making RF modeling (which includes predictor sampling) feasible</li>
+<li>Second, and more importantly, the variable importance scores we obtain for these noise variables are a useful point of reference for the predictors of interest. Due to the associations we have built into the model, <code>age</code> and <code>gender</code> should exceed both noise variables in predictive utility.</li>
+</ul>
+<p>This is the resulting dataset:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(d)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>tibble [1,500 × 6] (S3: tbl_df/tbl/data.frame)
+ $ speaker          : Factor w/ 50 levels "subj_1","subj_10",..: 1 1 1 1 1 1 1 1 1 1 ...
+ $ age              : num [1:1500] 1.14 1.14 1.14 1.14 1.14 ...
+ $ gender           : Factor w/ 2 levels "male","female": 1 1 1 1 1 1 1 1 1 1 ...
+ $ variant          : Factor w/ 2 levels "was","were": 1 1 1 1 1 1 1 1 1 1 ...
+ $ random_continuous: num [1:1500] -0.442 0.244 0.597 -0.12 -2.07 ...
+ $ random_binary    : int [1:1500] 0 0 0 0 1 1 0 0 1 0 ...</code></pre>
+</div>
+</div>
+</section>
+<section id="modeling" class="level4">
+<h4 class="anchored" data-anchor-id="modeling">Modeling</h4>
+<p>In what follows, we will examine the consequences of including the clustering variable <code>speaker</code> as an additional variable into the model. We will therefore fit and compare two models, M1 and M2:</p>
+<ul>
+<li><strong>M1</strong> does not include the clustering variable <code>speaker</code>
+<ul>
+<li>formula: <code>variant ~ age + gender + random_continuous + random_binary</code></li>
+</ul></li>
+<li><strong>M2</strong> includes the clustering variable <code>speaker</code>
+<ul>
+<li>formula: <code>variant ~ age + gender + random_continuous + random_binary + speaker</code></li>
+</ul></li>
+</ul>
+<p>For didactic purposes, we start by fitting a conditional inference tree to the full dataset using the function <code>ctree()</code> in the <code>{party}</code> package <span class="citation" data-cites="party-package">(<a href="#ref-party-package" role="doc-biblioref">Hothorn, Hornik, and Zeileis 2006</a>)</span>. The resulting splitting scheme is shown in <a href="#fig-cit" class="quarto-xref">Figure&nbsp;2</a>. It includes three splits: three according to <code>speaker</code>, and one according to <code>gender</code>. Surprisingly, <code>age</code> doesn’t appear at all as a splitting variable, which should make us skeptical.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>d_tree <span class="ot">&lt;-</span> party<span class="sc">::</span><span class="fu">ctree</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  variant <span class="sc">~</span> age <span class="sc">+</span> gender <span class="sc">+</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    random_continuous <span class="sc">+</span> random_binary <span class="sc">+</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    speaker, </span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> d)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(d_tree)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="fig-cit" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-cit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-cit-1.png" class="img-fluid figure-img" style="width:90.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-cit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: Conditional inference tree fit to the full dataset.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The next step is to fit two conditional random-forest models (M1 and M2) using the function <code>cforest()</code> in the <code>{party}</code> package <span class="citation" data-cites="party-package">(<a href="#ref-party-package" role="doc-biblioref">Hothorn, Hornik, and Zeileis 2006</a>)</span>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># M1</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>d_rf_1 <span class="ot">&lt;-</span> party<span class="sc">::</span><span class="fu">cforest</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  variant <span class="sc">~</span> age <span class="sc">+</span> gender <span class="sc">+</span> </span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    random_continuous <span class="sc">+</span> random_binary, </span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> d,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">control =</span> party<span class="sc">::</span><span class="fu">cforest_unbiased</span>(</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">mtry =</span> <span class="dv">2</span>, </span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">ntree =</span> <span class="dv">500</span>))</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co"># M2</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>d_rf_2 <span class="ot">&lt;-</span> party<span class="sc">::</span><span class="fu">cforest</span>(</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  variant <span class="sc">~</span> </span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    age <span class="sc">+</span> gender <span class="sc">+</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    random_continuous <span class="sc">+</span> random_binary <span class="sc">+</span> </span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    speaker,  </span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> d,</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">control =</span> party<span class="sc">::</span><span class="fu">cforest_unbiased</span>(</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">mtry =</span> <span class="dv">2</span>, </span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">ntree =</span> <span class="dv">500</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Next, we compute conditional variable importance scores for each model, using the <code>permimp</code> package <span class="citation" data-cites="permimp-package">(<a href="#ref-permimp-package" role="doc-biblioref">Debeer, Hothorn, and Strobl 2025</a>)</span>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># M1</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>varimp_d_rf_1 <span class="ot">&lt;-</span> permimp<span class="sc">::</span><span class="fu">permimp</span>(</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  d_rf_1,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">conditional =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">progressBar =</span> <span class="cn">FALSE</span>)<span class="sc">$</span>values</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>varimp_d_rf_1 <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(varimp_d_rf_1)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>varimp_d_rf_1<span class="sc">$</span>variable <span class="ot">&lt;-</span> <span class="fu">rownames</span>(varimp_d_rf_1)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co"># M2</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>varimp_d_rf_2 <span class="ot">&lt;-</span> permimp<span class="sc">::</span><span class="fu">permimp</span>(</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  d_rf_2,</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">conditional =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">progressBar =</span> <span class="cn">FALSE</span>)<span class="sc">$</span>values</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>varimp_d_rf_2 <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(varimp_d_rf_2)</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>varimp_d_rf_2<span class="sc">$</span>variable <span class="ot">&lt;-</span> <span class="fu">rownames</span>(varimp_d_rf_2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Finally, we obtain partial dependence scores for the predictors <code>age</code>and <code>gender</code> for each model, using the <code>partial()</code> function in the <code>pdp</code> package <span class="citation" data-cites="pdp-package">(<a href="#ref-pdp-package" role="doc-biblioref">Greenwell 2017</a>)</span>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># M1</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>pdp_gender_1 <span class="ot">&lt;-</span> pdp<span class="sc">::</span><span class="fu">partial</span>(</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  d_rf_1, </span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">pred.var =</span> <span class="st">"gender"</span>,</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">"classification"</span>,</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">which.class =</span> <span class="st">"variant.were"</span>,</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">prob =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>pdp_age_1 <span class="ot">&lt;-</span> pdp<span class="sc">::</span><span class="fu">partial</span>(</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  d_rf_1, </span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">pred.var =</span> <span class="st">"age"</span>, </span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">pred.grid =</span> <span class="fu">data.frame</span>(</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">age =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="dv">2</span>, .<span class="dv">25</span>)),</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">"classification"</span>,</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">which.class =</span> <span class="st">"variant.were"</span>,</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">prob =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="co"># M2</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>pdp_gender_2 <span class="ot">&lt;-</span> pdp<span class="sc">::</span><span class="fu">partial</span>(</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  d_rf_2, </span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">pred.var =</span> <span class="st">"gender"</span>,</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">"classification"</span>,</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">which.class =</span> <span class="st">"variant.were"</span>,</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">prob =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>pdp_age_2 <span class="ot">&lt;-</span> pdp<span class="sc">::</span><span class="fu">partial</span>(</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>  d_rf_2, </span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">pred.var =</span> <span class="st">"age"</span>, </span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">pred.grid =</span> <span class="fu">data.frame</span>(</span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">age =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="dv">2</span>, .<span class="dv">25</span>)),</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">grid.resolution =</span> <span class="dv">10</span>,  </span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">"classification"</span>,</span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">which.class =</span> <span class="st">"variant.were"</span>,</span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">prob =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="variable-importance-scores" class="level4">
+<h4 class="anchored" data-anchor-id="variable-importance-scores">Variable importance scores</h4>
+<p>We start by inspecting the variable importance scores, which are shown in the <a href="#fig-vim" class="quarto-xref">Figure&nbsp;3</a>. For comparison, I have scaled these in such a way that each plot extends to the maximum importance score in the respective model. This rescaling does not affect our interpretation here since the relevant benchmarks are the conditional importance scores for the predictors <code>random_binary</code> and <code>random_continuous</code>.</p>
+<ul>
+<li>For M1, the importance measures suggest that both <code>age</code> and <code>gender</code> have predictive utility, in line with the structure we have built into the data.</li>
+<li>For M2, it is <code>age</code> and <code>speaker</code> that emerge as predictively important; <code>gender</code>, however, ranks with the noise variables.</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>draw graph</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">xyplot</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type =</span> <span class="st">"n"</span>, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span>.<span class="dv">2</span>, <span class="fl">1.1</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">12.5</span>),</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings =</span> lattice_ls,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Conditional importance (scaled)"</span>,</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab =</span> <span class="cn">NULL</span>,</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales =</span> <span class="fu">list</span>(</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">list</span>(<span class="at">at =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">"Max."</span>), <span class="at">cex =</span> .<span class="dv">9</span>),</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="fu">list</span>(</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">at =</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="dv">8</span><span class="sc">:</span><span class="dv">11</span>), <span class="at">label =</span> <span class="fu">c</span>(</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">"(Continuous)"</span>, <span class="st">"(Binary)"</span>, <span class="st">"Gender"</span>, <span class="st">"Speaker"</span>, <span class="st">"Age"</span>,</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">"(Continuous)"</span>, <span class="st">"(Binary)"</span>, <span class="st">"Gender"</span>, <span class="st">"Age"</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>      )), <span class="at">cex =</span> .<span class="dv">9</span>),</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">panel =</span> <span class="cf">function</span>(x,y){</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0 =</span> <span class="sc">-</span>.<span class="dv">2</span>, <span class="at">x1 =</span> <span class="fl">1.1</span>, <span class="at">y0 =</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="dv">8</span><span class="sc">:</span><span class="dv">11</span>), <span class="at">y1 =</span> <span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="dv">8</span><span class="sc">:</span><span class="dv">11</span>), </span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>                   <span class="at">col =</span> <span class="st">"grey95"</span>)</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0 =</span> <span class="dv">0</span>, <span class="at">x1 =</span> <span class="dv">0</span>, <span class="at">y0 =</span> .<span class="dv">5</span>, <span class="at">y1 =</span> <span class="fl">5.5</span>)</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0 =</span> <span class="dv">0</span>, <span class="at">x1 =</span> <span class="dv">0</span>, <span class="at">y0 =</span> <span class="fl">7.5</span>, <span class="at">y1 =</span> <span class="fl">11.5</span>)</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0 =</span> <span class="dv">0</span>, <span class="at">x1 =</span> <span class="fu">sort</span>(varimp_d_rf_2<span class="sc">$</span>varimp_scaled),</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>                   <span class="at">y0 =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="at">y1 =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0 =</span> <span class="dv">0</span>, <span class="at">x1 =</span> <span class="fu">sort</span>(varimp_d_rf_1<span class="sc">$</span>varimp_scaled),</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>                   <span class="at">y0 =</span> <span class="dv">8</span><span class="sc">:</span><span class="dv">11</span>, <span class="at">y1 =</span> <span class="dv">8</span><span class="sc">:</span><span class="dv">11</span>)</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(<span class="at">x =</span> <span class="fu">sort</span>(varimp_d_rf_2<span class="sc">$</span>varimp_scaled), <span class="at">y =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>,</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>                 <span class="at">pch =</span> <span class="dv">21</span>, <span class="at">fill =</span> <span class="st">"white"</span>, <span class="at">cex =</span> <span class="dv">1</span>)</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(<span class="at">x =</span> <span class="fu">sort</span>(varimp_d_rf_1<span class="sc">$</span>varimp_scaled), <span class="at">y =</span> <span class="dv">8</span><span class="sc">:</span><span class="dv">11</span>,</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>                 <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">cex =</span> <span class="dv">1</span>)</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0 =</span> <span class="dv">0</span>, <span class="at">x1 =</span> <span class="dv">1</span>, <span class="at">y0 =</span> <span class="dv">0</span>, <span class="at">y1 =</span> <span class="dv">0</span>)</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.segments</span>(<span class="at">x0 =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>, <span class="at">x1 =</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">1</span>, <span class="at">y0 =</span> <span class="dv">0</span>, <span class="at">y1 =</span> <span class="sc">-</span>.<span class="dv">3</span>)</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> .<span class="dv">5</span>, <span class="at">y =</span> <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">12</span>)<span class="sc">+</span>.<span class="dv">2</span>, <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"M2"</span>, <span class="st">"M1"</span>), <span class="at">cex =</span> <span class="dv">1</span>)</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>  })</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-vim" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-vim-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-vim-1.png" class="img-fluid figure-img" width="288">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-vim-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: Conditional variable importance for the predictors in models M1 and M2.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Apparently, the inclusion of the variable <code>speaker</code> has affected the predictive utility of the variable <code>gender</code>.</p>
+</section>
+<section id="partial-dependence-plots" class="level4">
+<h4 class="anchored" data-anchor-id="partial-dependence-plots">Partial dependence plots</h4>
+<p>To shed further light on this, we inspect partial dependence plots for the predictors <code>age</code> and <code>gender</code> based on both models. These are compared in <a href="#fig-pdp" class="quarto-xref">Figure&nbsp;4</a>. It is clear from this figure that the inclusion of the clustering variable <code>speaker</code> has undermined the predictive power of both speaker-level variables: The partial dependence scores based on M1, which appear as open circles, are more extreme, indicating greater predictive discrimination for young vs.&nbsp;old and male vs.&nbsp;female individuals In contrast, partial dependence scores based on M2, which includes <code>speaker</code>, are flatter.</p>
+<div class="cell preview-image">
+<details class="code-fold">
+<summary>draw graph</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type =</span> <span class="st">"n"</span>, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">2.2</span>, <span class="fl">2.2</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings =</span> lattice_ls, <span class="at">axis =</span> axis_L,</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">""</span>, <span class="at">ylab =</span> <span class="st">"Proportion of interest"</span>,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales =</span> <span class="fu">list</span>(</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">list</span>(<span class="at">at =</span> <span class="sc">-</span><span class="fl">1.5</span><span class="sc">:</span><span class="fl">1.5</span>, <span class="at">label =</span> <span class="fu">rev</span>(<span class="fu">c</span>(<span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">60</span>, <span class="dv">80</span>)), <span class="at">cex =</span> .<span class="dv">9</span>),</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="fu">list</span>(<span class="at">at =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">5</span>, <span class="dv">1</span>), <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">".5"</span>, <span class="st">"1"</span>)), <span class="at">cex =</span> .<span class="dv">9</span>),</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">panel =</span> <span class="cf">function</span>(x,y){</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(<span class="at">x =</span> pdp_age_2<span class="sc">$</span>age,</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y =</span> pdp_age_2<span class="sc">$</span>yhat, <span class="at">type =</span> <span class="st">"l"</span>)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(<span class="at">x =</span> pdp_age_1<span class="sc">$</span>age,</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y =</span> pdp_age_1<span class="sc">$</span>yhat, <span class="at">type =</span> <span class="st">"l"</span>)</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(<span class="at">x =</span> pdp_age_2<span class="sc">$</span>age,</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y =</span> pdp_age_2<span class="sc">$</span>yhat, <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">cex =</span> <span class="fl">1.1</span>)</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(<span class="at">x =</span> pdp_age_1<span class="sc">$</span>age,</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y =</span> pdp_age_1<span class="sc">$</span>yhat, <span class="at">pch =</span> <span class="dv">21</span>, <span class="at">fill =</span> <span class="st">"white"</span>, <span class="at">cex =</span> <span class="fl">1.1</span>)</span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fl">1.5</span>, <span class="at">y =</span> <span class="dv">1</span><span class="sc">-</span><span class="fu">c</span>(.<span class="dv">55</span>, .<span class="dv">9</span>), </span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>               <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"M2"</span>, <span class="st">"M1"</span>), <span class="at">cex =</span> .<span class="dv">9</span>)</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="sc">-</span><span class="fl">2.1</span>, <span class="at">y =</span> <span class="fl">1.07</span>, <span class="at">label =</span> <span class="st">" Age"</span>, <span class="at">adj =</span> <span class="dv">0</span>)</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">2.1</span>, <span class="sc">-</span><span class="fl">9.45</span>), <span class="at">y =</span> <span class="fl">1.15</span>, <span class="at">label =</span> <span class="fu">c</span>(</span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>      <span class="st">" Partial dependence plots</span><span class="sc">\n</span><span class="st">"</span>, <span class="st">"Conditional variable</span><span class="sc">\n</span><span class="st">importance scores (rescaled)"</span>), <span class="at">adj =</span> <span class="dv">0</span>, <span class="at">lineheight =</span> .<span class="dv">85</span>)</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(</span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type =</span> <span class="st">"n"</span>, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="fl">2.2</span>, .<span class="dv">8</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),</span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings =</span> lattice_ls, <span class="at">axis =</span> axis_L,</span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">""</span>, <span class="at">ylab =</span> <span class="st">" "</span>,</span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales =</span> <span class="fu">list</span>(</span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">list</span>(<span class="at">at =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"Male"</span>, <span class="st">"Female"</span>), <span class="at">cex =</span> .<span class="dv">9</span>),</span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="fu">list</span>(<span class="at">at =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">5</span>, <span class="dv">1</span>), <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">".5"</span>, <span class="st">"1"</span>)), <span class="at">cex =</span> .<span class="dv">9</span>),</span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">panel =</span> <span class="cf">function</span>(x,y){</span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(<span class="at">x =</span> pdp_gender_2<span class="sc">$</span>gender,</span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y =</span> pdp_gender_2<span class="sc">$</span>yhat, <span class="at">type =</span> <span class="st">"l"</span>)</span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(<span class="at">x =</span> pdp_gender_1<span class="sc">$</span>gender,</span>
+<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y =</span> pdp_gender_1<span class="sc">$</span>yhat, <span class="at">type =</span> <span class="st">"l"</span>)</span>
+<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(<span class="at">x =</span> pdp_gender_2<span class="sc">$</span>gender,</span>
+<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y =</span> pdp_gender_2<span class="sc">$</span>yhat, <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">cex =</span> <span class="fl">1.1</span>)</span>
+<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.points</span>(<span class="at">x =</span> pdp_gender_1<span class="sc">$</span>gender,</span>
+<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y =</span> pdp_gender_1<span class="sc">$</span>yhat, <span class="at">pch =</span> <span class="dv">21</span>, <span class="at">fill =</span> <span class="st">"white"</span>, <span class="at">cex =</span> <span class="fl">1.1</span>)</span>
+<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fl">1.9</span>, <span class="at">y =</span> <span class="dv">1</span><span class="sc">-</span><span class="fu">c</span>(.<span class="dv">33</span>, .<span class="dv">63</span>), </span>
+<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a>               <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"M1"</span>, <span class="st">"M2"</span>), <span class="at">cex =</span> .<span class="dv">9</span>)</span>
+<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fl">2.2</span>, <span class="at">y =</span> <span class="fl">1.07</span>, <span class="at">label =</span> <span class="st">" Gender"</span>, <span class="at">adj =</span> <span class="dv">0</span>)</span>
+<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1, <span class="at">position =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="sc">-</span>.<span class="dv">1</span>,.<span class="dv">65</span>,.<span class="dv">86</span>), <span class="at">more =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p2, <span class="at">position =</span> <span class="fu">c</span>(.<span class="dv">6</span>,<span class="sc">-</span>.<span class="dv">1</span>, <span class="dv">1</span>,.<span class="dv">86</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-pdp" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-pdp-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-pdp-1.png" class="img-fluid figure-img" width="336">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-pdp-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: Partial dependence plots for <code>age</code> and <code>gender</code> in models M1 and M2.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>We can compare the “steepness” of the profiles numerically, by looking at the range of the partial dependence scores for the two models:</p>
+<ul>
+<li><code>age</code>
+<ul>
+<li>M1: .52 (Min: .20; Max: .72)</li>
+<li>M2: .25 (Min: .32; Max: .57)</li>
+</ul></li>
+<li><code>gender</code>
+<ul>
+<li>M1: .22 (Min: .35; Max: .56)</li>
+<li>M2: .10 (Min: .39; Max: .49)</li>
+</ul></li>
+</ul>
+</section>
+<section id="understanding-why" class="level4">
+<h4 class="anchored" data-anchor-id="understanding-why">Understanding why</h4>
+<p>To understand why the inclusion of clustering variables undermines the predictive utility of the associated cluster-level predictors, it is instructive to inspect the first split in the conditional inference tree shown in <a href="#fig-cit" class="quarto-xref">Figure&nbsp;2</a>. The first split is made on <code>speaker</code>, and 18 individuals are assigned to the left branch, 32 to the right branch. The sample is therefore divided into two groups. The scatterplot in <a href="#fig-explain" class="quarto-xref">Figure&nbsp;5</a> shows that this split is made at a proportion of around .55. The subset of speakers in the left branch is colored in gray, the ones in the right branch in blue.</p>
+<p>For this split, the prediction scheme assigns predictive value to the variable <code>speaker</code> only. This is despite the fact that the two subgroups differ systematically with regard to the distribution of <code>age</code> and <code>gender</code>. This is clarified in the plots added at the top of <a href="#fig-explain" class="quarto-xref">Figure&nbsp;5</a>:</p>
+<ul>
+<li>The bar chart shows that the right branch (blue) includes a greater proportion of male speakers (63% vs.&nbsp;28% in the right branch). Recall that male speakers were simulated to have lower proportions (see <a href="#fig-data" class="quarto-xref">Figure&nbsp;1</a>).</li>
+<li>The boxplot shows that the right branch (blue) also includes speakers who are, on average, younger (median age 33 vs.&nbsp;62 years). Recall that younger speakers were simulated to have lower proportions (see <a href="#fig-data" class="quarto-xref">Figure&nbsp;1</a>).</li>
+</ul>
+<div class="cell">
+<details class="code-fold">
+<summary>draw graph</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># speaker summary</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>d_summary <span class="ot">&lt;-</span> d <span class="sc">|&gt;</span> <span class="fu">group_by</span>(speaker) <span class="sc">|&gt;</span> </span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">summarize</span>(</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">age =</span> <span class="fu">unique</span>(age),</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">gender =</span> <span class="fu">unique</span>(gender),</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">prop_were =</span> <span class="fu">mean</span>(variant <span class="sc">==</span> <span class="st">"were"</span>)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>d_tree <span class="ot">&lt;-</span> <span class="fu">ctree</span>(</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  variant <span class="sc">~</span> age <span class="sc">+</span> gender <span class="sc">+</span> speaker <span class="sc">+</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    random_continuous <span class="sc">+</span> random_binary, </span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> d)</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>speaker_split <span class="ot">&lt;-</span> d_tree<span class="sc">@</span>tree<span class="sc">$</span>psplit<span class="sc">$</span>splitpoint</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>speakers_to_the_left <span class="ot">&lt;-</span> <span class="fu">levels</span>(speaker_split)[<span class="fu">as.logical</span>(speaker_split)]</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>speakers_to_the_right <span class="ot">&lt;-</span> <span class="fu">levels</span>(speaker_split)[<span class="fu">as.logical</span>(speaker_split<span class="sc">*-</span><span class="dv">1</span><span class="sc">+</span><span class="dv">1</span>)]</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>d_summary<span class="sc">$</span>branch <span class="ot">&lt;-</span> <span class="fu">factor</span>(</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">"right"</span>, <span class="st">"left"</span>)[<span class="fu">as.numeric</span>(d_summary<span class="sc">$</span>speaker <span class="sc">%in%</span> speakers_to_the_left)<span class="sc">+</span><span class="dv">1</span>])</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a><span class="co"># draw plot</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>  prop_were <span class="sc">~</span> age, </span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> col_ls[<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>)][<span class="fu">as.numeric</span>(d_summary<span class="sc">$</span>branch)], </span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">pch =</span> <span class="fu">c</span>(<span class="dv">3</span>,<span class="dv">1</span>)[<span class="fu">as.numeric</span>(d_summary<span class="sc">$</span>gender)],</span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">cex =</span> <span class="dv">1</span>,</span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> d_summary,</span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="st">"Age"</span>, <span class="at">ylab =</span> <span class="st">"Proportion of interest"</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">1</span>),</span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings =</span> lattice_ls, <span class="at">axis =</span> axis_L,</span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a><span class="at">scales =</span> <span class="fu">list</span>(</span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="fu">list</span>(<span class="at">at =</span> <span class="sc">-</span><span class="fl">1.5</span><span class="sc">:</span><span class="fl">1.5</span>, <span class="at">label =</span> <span class="fu">rev</span>(<span class="fu">c</span>(<span class="dv">20</span>, <span class="dv">40</span>, <span class="dv">60</span>, <span class="dv">80</span>))),</span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="fu">list</span>(<span class="at">at =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">5</span>, <span class="dv">1</span>), <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">".5"</span>, <span class="st">"1"</span>))),</span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a><span class="at">panel =</span> <span class="cf">function</span>(x,y,...){</span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">panel.xyplot</span>(x,y,...)</span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">panel.segments</span>(<span class="at">x0 =</span> <span class="fl">2.5</span>, <span class="at">x1 =</span> <span class="fl">2.5</span>, <span class="at">col =</span> col_ls[<span class="dv">1</span>],</span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y0 =</span> <span class="fu">min</span>(y[d_summary<span class="sc">$</span>branch <span class="sc">==</span> <span class="st">"left"</span>]),</span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y1 =</span> <span class="fu">max</span>(y[d_summary<span class="sc">$</span>branch <span class="sc">==</span> <span class="st">"left"</span>]))</span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">panel.segments</span>(<span class="at">x0 =</span> <span class="fl">2.4</span>, <span class="at">x1 =</span> <span class="fl">2.5</span>, <span class="at">col =</span> col_ls[<span class="dv">1</span>],</span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y0 =</span> <span class="fu">range</span>(y[d_summary<span class="sc">$</span>branch <span class="sc">==</span> <span class="st">"left"</span>]),</span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y1 =</span> <span class="fu">range</span>(y[d_summary<span class="sc">$</span>branch <span class="sc">==</span> <span class="st">"left"</span>]))</span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">panel.segments</span>(<span class="at">x0 =</span> <span class="fl">2.5</span>, <span class="at">x1 =</span> <span class="fl">2.5</span>,<span class="at">col =</span> col_ls[<span class="dv">3</span>],</span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y0 =</span> <span class="fu">min</span>(y[d_summary<span class="sc">$</span>branch <span class="sc">==</span> <span class="st">"right"</span>]),</span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y1 =</span> <span class="fu">max</span>(y[d_summary<span class="sc">$</span>branch <span class="sc">==</span> <span class="st">"right"</span>]))</span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">panel.segments</span>(<span class="at">x0 =</span> <span class="fl">2.4</span>, <span class="at">x1 =</span> <span class="fl">2.5</span>,<span class="at">col =</span> col_ls[<span class="dv">3</span>],</span>
+<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y0 =</span> <span class="fu">range</span>(y[d_summary<span class="sc">$</span>branch <span class="sc">==</span> <span class="st">"right"</span>]),</span>
+<span id="cb12-49"><a href="#cb12-49" aria-hidden="true" tabindex="-1"></a>                 <span class="at">y1 =</span> <span class="fu">range</span>(y[d_summary<span class="sc">$</span>branch <span class="sc">==</span> <span class="st">"right"</span>]))</span>
+<span id="cb12-50"><a href="#cb12-50" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-51"><a href="#cb12-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fl">2.7</span>, <span class="at">y =</span> <span class="fu">c</span>(.<span class="dv">25</span>, .<span class="dv">75</span>), <span class="at">label =</span> <span class="fu">c</span>(</span>
+<span id="cb12-52"><a href="#cb12-52" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Assigned to</span><span class="sc">\n</span><span class="st">right branch</span><span class="sc">\n</span><span class="st">(n = 32)"</span>, <span class="st">"Assigned to</span><span class="sc">\n</span><span class="st">left branch</span><span class="sc">\n</span><span class="st">(n = 18)"</span></span>
+<span id="cb12-53"><a href="#cb12-53" aria-hidden="true" tabindex="-1"></a>  ), <span class="at">lineheight =</span> .<span class="dv">85</span>, <span class="at">adj =</span> <span class="dv">0</span>, <span class="at">cex =</span> .<span class="dv">9</span>, <span class="at">col =</span> col_ls[<span class="fu">c</span>(<span class="dv">3</span>,<span class="dv">1</span>)])</span>
+<span id="cb12-54"><a href="#cb12-54" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb12-55"><a href="#cb12-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-56"><a href="#cb12-56" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">bwplot</span>(<span class="fu">reorder</span>(branch, <span class="sc">-</span>age) <span class="sc">~</span> age, <span class="at">data =</span> d_summary,</span>
+<span id="cb12-57"><a href="#cb12-57" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings =</span> lattice_ls, <span class="at">box.ratio =</span> <span class="dv">4</span>,</span>
+<span id="cb12-58"><a href="#cb12-58" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales =</span> <span class="fu">list</span>(<span class="at">x =</span> <span class="fu">list</span>(<span class="at">draw =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb12-59"><a href="#cb12-59" aria-hidden="true" tabindex="-1"></a>                <span class="at">y =</span> <span class="fu">list</span>(<span class="at">cex =</span> .<span class="dv">9</span>)),</span>
+<span id="cb12-60"><a href="#cb12-60" aria-hidden="true" tabindex="-1"></a>  <span class="at">fill =</span> fill_ls[<span class="fu">c</span>(<span class="dv">3</span>,<span class="dv">1</span>)],</span>
+<span id="cb12-61"><a href="#cb12-61" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="cn">NULL</span>,</span>
+<span id="cb12-62"><a href="#cb12-62" aria-hidden="true" tabindex="-1"></a>  <span class="at">panel =</span> <span class="cf">function</span>(x,y,...){</span>
+<span id="cb12-63"><a href="#cb12-63" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.bwplot</span>(x,y,...)   </span>
+<span id="cb12-64"><a href="#cb12-64" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fl">2.7</span>, <span class="at">y =</span> <span class="dv">3</span>, <span class="at">label =</span> <span class="st">"Median age"</span>, <span class="at">cex =</span> .<span class="dv">9</span>, <span class="at">adj =</span> <span class="dv">0</span>)</span>
+<span id="cb12-65"><a href="#cb12-65" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fl">2.7</span>, <span class="at">y =</span> <span class="dv">2</span>, <span class="at">label =</span> <span class="st">"  Left branch: 33 years"</span>, <span class="at">cex =</span> .<span class="dv">9</span>, <span class="at">adj =</span> <span class="dv">0</span>, <span class="at">col =</span> col_ls[<span class="dv">1</span>])</span>
+<span id="cb12-66"><a href="#cb12-66" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fl">2.7</span>, <span class="at">y =</span> <span class="dv">1</span>, <span class="at">label =</span> <span class="st">"  Right branch: 62 years"</span>, <span class="at">cex =</span> .<span class="dv">9</span>, <span class="at">adj =</span> <span class="dv">0</span>, <span class="at">col =</span> col_ls[<span class="dv">3</span>])</span>
+<span id="cb12-67"><a href="#cb12-67" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb12-68"><a href="#cb12-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-69"><a href="#cb12-69" aria-hidden="true" tabindex="-1"></a>d_barchart <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb12-70"><a href="#cb12-70" aria-hidden="true" tabindex="-1"></a>  <span class="fu">prop.table</span>(</span>
+<span id="cb12-71"><a href="#cb12-71" aria-hidden="true" tabindex="-1"></a>    <span class="fu">table</span>(d_summary<span class="sc">$</span>gender, d_summary<span class="sc">$</span>branch), <span class="at">margin =</span> <span class="dv">2</span>))</span>
+<span id="cb12-72"><a href="#cb12-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-73"><a href="#cb12-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-74"><a href="#cb12-74" aria-hidden="true" tabindex="-1"></a>p3 <span class="ot">&lt;-</span> <span class="fu">barchart</span>(</span>
+<span id="cb12-75"><a href="#cb12-75" aria-hidden="true" tabindex="-1"></a>  <span class="fu">reorder</span>(Var2, <span class="sc">-</span><span class="fu">as.numeric</span>(Var2)) <span class="sc">~</span> Freq, <span class="at">groups =</span> Var1<span class="sc">:</span>Var2,</span>
+<span id="cb12-76"><a href="#cb12-76" aria-hidden="true" tabindex="-1"></a>               <span class="at">data =</span> d_barchart, <span class="at">stack =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb12-77"><a href="#cb12-77" aria-hidden="true" tabindex="-1"></a>  <span class="at">par.settings =</span> lattice_ls, <span class="at">box.ratio =</span> <span class="dv">4</span>,</span>
+<span id="cb12-78"><a href="#cb12-78" aria-hidden="true" tabindex="-1"></a>  <span class="at">xlab =</span> <span class="cn">NULL</span>,</span>
+<span id="cb12-79"><a href="#cb12-79" aria-hidden="true" tabindex="-1"></a>  <span class="at">scales =</span> <span class="fu">list</span>(<span class="at">x =</span> <span class="fu">list</span>(<span class="at">draw =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb12-80"><a href="#cb12-80" aria-hidden="true" tabindex="-1"></a>                <span class="at">y =</span> <span class="fu">list</span>(<span class="at">cex =</span> .<span class="dv">9</span>)),</span>
+<span id="cb12-81"><a href="#cb12-81" aria-hidden="true" tabindex="-1"></a>  <span class="at">col =</span> <span class="fu">c</span>(</span>
+<span id="cb12-82"><a href="#cb12-82" aria-hidden="true" tabindex="-1"></a>    fill_ls[<span class="dv">1</span>],</span>
+<span id="cb12-83"><a href="#cb12-83" aria-hidden="true" tabindex="-1"></a>    fill_ls[<span class="dv">3</span>], </span>
+<span id="cb12-84"><a href="#cb12-84" aria-hidden="true" tabindex="-1"></a>    <span class="st">"white"</span>,</span>
+<span id="cb12-85"><a href="#cb12-85" aria-hidden="true" tabindex="-1"></a>    <span class="st">"white"</span>),</span>
+<span id="cb12-86"><a href="#cb12-86" aria-hidden="true" tabindex="-1"></a>  <span class="at">panel =</span> <span class="cf">function</span>(x,y,...){</span>
+<span id="cb12-87"><a href="#cb12-87" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.barchart</span>(x,y,...)</span>
+<span id="cb12-88"><a href="#cb12-88" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fu">c</span>(.<span class="dv">1</span>, .<span class="dv">88</span>), <span class="at">y =</span> <span class="fl">2.95</span>, <span class="at">label =</span> <span class="fu">c</span>(<span class="st">"male"</span>, <span class="st">"female"</span>), <span class="at">cex =</span> .<span class="dv">9</span>)</span>
+<span id="cb12-89"><a href="#cb12-89" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fl">1.19</span>, <span class="at">y =</span> <span class="dv">3</span>, <span class="at">label =</span> <span class="st">"Proportion male"</span>, <span class="at">cex =</span> .<span class="dv">9</span>, <span class="at">adj =</span> <span class="dv">0</span>)</span>
+<span id="cb12-90"><a href="#cb12-90" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fl">1.19</span>, <span class="at">y =</span> <span class="dv">2</span>, <span class="at">label =</span> <span class="st">"  Left branch: 28%"</span>, <span class="at">cex =</span> .<span class="dv">9</span>, <span class="at">adj =</span> <span class="dv">0</span>, <span class="at">col =</span> col_ls[<span class="dv">1</span>])</span>
+<span id="cb12-91"><a href="#cb12-91" aria-hidden="true" tabindex="-1"></a>    <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="fl">1.19</span>, <span class="at">y =</span> <span class="dv">1</span>, <span class="at">label =</span> <span class="st">"  Right branch: 63%"</span>, <span class="at">cex =</span> .<span class="dv">9</span>, <span class="at">adj =</span> <span class="dv">0</span>, <span class="at">col =</span> col_ls[<span class="dv">3</span>])</span>
+<span id="cb12-92"><a href="#cb12-92" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb12-93"><a href="#cb12-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-94"><a href="#cb12-94" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1, <span class="at">position =</span> <span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,.<span class="dv">62</span>,.<span class="dv">6</span>), <span class="at">more =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb12-95"><a href="#cb12-95" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p2, <span class="at">position =</span> <span class="fu">c</span>(<span class="sc">-</span>.<span class="dv">02</span>,.<span class="dv">625</span>,.<span class="dv">625</span>,.<span class="dv">8</span>), <span class="at">more =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb12-96"><a href="#cb12-96" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p3, <span class="at">position =</span> <span class="fu">c</span>(<span class="sc">-</span>.<span class="dv">02</span>,.<span class="dv">8</span>,.<span class="dv">625</span>,.<span class="dv">975</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-explain" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-explain-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-explain-1.png" class="img-fluid figure-img" width="384">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-explain-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: Explanation of the decrease in predictive utility of cluster-level variables in M2.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Since we have built the data, we know that part of the difference between the two subgroups of speakers (grey and blue) is systematic, i.e.&nbsp;attributable to <code>age</code> and <code>gender</code>. For this particular split, however, the tree records no information about systematic differences between grey and blue individuals. Instead, predictive credit is given exclusively to <code>speaker</code>. Since the right branch (blue) mostly includes younger speakers, predictive power has been robbed from <code>age</code> and instead assigned to <code>speaker</code>. And the same is true for <code>gender</code>: Since the right branch (blue) mostly includes male speakers, predictive power has also been robbed from <code>gender</code> and instead assigned to <code>speaker</code>.</p>
+</section>
+<section id="conclusion" class="level4">
+<h4 class="anchored" data-anchor-id="conclusion">Conclusion</h4>
+<p>Corpus data are often structured hierarchically, which poses a problem for random-forest modeling. We know from the regression context that ignoring clustering variables during data analysis is likely to yield overoptimistic models. Including clustering variables into an ordinary random-forest model has its own problems, however, one of which was discussed in the current blog post. If the data are to be analyzed with a random-forest model, the only way out of this dilemma is offered by mixed-effects random forests. For categorical response variables (i.e.&nbsp;classification tasks), such methods have emerged only recently <span class="citation" data-cites="pellagatti2021">(<a href="#ref-pellagatti2021" role="doc-biblioref">Pellagatti et al. 2021</a>)</span>. If you come across an implementation of these models in R (or Python), spread the word!</p>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-permimp-package" class="csl-entry" role="listitem">
+Debeer, Dries, Torsten Hothorn, and Carolin Strobl. 2025. <em>Permimp: Conditional Permutation Importance</em>. <a href="https://doi.org/10.32614/CRAN.package.permimp">https://doi.org/10.32614/CRAN.package.permimp</a>.
+</div>
+<div id="ref-pdp-package" class="csl-entry" role="listitem">
+Greenwell, Brandon M. 2017. <span>“Pdp: An <span>R</span> Package for Constructing Partial Dependence Plots.”</span> <em>The R Journal</em> 9 (1): 421–36. <a href="https://doi.org/10.32614/RJ-2017-016">https://doi.org/10.32614/RJ-2017-016</a>.
+</div>
+<div id="ref-party-package" class="csl-entry" role="listitem">
+Hothorn, Torsten, Kurt Hornik, and Achim Zeileis. 2006. <span>“Unbiased Recursive Partitioning: A Conditional Inference Framework.”</span> <em>Journal of Computational and Graphical Statistics</em> 15 (3): 651–74. <a href="https://doi.org/10.1198/106186006X133933">https://doi.org/10.1198/106186006X133933</a>.
+</div>
+<div id="ref-pellagatti2021" class="csl-entry" role="listitem">
+Pellagatti, Massimo, Chiara Masci, Francesca Ieva, and Anna M. Paganoni. 2021. <span>“Generalized Mixed‐effects Random Forest: A Flexible Approach to Predict University Student Dropout.”</span> <em>Statistical Analysis and Data Mining: The ASA Data Science Journal</em> 14 (3): 241–57. <a href="https://doi.org/10.1002/sam.11505">https://doi.org/10.1002/sam.11505</a>.
+</div>
+<div id="ref-Soenning2026" class="csl-entry" role="listitem">
+Sönning, Lukas. 2026. <span>“Random Forests in Corpus Research: A Systematic Review.”</span> January 13, 2026. <a href="https://osf.io/preprints/psyarxiv/byd5c_v1">https://osf.io/preprints/psyarxiv/byd5c_v1</a>.
+</div>
+<div id="ref-tagliamonte_baayen2012" class="csl-entry" role="listitem">
+Tagliamonte, Sali A., and R. Harald Baayen. 2012. <span>“Models, Forests, and Trees of York English:was/Werevariation as a Case Study for Statistical Practice.”</span> <em>Language Variation and Change</em> 24 (2): 135–78. <a href="https://doi.org/10.1017/s0954394512000129">https://doi.org/10.1017/s0954394512000129</a>.
+</div>
+</div></section><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{sönning2026,
+  author = {Sönning, Lukas},
+  title = {Issues in Random-Forest Modeling: {Treatment} of Clustering
+    Variables},
+  date = {2026-01-10},
+  url = {https://lsoenning.github.io/posts/2026-01-10_random_forest_clustering_variable/},
+  langid = {en}
+}
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-sönning2026" class="csl-entry quarto-appendix-citeas" role="listitem">
+Sönning, Lukas. 2026. <span>“Issues in Random-Forest Modeling: Treatment
+of Clustering Variables.”</span> January 10, 2026. <a href="https://lsoenning.github.io/posts/2026-01-10_random_forest_clustering_variable/">https://lsoenning.github.io/posts/2026-01-10_random_forest_clustering_variable/</a>.
+</div></div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/lsoenning\.github\.io");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
