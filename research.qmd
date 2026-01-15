@@ -28,7 +28,7 @@ editor: source
 
 - Mühlbauer, Michael & Lukas **Sönning**. (under review). Ordinal random forests in language data analysis. [Submitted manuscript](https://osf.io/preprints/psyarxiv/s4bv2_v1){target="_blank"} | [Data](https://doi.org/10.5281/zenodo.18020809){target="_blank"}
 
-- **Sönning**, Lukas. (under review). Random forests in corpus research: A systematic review. [Submitted manuscript](https://osf.io/preprints/psyarxiv/byd5c_v1){target="_blank"} | [Data](https://doi.org/10.5281/zenodo.17755086){target="_blank"} | {{< ai osf >}} [OSF](https://osf.io/qybwm){target="_blank"}
+- **Sönning**, Lukas. (under review). Random forests in corpus research: A systematic review. [Submitted manuscript](https://osf.io/preprints/psyarxiv/byd5c_v2){target="_blank"} | [Data](https://doi.org/10.5281/zenodo.17755086){target="_blank"} | {{< ai osf >}} [OSF](https://osf.io/qybwm){target="_blank"}
 
 
 - **Sönning**, Lukas. (in preparation). Distributional latent-variable modeling of ordinal outcomes in language data analysis.
