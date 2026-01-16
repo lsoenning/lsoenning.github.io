@@ -1,7 +1,7 @@
 ---
 title: "Causally informed regression modeling: The dative alternation"
 description: "This blog post describes how assumed causal relations among variables may inform the analysis and interpretation of corpus-linguistic datasets. For illustration, I will rely on Bresnan et al.'s (2007) data on the English dative alternation."
-date: 2025-10-31
+date: 2026-01-16
 categories: [corpus linguistics, regression, bias, causal inference, binary data]
 citation: 
   url: https://lsoenning.github.io/posts/2025-10-31_causally_informed_modeling/ 
