@@ -2,6 +2,7 @@
   {
     "listing": "/posts.html",
     "items": [
+      "/posts/2025-10-31_benchmarking_estimates/index.html",
       "/posts/2026-01-12_random_forests_interaction_predictors/index.html",
       "/posts/2026-01-10_random_forests_clustering_variables/index.html",
       "/posts/2024-03-01_sharoff_2018/index.html",
@@ -12,6 +13,7 @@
       "/posts/2025-11-13_folded_power_transformation/index.html",
       "/posts/2025-11-12_dispersion_spike_graph/index.html",
       "/posts/2025-11-11_structured_dispersion_plot/index.html",
+      "/posts/2025-10-31_causally_informed_modeling/index.html",
       "/posts/2025-10-23_dispersion_nelson_poissonness/index.html",
       "/posts/2025-10-25_dispersion_lyne/index.html",
       "/posts/2025-06-16_dendrogram_grouping_cues/index.html",

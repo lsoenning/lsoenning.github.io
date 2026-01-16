@@ -1,2 +1,2119 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"></html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Lukas Sönning">
+<meta name="dcterms.date" content="2025-10-31">
+<meta name="description" content="This blog post describes how assumed causal relations among variables may inform the analysis and interpretation of corpus-linguistic datasets. For illustration, I will rely on Bresnan et al.’s (2007) data on the English dative alternation.">
+
+<title>Causally informed regression modeling: The dative alternation – Lukas Sönning</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Lukas Sönning</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../research.html"> 
+<span class="menu-text">Research</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../resources.html"> 
+<span class="menu-text">Resources</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../posts.html"> 
+<span class="menu-text">Blog</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+        
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Causally informed regression modeling: The dative alternation</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">corpus linguistics</div>
+    <div class="quarto-category">regression</div>
+    <div class="quarto-category">bias</div>
+    <div class="quarto-category">causal inference</div>
+    <div class="quarto-category">binary data</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    This blog post describes how assumed causal relations among variables may inform the analysis and interpretation of corpus-linguistic datasets. For illustration, I will rely on Bresnan et al.’s (2007) data on the English dative alternation.
+  </div>
+</div>
+
+<div class="quarto-title-meta-author">
+  <div class="quarto-title-meta-heading">Author</div>
+  <div class="quarto-title-meta-heading">Affiliation</div>
+  
+    <div class="quarto-title-meta-contents">
+    <p class="author"><a href="https://lsoenning.github.io/">Lukas Sönning</a> <a href="https://orcid.org/0000-0002-2705-395X" class="quarto-title-author-orcid"> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg=="></a></p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            University of Bamberg
+          </p>
+      </div>
+  </div>
+
+<div class="quarto-title-meta">
+
+      
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">October 31, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="cell">
+<details class="code-fold">
+<summary>R setup</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rethinking)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dagitty)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(languageR)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(marginaleffects)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lattice)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gtsummary)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(uls)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>A complication that arises in the analysis of corpus data is the fact that predictor variables often show varying levels of association. These associations, which are usually discussed under the label “(multi-)collinearity”, may reflect causal relations between predictor variables. This blog post is a companion to <span class="citation" data-cites="Soenning2025">Sönning (<a href="#ref-Soenning2025" role="doc-biblioref">2025</a>)</span>, and it describes how to incorporate information about such causal relations into regression modeling.</p>
+<section id="data" class="level4">
+<h4 class="anchored" data-anchor-id="data">Data</h4>
+<p>For illustration, I will use <span class="citation" data-cites="bresnan2007">Bresnan et al. (<a href="#ref-bresnan2007" role="doc-biblioref">2007</a>)</span>’s data on the English dative alternation, which are available in the R package <code>{languageR}</code> <span class="citation" data-cites="package-languageR">(<a href="#ref-package-languageR" role="doc-biblioref">Baayen and Shafaei-Bajestan 2019</a>)</span>. The dative alternation refers to the choice between two realizations of the <u>recipient</u> in a ditransitive construction:</p>
+<ul>
+<li>As a noun phrase (NP): She gave <u>her parents</u> fresh flowers.</li>
+<li>As a prepositional phrase (PP): She gave fresh flowers <u>to her parents</u>.</li>
+</ul>
+<p>Viewed from a different perspective, this alternation is about the order of the <em>theme</em> and the <u>recipient</u>.</p>
+<ul>
+<li>Recipient first: She gave <u>her parents</u> <em>fresh flowers</em>.</li>
+<li>Theme first: She gave <em>fresh flowers</em> <u>to her parents</u>.</li>
+</ul>
+<p>The realization of the recipient is the response variable, which we will code as follows:</p>
+<ul>
+<li><code>NP</code>: Recipient is realized as a noun phrase (i.e.&nbsp;it almost certainly appears first)</li>
+</ul>
+<p>In line with earlier research on this alternation, the focus will be on four characteristics of nominal clause constituents, i.e.&nbsp;characteristics of the theme and of the recipient:</p>
+<ul>
+<li><code>discourse status</code>: whether the constituent is given or not-given (new or accessible) (binary)</li>
+<li><code>pronominality</code>: whether the constituent is realized as pronoun or not (binary)</li>
+<li><code>length</code>: in number of words, log-transformed (continuous)</li>
+<li><code>definiteness</code>: whether the constituent is definite or not (binary)</li>
+</ul>
+<p>To simplify the analysis task, I omit a number of predictors (e.g.&nbsp;animacy). I also reduce the data to the verb <em>give</em>, the most frequent type in the dataset. This yields a subsample of 1,666 tokens. Throughout this blog post, recipients and themes will be treated separately.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>prepare data</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>dative_give <span class="ot">&lt;-</span> <span class="fu">subset</span>(dative, Verb <span class="sc">==</span> <span class="st">"give"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>dative_give<span class="sc">$</span>NP <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(dative_give<span class="sc">$</span>RealizationOfRecipient <span class="sc">==</span> <span class="st">"NP"</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>dative_give<span class="sc">$</span>log_length_thm <span class="ot">&lt;-</span> <span class="fu">log</span>(dative_give<span class="sc">$</span>LengthOfTheme)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>dative_give<span class="sc">$</span>log_length_rec <span class="ot">&lt;-</span> <span class="fu">log</span>(dative_give<span class="sc">$</span>LengthOfRec)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>dative_give<span class="sc">$</span>given_rec <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(dative_give<span class="sc">$</span>AccessOfRec <span class="sc">==</span> <span class="st">"given"</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>dative_give<span class="sc">$</span>given_thm <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(dative_give<span class="sc">$</span>AccessOfTheme <span class="sc">==</span> <span class="st">"given"</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>dative_give<span class="sc">$</span>pronoun_thm <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(dative_give<span class="sc">$</span>PronomOfTheme <span class="sc">==</span> <span class="st">"pronominal"</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>dative_give<span class="sc">$</span>pronoun_rec <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(dative_give<span class="sc">$</span>PronomOfRec <span class="sc">==</span> <span class="st">"pronominal"</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>dative_give<span class="sc">$</span>definite_thm <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(dative_give<span class="sc">$</span>DefinOfTheme <span class="sc">==</span> <span class="st">"definite"</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>dative_give<span class="sc">$</span>definite_rec <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(dative_give<span class="sc">$</span>DefinOfRec <span class="sc">==</span> <span class="st">"definite"</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="dag" class="level4">
+<h4 class="anchored" data-anchor-id="dag">DAG</h4>
+<p>As discussed in more detail in <span class="citation" data-cites="Soenning2025">Sönning (<a href="#ref-Soenning2025" role="doc-biblioref">2025</a>)</span>, the directed acyclic graph (DAG) in <a href="#fig-dag" class="quarto-xref">Figure&nbsp;1</a> represents the causal relations that are assumed to hold between the variables. Note that this causal constellation applies to both the theme and the recipient. A full DAG would therefore include a horizontally-flipped mirror image of the constellation shown in <a href="#fig-dag" class="quarto-xref">Figure&nbsp;1</a>, with the left half representing characteristics of the theme, and the right half (not shown in <a href="#fig-dag" class="quarto-xref">Figure&nbsp;1</a>) representing characteristics of the recipient. To keep things simple, I will avoid this redundancy. Note, however, that this means we assume characteristics of the theme to be independent of characteristics of the recipient; this seems reasonable.</p>
+<div class="cell preview-image">
+<details class="code-fold">
+<summary>draw DAG</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>dag_dative <span class="ot">&lt;-</span> <span class="fu">dagitty</span>( <span class="st">"dag{DiscourseStatus -&gt; Pronominality; </span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="st">                       Pronominality -&gt; Length; </span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="st">                       Length -&gt; Realization; </span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="st">                       DiscourseStatus -&gt; Definiteness;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="st">                       DiscourseStatus -&gt; Length;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="st">                       Pronominality -&gt; Realization;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="st">                       Definiteness -&gt; Realization;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="st">                       DiscourseStatus -&gt; Realization}"</span>)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="fu">coordinates</span>(dag_dative) <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">x=</span><span class="fu">c</span>(<span class="at">DiscourseStatus =</span> <span class="dv">0</span>, <span class="at">Pronominality =</span> <span class="dv">1</span>, <span class="at">Length =</span> <span class="dv">1</span>, <span class="at">Definiteness =</span> <span class="dv">1</span>, <span class="at">Realization =</span> <span class="dv">2</span>),</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">y=</span><span class="fu">c</span>(<span class="at">DiscourseStatus =</span> <span class="dv">1</span>, <span class="at">Pronominality =</span> <span class="dv">3</span>, <span class="at">Length =</span> <span class="fl">1.8</span>, <span class="at">Definiteness =</span> <span class="dv">0</span>, <span class="at">Realization =</span> <span class="dv">1</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="fu">drawdag</span>(dag_dative)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-dag" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-dag-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-dag-1.png" class="img-fluid figure-img" width="360">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-dag-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Directed acyclic graph for internal variables characterizing the noun phrases realizing the recipient or the theme in the ditransitive construction.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="naive-modeling-approach" class="level4">
+<h4 class="anchored" data-anchor-id="naive-modeling-approach">Naive modeling approach</h4>
+<p>The typical approach to data of this kind is to fit a regression model and look at the coefficients and standard errors for the individual predictors. Let’s go ahead and fit such a model:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>m_full <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  NP <span class="sc">~</span> </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    given_thm <span class="sc">+</span> log_length_thm <span class="sc">+</span> pronoun_thm <span class="sc">+</span> definite_thm <span class="sc">+</span> </span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    given_rec <span class="sc">+</span> log_length_rec <span class="sc">+</span> pronoun_rec <span class="sc">+</span> definite_rec,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dative_give,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Information on the regression coefficients is provided in the table below, where the predictors are grouped by semantic role. Reassuringly, the estimates for characteristics of the recipient and the theme are, to a first approximation, mirror images of one another, meaning that they are similar in magnitude but differ in sign. This makes sense, since this alternation is essentially a question about the order of theme and recipient. Since the outcome variable is coded to indicate a noun phrase realization (i.e.&nbsp;recipient first), the following patterns emerge:</p>
+<ul>
+<li>Given, pronominal, definite, and short <em>recipients</em> forge ahead, <strong>favoring</strong> the recipient-first order.</li>
+<li>Given, pronominal, definite, and short <em>themes</em> likewise forge ahead, <strong>disfavoring</strong> the recipient-first order.</li>
+</ul>
+<div id="tbl-full-model" class="cell anchored">
+<div class="cell-output-display">
+<div id="coxcisndyf" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#coxcisndyf table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#coxcisndyf thead, #coxcisndyf tbody, #coxcisndyf tfoot, #coxcisndyf tr, #coxcisndyf td, #coxcisndyf th {
+  border-style: none;
+}
+
+#coxcisndyf p {
+  margin: 0;
+  padding: 0;
+}
+
+#coxcisndyf .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#coxcisndyf .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#coxcisndyf .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#coxcisndyf .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#coxcisndyf .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#coxcisndyf .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#coxcisndyf .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#coxcisndyf .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#coxcisndyf .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#coxcisndyf .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#coxcisndyf .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#coxcisndyf .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#coxcisndyf .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#coxcisndyf .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#coxcisndyf .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#coxcisndyf .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#coxcisndyf .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#coxcisndyf .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#coxcisndyf .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#coxcisndyf .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#coxcisndyf .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#coxcisndyf .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#coxcisndyf .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#coxcisndyf .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#coxcisndyf .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#coxcisndyf .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#coxcisndyf .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#coxcisndyf .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#coxcisndyf .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#coxcisndyf .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#coxcisndyf .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#coxcisndyf .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#coxcisndyf .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#coxcisndyf .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#coxcisndyf .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#coxcisndyf .gt_left {
+  text-align: left;
+}
+
+#coxcisndyf .gt_center {
+  text-align: center;
+}
+
+#coxcisndyf .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#coxcisndyf .gt_font_normal {
+  font-weight: normal;
+}
+
+#coxcisndyf .gt_font_bold {
+  font-weight: bold;
+}
+
+#coxcisndyf .gt_font_italic {
+  font-style: italic;
+}
+
+#coxcisndyf .gt_super {
+  font-size: 65%;
+}
+
+#coxcisndyf .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#coxcisndyf .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#coxcisndyf .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#coxcisndyf .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#coxcisndyf .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#coxcisndyf .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#coxcisndyf .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#coxcisndyf .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#coxcisndyf div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="header gt_col_headings">
+<th id="label" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Characteristic</strong></th>
+<th id="estimate" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>log(OR)</strong></th>
+<th id="conf.low" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>95% CI</strong></th>
+<th id="p.value" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>p-value</strong></th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">theme: Given</td>
+<td class="gt_row gt_center" headers="estimate">-1.8</td>
+<td class="gt_row gt_center" headers="conf.low">-2.7, -0.99</td>
+<td class="gt_row gt_center" headers="p.value">0.000</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">theme: Length</td>
+<td class="gt_row gt_center" headers="estimate">1.5</td>
+<td class="gt_row gt_center" headers="conf.low">1.1, 1.8</td>
+<td class="gt_row gt_center" headers="p.value">0.000</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">theme: Pronoun</td>
+<td class="gt_row gt_center" headers="estimate">-3.2</td>
+<td class="gt_row gt_center" headers="conf.low">-4.0, -2.3</td>
+<td class="gt_row gt_center" headers="p.value">0.000</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">theme: Definite</td>
+<td class="gt_row gt_center" headers="estimate">-0.85</td>
+<td class="gt_row gt_center" headers="conf.low">-1.4, -0.25</td>
+<td class="gt_row gt_center" headers="p.value">0.005</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">recipient: Given</td>
+<td class="gt_row gt_center" headers="estimate">1.2</td>
+<td class="gt_row gt_center" headers="conf.low">0.58, 1.9</td>
+<td class="gt_row gt_center" headers="p.value">0.000</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">recipient: Length</td>
+<td class="gt_row gt_center" headers="estimate">-1.5</td>
+<td class="gt_row gt_center" headers="conf.low">-1.9, -1.0</td>
+<td class="gt_row gt_center" headers="p.value">0.000</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">recipient: Pronoun</td>
+<td class="gt_row gt_center" headers="estimate">2.1</td>
+<td class="gt_row gt_center" headers="conf.low">1.3, 2.9</td>
+<td class="gt_row gt_center" headers="p.value">0.000</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">recipient: Definite</td>
+<td class="gt_row gt_center" headers="estimate">0.78</td>
+<td class="gt_row gt_center" headers="conf.low">0.21, 1.4</td>
+<td class="gt_row gt_center" headers="p.value">0.008</td>
+</tr>
+</tbody><tfoot class="gt_sourcenotes">
+<tr class="odd">
+<td colspan="4" class="gt_sourcenote">Abbreviation: OR = Odds Ratio</td>
+</tr>
+</tfoot>
+
+</table>
+
+</div>
+</div>
+</div>
+<p>Before studying this regression table in any detail, it is important to call into mind what the coefficients mean. They reflect the association between predictor and outcome that remains once we adjust for all the other variables in the model. Since these coefficients are blind to the underlying causal structure, however, the DAG in <a href="#fig-dag" class="quarto-xref">Figure&nbsp;1</a> is needed to put them into perspective.</p>
+</section>
+<section id="direct-vs.-indirect-va.-total-causal-effect" class="level4">
+<h4 class="anchored" data-anchor-id="direct-vs.-indirect-va.-total-causal-effect">Direct vs.&nbsp;indirect va. total causal effect</h4>
+<p>In the model we have fit, the coefficient for <code>discourse status</code>, for instance, along with its standard error, reflects the <strong>direct causal effect</strong> of this variable. This is to say that the model compares a given and a new recipient (or theme, as the case may be) that are identical on all other variables: They have the same <code>pronominality</code>, <code>definiteness</code>, and <code>length</code>.</p>
+<p>Let’s use the <code>{marginaleffects}</code> package <span class="citation" data-cites="ArelBundock_etal2024">(<a href="#ref-ArelBundock_etal2024" role="doc-biblioref">Arel-Bundock, Greifer, and Heiss 2024</a>)</span> to get an estimate of the direct causal effect of recipient <code>discourse status</code> (on the proportion scale). Apparently, it is quite small (88% NPs for a given recipient vs.&nbsp;82% NPs for recipient that is not given).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  m_full,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"given_rec"</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ given_rec Estimate Std. Error    z Pr(&gt;|z|)   S 2.5 % 97.5 %
+         0    0.815    0.01218 66.9   &lt;0.001 Inf 0.791  0.839
+         1    0.876    0.00899 97.5   &lt;0.001 Inf 0.859  0.894
+
+Type:  response </code></pre>
+</div>
+</div>
+<p>According to <a href="#fig-dag" class="quarto-xref">Figure&nbsp;1</a>, however, the predictor <code>discourse status</code> also affects the realization of the recipient indirectly, through other causal channels. Specifically, there are four other pathways:</p>
+<ul>
+<li><code>discourse status</code> -&gt; <code>definiteness</code> -&gt; <code>NP</code></li>
+<li><code>discourse status</code> -&gt; <code>length</code> -&gt; <code>NP</code></li>
+<li><code>discourse status</code> -&gt; <code>pronominality</code> -&gt; <code>NP</code></li>
+<li><code>discourse status</code> -&gt; <code>pronominality</code> -&gt; <code>length</code> -&gt; <code>NP</code></li>
+</ul>
+<p>Aggregating over these four indirect pathways, we obtain the <strong>indirect effect</strong> of <code>discourse status</code> on the realization of the recipient. Once a DAG is drawn, then, we can distinguish between <strong>direct effects</strong> and <strong>indirect effects</strong>. The direct effect is represented by the arrow going from <code>discourse status</code> into <code>NP</code>:</p>
+<ul>
+<li><code>discourse status</code> -&gt; <code>NP</code></li>
+</ul>
+<p>The indirect effect, on the other hand, is the sum of the indirect causal pathways. The <strong>total effect</strong> of <code>discourse status</code> is the sum of the direct and all indirect effects.</p>
+<p>Importantly, the coefficients returned by regression models always reflect direct effects. This means that if the model includes predictors that transmit indirect effects, these indirect effects will not be reflected in the coefficients. If we would like a regression coefficient to return an estimate of the total causal effect of a predictor, we must leave all indirect pathways open. This means that we must not adjust for those variables that transmit an indirect effect. According to <a href="#fig-dag" class="quarto-xref">Figure&nbsp;1</a>, a regression model that addresses the total causal effect of <code>discourse status</code> must not include any of the other predictors.</p>
+<p>Let us fit such a model:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>m_marginal_given <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  NP <span class="sc">~</span> given_rec, </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dative_give)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>And then we use <code>{marginaleffects}</code> to get an estimate of the <strong>total causal effect</strong> of the <code>discourse status</code> of the recipient (again on the proportion scale). This association is much larger: 93% NPs for a given recipient vs.&nbsp;57% NPs for a recipient that is not given.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  m_marginal_given,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"given_rec"</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ given_rec Estimate Std. Error     z Pr(&gt;|z|)     S 2.5 % 97.5 %
+         0    0.567    0.02587  21.9   &lt;0.001 351.1 0.516  0.617
+         1    0.925    0.00729 126.9   &lt;0.001   Inf 0.911  0.940
+
+Type:  response </code></pre>
+</div>
+</div>
+<p>The first key question, then, is whether you are interested in the direct or the total effect of a predictor. Both are usually meaningful (and relevant), and it therefore seems reasonable to consider both. It is arguably only in combination, and alongside a DAG, that these coefficients tell the linguistic story behind the data.</p>
+<p>The distinction between direct, indirect, and total effects is the first key insight a DAG can contribute to our interpretation of the data.</p>
+</section>
+<section id="confounding" class="level4">
+<h4 class="anchored" data-anchor-id="confounding">Confounding</h4>
+<p>Another important theme in multifactorial modeling is confounding. Thus, in the data at hand, we observe an overall association between <code>definiteness</code> and <code>NP</code>. This is reflected in a regression model including <code>definiteness</code> as the only predictor:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>m_marginal_definite <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  NP <span class="sc">~</span> definite_rec, </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dative_give)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Using <code>{marginaleffects}</code>, we can get an estimate of the overall association between recipient <code>definiteness</code> and the response variable on the proportion scale: 88% of the definite recipients are realized as a NP, vs.&nbsp;62% of the indefinite recipients.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  m_marginal_definite,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"definite_rec"</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ definite_rec Estimate Std. Error     z Pr(&gt;|z|)     S 2.5 % 97.5 %
+            0    0.616    0.03529  17.5   &lt;0.001 224.1 0.547  0.685
+            1    0.876    0.00858 102.1   &lt;0.001   Inf 0.859  0.893
+
+Type:  response </code></pre>
+</div>
+</div>
+<p>According to <a href="#fig-dag" class="quarto-xref">Figure&nbsp;1</a>, this association is at least partly spurious. This is due to the confounder <code>discourse status</code>, i.e.&nbsp;a third variable which has a causal effect both on <code>definiteness</code> and on <code>NP</code>. In such a situation, we must adjust for the confounding variable <code>discourse status</code> to get a more accurate assessment of the effect of <code>definiteness</code> on <code>NP</code>. There are various strategies for “getting rid of” the spurious part of the association between <code>definiteness</code> and <code>NP</code>:</p>
+<ul>
+<li>Data analysis: We could include the confounder as an adjustment variable into the analysis</li>
+<li>Study design: We could control the distribution of the confounding variable in the data, so that definite and indefinite constituents do not differ systematically in terms of discourse status; this could be done via matching or blocking/stratification</li>
+</ul>
+<p>Let’s pursue the first strategy and include the confounder <code>discourse status</code> as an adjustment variable into the model:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>m_total_definite <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  NP <span class="sc">~</span> definite_rec <span class="sc">+</span> given_rec, </span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dative_give)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Having adjusted for <code>discourse status</code>, there is no longer an association between <code>definiteness</code> and the outcome variable:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  m_total_definite,</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"definite_rec"</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ definite_rec Estimate Std. Error    z Pr(&gt;|z|)   S 2.5 % 97.5 %
+            0    0.855    0.01770 48.3   &lt;0.001 Inf 0.820  0.889
+            1    0.844    0.00968 87.1   &lt;0.001 Inf 0.825  0.863
+
+Type:  response </code></pre>
+</div>
+</div>
+<p>Another important function of DAGs, then, is that they inform us about spurious patterns of associations in the data. This means that they allow us to recognize whether pairwise, overall associations between variables are due to confounding or whether they reflect a genuine causal relationship.</p>
+</section>
+<section id="difference-between-overall-and-adjusted-association" class="level4">
+<h4 class="anchored" data-anchor-id="difference-between-overall-and-adjusted-association">Difference between overall and adjusted association</h4>
+<p>To recapitulate, for both <code>discourse status</code> and <code>definiteness</code>, the marginal (overall) association with the response variable differs from the adjusted association:</p>
+<ul>
+<li>For <code>discourse status</code>, the marginal association is larger. According <a href="#fig-dag" class="quarto-xref">Figure&nbsp;1</a>, this is because it reflects the total causal effect of this predictor.</li>
+<li>For <code>definiteness</code>, the marginal association is smaller. According <a href="#fig-dag" class="quarto-xref">Figure&nbsp;1</a>, this is because it is confounded by the variable <code>discourse status</code>.</li>
+</ul>
+<p>To do causally informed regression modeling, we must learn how to read relevant information from a DAG:</p>
+<ul>
+<li>Which variable(s) do I need to adjust for to obtain information on a direct causal effect?</li>
+<li>Which variable(s) do I need to adjust for to obtain information on a total causal effect?</li>
+<li>Which variable(s) do I need to adjust for to block spurious paths?</li>
+</ul>
+<p>However, this only scratches the surface of causal inference. For more background, I can recommend <span class="citation" data-cites="pearl_etal2016">Pearl, Glymour, and Jewell (<a href="#ref-pearl_etal2016" role="doc-biblioref">2016</a>)</span>, <span class="citation" data-cites="McElreath2020">McElreath (<a href="#ref-McElreath2020" role="doc-biblioref">2020</a>)</span>, and <span class="citation" data-cites="Cunningham2021">Cunningham (<a href="#ref-Cunningham2021" role="doc-biblioref">2021</a>)</span>.</p>
+</section>
+<section id="application-to-the-dative-alternation" class="level4">
+<h4 class="anchored" data-anchor-id="application-to-the-dative-alternation">Application to the dative alternation</h4>
+<p>Let us now apply these insights to the dative alternation. For each predictor variable, we will obtain three quantities. All of these are differences between proportions, i.e.&nbsp;measures of association:</p>
+<ul>
+<li>The first is an estimate of the overall association with the response variable, i.e.&nbsp;not adjusting for any other variables. I will refer to this as the <strong>marginal association</strong></li>
+<li>The second is an estimate of the <strong>total causal effect</strong>, which requires us to use a model that (i) adjusts for confounders and (ii) does not adjust for variables transmitting relevant indirect effects</li>
+<li>The third one is an estimate of the <strong>direct causal effect</strong>, which requires us to use a model that adjusts for confounders</li>
+</ul>
+<p>More generally, the structure of a DAG tells us what kind of model specification will produce a coefficient with the desired interpretation, i.e.&nbsp;a direct or a total effect. In order to arrive at unbiased estimates of both types of effects, so-called backdoor paths, which often reflect confounding, need to be closed. This is usually accomplished by including certain variables into the model. For <code>definiteness</code>, for instance, we need to adjust for <code>discourse status</code> to block confounding paths.</p>
+<p>If we want to estimate the total effect of a variable in a situation where there are mediators through which it transmits indirect effects, these causal pathways must remain open, which is to say that no adjustment should take place. For <code>discourse status</code>, for instance, we must not adjust for any variables, since all of them (may) operate as mediators and therefore contribute to its overall causal association with the outcome.</p>
+<p>These quantities are addressed by different model specifications. The marginal associations are straightforward to obtain:</p>
+<ul>
+<li>Marginal association
+<ul>
+<li><code>NP ~ given</code> (Discourse status)</li>
+<li><code>NP ~ pronoun</code> (Pronominality)</li>
+<li><code>NP ~ definite</code> (Definiteness)</li>
+<li><code>NP ~ length</code> (Length)</li>
+</ul></li>
+</ul>
+<p>According to <a href="#fig-dag" class="quarto-xref">Figure&nbsp;1</a>, the following model specifications estimate the total causal association of each predictor with the outcome.</p>
+<ul>
+<li>Total causal effect
+<ul>
+<li><code>NP ~ given</code> (Discourse status)</li>
+<li><code>NP ~ given + pronoun</code> (Pronominality)</li>
+<li><code>NP ~ given + definite</code> (Definiteness)</li>
+<li><code>NP ~ given + pronoun + length</code> (Length)</li>
+</ul></li>
+</ul>
+<p>And a regression model including all predictors may serve to address the direct causal effect for each variable:</p>
+<ul>
+<li>Direct causal effect
+<ul>
+<li><code>NP ~ given + pronoun + definite + length</code> (all predictors)</li>
+</ul></li>
+</ul>
+<p>We start by fitting all of these models, separately for predictors tied to the recipient and the theme.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>fit models</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Recipient</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co">#-------------------------------------------------------------------------------</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># marginal associations</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co">#----------------------</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>m_marginal_given <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  NP <span class="sc">~</span> given_rec, </span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dative_give)</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>m_marginal_pronoun <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>  NP <span class="sc">~</span> pronoun_rec, </span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dative_give)</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>m_marginal_length <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>  NP <span class="sc">~</span> log_length_rec, </span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dative_give)</span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>m_marginal_definite <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>  NP <span class="sc">~</span> definite_rec, </span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dative_give)</span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a><span class="co"># total causal effects</span></span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a><span class="co">#---------------------</span></span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>m_total_pronoun <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a>  NP <span class="sc">~</span> pronoun_rec <span class="sc">+</span> given_rec, </span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dative_give)</span>
+<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a>m_total_length <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a>  NP <span class="sc">~</span> log_length_rec <span class="sc">+</span> given_rec <span class="sc">+</span> pronoun_rec, </span>
+<span id="cb16-38"><a href="#cb16-38" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb16-39"><a href="#cb16-39" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dative_give)</span>
+<span id="cb16-40"><a href="#cb16-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-41"><a href="#cb16-41" aria-hidden="true" tabindex="-1"></a>m_total_definite <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb16-42"><a href="#cb16-42" aria-hidden="true" tabindex="-1"></a>  NP <span class="sc">~</span> definite_rec <span class="sc">+</span> given_rec, </span>
+<span id="cb16-43"><a href="#cb16-43" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb16-44"><a href="#cb16-44" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dative_give)</span>
+<span id="cb16-45"><a href="#cb16-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-46"><a href="#cb16-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-47"><a href="#cb16-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-48"><a href="#cb16-48" aria-hidden="true" tabindex="-1"></a><span class="co"># Theme</span></span>
+<span id="cb16-49"><a href="#cb16-49" aria-hidden="true" tabindex="-1"></a><span class="co">#-------------------------------------------------------------------------------</span></span>
+<span id="cb16-50"><a href="#cb16-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-51"><a href="#cb16-51" aria-hidden="true" tabindex="-1"></a><span class="co"># marginal associations</span></span>
+<span id="cb16-52"><a href="#cb16-52" aria-hidden="true" tabindex="-1"></a><span class="co">#----------------------</span></span>
+<span id="cb16-53"><a href="#cb16-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-54"><a href="#cb16-54" aria-hidden="true" tabindex="-1"></a>m_marginal_given_thm <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb16-55"><a href="#cb16-55" aria-hidden="true" tabindex="-1"></a>  NP <span class="sc">~</span> given_thm, </span>
+<span id="cb16-56"><a href="#cb16-56" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb16-57"><a href="#cb16-57" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dative_give)</span>
+<span id="cb16-58"><a href="#cb16-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-59"><a href="#cb16-59" aria-hidden="true" tabindex="-1"></a>m_marginal_pronoun_thm <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb16-60"><a href="#cb16-60" aria-hidden="true" tabindex="-1"></a>  NP <span class="sc">~</span> pronoun_thm, </span>
+<span id="cb16-61"><a href="#cb16-61" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb16-62"><a href="#cb16-62" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dative_give)</span>
+<span id="cb16-63"><a href="#cb16-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-64"><a href="#cb16-64" aria-hidden="true" tabindex="-1"></a>m_marginal_length_thm <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb16-65"><a href="#cb16-65" aria-hidden="true" tabindex="-1"></a>  NP <span class="sc">~</span> log_length_thm, </span>
+<span id="cb16-66"><a href="#cb16-66" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb16-67"><a href="#cb16-67" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dative_give)</span>
+<span id="cb16-68"><a href="#cb16-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-69"><a href="#cb16-69" aria-hidden="true" tabindex="-1"></a>m_marginal_definite_thm <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb16-70"><a href="#cb16-70" aria-hidden="true" tabindex="-1"></a>  NP <span class="sc">~</span> definite_thm, </span>
+<span id="cb16-71"><a href="#cb16-71" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb16-72"><a href="#cb16-72" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dative_give)</span>
+<span id="cb16-73"><a href="#cb16-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-74"><a href="#cb16-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-75"><a href="#cb16-75" aria-hidden="true" tabindex="-1"></a><span class="co"># total causal effects</span></span>
+<span id="cb16-76"><a href="#cb16-76" aria-hidden="true" tabindex="-1"></a><span class="co">#---------------------</span></span>
+<span id="cb16-77"><a href="#cb16-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-78"><a href="#cb16-78" aria-hidden="true" tabindex="-1"></a>m_total_pronoun_thm <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb16-79"><a href="#cb16-79" aria-hidden="true" tabindex="-1"></a>  NP <span class="sc">~</span> pronoun_thm <span class="sc">+</span> given_thm, </span>
+<span id="cb16-80"><a href="#cb16-80" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb16-81"><a href="#cb16-81" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dative_give)</span>
+<span id="cb16-82"><a href="#cb16-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-83"><a href="#cb16-83" aria-hidden="true" tabindex="-1"></a>m_total_length_thm <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb16-84"><a href="#cb16-84" aria-hidden="true" tabindex="-1"></a>  NP <span class="sc">~</span> log_length_thm <span class="sc">+</span> given_thm <span class="sc">+</span> pronoun_thm, </span>
+<span id="cb16-85"><a href="#cb16-85" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb16-86"><a href="#cb16-86" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dative_give)</span>
+<span id="cb16-87"><a href="#cb16-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-88"><a href="#cb16-88" aria-hidden="true" tabindex="-1"></a>m_total_definite_thm <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<span id="cb16-89"><a href="#cb16-89" aria-hidden="true" tabindex="-1"></a>  NP <span class="sc">~</span> definite_thm <span class="sc">+</span> given_thm, </span>
+<span id="cb16-90"><a href="#cb16-90" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
+<span id="cb16-91"><a href="#cb16-91" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dative_give)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The we use <code>{marginaleffects}</code> to express relevant estimates on the proportion scale.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>form predictions</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Recipient</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="co">#-------------------------------------------------------------------------------</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co"># given</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="co">#------</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="co"># direct causal effect</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>given_direct_preds_rec <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  m_full,</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"given_rec"</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>given_direct_comp_rec <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_comparisons</span>(</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  m_full,</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"given_rec"</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a><span class="co"># marginal association</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>given_marginal_preds_rec <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>  m_marginal_given,</span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"given_rec"</span></span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>given_marginal_comp_rec <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_comparisons</span>(</span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>  m_marginal_given,</span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"given_rec"</span></span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a><span class="co"># total association</span></span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>given_total_preds_rec <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>  m_marginal_given,</span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"given_rec"</span></span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>given_total_comp_rec <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_comparisons</span>(</span>
+<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a>  m_marginal_given,</span>
+<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"given_rec"</span></span>
+<span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-37"><a href="#cb17-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-38"><a href="#cb17-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-39"><a href="#cb17-39" aria-hidden="true" tabindex="-1"></a><span class="co"># pronoun</span></span>
+<span id="cb17-40"><a href="#cb17-40" aria-hidden="true" tabindex="-1"></a><span class="co">#--------</span></span>
+<span id="cb17-41"><a href="#cb17-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-42"><a href="#cb17-42" aria-hidden="true" tabindex="-1"></a><span class="co"># direct causal effect</span></span>
+<span id="cb17-43"><a href="#cb17-43" aria-hidden="true" tabindex="-1"></a>pronoun_direct_preds_rec <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<span id="cb17-44"><a href="#cb17-44" aria-hidden="true" tabindex="-1"></a>  m_full,</span>
+<span id="cb17-45"><a href="#cb17-45" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"pronoun_rec"</span></span>
+<span id="cb17-46"><a href="#cb17-46" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-47"><a href="#cb17-47" aria-hidden="true" tabindex="-1"></a>pronoun_direct_comp_rec <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_comparisons</span>(</span>
+<span id="cb17-48"><a href="#cb17-48" aria-hidden="true" tabindex="-1"></a>  m_full,</span>
+<span id="cb17-49"><a href="#cb17-49" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"pronoun_rec"</span></span>
+<span id="cb17-50"><a href="#cb17-50" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-51"><a href="#cb17-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-52"><a href="#cb17-52" aria-hidden="true" tabindex="-1"></a><span class="co"># marginal association</span></span>
+<span id="cb17-53"><a href="#cb17-53" aria-hidden="true" tabindex="-1"></a>pronoun_marginal_preds_rec <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<span id="cb17-54"><a href="#cb17-54" aria-hidden="true" tabindex="-1"></a>  m_marginal_pronoun,</span>
+<span id="cb17-55"><a href="#cb17-55" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"pronoun_rec"</span></span>
+<span id="cb17-56"><a href="#cb17-56" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-57"><a href="#cb17-57" aria-hidden="true" tabindex="-1"></a>pronoun_marginal_comp_rec <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_comparisons</span>(</span>
+<span id="cb17-58"><a href="#cb17-58" aria-hidden="true" tabindex="-1"></a>  m_marginal_pronoun,</span>
+<span id="cb17-59"><a href="#cb17-59" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"pronoun_rec"</span></span>
+<span id="cb17-60"><a href="#cb17-60" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-61"><a href="#cb17-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-62"><a href="#cb17-62" aria-hidden="true" tabindex="-1"></a><span class="co"># total association</span></span>
+<span id="cb17-63"><a href="#cb17-63" aria-hidden="true" tabindex="-1"></a>pronoun_total_preds_rec <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<span id="cb17-64"><a href="#cb17-64" aria-hidden="true" tabindex="-1"></a>  m_total_pronoun,</span>
+<span id="cb17-65"><a href="#cb17-65" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"pronoun_rec"</span></span>
+<span id="cb17-66"><a href="#cb17-66" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-67"><a href="#cb17-67" aria-hidden="true" tabindex="-1"></a>pronoun_total_comp_rec <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_comparisons</span>(</span>
+<span id="cb17-68"><a href="#cb17-68" aria-hidden="true" tabindex="-1"></a>  m_total_pronoun,</span>
+<span id="cb17-69"><a href="#cb17-69" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"pronoun_rec"</span></span>
+<span id="cb17-70"><a href="#cb17-70" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-71"><a href="#cb17-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-72"><a href="#cb17-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-73"><a href="#cb17-73" aria-hidden="true" tabindex="-1"></a><span class="co"># definite</span></span>
+<span id="cb17-74"><a href="#cb17-74" aria-hidden="true" tabindex="-1"></a><span class="co">#---------</span></span>
+<span id="cb17-75"><a href="#cb17-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-76"><a href="#cb17-76" aria-hidden="true" tabindex="-1"></a><span class="co"># direct causal effect</span></span>
+<span id="cb17-77"><a href="#cb17-77" aria-hidden="true" tabindex="-1"></a>definite_direct_preds_rec <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<span id="cb17-78"><a href="#cb17-78" aria-hidden="true" tabindex="-1"></a>  m_full,</span>
+<span id="cb17-79"><a href="#cb17-79" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"definite_rec"</span></span>
+<span id="cb17-80"><a href="#cb17-80" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-81"><a href="#cb17-81" aria-hidden="true" tabindex="-1"></a>definite_direct_comp_rec <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_comparisons</span>(</span>
+<span id="cb17-82"><a href="#cb17-82" aria-hidden="true" tabindex="-1"></a>  m_full,</span>
+<span id="cb17-83"><a href="#cb17-83" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"definite_rec"</span></span>
+<span id="cb17-84"><a href="#cb17-84" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-85"><a href="#cb17-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-86"><a href="#cb17-86" aria-hidden="true" tabindex="-1"></a><span class="co"># marginal association</span></span>
+<span id="cb17-87"><a href="#cb17-87" aria-hidden="true" tabindex="-1"></a>definite_marginal_preds_rec <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<span id="cb17-88"><a href="#cb17-88" aria-hidden="true" tabindex="-1"></a>  m_marginal_definite,</span>
+<span id="cb17-89"><a href="#cb17-89" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"definite_rec"</span></span>
+<span id="cb17-90"><a href="#cb17-90" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-91"><a href="#cb17-91" aria-hidden="true" tabindex="-1"></a>definite_marginal_comp_rec <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_comparisons</span>(</span>
+<span id="cb17-92"><a href="#cb17-92" aria-hidden="true" tabindex="-1"></a>  m_marginal_definite,</span>
+<span id="cb17-93"><a href="#cb17-93" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"definite_rec"</span></span>
+<span id="cb17-94"><a href="#cb17-94" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-95"><a href="#cb17-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-96"><a href="#cb17-96" aria-hidden="true" tabindex="-1"></a><span class="co"># total association</span></span>
+<span id="cb17-97"><a href="#cb17-97" aria-hidden="true" tabindex="-1"></a>definite_total_preds_rec <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<span id="cb17-98"><a href="#cb17-98" aria-hidden="true" tabindex="-1"></a>  m_total_definite,</span>
+<span id="cb17-99"><a href="#cb17-99" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"definite_rec"</span></span>
+<span id="cb17-100"><a href="#cb17-100" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-101"><a href="#cb17-101" aria-hidden="true" tabindex="-1"></a>definite_total_comp_rec <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_comparisons</span>(</span>
+<span id="cb17-102"><a href="#cb17-102" aria-hidden="true" tabindex="-1"></a>  m_total_definite,</span>
+<span id="cb17-103"><a href="#cb17-103" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"definite_rec"</span></span>
+<span id="cb17-104"><a href="#cb17-104" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-105"><a href="#cb17-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-106"><a href="#cb17-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-107"><a href="#cb17-107" aria-hidden="true" tabindex="-1"></a><span class="co"># length</span></span>
+<span id="cb17-108"><a href="#cb17-108" aria-hidden="true" tabindex="-1"></a><span class="co">#-------</span></span>
+<span id="cb17-109"><a href="#cb17-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-110"><a href="#cb17-110" aria-hidden="true" tabindex="-1"></a><span class="co"># direct causal effect</span></span>
+<span id="cb17-111"><a href="#cb17-111" aria-hidden="true" tabindex="-1"></a>length_direct_preds_rec <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<span id="cb17-112"><a href="#cb17-112" aria-hidden="true" tabindex="-1"></a>  m_full,</span>
+<span id="cb17-113"><a href="#cb17-113" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">log_length_rec =</span> <span class="fu">log</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">4</span>))))</span>
+<span id="cb17-114"><a href="#cb17-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-115"><a href="#cb17-115" aria-hidden="true" tabindex="-1"></a>length_direct_comp_rec <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_comparisons</span>(</span>
+<span id="cb17-116"><a href="#cb17-116" aria-hidden="true" tabindex="-1"></a>  m_full,</span>
+<span id="cb17-117"><a href="#cb17-117" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">log_length_rec =</span> <span class="fu">log</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">4</span>))))</span>
+<span id="cb17-118"><a href="#cb17-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-119"><a href="#cb17-119" aria-hidden="true" tabindex="-1"></a><span class="co"># marginal association</span></span>
+<span id="cb17-120"><a href="#cb17-120" aria-hidden="true" tabindex="-1"></a>length_marginal_preds_rec <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<span id="cb17-121"><a href="#cb17-121" aria-hidden="true" tabindex="-1"></a>  m_marginal_length,</span>
+<span id="cb17-122"><a href="#cb17-122" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">log_length_rec =</span> <span class="fu">log</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">4</span>))))</span>
+<span id="cb17-123"><a href="#cb17-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-124"><a href="#cb17-124" aria-hidden="true" tabindex="-1"></a>length_marginal_comp_rec <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_comparisons</span>(</span>
+<span id="cb17-125"><a href="#cb17-125" aria-hidden="true" tabindex="-1"></a>  m_marginal_length,</span>
+<span id="cb17-126"><a href="#cb17-126" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">log_length_rec =</span> <span class="fu">log</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">4</span>))))</span>
+<span id="cb17-127"><a href="#cb17-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-128"><a href="#cb17-128" aria-hidden="true" tabindex="-1"></a><span class="co"># total association</span></span>
+<span id="cb17-129"><a href="#cb17-129" aria-hidden="true" tabindex="-1"></a>length_total_preds_rec <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<span id="cb17-130"><a href="#cb17-130" aria-hidden="true" tabindex="-1"></a>  m_total_length,</span>
+<span id="cb17-131"><a href="#cb17-131" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">log_length_rec =</span> <span class="fu">log</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">4</span>))))</span>
+<span id="cb17-132"><a href="#cb17-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-133"><a href="#cb17-133" aria-hidden="true" tabindex="-1"></a>length_total_comp_rec <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_comparisons</span>(</span>
+<span id="cb17-134"><a href="#cb17-134" aria-hidden="true" tabindex="-1"></a>  m_total_length,</span>
+<span id="cb17-135"><a href="#cb17-135" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">log_length_rec =</span> <span class="fu">log</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">4</span>))))</span>
+<span id="cb17-136"><a href="#cb17-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-137"><a href="#cb17-137" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-138"><a href="#cb17-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-139"><a href="#cb17-139" aria-hidden="true" tabindex="-1"></a><span class="co"># Theme</span></span>
+<span id="cb17-140"><a href="#cb17-140" aria-hidden="true" tabindex="-1"></a><span class="co">#-------------------------------------------------------------------------------</span></span>
+<span id="cb17-141"><a href="#cb17-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-142"><a href="#cb17-142" aria-hidden="true" tabindex="-1"></a><span class="co"># given</span></span>
+<span id="cb17-143"><a href="#cb17-143" aria-hidden="true" tabindex="-1"></a><span class="co">#------</span></span>
+<span id="cb17-144"><a href="#cb17-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-145"><a href="#cb17-145" aria-hidden="true" tabindex="-1"></a><span class="co"># direct causal effect</span></span>
+<span id="cb17-146"><a href="#cb17-146" aria-hidden="true" tabindex="-1"></a>given_direct_preds_thm <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<span id="cb17-147"><a href="#cb17-147" aria-hidden="true" tabindex="-1"></a>  m_full,</span>
+<span id="cb17-148"><a href="#cb17-148" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"given_thm"</span></span>
+<span id="cb17-149"><a href="#cb17-149" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-150"><a href="#cb17-150" aria-hidden="true" tabindex="-1"></a>given_direct_comp_thm <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_comparisons</span>(</span>
+<span id="cb17-151"><a href="#cb17-151" aria-hidden="true" tabindex="-1"></a>  m_full,</span>
+<span id="cb17-152"><a href="#cb17-152" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"given_thm"</span></span>
+<span id="cb17-153"><a href="#cb17-153" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-154"><a href="#cb17-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-155"><a href="#cb17-155" aria-hidden="true" tabindex="-1"></a><span class="co"># marginal association</span></span>
+<span id="cb17-156"><a href="#cb17-156" aria-hidden="true" tabindex="-1"></a>given_marginal_preds_thm <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<span id="cb17-157"><a href="#cb17-157" aria-hidden="true" tabindex="-1"></a>  m_marginal_given_thm,</span>
+<span id="cb17-158"><a href="#cb17-158" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"given_thm"</span></span>
+<span id="cb17-159"><a href="#cb17-159" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-160"><a href="#cb17-160" aria-hidden="true" tabindex="-1"></a>given_marginal_comp_thm <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_comparisons</span>(</span>
+<span id="cb17-161"><a href="#cb17-161" aria-hidden="true" tabindex="-1"></a>  m_marginal_given_thm,</span>
+<span id="cb17-162"><a href="#cb17-162" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"given_thm"</span></span>
+<span id="cb17-163"><a href="#cb17-163" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-164"><a href="#cb17-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-165"><a href="#cb17-165" aria-hidden="true" tabindex="-1"></a><span class="co"># total association</span></span>
+<span id="cb17-166"><a href="#cb17-166" aria-hidden="true" tabindex="-1"></a>given_total_preds_thm <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<span id="cb17-167"><a href="#cb17-167" aria-hidden="true" tabindex="-1"></a>  m_marginal_given_thm,</span>
+<span id="cb17-168"><a href="#cb17-168" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"given_thm"</span></span>
+<span id="cb17-169"><a href="#cb17-169" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-170"><a href="#cb17-170" aria-hidden="true" tabindex="-1"></a>given_total_comp_thm <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_comparisons</span>(</span>
+<span id="cb17-171"><a href="#cb17-171" aria-hidden="true" tabindex="-1"></a>  m_marginal_given_thm,</span>
+<span id="cb17-172"><a href="#cb17-172" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"given_thm"</span></span>
+<span id="cb17-173"><a href="#cb17-173" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-174"><a href="#cb17-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-175"><a href="#cb17-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-176"><a href="#cb17-176" aria-hidden="true" tabindex="-1"></a><span class="co"># pronoun</span></span>
+<span id="cb17-177"><a href="#cb17-177" aria-hidden="true" tabindex="-1"></a><span class="co">#--------</span></span>
+<span id="cb17-178"><a href="#cb17-178" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-179"><a href="#cb17-179" aria-hidden="true" tabindex="-1"></a><span class="co"># direct causal effect</span></span>
+<span id="cb17-180"><a href="#cb17-180" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-181"><a href="#cb17-181" aria-hidden="true" tabindex="-1"></a>pronoun_direct_preds_thm <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<span id="cb17-182"><a href="#cb17-182" aria-hidden="true" tabindex="-1"></a>  m_full,</span>
+<span id="cb17-183"><a href="#cb17-183" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"pronoun_thm"</span></span>
+<span id="cb17-184"><a href="#cb17-184" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-185"><a href="#cb17-185" aria-hidden="true" tabindex="-1"></a>pronoun_direct_comp_thm <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_comparisons</span>(</span>
+<span id="cb17-186"><a href="#cb17-186" aria-hidden="true" tabindex="-1"></a>  m_full,</span>
+<span id="cb17-187"><a href="#cb17-187" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"pronoun_thm"</span></span>
+<span id="cb17-188"><a href="#cb17-188" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-189"><a href="#cb17-189" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-190"><a href="#cb17-190" aria-hidden="true" tabindex="-1"></a><span class="co"># marginal association</span></span>
+<span id="cb17-191"><a href="#cb17-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-192"><a href="#cb17-192" aria-hidden="true" tabindex="-1"></a>pronoun_marginal_preds_thm <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<span id="cb17-193"><a href="#cb17-193" aria-hidden="true" tabindex="-1"></a>  m_marginal_pronoun_thm,</span>
+<span id="cb17-194"><a href="#cb17-194" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"pronoun_thm"</span></span>
+<span id="cb17-195"><a href="#cb17-195" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-196"><a href="#cb17-196" aria-hidden="true" tabindex="-1"></a>pronoun_marginal_comp_thm <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_comparisons</span>(</span>
+<span id="cb17-197"><a href="#cb17-197" aria-hidden="true" tabindex="-1"></a>  m_marginal_pronoun_thm,</span>
+<span id="cb17-198"><a href="#cb17-198" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"pronoun_thm"</span></span>
+<span id="cb17-199"><a href="#cb17-199" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-200"><a href="#cb17-200" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-201"><a href="#cb17-201" aria-hidden="true" tabindex="-1"></a><span class="co"># total association</span></span>
+<span id="cb17-202"><a href="#cb17-202" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-203"><a href="#cb17-203" aria-hidden="true" tabindex="-1"></a>pronoun_total_preds_thm <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<span id="cb17-204"><a href="#cb17-204" aria-hidden="true" tabindex="-1"></a>  m_total_pronoun_thm,</span>
+<span id="cb17-205"><a href="#cb17-205" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"pronoun_thm"</span></span>
+<span id="cb17-206"><a href="#cb17-206" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-207"><a href="#cb17-207" aria-hidden="true" tabindex="-1"></a>pronoun_total_comp_thm <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_comparisons</span>(</span>
+<span id="cb17-208"><a href="#cb17-208" aria-hidden="true" tabindex="-1"></a>  m_total_pronoun_thm,</span>
+<span id="cb17-209"><a href="#cb17-209" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"pronoun_thm"</span></span>
+<span id="cb17-210"><a href="#cb17-210" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-211"><a href="#cb17-211" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-212"><a href="#cb17-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-213"><a href="#cb17-213" aria-hidden="true" tabindex="-1"></a><span class="co"># definite</span></span>
+<span id="cb17-214"><a href="#cb17-214" aria-hidden="true" tabindex="-1"></a><span class="co">#---------</span></span>
+<span id="cb17-215"><a href="#cb17-215" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-216"><a href="#cb17-216" aria-hidden="true" tabindex="-1"></a><span class="co"># direct causal effect</span></span>
+<span id="cb17-217"><a href="#cb17-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-218"><a href="#cb17-218" aria-hidden="true" tabindex="-1"></a>definite_direct_preds_thm <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<span id="cb17-219"><a href="#cb17-219" aria-hidden="true" tabindex="-1"></a>  m_full,</span>
+<span id="cb17-220"><a href="#cb17-220" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"definite_thm"</span></span>
+<span id="cb17-221"><a href="#cb17-221" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-222"><a href="#cb17-222" aria-hidden="true" tabindex="-1"></a>definite_direct_comp_thm <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_comparisons</span>(</span>
+<span id="cb17-223"><a href="#cb17-223" aria-hidden="true" tabindex="-1"></a>  m_full,</span>
+<span id="cb17-224"><a href="#cb17-224" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"definite_thm"</span></span>
+<span id="cb17-225"><a href="#cb17-225" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-226"><a href="#cb17-226" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-227"><a href="#cb17-227" aria-hidden="true" tabindex="-1"></a><span class="co"># marginal association</span></span>
+<span id="cb17-228"><a href="#cb17-228" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-229"><a href="#cb17-229" aria-hidden="true" tabindex="-1"></a>definite_marginal_preds_thm <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<span id="cb17-230"><a href="#cb17-230" aria-hidden="true" tabindex="-1"></a>  m_marginal_definite_thm,</span>
+<span id="cb17-231"><a href="#cb17-231" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"definite_thm"</span></span>
+<span id="cb17-232"><a href="#cb17-232" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-233"><a href="#cb17-233" aria-hidden="true" tabindex="-1"></a>definite_marginal_comp_thm <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_comparisons</span>(</span>
+<span id="cb17-234"><a href="#cb17-234" aria-hidden="true" tabindex="-1"></a>  m_marginal_definite_thm,</span>
+<span id="cb17-235"><a href="#cb17-235" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"definite_thm"</span></span>
+<span id="cb17-236"><a href="#cb17-236" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-237"><a href="#cb17-237" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-238"><a href="#cb17-238" aria-hidden="true" tabindex="-1"></a><span class="co"># total association</span></span>
+<span id="cb17-239"><a href="#cb17-239" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-240"><a href="#cb17-240" aria-hidden="true" tabindex="-1"></a>definite_total_preds_thm <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<span id="cb17-241"><a href="#cb17-241" aria-hidden="true" tabindex="-1"></a>  m_total_definite_thm,</span>
+<span id="cb17-242"><a href="#cb17-242" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"definite_thm"</span></span>
+<span id="cb17-243"><a href="#cb17-243" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-244"><a href="#cb17-244" aria-hidden="true" tabindex="-1"></a>definite_total_comp_thm <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_comparisons</span>(</span>
+<span id="cb17-245"><a href="#cb17-245" aria-hidden="true" tabindex="-1"></a>  m_total_definite_thm,</span>
+<span id="cb17-246"><a href="#cb17-246" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"definite_thm"</span></span>
+<span id="cb17-247"><a href="#cb17-247" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-248"><a href="#cb17-248" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-249"><a href="#cb17-249" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-250"><a href="#cb17-250" aria-hidden="true" tabindex="-1"></a><span class="co"># length</span></span>
+<span id="cb17-251"><a href="#cb17-251" aria-hidden="true" tabindex="-1"></a><span class="co">#-------</span></span>
+<span id="cb17-252"><a href="#cb17-252" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-253"><a href="#cb17-253" aria-hidden="true" tabindex="-1"></a><span class="co"># direct causal effect</span></span>
+<span id="cb17-254"><a href="#cb17-254" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-255"><a href="#cb17-255" aria-hidden="true" tabindex="-1"></a>length_direct_preds_thm <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<span id="cb17-256"><a href="#cb17-256" aria-hidden="true" tabindex="-1"></a>  m_full,</span>
+<span id="cb17-257"><a href="#cb17-257" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">log_length_thm =</span> <span class="fu">log</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">4</span>))))</span>
+<span id="cb17-258"><a href="#cb17-258" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-259"><a href="#cb17-259" aria-hidden="true" tabindex="-1"></a>length_direct_comp_thm <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_comparisons</span>(</span>
+<span id="cb17-260"><a href="#cb17-260" aria-hidden="true" tabindex="-1"></a>  m_full,</span>
+<span id="cb17-261"><a href="#cb17-261" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">log_length_thm =</span> <span class="fu">log</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">4</span>))))</span>
+<span id="cb17-262"><a href="#cb17-262" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-263"><a href="#cb17-263" aria-hidden="true" tabindex="-1"></a><span class="co"># marginal association</span></span>
+<span id="cb17-264"><a href="#cb17-264" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-265"><a href="#cb17-265" aria-hidden="true" tabindex="-1"></a>length_marginal_preds_thm <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<span id="cb17-266"><a href="#cb17-266" aria-hidden="true" tabindex="-1"></a>  m_marginal_length_thm,</span>
+<span id="cb17-267"><a href="#cb17-267" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">log_length_thm =</span> <span class="fu">log</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">4</span>))))</span>
+<span id="cb17-268"><a href="#cb17-268" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-269"><a href="#cb17-269" aria-hidden="true" tabindex="-1"></a>length_marginal_comp_thm <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_comparisons</span>(</span>
+<span id="cb17-270"><a href="#cb17-270" aria-hidden="true" tabindex="-1"></a>  m_marginal_length_thm,</span>
+<span id="cb17-271"><a href="#cb17-271" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">log_length_thm =</span> <span class="fu">log</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">4</span>))))</span>
+<span id="cb17-272"><a href="#cb17-272" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-273"><a href="#cb17-273" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-274"><a href="#cb17-274" aria-hidden="true" tabindex="-1"></a><span class="co"># total association</span></span>
+<span id="cb17-275"><a href="#cb17-275" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-276"><a href="#cb17-276" aria-hidden="true" tabindex="-1"></a>length_total_preds_thm <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<span id="cb17-277"><a href="#cb17-277" aria-hidden="true" tabindex="-1"></a>  m_total_length_thm,</span>
+<span id="cb17-278"><a href="#cb17-278" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">log_length_thm =</span> <span class="fu">log</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">4</span>))))</span>
+<span id="cb17-279"><a href="#cb17-279" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-280"><a href="#cb17-280" aria-hidden="true" tabindex="-1"></a>length_total_comp_thm <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_comparisons</span>(</span>
+<span id="cb17-281"><a href="#cb17-281" aria-hidden="true" tabindex="-1"></a>  m_total_length_thm,</span>
+<span id="cb17-282"><a href="#cb17-282" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">log_length_thm =</span> <span class="fu">log</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">4</span>))))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p><a href="#fig-results" class="quarto-xref">Figure&nbsp;2</a>, which graphs these estimates, is quite rich in information. The graph is structured as follows:</p>
+<ul>
+<li>There are four rows, one per predictor variable</li>
+<li>The right panel shows estimates for theme-related predictor (left: characteristics of the recipient)</li>
+<li>The plotting symbols show the predicted difference in the share of NP realization as a measure of association (or effect size)
+<ul>
+<li>M: marginal association</li>
+<li>T: total causal effect</li>
+<li>D: direct causal effect</li>
+</ul></li>
+</ul>
+<div class="cell" data-fig-caption="Estimates (and 95% confidence intervals) for the marginal association (M), the total causal effect (T), and the direct causal effect (D) of all predictors in the analysis.">
+<details class="code-fold">
+<summary>draw plots</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(<span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type =</span> <span class="st">"n"</span>, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span>.<span class="dv">05</span>, .<span class="dv">55</span>), <span class="at">ylim =</span> <span class="fu">c</span>(.<span class="dv">5</span>, <span class="fl">4.5</span>),</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>       <span class="at">par.settings =</span> lattice_ls, <span class="co">#axis = axis_bottom,</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">scales =</span> <span class="fu">list</span>(<span class="at">y =</span> <span class="fu">list</span>(<span class="at">draw =</span> <span class="cn">FALSE</span>),</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="fu">list</span>(<span class="at">at =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">2</span>, .<span class="dv">4</span>)),</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"0"</span>, <span class="st">"+20"</span>, <span class="st">"+40"</span>)),</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab =</span> <span class="fu">list</span>(<span class="at">label =</span> <span class="st">"Predicted difference in the share of NP realizations (percentage points)                                                            "</span>),</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">ylab =</span> <span class="cn">NULL</span>,</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">panel =</span> <span class="cf">function</span>(x,y){</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.abline</span>(<span class="at">h =</span> <span class="fu">c</span>(<span class="fl">1.5</span>, <span class="fl">2.5</span>, <span class="fl">3.5</span>), <span class="at">col =</span> <span class="st">"lightgrey"</span>)</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.abline</span>(<span class="at">v =</span> <span class="dv">0</span>)</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.segments</span>(</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>           <span class="at">x0 =</span> <span class="fu">c</span>(given_total_comp_rec<span class="sc">$</span>conf.low,</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>                  pronoun_total_comp_rec<span class="sc">$</span>conf.low,</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>                  definite_total_comp_rec<span class="sc">$</span>conf.low,</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>                  <span class="sc">-</span>length_total_comp_rec<span class="sc">$</span>conf.low),</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>           <span class="at">x1 =</span> <span class="fu">c</span>(given_total_comp_rec<span class="sc">$</span>conf.high,</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>                  pronoun_total_comp_rec<span class="sc">$</span>conf.high,</span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>                  definite_total_comp_rec<span class="sc">$</span>conf.high,</span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>                  <span class="sc">-</span>length_total_comp_rec<span class="sc">$</span>conf.high),     </span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>           <span class="at">y0 =</span> (<span class="dv">4</span><span class="sc">:</span><span class="dv">1</span>), <span class="at">y1 =</span> (<span class="dv">4</span><span class="sc">:</span><span class="dv">1</span>), <span class="at">col =</span> <span class="st">"grey"</span></span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>         )</span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.segments</span>(</span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>           <span class="at">x0 =</span> <span class="fu">c</span>(given_marginal_comp_rec<span class="sc">$</span>conf.low,</span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>                  pronoun_marginal_comp_rec<span class="sc">$</span>conf.low,</span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>                  definite_marginal_comp_rec<span class="sc">$</span>conf.low,</span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>                  <span class="sc">-</span>length_marginal_comp_rec<span class="sc">$</span>conf.low),</span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>           <span class="at">x1 =</span> <span class="fu">c</span>(given_marginal_comp_rec<span class="sc">$</span>conf.high,</span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>                  pronoun_marginal_comp_rec<span class="sc">$</span>conf.high,</span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a>                  definite_marginal_comp_rec<span class="sc">$</span>conf.high,</span>
+<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a>                  <span class="sc">-</span>length_marginal_comp_rec<span class="sc">$</span>conf.high),     </span>
+<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a>           <span class="at">y0 =</span> (<span class="dv">4</span><span class="sc">:</span><span class="dv">1</span>)<span class="sc">+</span>.<span class="dv">2</span>, <span class="at">y1 =</span> (<span class="dv">4</span><span class="sc">:</span><span class="dv">1</span>)<span class="sc">+</span>.<span class="dv">2</span>, <span class="at">col =</span> <span class="st">"grey"</span></span>
+<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a>         )</span>
+<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.segments</span>(</span>
+<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a>           <span class="at">x0 =</span> <span class="fu">c</span>(given_direct_comp_rec<span class="sc">$</span>conf.low,</span>
+<span id="cb18-35"><a href="#cb18-35" aria-hidden="true" tabindex="-1"></a>                  pronoun_direct_comp_rec<span class="sc">$</span>conf.low,</span>
+<span id="cb18-36"><a href="#cb18-36" aria-hidden="true" tabindex="-1"></a>                  definite_direct_comp_rec<span class="sc">$</span>conf.low,</span>
+<span id="cb18-37"><a href="#cb18-37" aria-hidden="true" tabindex="-1"></a>                  <span class="sc">-</span>length_direct_comp_rec<span class="sc">$</span>conf.low),</span>
+<span id="cb18-38"><a href="#cb18-38" aria-hidden="true" tabindex="-1"></a>           <span class="at">x1 =</span> <span class="fu">c</span>(given_direct_comp_rec<span class="sc">$</span>conf.high,</span>
+<span id="cb18-39"><a href="#cb18-39" aria-hidden="true" tabindex="-1"></a>                  pronoun_direct_comp_rec<span class="sc">$</span>conf.high,</span>
+<span id="cb18-40"><a href="#cb18-40" aria-hidden="true" tabindex="-1"></a>                  definite_direct_comp_rec<span class="sc">$</span>conf.high,</span>
+<span id="cb18-41"><a href="#cb18-41" aria-hidden="true" tabindex="-1"></a>                  <span class="sc">-</span>length_direct_comp_rec<span class="sc">$</span>conf.high),     </span>
+<span id="cb18-42"><a href="#cb18-42" aria-hidden="true" tabindex="-1"></a>           <span class="at">y0 =</span> (<span class="dv">4</span><span class="sc">:</span><span class="dv">1</span>)<span class="sc">-</span>.<span class="dv">2</span>, <span class="at">y1 =</span> (<span class="dv">4</span><span class="sc">:</span><span class="dv">1</span>)<span class="sc">-</span>.<span class="dv">2</span>, <span class="at">col =</span> <span class="st">"grey"</span></span>
+<span id="cb18-43"><a href="#cb18-43" aria-hidden="true" tabindex="-1"></a>         )</span>
+<span id="cb18-44"><a href="#cb18-44" aria-hidden="true" tabindex="-1"></a>         </span>
+<span id="cb18-45"><a href="#cb18-45" aria-hidden="true" tabindex="-1"></a>         </span>
+<span id="cb18-46"><a href="#cb18-46" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.points</span>(<span class="at">x =</span> <span class="fu">c</span>(</span>
+<span id="cb18-47"><a href="#cb18-47" aria-hidden="true" tabindex="-1"></a>           given_total_comp_rec<span class="sc">$</span>estimate,</span>
+<span id="cb18-48"><a href="#cb18-48" aria-hidden="true" tabindex="-1"></a>           pronoun_total_comp_rec<span class="sc">$</span>estimate,</span>
+<span id="cb18-49"><a href="#cb18-49" aria-hidden="true" tabindex="-1"></a>           definite_total_comp_rec<span class="sc">$</span>estimate,</span>
+<span id="cb18-50"><a href="#cb18-50" aria-hidden="true" tabindex="-1"></a>           <span class="sc">-</span>length_total_comp_rec<span class="sc">$</span>estimate</span>
+<span id="cb18-51"><a href="#cb18-51" aria-hidden="true" tabindex="-1"></a>         ), <span class="at">y =</span> (<span class="dv">4</span><span class="sc">:</span><span class="dv">1</span>), <span class="at">pch =</span> <span class="st">"T"</span>, <span class="at">cex =</span> <span class="fl">2.2</span>, <span class="at">col =</span> <span class="st">"white"</span>, <span class="at">fontface =</span> <span class="st">"bold"</span>)</span>
+<span id="cb18-52"><a href="#cb18-52" aria-hidden="true" tabindex="-1"></a>         </span>
+<span id="cb18-53"><a href="#cb18-53" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.points</span>(<span class="at">x =</span> <span class="fu">c</span>(</span>
+<span id="cb18-54"><a href="#cb18-54" aria-hidden="true" tabindex="-1"></a>           given_marginal_comp_rec<span class="sc">$</span>estimate,</span>
+<span id="cb18-55"><a href="#cb18-55" aria-hidden="true" tabindex="-1"></a>           pronoun_marginal_comp_rec<span class="sc">$</span>estimate,</span>
+<span id="cb18-56"><a href="#cb18-56" aria-hidden="true" tabindex="-1"></a>           definite_marginal_comp_rec<span class="sc">$</span>estimate,</span>
+<span id="cb18-57"><a href="#cb18-57" aria-hidden="true" tabindex="-1"></a>           <span class="sc">-</span>length_marginal_comp_rec<span class="sc">$</span>estimate</span>
+<span id="cb18-58"><a href="#cb18-58" aria-hidden="true" tabindex="-1"></a>         ), <span class="at">y =</span> (<span class="dv">4</span><span class="sc">:</span><span class="dv">1</span>) <span class="sc">+</span> .<span class="dv">2</span>, <span class="at">pch =</span> <span class="st">"M"</span>, <span class="at">cex =</span> <span class="fl">2.2</span>, <span class="at">col =</span> <span class="st">"white"</span>, <span class="at">fontface =</span> <span class="st">"bold"</span>)</span>
+<span id="cb18-59"><a href="#cb18-59" aria-hidden="true" tabindex="-1"></a>         </span>
+<span id="cb18-60"><a href="#cb18-60" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.points</span>(<span class="at">x =</span> <span class="fu">c</span>(</span>
+<span id="cb18-61"><a href="#cb18-61" aria-hidden="true" tabindex="-1"></a>           given_direct_comp_rec<span class="sc">$</span>estimate,</span>
+<span id="cb18-62"><a href="#cb18-62" aria-hidden="true" tabindex="-1"></a>           pronoun_direct_comp_rec<span class="sc">$</span>estimate,</span>
+<span id="cb18-63"><a href="#cb18-63" aria-hidden="true" tabindex="-1"></a>           definite_direct_comp_rec<span class="sc">$</span>estimate,</span>
+<span id="cb18-64"><a href="#cb18-64" aria-hidden="true" tabindex="-1"></a>           <span class="sc">-</span>length_direct_comp_rec<span class="sc">$</span>estimate</span>
+<span id="cb18-65"><a href="#cb18-65" aria-hidden="true" tabindex="-1"></a>         ), <span class="at">y =</span> (<span class="dv">4</span><span class="sc">:</span><span class="dv">1</span>) <span class="sc">-</span> .<span class="dv">2</span>, <span class="at">pch =</span> <span class="st">"D"</span>, <span class="at">cex =</span> <span class="fl">2.2</span>, <span class="at">col =</span> <span class="st">"white"</span>, <span class="at">fontface =</span> <span class="st">"bold"</span>)</span>
+<span id="cb18-66"><a href="#cb18-66" aria-hidden="true" tabindex="-1"></a>         </span>
+<span id="cb18-67"><a href="#cb18-67" aria-hidden="true" tabindex="-1"></a>         </span>
+<span id="cb18-68"><a href="#cb18-68" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.points</span>(<span class="at">x =</span> <span class="fu">c</span>(</span>
+<span id="cb18-69"><a href="#cb18-69" aria-hidden="true" tabindex="-1"></a>           given_total_comp_rec<span class="sc">$</span>estimate,</span>
+<span id="cb18-70"><a href="#cb18-70" aria-hidden="true" tabindex="-1"></a>           pronoun_total_comp_rec<span class="sc">$</span>estimate,</span>
+<span id="cb18-71"><a href="#cb18-71" aria-hidden="true" tabindex="-1"></a>           definite_total_comp_rec<span class="sc">$</span>estimate,</span>
+<span id="cb18-72"><a href="#cb18-72" aria-hidden="true" tabindex="-1"></a>           <span class="sc">-</span>length_total_comp_rec<span class="sc">$</span>estimate</span>
+<span id="cb18-73"><a href="#cb18-73" aria-hidden="true" tabindex="-1"></a>         ), <span class="at">y =</span> (<span class="dv">4</span><span class="sc">:</span><span class="dv">1</span>), <span class="at">pch =</span> <span class="st">"T"</span>, <span class="at">cex =</span> <span class="dv">2</span>)</span>
+<span id="cb18-74"><a href="#cb18-74" aria-hidden="true" tabindex="-1"></a>         </span>
+<span id="cb18-75"><a href="#cb18-75" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.points</span>(<span class="at">x =</span> <span class="fu">c</span>(</span>
+<span id="cb18-76"><a href="#cb18-76" aria-hidden="true" tabindex="-1"></a>           given_marginal_comp_rec<span class="sc">$</span>estimate,</span>
+<span id="cb18-77"><a href="#cb18-77" aria-hidden="true" tabindex="-1"></a>           pronoun_marginal_comp_rec<span class="sc">$</span>estimate,</span>
+<span id="cb18-78"><a href="#cb18-78" aria-hidden="true" tabindex="-1"></a>           definite_marginal_comp_rec<span class="sc">$</span>estimate,</span>
+<span id="cb18-79"><a href="#cb18-79" aria-hidden="true" tabindex="-1"></a>           <span class="sc">-</span>length_marginal_comp_rec<span class="sc">$</span>estimate</span>
+<span id="cb18-80"><a href="#cb18-80" aria-hidden="true" tabindex="-1"></a>         ), <span class="at">y =</span> (<span class="dv">4</span><span class="sc">:</span><span class="dv">1</span>) <span class="sc">+</span> .<span class="dv">2</span>, <span class="at">pch =</span> <span class="st">"M"</span>, <span class="at">cex =</span> <span class="dv">2</span>)</span>
+<span id="cb18-81"><a href="#cb18-81" aria-hidden="true" tabindex="-1"></a>         </span>
+<span id="cb18-82"><a href="#cb18-82" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.points</span>(<span class="at">x =</span> <span class="fu">c</span>(</span>
+<span id="cb18-83"><a href="#cb18-83" aria-hidden="true" tabindex="-1"></a>           given_direct_comp_rec<span class="sc">$</span>estimate,</span>
+<span id="cb18-84"><a href="#cb18-84" aria-hidden="true" tabindex="-1"></a>           pronoun_direct_comp_rec<span class="sc">$</span>estimate,</span>
+<span id="cb18-85"><a href="#cb18-85" aria-hidden="true" tabindex="-1"></a>           definite_direct_comp_rec<span class="sc">$</span>estimate,</span>
+<span id="cb18-86"><a href="#cb18-86" aria-hidden="true" tabindex="-1"></a>           <span class="sc">-</span>length_direct_comp_rec<span class="sc">$</span>estimate</span>
+<span id="cb18-87"><a href="#cb18-87" aria-hidden="true" tabindex="-1"></a>         ), <span class="at">y =</span> (<span class="dv">4</span><span class="sc">:</span><span class="dv">1</span>) <span class="sc">-</span> .<span class="dv">2</span>, <span class="at">pch =</span> <span class="st">"D"</span>, <span class="at">cex =</span> <span class="dv">2</span>)</span>
+<span id="cb18-88"><a href="#cb18-88" aria-hidden="true" tabindex="-1"></a>         </span>
+<span id="cb18-89"><a href="#cb18-89" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="dv">0</span>, <span class="at">y =</span> <span class="dv">5</span>, <span class="at">label =</span> <span class="st">"Higher if the RECIPIENT is:"</span>, <span class="at">cex =</span> .<span class="dv">9</span>, <span class="at">adj =</span> <span class="dv">0</span>)</span>
+<span id="cb18-90"><a href="#cb18-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-91"><a href="#cb18-91" aria-hidden="true" tabindex="-1"></a>         </span>
+<span id="cb18-92"><a href="#cb18-92" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="sc">-</span>.<span class="dv">05</span>, <span class="at">x1 =</span> .<span class="dv">55</span>, <span class="at">y0 =</span> .<span class="dv">5</span>, <span class="at">y1 =</span> .<span class="dv">5</span>)</span>
+<span id="cb18-93"><a href="#cb18-93" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="fu">seq</span>(<span class="dv">0</span>, .<span class="dv">4</span>, .<span class="dv">2</span>), <span class="at">x1=</span><span class="fu">seq</span>(<span class="dv">0</span>, .<span class="dv">4</span>, .<span class="dv">2</span>),</span>
+<span id="cb18-94"><a href="#cb18-94" aria-hidden="true" tabindex="-1"></a>                        <span class="at">y0 =</span> .<span class="dv">5</span>, <span class="at">y1 =</span> .<span class="dv">4</span>)</span>
+<span id="cb18-95"><a href="#cb18-95" aria-hidden="true" tabindex="-1"></a>       })</span>
+<span id="cb18-96"><a href="#cb18-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-97"><a href="#cb18-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-98"><a href="#cb18-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-99"><a href="#cb18-99" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(<span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type =</span> <span class="st">"n"</span>, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span>.<span class="dv">85</span>, .<span class="dv">05</span>), <span class="at">ylim =</span> <span class="fu">c</span>(.<span class="dv">5</span>, <span class="fl">4.5</span>),</span>
+<span id="cb18-100"><a href="#cb18-100" aria-hidden="true" tabindex="-1"></a>       <span class="at">par.settings =</span> lattice_ls, <span class="co">#axis = axis_bottom,</span></span>
+<span id="cb18-101"><a href="#cb18-101" aria-hidden="true" tabindex="-1"></a>       <span class="at">scales =</span> <span class="fu">list</span>(<span class="at">y =</span> <span class="fu">list</span>(<span class="at">at =</span> <span class="dv">4</span><span class="sc">:</span><span class="dv">1</span>, <span class="at">labels =</span> <span class="cn">NULL</span>),</span>
+<span id="cb18-102"><a href="#cb18-102" aria-hidden="true" tabindex="-1"></a>                     <span class="at">x =</span> <span class="fu">list</span>(<span class="at">at =</span> <span class="fu">c</span>(<span class="sc">-</span>.<span class="dv">8</span>, <span class="sc">-</span>.<span class="dv">6</span>, <span class="sc">-</span>.<span class="dv">4</span>, <span class="sc">-</span>.<span class="dv">2</span>, <span class="dv">0</span>)),</span>
+<span id="cb18-103"><a href="#cb18-103" aria-hidden="true" tabindex="-1"></a>       <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"\u221280"</span>, <span class="st">"\u221260"</span>, <span class="st">"\u221240"</span>, <span class="st">"\u221220"</span>, <span class="st">"0"</span>)),</span>
+<span id="cb18-104"><a href="#cb18-104" aria-hidden="true" tabindex="-1"></a>       <span class="at">xlab =</span> <span class="fu">list</span>(<span class="at">label =</span> <span class="st">" "</span>, <span class="at">lineheight =</span> .<span class="dv">8</span>),</span>
+<span id="cb18-105"><a href="#cb18-105" aria-hidden="true" tabindex="-1"></a>       <span class="at">ylab =</span> <span class="cn">NULL</span>,</span>
+<span id="cb18-106"><a href="#cb18-106" aria-hidden="true" tabindex="-1"></a>       <span class="at">panel =</span> <span class="cf">function</span>(x,y){</span>
+<span id="cb18-107"><a href="#cb18-107" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.abline</span>(<span class="at">h =</span> <span class="fu">c</span>(<span class="fl">1.5</span>, <span class="fl">2.5</span>, <span class="fl">3.5</span>), <span class="at">col =</span> <span class="st">"lightgrey"</span>)</span>
+<span id="cb18-108"><a href="#cb18-108" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.abline</span>(<span class="at">v =</span> <span class="dv">0</span>)</span>
+<span id="cb18-109"><a href="#cb18-109" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.segments</span>(</span>
+<span id="cb18-110"><a href="#cb18-110" aria-hidden="true" tabindex="-1"></a>           <span class="at">x0 =</span> <span class="fu">c</span>(given_total_comp_thm<span class="sc">$</span>conf.low,</span>
+<span id="cb18-111"><a href="#cb18-111" aria-hidden="true" tabindex="-1"></a>                  pronoun_total_comp_thm<span class="sc">$</span>conf.low,</span>
+<span id="cb18-112"><a href="#cb18-112" aria-hidden="true" tabindex="-1"></a>                  definite_total_comp_thm<span class="sc">$</span>conf.low,</span>
+<span id="cb18-113"><a href="#cb18-113" aria-hidden="true" tabindex="-1"></a>                  <span class="sc">-</span>length_total_comp_thm<span class="sc">$</span>conf.low),</span>
+<span id="cb18-114"><a href="#cb18-114" aria-hidden="true" tabindex="-1"></a>           <span class="at">x1 =</span> <span class="fu">c</span>(given_total_comp_thm<span class="sc">$</span>conf.high,</span>
+<span id="cb18-115"><a href="#cb18-115" aria-hidden="true" tabindex="-1"></a>                  pronoun_total_comp_thm<span class="sc">$</span>conf.high,</span>
+<span id="cb18-116"><a href="#cb18-116" aria-hidden="true" tabindex="-1"></a>                  definite_total_comp_thm<span class="sc">$</span>conf.high,</span>
+<span id="cb18-117"><a href="#cb18-117" aria-hidden="true" tabindex="-1"></a>                  <span class="sc">-</span>length_total_comp_thm<span class="sc">$</span>conf.high),     </span>
+<span id="cb18-118"><a href="#cb18-118" aria-hidden="true" tabindex="-1"></a>           <span class="at">y0 =</span> (<span class="dv">4</span><span class="sc">:</span><span class="dv">1</span>), <span class="at">y1 =</span> (<span class="dv">4</span><span class="sc">:</span><span class="dv">1</span>), <span class="at">col =</span> <span class="st">"grey"</span></span>
+<span id="cb18-119"><a href="#cb18-119" aria-hidden="true" tabindex="-1"></a>         )</span>
+<span id="cb18-120"><a href="#cb18-120" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.segments</span>(</span>
+<span id="cb18-121"><a href="#cb18-121" aria-hidden="true" tabindex="-1"></a>           <span class="at">x0 =</span> <span class="fu">c</span>(given_marginal_comp_thm<span class="sc">$</span>conf.low,</span>
+<span id="cb18-122"><a href="#cb18-122" aria-hidden="true" tabindex="-1"></a>                  pronoun_marginal_comp_thm<span class="sc">$</span>conf.low,</span>
+<span id="cb18-123"><a href="#cb18-123" aria-hidden="true" tabindex="-1"></a>                  definite_marginal_comp_thm<span class="sc">$</span>conf.low,</span>
+<span id="cb18-124"><a href="#cb18-124" aria-hidden="true" tabindex="-1"></a>                  <span class="sc">-</span>length_marginal_comp_thm<span class="sc">$</span>conf.low),</span>
+<span id="cb18-125"><a href="#cb18-125" aria-hidden="true" tabindex="-1"></a>           <span class="at">x1 =</span> <span class="fu">c</span>(given_marginal_comp_thm<span class="sc">$</span>conf.high,</span>
+<span id="cb18-126"><a href="#cb18-126" aria-hidden="true" tabindex="-1"></a>                  pronoun_marginal_comp_thm<span class="sc">$</span>conf.high,</span>
+<span id="cb18-127"><a href="#cb18-127" aria-hidden="true" tabindex="-1"></a>                  definite_marginal_comp_thm<span class="sc">$</span>conf.high,</span>
+<span id="cb18-128"><a href="#cb18-128" aria-hidden="true" tabindex="-1"></a>                  <span class="sc">-</span>length_marginal_comp_thm<span class="sc">$</span>conf.high),     </span>
+<span id="cb18-129"><a href="#cb18-129" aria-hidden="true" tabindex="-1"></a>           <span class="at">y0 =</span> (<span class="dv">4</span><span class="sc">:</span><span class="dv">1</span>)<span class="sc">+</span>.<span class="dv">2</span>, <span class="at">y1 =</span> (<span class="dv">4</span><span class="sc">:</span><span class="dv">1</span>)<span class="sc">+</span>.<span class="dv">2</span>, <span class="at">col =</span> <span class="st">"grey"</span></span>
+<span id="cb18-130"><a href="#cb18-130" aria-hidden="true" tabindex="-1"></a>         )</span>
+<span id="cb18-131"><a href="#cb18-131" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.segments</span>(</span>
+<span id="cb18-132"><a href="#cb18-132" aria-hidden="true" tabindex="-1"></a>           <span class="at">x0 =</span> <span class="fu">c</span>(given_direct_comp_thm<span class="sc">$</span>conf.low,</span>
+<span id="cb18-133"><a href="#cb18-133" aria-hidden="true" tabindex="-1"></a>                  pronoun_direct_comp_thm<span class="sc">$</span>conf.low,</span>
+<span id="cb18-134"><a href="#cb18-134" aria-hidden="true" tabindex="-1"></a>                  definite_direct_comp_thm<span class="sc">$</span>conf.low,</span>
+<span id="cb18-135"><a href="#cb18-135" aria-hidden="true" tabindex="-1"></a>                  <span class="sc">-</span>length_direct_comp_thm<span class="sc">$</span>conf.low),</span>
+<span id="cb18-136"><a href="#cb18-136" aria-hidden="true" tabindex="-1"></a>           <span class="at">x1 =</span> <span class="fu">c</span>(given_direct_comp_thm<span class="sc">$</span>conf.high,</span>
+<span id="cb18-137"><a href="#cb18-137" aria-hidden="true" tabindex="-1"></a>                  pronoun_direct_comp_thm<span class="sc">$</span>conf.high,</span>
+<span id="cb18-138"><a href="#cb18-138" aria-hidden="true" tabindex="-1"></a>                  definite_direct_comp_thm<span class="sc">$</span>conf.high,</span>
+<span id="cb18-139"><a href="#cb18-139" aria-hidden="true" tabindex="-1"></a>                  <span class="sc">-</span>length_direct_comp_thm<span class="sc">$</span>conf.high),     </span>
+<span id="cb18-140"><a href="#cb18-140" aria-hidden="true" tabindex="-1"></a>           <span class="at">y0 =</span> (<span class="dv">4</span><span class="sc">:</span><span class="dv">1</span>)<span class="sc">-</span>.<span class="dv">2</span>, <span class="at">y1 =</span> (<span class="dv">4</span><span class="sc">:</span><span class="dv">1</span>)<span class="sc">-</span>.<span class="dv">2</span>, <span class="at">col =</span> <span class="st">"grey"</span></span>
+<span id="cb18-141"><a href="#cb18-141" aria-hidden="true" tabindex="-1"></a>         )</span>
+<span id="cb18-142"><a href="#cb18-142" aria-hidden="true" tabindex="-1"></a>         </span>
+<span id="cb18-143"><a href="#cb18-143" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.points</span>(<span class="at">x =</span> <span class="fu">c</span>(</span>
+<span id="cb18-144"><a href="#cb18-144" aria-hidden="true" tabindex="-1"></a>           given_total_comp_thm<span class="sc">$</span>estimate,</span>
+<span id="cb18-145"><a href="#cb18-145" aria-hidden="true" tabindex="-1"></a>           pronoun_total_comp_thm<span class="sc">$</span>estimate,</span>
+<span id="cb18-146"><a href="#cb18-146" aria-hidden="true" tabindex="-1"></a>           definite_total_comp_thm<span class="sc">$</span>estimate,</span>
+<span id="cb18-147"><a href="#cb18-147" aria-hidden="true" tabindex="-1"></a>           <span class="sc">-</span>length_total_comp_thm<span class="sc">$</span>estimate</span>
+<span id="cb18-148"><a href="#cb18-148" aria-hidden="true" tabindex="-1"></a>         ), <span class="at">y =</span> (<span class="dv">4</span><span class="sc">:</span><span class="dv">1</span>), <span class="at">pch =</span> <span class="st">"T"</span>, <span class="at">cex =</span> <span class="fl">2.2</span>, <span class="at">col =</span> <span class="st">"white"</span>, <span class="at">fontface =</span> <span class="st">"bold"</span>)</span>
+<span id="cb18-149"><a href="#cb18-149" aria-hidden="true" tabindex="-1"></a>         </span>
+<span id="cb18-150"><a href="#cb18-150" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.points</span>(<span class="at">x =</span> <span class="fu">c</span>(</span>
+<span id="cb18-151"><a href="#cb18-151" aria-hidden="true" tabindex="-1"></a>           given_marginal_comp_thm<span class="sc">$</span>estimate,</span>
+<span id="cb18-152"><a href="#cb18-152" aria-hidden="true" tabindex="-1"></a>           pronoun_marginal_comp_thm<span class="sc">$</span>estimate,</span>
+<span id="cb18-153"><a href="#cb18-153" aria-hidden="true" tabindex="-1"></a>           definite_marginal_comp_thm<span class="sc">$</span>estimate,</span>
+<span id="cb18-154"><a href="#cb18-154" aria-hidden="true" tabindex="-1"></a>           <span class="sc">-</span>length_marginal_comp_thm<span class="sc">$</span>estimate</span>
+<span id="cb18-155"><a href="#cb18-155" aria-hidden="true" tabindex="-1"></a>         ), <span class="at">y =</span> (<span class="dv">4</span><span class="sc">:</span><span class="dv">1</span>) <span class="sc">+</span> .<span class="dv">2</span>, <span class="at">pch =</span> <span class="st">"M"</span>, <span class="at">cex =</span> <span class="fl">2.2</span>, <span class="at">col =</span> <span class="st">"white"</span>, <span class="at">fontface =</span> <span class="st">"bold"</span>)</span>
+<span id="cb18-156"><a href="#cb18-156" aria-hidden="true" tabindex="-1"></a>         </span>
+<span id="cb18-157"><a href="#cb18-157" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.points</span>(<span class="at">x =</span> <span class="fu">c</span>(</span>
+<span id="cb18-158"><a href="#cb18-158" aria-hidden="true" tabindex="-1"></a>           given_direct_comp_thm<span class="sc">$</span>estimate,</span>
+<span id="cb18-159"><a href="#cb18-159" aria-hidden="true" tabindex="-1"></a>           pronoun_direct_comp_thm<span class="sc">$</span>estimate,</span>
+<span id="cb18-160"><a href="#cb18-160" aria-hidden="true" tabindex="-1"></a>           definite_direct_comp_thm<span class="sc">$</span>estimate,</span>
+<span id="cb18-161"><a href="#cb18-161" aria-hidden="true" tabindex="-1"></a>           <span class="sc">-</span>length_direct_comp_thm<span class="sc">$</span>estimate</span>
+<span id="cb18-162"><a href="#cb18-162" aria-hidden="true" tabindex="-1"></a>         ), <span class="at">y =</span> (<span class="dv">4</span><span class="sc">:</span><span class="dv">1</span>) <span class="sc">-</span> .<span class="dv">2</span>, <span class="at">pch =</span> <span class="st">"D"</span>, <span class="at">cex =</span> <span class="fl">2.2</span>, <span class="at">col =</span> <span class="st">"white"</span>, <span class="at">fontface =</span> <span class="st">"bold"</span>)</span>
+<span id="cb18-163"><a href="#cb18-163" aria-hidden="true" tabindex="-1"></a>         </span>
+<span id="cb18-164"><a href="#cb18-164" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.points</span>(<span class="at">x =</span> <span class="fu">c</span>(</span>
+<span id="cb18-165"><a href="#cb18-165" aria-hidden="true" tabindex="-1"></a>           given_total_comp_thm<span class="sc">$</span>estimate,</span>
+<span id="cb18-166"><a href="#cb18-166" aria-hidden="true" tabindex="-1"></a>           pronoun_total_comp_thm<span class="sc">$</span>estimate,</span>
+<span id="cb18-167"><a href="#cb18-167" aria-hidden="true" tabindex="-1"></a>           definite_total_comp_thm<span class="sc">$</span>estimate,</span>
+<span id="cb18-168"><a href="#cb18-168" aria-hidden="true" tabindex="-1"></a>           <span class="sc">-</span>length_total_comp_thm<span class="sc">$</span>estimate</span>
+<span id="cb18-169"><a href="#cb18-169" aria-hidden="true" tabindex="-1"></a>         ), <span class="at">y =</span> (<span class="dv">4</span><span class="sc">:</span><span class="dv">1</span>), <span class="at">pch =</span> <span class="st">"T"</span>, <span class="at">cex =</span> <span class="dv">2</span>)</span>
+<span id="cb18-170"><a href="#cb18-170" aria-hidden="true" tabindex="-1"></a>         </span>
+<span id="cb18-171"><a href="#cb18-171" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.points</span>(<span class="at">x =</span> <span class="fu">c</span>(</span>
+<span id="cb18-172"><a href="#cb18-172" aria-hidden="true" tabindex="-1"></a>           given_marginal_comp_thm<span class="sc">$</span>estimate,</span>
+<span id="cb18-173"><a href="#cb18-173" aria-hidden="true" tabindex="-1"></a>           pronoun_marginal_comp_thm<span class="sc">$</span>estimate,</span>
+<span id="cb18-174"><a href="#cb18-174" aria-hidden="true" tabindex="-1"></a>           definite_marginal_comp_thm<span class="sc">$</span>estimate,</span>
+<span id="cb18-175"><a href="#cb18-175" aria-hidden="true" tabindex="-1"></a>           <span class="sc">-</span>length_marginal_comp_thm<span class="sc">$</span>estimate</span>
+<span id="cb18-176"><a href="#cb18-176" aria-hidden="true" tabindex="-1"></a>         ), <span class="at">y =</span> (<span class="dv">4</span><span class="sc">:</span><span class="dv">1</span>) <span class="sc">+</span> .<span class="dv">2</span>, <span class="at">pch =</span> <span class="st">"M"</span>, <span class="at">cex =</span> <span class="dv">2</span>)</span>
+<span id="cb18-177"><a href="#cb18-177" aria-hidden="true" tabindex="-1"></a>         </span>
+<span id="cb18-178"><a href="#cb18-178" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.points</span>(<span class="at">x =</span> <span class="fu">c</span>(</span>
+<span id="cb18-179"><a href="#cb18-179" aria-hidden="true" tabindex="-1"></a>           given_direct_comp_thm<span class="sc">$</span>estimate,</span>
+<span id="cb18-180"><a href="#cb18-180" aria-hidden="true" tabindex="-1"></a>           pronoun_direct_comp_thm<span class="sc">$</span>estimate,</span>
+<span id="cb18-181"><a href="#cb18-181" aria-hidden="true" tabindex="-1"></a>           definite_direct_comp_thm<span class="sc">$</span>estimate,</span>
+<span id="cb18-182"><a href="#cb18-182" aria-hidden="true" tabindex="-1"></a>           <span class="sc">-</span>length_direct_comp_thm<span class="sc">$</span>estimate</span>
+<span id="cb18-183"><a href="#cb18-183" aria-hidden="true" tabindex="-1"></a>         ), <span class="at">y =</span> (<span class="dv">4</span><span class="sc">:</span><span class="dv">1</span>) <span class="sc">-</span> .<span class="dv">2</span>, <span class="at">pch =</span> <span class="st">"D"</span>, <span class="at">cex =</span> <span class="dv">2</span>)</span>
+<span id="cb18-184"><a href="#cb18-184" aria-hidden="true" tabindex="-1"></a>         </span>
+<span id="cb18-185"><a href="#cb18-185" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.text</span>(<span class="at">x =</span> <span class="dv">0</span>, <span class="at">y =</span> <span class="dv">5</span>, <span class="at">label =</span> <span class="st">"Lower if the THEME is:"</span>, <span class="at">cex =</span> .<span class="dv">9</span>, <span class="at">adj=</span><span class="dv">1</span>)</span>
+<span id="cb18-186"><a href="#cb18-186" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.text</span>(<span class="at">x =</span> .<span class="dv">3</span>, <span class="at">y =</span> <span class="fl">5.5</span>, <span class="at">label =</span> <span class="st">"The percentage of NP realizations is:"</span>, <span class="at">cex =</span> .<span class="dv">9</span>)</span>
+<span id="cb18-187"><a href="#cb18-187" aria-hidden="true" tabindex="-1"></a>        <span class="fu">panel.text</span>(<span class="at">x =</span> .<span class="dv">28</span>, <span class="at">y =</span> <span class="dv">4</span><span class="sc">:</span><span class="dv">1</span>, <span class="at">label =</span> <span class="fu">c</span>(</span>
+<span id="cb18-188"><a href="#cb18-188" aria-hidden="true" tabindex="-1"></a>           <span class="st">"given</span><span class="sc">\n</span><span class="st">(vs. other)"</span>,</span>
+<span id="cb18-189"><a href="#cb18-189" aria-hidden="true" tabindex="-1"></a>           <span class="st">"pronominal</span><span class="sc">\n</span><span class="st">(vs. other)"</span>,</span>
+<span id="cb18-190"><a href="#cb18-190" aria-hidden="true" tabindex="-1"></a>           <span class="st">"definite</span><span class="sc">\n</span><span class="st">(vs. indefinite)"</span>,</span>
+<span id="cb18-191"><a href="#cb18-191" aria-hidden="true" tabindex="-1"></a>           <span class="st">"shorter</span><span class="sc">\n</span><span class="st">(1 vs. 4 words)"</span></span>
+<span id="cb18-192"><a href="#cb18-192" aria-hidden="true" tabindex="-1"></a>         ), <span class="at">cex =</span> .<span class="dv">9</span>, <span class="at">lineheight =</span> .<span class="dv">8</span>)</span>
+<span id="cb18-193"><a href="#cb18-193" aria-hidden="true" tabindex="-1"></a>         </span>
+<span id="cb18-194"><a href="#cb18-194" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="sc">-</span>.<span class="dv">85</span>, <span class="at">x1 =</span> .<span class="dv">05</span>, <span class="at">y0 =</span> .<span class="dv">5</span>, <span class="at">y1 =</span> .<span class="dv">5</span>)</span>
+<span id="cb18-195"><a href="#cb18-195" aria-hidden="true" tabindex="-1"></a>         <span class="fu">panel.segments</span>(<span class="at">x0=</span><span class="fu">seq</span>(<span class="sc">-</span>.<span class="dv">8</span>, <span class="dv">0</span>, .<span class="dv">2</span>), <span class="at">x1=</span><span class="fu">seq</span>(<span class="sc">-</span>.<span class="dv">8</span>, <span class="dv">0</span>, .<span class="dv">2</span>),</span>
+<span id="cb18-196"><a href="#cb18-196" aria-hidden="true" tabindex="-1"></a>                        <span class="at">y0 =</span> .<span class="dv">5</span>, <span class="at">y1 =</span> .<span class="dv">4</span>)</span>
+<span id="cb18-197"><a href="#cb18-197" aria-hidden="true" tabindex="-1"></a>       })</span>
+<span id="cb18-198"><a href="#cb18-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-199"><a href="#cb18-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-200"><a href="#cb18-200" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p2, <span class="at">position=</span><span class="fu">c</span>(<span class="sc">-</span>.<span class="dv">04</span>,<span class="dv">0</span>,.<span class="dv">46</span>,.<span class="dv">84</span>), <span class="at">more =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb18-201"><a href="#cb18-201" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1, <span class="at">position=</span><span class="fu">c</span>(.<span class="dv">63</span>,<span class="dv">0</span>,.<span class="dv">96</span>,.<span class="dv">84</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div id="fig-results" class="quarto-float quarto-figure quarto-figure-center anchored" width="480">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-results-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-results-1.png" id="fig-results" class="img-fluid figure-img" width="480">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig quarto-uncaptioned" id="fig-results-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-results" class="quarto-xref">Figure&nbsp;2</a> allows us to see why there is a difference between the adjusted and the overall (marginal) association of a predictor with the outcome. The variable <code>definiteness</code>, for instance, shows a relatively strong marginal association with the outcome. Overall, there is a 20-point difference in the percentage of NP realizations between definite and indefinite recipients. Almost all of this association, however, is due to the confounder <code>discourse status</code>. Once we adjust for this variable, the association drops to(ward) zero.</p>
+<p><a href="#fig-results" class="quarto-xref">Figure&nbsp;2</a> compares each predictor’s marginal association (M) with the outcome, its total effect (T), and its direct effect (D). The fact that the constellations resemble mirror images of one another provides reassurance that the causal diagram in <a href="#fig-dag" class="quarto-xref">Figure&nbsp;1</a> is not entirely unreasonable:</p>
+<ul>
+<li>Discourse status: There is more to <code>discourse status</code> than its direct effect suggests; much of its causal effect (or, in the case of the theme, most of it) flows indirectly.</li>
+<li>Pronominality: The marginal association of this variable with the outcome conflates a direct effect, an indirect effect (via <code>length</code>), and a confounding relationship with <code>discourse status</code>. Removing the non-causal part that is due to confounding leaves us with a smaller (in the case of the recipient, much smaller) total effect. For recipients, there appears to be little evidence for a direct effect of <code>pronominality</code>, which means that it operates exclusively via the mediator <code>length</code>. For the theme, however, a relatively strong direct effect remains.</li>
+<li>Definiteness: The marginal association between <code>definiteness</code> and the outcome appears to be largely attributable to confounding; after adjusting for <code>discourse status</code>, there is little evidence for a noticeable total or direct effect.</li>
+<li>Length: About half of the marginal association seems to be due to the confounders <code>discourse status</code> and <code>pronominality</code>; the total and direct effect are virtually identical since there are no indirect effects flowing from <code>length</code>.</li>
+</ul>
+</section>
+<section id="conclusion" class="level4">
+<h4 class="anchored" data-anchor-id="conclusion">Conclusion</h4>
+<p>This blog post serves as an online supplement to <span class="citation" data-cites="Soenning2025">Sönning (<a href="#ref-Soenning2025" role="doc-biblioref">2025</a>)</span>, where the topic of causally informed modeling is addressed in some more detail, and from a linguistic perspective. The above discussion of the dative alternation was rather selective and failed to address a number of additional questions that will arise. However, it has managed to show that we must always be careful not to draw incomplete conclusions from regression tables or the overall (marginal) association between a predictor and the outcome.</p>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-ArelBundock_etal2024" class="csl-entry" role="listitem">
+Arel-Bundock, Vincent, Noah Greifer, and Andrew Heiss. 2024. <span>“How to Interpret Statistical Models Using <span class="nocase">marginaleffects</span> for <span>R</span> and <span>Python</span>.”</span> <em>Journal of Statistical Software</em> 111 (9): 1–32. <a href="https://doi.org/10.18637/jss.v111.i09">https://doi.org/10.18637/jss.v111.i09</a>.
+</div>
+<div id="ref-package-languageR" class="csl-entry" role="listitem">
+Baayen, R. H., and Elnaz Shafaei-Bajestan. 2019. <em>languageR: Analyzing Linguistic Data: A Practical Introduction to Statistics</em>. <a href="https://doi.org/10.32614/CRAN.package.languageR">https://doi.org/10.32614/CRAN.package.languageR</a>.
+</div>
+<div id="ref-bresnan2007" class="csl-entry" role="listitem">
+Bresnan, Joan, Anna Cueni, Tatiana Nikitina, and R. Harald Baayen. 2007. <span>“Predicting the Dative Alternation.”</span> In <em>Cognitive Foundations of Interpretation</em>, edited by Gerlof Bouma, Irene Krämer, and Joost Zwarts, 69–94. Amsterdam: Royal Netherlands Academy of Science.
+</div>
+<div id="ref-Cunningham2021" class="csl-entry" role="listitem">
+Cunningham, Scott. 2021. <em>Causal Inference: The Mixtape</em>. London: Yale University Press.
+</div>
+<div id="ref-McElreath2020" class="csl-entry" role="listitem">
+McElreath, Richard. 2020. <em>Statistical Rethinking: A Bayesian Course with Examples in r and Stan</em>. Chapman; Hall/CRC. <a href="https://doi.org/10.1201/9780429029608">https://doi.org/10.1201/9780429029608</a>.
+</div>
+<div id="ref-pearl_etal2016" class="csl-entry" role="listitem">
+Pearl, Judea, Madelyn Glymour, and Nicholas P. Jewell. 2016. <em>Causal Inference in Statistics: A Primer</em>. Chichester: Wiley. <a href="http://www.vlebooks.com/vleweb/product/openreader?id=LeedsUni&amp;isbn=9781119186854">http://www.vlebooks.com/vleweb/product/openreader?id=LeedsUni&amp;isbn=9781119186854</a>.
+</div>
+<div id="ref-Soenning2025" class="csl-entry" role="listitem">
+Sönning, Lukas. 2025. <span>“Juggling Internal and External Factors When Modeling Natural Language Data.”</span> November 26, 2025. <a href="https://osf.io/preprints/psyarxiv/r2p43_v1">https://osf.io/preprints/psyarxiv/r2p43_v1</a>.
+</div>
+</div></section><section class="quarto-appendix-contents" id="quarto-citation"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{sönning2025,
+  author = {Sönning, Lukas},
+  title = {Causally Informed Regression Modeling: {The} Dative
+    Alternation},
+  date = {2025-10-31},
+  url = {https://lsoenning.github.io/posts/2025-10-31_causally_informed_modeling/},
+  langid = {en}
+}
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-sönning2025" class="csl-entry quarto-appendix-citeas" role="listitem">
+Sönning, Lukas. 2025. <span>“Causally Informed Regression Modeling: The
+Dative Alternation.”</span> October 31, 2025. <a href="https://lsoenning.github.io/posts/2025-10-31_causally_informed_modeling/">https://lsoenning.github.io/posts/2025-10-31_causally_informed_modeling/</a>.
+</div></div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/lsoenning\.github\.io");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

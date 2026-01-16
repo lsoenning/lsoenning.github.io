@@ -1,23 +1,15 @@
 ---
 title: "Benchmarking sample-based estimates to population values: Two broad strategies"
-description: "This blog post outlines two strategies that can be used to adjust model-based data summaries for known differences between sample and target population. These involve the use of weights, which allow us to account for mismatches either at the stage of model fitting (sampling weights) or when post-processing model predictions (post-stratification weights)."
-date: 2025-11-05
-categories: [corpus linguistics, representativeness, regression, bias, imbalance]
+description: "This blog post outlines two strategies that can be used to adjust model-based data summaries for known differences between sample and target population. These involve the use of weights, which allow us to account for mismatches either at the stage of model fitting (sampling weights) or when post-processing model predictions (poststratification weights)."
+date: 2026-01-16
+categories: [corpus linguistics, representativeness, regression, bias, imbalance, random forests]
 citation: 
   url: https://lsoenning.github.io/posts/2025-10-31_benchmarking_estimates/ 
-draft: true
 ---
-
-# To do
-
-- Add R code for predictiveMargins
-- add Sönning et al. 2025 to references
-
 
 In many empirical research contexts, the perfect sample provides a miniature version of the target population. Simple random sampling, where each unit in the population has the same probability of being selected into the study, generates samples that hover around this goal. For a number of reasons, this ideal is rarely (if ever) achievable in corpus-linguistic work. As a result, the sample we end up with is often not directly representative of the target population.
 
-In such cases, different statistical techniques may be used to adjust for known mismatches between sample and population. This blog post is a companion to Sönning et al. (2025), and it describes how to implement two approaches: The use of sampling weights during model fitting, and the use of post-stratification weights when post-processing model-based predictions. 
-
+In such cases, different statistical techniques may be used to adjust for known mismatches between sample and population. This blog post is a companion to @Soenning2025, and it describes how to implement two approaches: The use of sampling weights during model fitting, and the use of poststratification weights when post-processing model-based predictions.
 
 ```{r}
 #| warning: false
@@ -31,22 +23,21 @@ library(effects)
 library(tidyverse)
 library(lattice)
 library(party)
-library(predictiveMargins) # for forming predictive margins
 library(pdp)
 library(kableExtra)
 library(gtsummary)
+library(uls)
 
 list("tbl_regression-chr:tidy_columns" = c("estimate", "std.error", "p.value")) %>%
   set_gtsummary_theme()
 
-source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
 ```
 
 #### Illustrative data
 
-We will use the same illustrative example as Sönning et al. (2025): A hypothetical diachronic study with a binary response variable. Data are available on male and female speakers in two age groups (older and younger), and there are 200 speakers in total; each speaker contributes only one token to the data. Interest centers on how the usage rate, expressed as a percentage, varies with Gender and Age. 
+I will use the same illustrative example as @Soenning2025: A hypothetical study with a binary response variable. Data are available on male and female speakers in two age groups (older and younger), and there are 200 speakers in total; each speaker contributes only one token to the data. Interest centers on how the usage rate, expressed as a percentage, varies with `gender` and `age`.
 
-Panel (a) in @fig-data shows the percentage of the new variant in the four subgroups. To facilitate an apparent-time interpretation, the variable Age appears on the x-axis, with younger speakers appearing further to the right. We note that the percentage of the novel form increases in apparent time, and that female speakers are leading the change.
+Panel (a) in @fig-data shows the percentage of the new variant in the four subgroups. To facilitate an apparent-time interpretation, the variable `age` appears on the x-axis, with younger speakers appearing further to the right. We note that the percentage of the novel form increases in apparent time, and that female speakers are leading the change.
 
 ```{r}
 #| code-fold: true
@@ -55,13 +46,16 @@ Panel (a) in @fig-data shows the percentage of the new variant in the four subgr
 #| warning: false
 
 d <- data.frame(
-  gender = rep(c("female", "male", "female", "male"), c(20, 100, 20, 60)),
+  gender = rep(c("female", "male", "female", "male"), 
+               c(20, 100, 20, 60)),
   age = rep(c("old", "young"), c(120, 80)),
   response = c(rep(c(0,1), c(17, 3)),
                rep(c(0,1), c(95, 5)),
                rep(c(0,1), c(14, 6)),
                rep(c(0,1), c(54, 6))),
-  sampling_weight = rep(c(1/(20/200), 1/(100/200), 1/(20/200), 1/(60/200)), c(20, 100, 20, 60))
+  sampling_weight = rep(
+    c(1/(20/200), 1/(100/200), 1/(20/200), 1/(60/200)), 
+    c(20, 100, 20, 60))
 )
 
 d$gender <- factor(d$gender)
@@ -77,27 +71,27 @@ d$younger <- ifelse(d$age == "young", 1, 0)
 #| fig-height: 2.5
 #| label: fig-data
 #| code-fold: true
-#| code-summary: "Draw figure"
-#| fig-cap: "Data for our illustrative (hypothetical) example: percentages (a) for the four subgroups in the data and (b) averages over various subgroups."
+#| code-summary: "draw figure"
+#| fig-cap: "Illustrative data: Percentages (a) for the four subgroups and (b) averages over various subgroups."
 
 p1 <- xyplot(
   1~1, type = "n", xlim = c(.2, 2.8), ylim = c(0, 32),
-  par.settings = my_settings, axis = axis_L,
+  par.settings = lattice_ls, axis = axis_L,
   ylab = "Percentage", xlab = NULL,
-  scales = list(x = list(at = 1:2, labels = c("older", "younger")),
-                y = list(at = c(0, 10, 20, 30))),
+  scales = list(x = list(at = 1:2, labels = c("older", "younger"), cex = .9),
+                y = list(at = c(0, 10, 20, 30), cex = .9)),
        panel = function(x,y){
-         panel.text(x = .9, y = c(5, 15), label = c("5%", "15%"), cex=.8, adj = 1)
-         panel.text(x = 2.1, y = c(10, 30), label = c("10%", "30%"), cex=.8, adj = 0)
+         panel.text(x = .9, y = c(5, 15), label = c("5%", "15%"), cex=.9, adj = 1)
+         panel.text(x = 2.1, y = c(10, 30), label = c("10%", "30%"), cex=.9, adj = 0)
          
          panel.points(x = 1:2, y = c(15, 30), pch = 21, type = "l", lty = "22")
          panel.points(x = 1:2, y = c(5, 10), pch = 19, type = "l")
          
          
-         panel.points(x = 1:2, y = c(15, 30), pch = 21, fill = "white")
-         panel.points(x = 1:2, y = c(5, 10), pch = 19)
+         panel.points(x = 1:2, y = c(15, 30), pch = 21, fill = "white", cex = 1)
+         panel.points(x = 1:2, y = c(5, 10), pch = 19, cex = 1)
          
-         panel.text(x = c(1.6, 1.2), y = c(4, 27), label = c("male", "female"), cex = .8)
+         panel.text(x = c(1.6, 1.2), y = c(4, 27), label = c("male", "female"), cex = .9)
          
          panel.text(x = 1.5, y = 36, label = "(a)")
 
@@ -105,28 +99,28 @@ p1 <- xyplot(
 
 p2 <- xyplot(
   1~1, type = "n", xlim = c(-.2, 3.3), ylim = c(0, 32),
-  par.settings = my_settings, #axis = axis_L,
+  par.settings = lattice_ls, #axis = axis_L,
   ylab = NULL, xlab = NULL,
   scales = list(x = list(at = 1:2, labels = NULL),
                 y = list(at = c(0, 10, 20, 30), labels = NULL)),
        panel = function(x,y){
-         panel.text(x = .9, y = c(5, 15), label = c("5%", "15%"), cex=.8, adj = 1, col = "grey")
-         panel.text(x = 2.1, y = c(10, 30), label = c("10%", "30%"), cex=.8, adj = 0, col = "grey")
+         panel.text(x = .9, y = c(5, 15), label = c("5%", "15%"), cex=.9, adj = 1, col = "grey")
+         panel.text(x = 2.1, y = c(10, 30), label = c("10%", "30%"), cex=.9, adj = 0, col = "grey")
          
          panel.points(x = 1:2, y = c(15, 30), pch = 21, type = "l", lty = "22", col = "grey")
          panel.points(x = 1:2, y = c(5, 10), pch = 19, type = "l", col = "grey")
          
-         panel.points(x = 1:2, y = c(15, 30), pch = 21, fill = "white", col = "grey")
-         panel.points(x = 1:2, y = c(5, 10), pch = 19, col = "grey")
+         panel.points(x = 1:2, y = c(15, 30), pch = 21, fill = "white", col = "grey", cex = 1)
+         panel.points(x = 1:2, y = c(5, 10), pch = 19, col = "grey", cex = 1)
          
-         panel.text(x = c(1.5, 1.5), y = c(5.5, 24.5), label = c("(male) ", "(female) "), cex = .8)
+         panel.text(x = c(1.5, 1.5), y = c(5.5, 24.5), label = c("(male) ", "(female) "), cex = .9)
          
-         panel.text(x = .9, y = 10, label = "(older) 10%", cex=.8, adj = 1)
-         panel.text(x = 2.1, y = 20, label = "20% (younger)", cex=.8, adj = 0)
+         panel.text(x = .9, y = 10, label = "(older) 10%", cex=.9, adj = 1)
+         panel.text(x = 2.1, y = 20, label = "20% (younger)", cex=.9, adj = 0)
          
-         panel.text(x = 1.5, y =  7.5, label = "7.5%", cex=.8)
-         panel.text(x = 1.5, y = 22.5, label = "22.5%", cex=.8)
-         panel.text(x = 1.5, y = 15, label = "15%", fontface = "bold", cex = .8)
+         panel.text(x = 1.5, y =  7.5, label = "7.5%", cex=.9)
+         panel.text(x = 1.5, y = 22.5, label = "22.5%", cex=.9)
+         panel.text(x = 1.5, y = 15, label = "15%", fontface = "bold", cex = .9)
          
          panel.text(x = 1.5, y = 36, label = "(b)")
        })
@@ -139,34 +133,34 @@ cowplot::plot_grid(NULL, NULL, p1, p2,
 
 When summarizing these data, several quantities may be of interest. As illustrated in panel (b) of @fig-data, these include the percentage of the new form
 
-(i)	in each of the four subgroups (as shown in panel (a), greyed out in panel (b))
-(ii)	for each age group, averaged over gender (older 10%, younger 20%)
-(iii)	for each gender, averaged over age groups (male 7.5%, female 22.5%)
-(iv)	in the population overall, i.e. averaging over the four subgroups (15%).
+(i) in each of the four subgroups (as shown in panel (a), greyed out in panel (b))
+(ii) for each `age` group, averaged over `gender` (older 10%, younger 20%)
+(iii) for each `gender`, averaged over `age` groups (male 7.5%, female 22.5%)
+(iv) in the population overall, i.e. averaging over the four subgroups (15%).
 
-The complication we introduce into this analysis is an imbalance between male and female speakers: Overall, only 20% of the speakers in our sample are female. Further, the two age groups are not represented equally: Only 40% of the speakers are in the younger group. @fig-data-representation visualizes the proportionate distribution of the four subgroups, where the area of the rectangles indicates their representation in the sample.
+The complication I introduce into this analysis is an imbalance between male and female speakers: Overall, only 20% of the speakers in our sample are female. Further, the two age groups are not represented equally: Only 40% of the speakers are in the younger group. @fig-data-representation visualizes the proportionate distribution of the four subgroups, where the area of the rectangles indicates their representation in the sample.
 
 ```{r}
 #| fig-width: 2
 #| fig-height: 2.3
 #| label: fig-data-representation
 #| code-fold: true
-#| code-summary: "Draw figure"
-#| fig-cap: "Data for our illustrative (hypothetical) example: proportional representation of the four subgroups."
+#| code-summary: "draw figure"
+#| fig-cap: "Illustrative data: Proportional representation of the four subgroups."
 #| classes: preview-image
 
 p1 <- xyplot(
-  1~1, type = "n", xlim = c(0.1, 2.7), ylim = c(0, 32),
-  par.settings = my_settings, axis = axis_L,
+  1~1, type = "n", xlim = c(0, 2.7), ylim = c(0, 32),
+  par.settings = lattice_ls, axis = axis_L,
   ylab = "Percentage",xlab = NULL,
-  scales = list(x = list(at = 1:2, labels = c("older", "younger")),
-                y = list(at = c(0, 10, 20, 30))),
+  scales = list(x = list(at = 1:2, labels = c("older", "younger"), cex = .9),
+                y = list(at = c(0, 10, 20, 30), cex = .9)),
        panel = function(x,y){
          panel.points(x = 1:2, y = c(15, 30), pch = 21, type = "l", lty = "22")
          panel.points(x = 1:2, y = c(5, 10), pch = 19, type = "l")
          
-         panel.points(x = 1:2, y = c(15, 30), pch = 21, fill = "white")
-         panel.points(x = 1:2, y = c(5, 10), pch = 19)
+         panel.points(x = 1:2, y = c(15, 30), pch = 21, fill = "white", cex = 1)
+         panel.points(x = 1:2, y = c(5, 10), pch = 19, cex = 1)
          
          panel.rect(xright = .9, xleft = .9 - (20/200), ytop = 16.5, ybottom = 13.5, col = "grey")
          panel.rect(xright = .9, xleft = .9 - (100/200), ytop = 6.5, ybottom = 3.5, col = "grey")
@@ -174,23 +168,23 @@ p1 <- xyplot(
          panel.rect(xright = 2.1, xleft = 2.1 + (20/200), ytop = 31.5, ybottom = 28.5, col = "grey")
          panel.rect(xright = 2.1, xleft = 2.1 + (60/200), ytop = 11.5, ybottom = 8.5, col = "grey")
          
-         panel.text(x = c(1.6, 1.2), y = c(4, 27), label = c("male", "female"), cex = .8)
+         panel.text(x = c(1.6, 1.2), y = c(4, 27), label = c("male", "female"), cex = .9)
          
-         panel.text(x = .9, y = 18.5, label = "n = 20", adj = 1, cex = .8, col = "grey30")
-         panel.text(x = .9, y = 8.5, label = "n = 100", adj = 1, cex = .8, col = "grey30")
+         panel.text(x = .9, y = 18.5, label = "n = 20", adj = 1, cex = .9, col = "grey30")
+         panel.text(x = .9, y = 8.5, label = "n = 100", adj = 1, cex = .9, col = "grey30")
          
-         panel.text(x = 2.1, y = 33.5, label = "n = 20", adj = 0, cex = .8, col = "grey30")
-         panel.text(x = 2.1, y = 13.5, label = "n = 60", adj = 0, cex = .8, col = "grey30")
+         panel.text(x = 2.1, y = 33.5, label = "n = 20", adj = 0, cex = .9, col = "grey30")
+         panel.text(x = 2.1, y = 13.5, label = "n = 60", adj = 0, cex = .9, col = "grey30")
        })
 
 print(p1, position = c(0,0,1,.95))
 ```
 
-The distribution of the variables Gender and Age in our sample do not reflect that in the population of interest, which includes (nearly) the same number of male and female speakers, and, we will assume, also equal numbers of younger and older speakers. 
+The distribution of the variables `gender` and `age` in our sample does not reflect that in the population of interest, which includes (nearly) the same number of male and female speakers, and also (we will assume) equal numbers of younger and older speakers.
 
-The imbalance in our data will have no consequences for the estimation of the quantities in (i). However, once we average out a variable, we must decide how much weight to give to each of its levels. The summary percentages in panel (b) of @fig-data (quite reasonably) assume that the two age groups and the two genders should be weighted equally. By taking a simple (i.e. unweighted) average over male and female speakers, for instance, we have manually adjusted for the lack of representativeness in our data. 
+The imbalance in our data will have no consequences for the estimation of the quantities in (i). However, once we average out a variable, we must decide how much weight to give to each of its levels. The summary percentages in panel (b) of @fig-data (quite reasonably) assume that the two age groups and the two genders should be weighted equally. By taking a simple (i.e. unweighted) average over male and female speakers, for instance, I have manually adjusted for the lack of representativeness in our data.
 
-In the next section, we will look at how adjustments of this type may be accomplished in a multifactorial analysis. We primarily focus on regression and – to keep things straightforward – we will apply a linear probability model to the data. This means that we do not analyze them using logistic regression but instead use an ordinary linear regression model. This mainly serves to keep the present discussion focused on the aspect of main concern – we would usually analyze binary outcome variables using logistic regression.  We should note that the simplified analysis strategy does not compromise the insights that emerge, which apply to any form of regression analysis.
+In the next section, we will look at how adjustments of this type may be accomplished in a multifactorial analysis. I will primarily focus on regression and – to keep things straightforward – I will apply a linear probability model to the data. This means that they are not analyzed using logistic regression but instead using an ordinary linear regression model. This mainly serves to keep the present discussion focused on the aspect of main concern. The simplified analysis strategy does not compromise the insights that emerge, which apply to any form of regression analysis.
 
 ```{r}
 #| label: tbl-illustrative-data
@@ -210,13 +204,11 @@ tibble(
                                  "Distribution of response variable" = 2))
 ```
 
-
-
 #### Regression using sampling weights
 
-Let us first consider the survey-sampling approach, which relies on so-called sampling weights. The sampling weight for a particular observation reflects the number of units it represents in the population. Units that are underrepresented in the sample (e.g. older female speakers) are thereby up-weighted: Their sample proportion is 10%, but their share in the population is 25%. In relative terms, each older female speaker in the sample therefore represents 2.5 speakers in the population. Older male speakers, in contrast, make up 50% (rather than 25%) of the sample, so they are down-weighted. Each older male speaker therefore represents 0.5 speakers in the population. In this way, sampling weights account for the differential representation of subgroups in the sample vs. the population. Importantly, it is the relative (rather than the absolute) size of the sampling weights that matters.
+Let us first consider the survey-sampling approach, which relies on so-called sampling weights. The sampling weight for a particular observation reflects the number of units it represents in the population. Units that are underrepresented in the sample (e.g. older female speakers) are thereby up-weighted: Their sample proportion is 10%, but their share in the population is 25%. In relative terms, each older female speaker in the sample therefore represents 2.5 speakers in the population. Older male speakers, in contrast, make up 50% (rather than 25%) of the sample, so they are down-weighted. In relative terms, then, each older male speaker represents 0.5 speakers in the population. In this way, sampling weights account for the differential representation of subgroups in the sample vs. the population. Importantly, it is the relative (rather than the absolute) size of the sampling weights that matters.
 
-Building sampling weights into an analysis requires the use of specialized software such as the R package `{survey}` [@Lumley2024]. In what follows, we only sketch this approach; for more information, please refer to @Lumley2010, @Lohr2021, and @Lu_Lohr2021. In a first step, the dataset is enriched with information about the sampling design, to create a so-called *survey design object*. Our illustrative set of data is best considered as reflecting a stratified design, where speakers are sampled from within each stratum (i.e. combination of Age and Gender). Using the function `svydesign()`, we can create a survey design object with information about the sampling weights, which need to be provided as a separate column in the data table:
+Building sampling weights into an analysis requires the use of specialized software such as the R package `{survey}` [@Lumley2024]. In what follows, we only sketch this approach; for more information, please refer to @Lumley2010, @Lohr2021, and @Lu_Lohr2021. In a first step, the dataset is enriched with information about the sampling design, to create what is referred to as a *survey design object*. Our illustrative set of data is best considered as reflecting a stratified design, where speakers are sampled from within each stratum (i.e. combination of `age` and `gender`). Using the function `svydesign()`, we can create a survey design object with information about the sampling weights, which need to be provided as a separate column in the data table:
 
 ```{r}
 d_design <- svydesign(
@@ -245,13 +237,13 @@ gtsummary::tbl_regression(
   show_single_row = c("gender", "age", "gender:age"), 
   label = list(
     "gender" = "gender = male",
-    "age" = "age = younger")) |> 
+    "age" = "age = younger"),
+  pvalue_fun = ~style_sigfig(., digits = 3)) |> 
   remove_abbreviation("CI = Confidence Interval") |> 
   remove_abbreviation("SE = Standard Error")
 ```
 
-
-For comparison, we also fit a standard linear regression model with the function `lm()`, which does not take into account sampling weights:
+For comparison, let us also fit a standard linear regression model with the function `lm()`, which does not take into account sampling weights:
 
 ```{r}
  m <- lm(
@@ -270,14 +262,15 @@ gtsummary::tbl_regression(
   show_single_row = c("gender", "age", "gender:age"), 
   label = list(
     "gender" = "gender = male",
-    "age" = "age = younger")) |> 
+    "age" = "age = younger"),
+  pvalue_fun = ~style_sigfig(., digits = 3)) |> 
   remove_abbreviation("CI = Confidence Interval") |> 
   remove_abbreviation("SE = Standard Error")
 ```
 
-We note that the two models return identical coefficient estimates, with the standard errors produced by `svyglm()` being somewhat larger.
+Note that the two models return identical coefficient estimates, with the standard errors produced by `svyglm()` being somewhat larger.
 
-Let us now turn to our model-based estimates. We can obtain the population-level percentage (iv) and its standard error with the following code, which returns an estimate of 15% (the same as in panel (b) of @fig-data) with a standard error of 3.5:
+Let us now turn to our model-based estimates. We can obtain the population-level percentage -- listed as (iv) above -- and its standard error with the following code, which returns an estimate of 15% (the same as in panel (b) of @fig-data) with a standard error of 3.5:
 
 ```{r}
 svymean(~ response, d_design)
@@ -303,16 +296,14 @@ svymean(~ response, d_male)
 svymean(~ response, d_female)
 ```
 
-These also correspond to the ones in in panel (b) of @fig-data: 
+These also correspond to the ones in in panel (b) of @fig-data:
 
-- older 10% (4.2), 
-- younger 20% (5.6)
-- male 7.5% (2.2)
-- female 22.5% (6.7)
+-   older 10% (4.2),
+-   younger 20% (5.6)
+-   male 7.5% (2.2)
+-   female 22.5% (6.7)
 
 The sampling weights we have specified and added to the survey design object ensure that the four subgroups in our data are treated even-handedly, in line with their assumed representation in the target population.
-
-
 
 #### Poststratification of regression results
 
@@ -324,7 +315,7 @@ effects::effect(
   mod = m)
 ```
 
-These estimates, 7% (older) and 14% (younger), are quite far from the ones we saw in panel (b) of @fig-data. The reason for the discrepancy is that these are **weighted means**, with male and female speakers being weighted **in proportion to their overall representation in the data** (20% female, 80% male). In other words, the model-based predictions rely on the in-sample distribution of the variable Gender to decide on the importance of each subgroup. This is what the `{effects}` package returns by default. 
+These estimates, 7% (older) and 14% (younger), are quite far from the ones we saw in panel (b) of @fig-data. The reason for the discrepancy is that these are **weighted means**, with male and female speakers being weighted **in proportion to their overall representation in the data** (20% female, 80% male). In other words, the model-based predictions rely on the in-sample distribution of the variable `gender` to decide on the importance of each subgroup. This is what the `{effects}` package returns by default.
 
 Next, we use `{marginaleffects}`. When looking for a way to aggregate model-based predictions, i.e. to form average predictions using the function `avg_predictions()`, the following code is the first suggestion we come across on the [wonderful website](https://marginaleffects.com) accompanying the package:
 
@@ -334,7 +325,7 @@ marginaleffects::avg_predictions(
    by = "age")
 ```
 
-This returns yet another set of estimates, which again miss the population quantities by a considerable margin: 6.7% for male and 15% for female speakers. These are also **weighted means**, but now male and female speakers are weighted **in proportion to their representation with each age group**. This means that different weighting schemes are applied for the older and younger subgroup (older: 1/6 female; younger: 1/4 female; see @tbl-illustrative-data). 
+This returns yet another set of estimates, which again miss the population quantities by a considerable margin: 6.7% for male and 15% for female speakers. These are also **weighted means**, but now male and female speakers are weighted **in proportion to their representation with each age group**. This means that different weighting schemes are applied for the older and younger subgroup (older: 1/6 female; younger: 1/4 female; see @tbl-illustrative-data).
 
 The `{marginaleffects}` package, however, is very flexible and allows us to change this default behavior to obtain average percentages with the intended meaning. This can be accomplished with the help of the `newdata` argument. If we merely supply `"balanced"` to this argument, the function gives equal weight to the levels of all categorical variables in the data. And this returns estimates with the intended meaning:
 
@@ -348,12 +339,11 @@ marginaleffects::avg_predictions(
 
 For more flexibility, the `newdata` argument can also take a custom data frame that includes only those variables we wish to treat as-balanced; for more background, see [Section 5.3 "Aggregation"](https://marginaleffects.com/chapters/predictions.html#sec-predictions_aggregation) on the package website.
 
-The important take-away message here is that the default behavior of software packages that calculate and average model-based predictions may not implement the weighting scheme preferred by the researcher.  
+The important take-away message here is that the default behavior of software packages that calculate and average model-based predictions may not implement the weighting scheme preferred by the researcher.
 
+#### A look at random-forest models
 
-#### A look at Random Forest models
-
-Let us also briefly consider Random Forest models, which are becoming increasingly popular in corpus-based work. It turns out that these models are not immune to this issue. The interpretation of a random-forest model may also rely on average predictions [see chapter 7 in @Gries2021]. A popular strategy is the use of partial dependence plots [@Friedman2001], which are implemented in the R package `{pdp}` [@Greenwell2017].
+Let us also briefly consider random-forest models, which are becoming increasingly popular in corpus-based work [see @Soenning2026]. It turns out that these models are not immune to this issue. The interpretation of a random-forest model may also rely on average predictions [see chapter 7 in @Gries2021]. A popular strategy is the use of partial dependence plots [@Friedman2001], which are implemented in the R package `{pdp}` [@Greenwell2017].
 
 We start by fitting a random-forest model using the `{party}` package [@Hothorn_etal2006]:
 
@@ -377,9 +367,6 @@ pdp::partial(
    prob = TRUE)
 ```
 
-This produces average percentages of 7.7 for older speakers and 13.2 for younger speakers. We see that, similar to the default behavior of the `{effects}` package, partial dependence scores are also weighted based on the overall distribution of variables in the sample. 
+This produces average percentages of 7.7 for older speakers and 13.2 for younger speakers. We see that, similar to the default behavior of the `{effects}` package, partial dependence scores are also weighted based on the overall distribution of variables in the sample.
 
-The `{predictiveMargins}` package [@Grafmiller_Soenning2022] allows us to modify the weighting scheme and thereby obtain the desired equal-handed treatment of male and female speakers.
-
-
-
+The `{predictiveMargins}` package [@Grafmiller_Soenning2022] allows us to modify the weighting scheme and thereby obtain the desired equal-handed treatment of male and female speakers. I will illustrate how to do this in a future blog post.

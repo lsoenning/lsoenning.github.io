@@ -5,151 +5,308 @@ date: 2025-10-31
 categories: [corpus linguistics, regression, bias, causal inference, binary data]
 citation: 
   url: https://lsoenning.github.io/posts/2025-10-31_causally_informed_modeling/ 
-draft: true
 ---
 
 ```{r}
+#| code-fold: true
+#| code-summary: "R setup"
+#| warning: false
+#| message: false
+
 library(rethinking)
 library(dagitty)
 library(languageR)
 library(marginaleffects)
 library(lattice)
-
-source("C:/Users/ba4rh5/Work Folders/My Files/R projects/my_utils_website.R")
-
+library(gtsummary)
+library(uls)
 ```
 
-```{r fig.height=2.5, fig.width=4}
-#| fig-cap: " Directed acyclic graph for internal variables characterizing the noun phrases realizing the recipient or the theme in the ditransitive construction."
+A complication that arises in the analysis of corpus data is the fact that predictor variables often show varying levels of association. These associations, which are usually discussed under the label "(multi-)collinearity", may reflect causal relations between predictor variables. This blog post is a companion to @Soenning2025, and it describes how to incorporate information about such causal relations into regression modeling. 
 
 
-dag_dative <- dagitty( "dag{Accessibility -> Pronominality; 
-                       Pronominality -> Length; 
-                       Length -> Realization; 
-                       Accessibility -> Definiteness;
-                       Accessibility -> Length;
-                       Pronominality -> Realization;
-                       Definiteness -> Realization;
-                       Accessibility -> Realization}")
+#### Data
 
-coordinates(dag_dative) <- list(
-  x=c(Accessibility = 0, Pronominality = 1, Length = 1, Definiteness = 1, Realization = 2),
-  y=c(Accessibility = 1, Pronominality = 3, Length = 1.8, Definiteness = 0, Realization = 1)
-)
+For illustration, I will use @bresnan2007's data on the English dative alternation, which are available in the R package `{languageR}` [@package-languageR]. The dative alternation refers to the choice between two realizations of the [recipient]{.underline} in a ditransitive construction:
 
-drawdag(dag_dative)
-```
+- As a noun phrase (NP): She gave [her parents]{.underline} fresh flowers. 
+- As a prepositional phrase (PP): She gave fresh flowers [to her parents]{.underline}. 
 
-The typical approach is then to fit a regression model and look at the coefficients and standard errors for the individual predictors. This information is provided in Table #, where the internal variables are grouped by semantic role. Reassuringly, the estimates for characteristics of the recipient and the theme are, to a first approximation, mirror images of one another, meaning that they are similar in magnitude but differ in sign. This makes sense, since the dative alternation is essentially a question about the order of theme and recipient. The outcome variable is coded to indicate a noun phrase realization (i.e. recipient first): Given, pronominal, definite, and short recipients forge ahead, favoring the recipient-first order. Given, pronominal, definite, and short themes likewise forge ahead, disfavoring the recipient-first order.
+Viewed from a different perspective, this alternation is about the order of the *theme* and the [recipient]{.underline}.  
 
-Before studying this table in any detail, it is important to call into mind what the coefficients express. They reflect the association between predictor and outcome that remains once we adjust for all the other variables in the model. Since these coefficients are blind to causal structure, however, the DAG is a valuable tool for putting them into perspective. The coefficients for discourse status, for instance, along with their standard errors, reflect the direct causal effect of this variable. This is to say that the model compares a given and a new recipient (or theme) that are identical on all other variables: They have the same pronominality, definiteness, and length. According to Figure #, however, this predictor also operates indirectly, via other causal channels.
+- Recipient first: She gave [her parents]{.underline} *fresh flowers*. 
+- Theme first: She gave *fresh flowers* [to her parents]{.underline}. 
 
-Once a DAG is drawn, we can distinguish between direct and indirect effects and recognize whether pairwise associations between variables are due to confounding or whether they reflect a genuine relationship. Among other things, this allows us to see why there is a difference between the adjusted and the overall (marginal) association of a predictor with the outcome. Definiteness, for instance, shows a relatively strong marginal association with the outcome. This is indicated by the letter “M” in Figure #. Overall, there is a 20-point difference in the percentage of NP realizations between definite and indefinite recipients. Almost all of this association, however, is due to the confounder discourse status. Once we adjust for this variable, the association drops to(ward) zero.
+The realization of the recipient is the response variable, which we will code as follows:
 
-More generally, the structure of a DAG tells us what kind of model specification will produce a coefficient with the desired interpretation, i.e. a direct or a total effect. In order to arrive at unbiased estimates of both types of effects, so-called backdoor paths, which often reflect confounding, need to be closed. This is usually accomplished by including certain variables into the model. For definiteness, for instance, we need to adjust for discourse status to block confounding paths.
+- `NP`: Recipient is realized as a noun phrase (i.e. it almost certainly appears first)
 
-If we want to estimate the total effect of a variable in a situation where there are mediators through which it transmits indirect effects, these causal pathways must remain open, which is to say that no adjustment should take place. For discourse status, for instance, we must not adjust for any variables, since all of them (may) operate as mediators and therefore contribute to its overall causal association with the outcome. Table \# lists the model specifications that, according to Figure #, are needed to estimate the total causal association of each predictor with the outcome.
+In line with earlier research on this alternation, the focus will be on four characteristics of nominal clause constituents, i.e. characteristics of the theme and of the recipient:
 
-Direct effect\
-All predictors NP \~ given + pronoun + length + definite Total effect\
-Discourse status NP \~ given Pronominality NP \~ given + pronoun Definiteness NP \~ given + definite Length NP \~ given + pronoun + length
+- `discourse status`: whether the constituent is given or not-given (new or accessible) (binary)
+- `pronominality`: whether the constituent is realized as pronoun or not (binary)
+- `length`: in number of words, log-transformed (continuous)
+- `definiteness`: whether the constituent is definite or not (binary)
 
-Figure \# compares, for each predictor, is marginal association with the outcome (M), its total effect (T), and its direct effect (D). The fact that the constellations resemble mirror images of one another provides reassurance that the causal diagram in Figure \# is not entirely unreasonable: • Discourse status: There is more to discourse status than its direct effect suggests; much of its causal effect (or, in the case of the theme, most of it) flows indirectly. • Pronominality: The marginal association of this variable with the outcome conflates a direct effect, an indirect effect (via length), and a confounding relationship with discourse status. Removing the non-causal part that is due to confounding leaves us with a smaller (in the case of the recipient, much smaller) total effect. For recipients, there appears to be little evidence for a direct effect of pronominality, which means that it operates exclusively via the mediator length. For the theme, however, a relatively strong direct effect remains. • Definiteness: The marginal association between definiteness and the outcome appears to be largely attributable to confounding; after adjusting for discourse status, there is little evidence for a noticeable total or direct effect. • Length: About half of the marginal association seems to be due to the confounders discourse status and pronominality; the total and direct effect are virtually identical since there are no indirect effects flowing from length. This summary shows that, for internal variables, we must always be careful not to draw incomplete conclusions from regression tables or the pairwise association between a particular predictor and the outcome.
+To simplify the analysis task, I omit a number of predictors (e.g. animacy). I also reduce the data to the verb *give*, the most frequent type in the dataset. This yields a subsample of 1,666 tokens. Throughout this blog post, recipients and themes will be treated separately.
+
 
 ```{r}
+#| code-fold: true
+#| code-summary: "prepare data"
+
 dative_give <- subset(dative, Verb == "give")
 
 dative_give$NP <- ifelse(dative_give$RealizationOfRecipient == "NP", 1, 0)
 
 dative_give$log_length_thm <- log(dative_give$LengthOfTheme)
 dative_give$log_length_rec <- log(dative_give$LengthOfRec)
+
 dative_give$given_rec <- ifelse(dative_give$AccessOfRec == "given", 1, 0)
 dative_give$given_thm <- ifelse(dative_give$AccessOfTheme == "given", 1, 0)
+
 dative_give$pronoun_thm <- ifelse(dative_give$PronomOfTheme == "pronominal", 1, 0)
 dative_give$pronoun_rec <- ifelse(dative_give$PronomOfRec == "pronominal", 1, 0)
+
 dative_give$definite_thm <- ifelse(dative_give$DefinOfTheme == "definite", 1, 0)
 dative_give$definite_rec <- ifelse(dative_give$DefinOfRec == "definite", 1, 0)
-dative_give$animate_rec <- ifelse(dative_give$AnimacyOfRec == "animate", 1, 0)
-#dative_give$animate_thm <- ifelse(dative_give$AnimacyOfTheme == "animate", 1, 0)
-dative_give$spoken <- ifelse(dative_give$Modality == "written", 0, 1)
-
-str(dative_give)
 ```
 
-Full regression model
+
+#### DAG
+
+As discussed in more detail in @Soenning2025, the directed acyclic graph (DAG) in @fig-dag represents the causal relations that are assumed to hold between the variables. Note that this causal constellation applies to both the theme and the recipient. A full DAG would therefore include a horizontally-flipped mirror image of the constellation shown in @fig-dag, with the left half representing characteristics of the theme, and the right half (not shown in @fig-dag) representing characteristics of the recipient. To keep things simple, I will avoid this redundancy. Note, however, that this means we assume characteristics of the theme to be independent of characteristics of the recipient; this seems reasonable.   
+
+```{r}
+#| fig-width: 3.75
+#| fig-height: 2.25
+#| label: fig-dag
+#| fig-cap: " Directed acyclic graph for internal variables characterizing the noun phrases realizing the recipient or the theme in the ditransitive construction."
+#| code-fold: true
+#| code-summary: "draw DAG"
+#| classes: preview-image
+
+dag_dative <- dagitty( "dag{DiscourseStatus -> Pronominality; 
+                       Pronominality -> Length; 
+                       Length -> Realization; 
+                       DiscourseStatus -> Definiteness;
+                       DiscourseStatus -> Length;
+                       Pronominality -> Realization;
+                       Definiteness -> Realization;
+                       DiscourseStatus -> Realization}")
+
+coordinates(dag_dative) <- list(
+  x=c(DiscourseStatus = 0, Pronominality = 1, Length = 1, Definiteness = 1, Realization = 2),
+  y=c(DiscourseStatus = 1, Pronominality = 3, Length = 1.8, Definiteness = 0, Realization = 1)
+)
+
+drawdag(dag_dative)
+```
+
+#### Naive modeling approach
+
+The typical approach to data of this kind is to fit a regression model and look at the coefficients and standard errors for the individual predictors. Let's go ahead and fit such a model:
 
 ```{r}
 m_full <- glm(
   NP ~ 
     given_thm + log_length_thm + pronoun_thm + definite_thm + 
-    given_rec + log_length_rec + pronoun_rec + definite_rec + animate_rec +
-    SemanticClass + spoken,
+    given_rec + log_length_rec + pronoun_rec + definite_rec,
   data = dative_give,
   family = binomial)
-
-arm::display(m_full)
 ```
+
+Information on the regression coefficients is provided in the table below, where the predictors are grouped by semantic role. Reassuringly, the estimates for characteristics of the recipient and the theme are, to a first approximation, mirror images of one another, meaning that they are similar in magnitude but differ in sign. This makes sense, since this alternation is essentially a question about the order of theme and recipient. Since the outcome variable is coded to indicate a noun phrase realization (i.e. recipient first), the following patterns emerge:
+
+- Given, pronominal, definite, and short *recipients* forge ahead, **favoring** the recipient-first order. 
+- Given, pronominal, definite, and short *themes* likewise forge ahead, **disfavoring** the recipient-first order.
 
 ```{r}
-marginaleffects::avg_predictions(
-  m_full
-)
+#| warning: false
+#| message: false
+#| echo: false
+#| label: tbl-full-model
+
+tbl_regression(
+  m_full, 
+  #show_single_row = c("gender", "age", "gender:age"), 
+  label = list(
+   "given_thm" = "theme: Given",
+   "log_length_thm" = "theme: Length",
+   "pronoun_thm" = "theme: Pronoun",
+   "definite_thm" = "theme: Definite",
+   
+   "given_rec" = "recipient: Given",
+   "log_length_rec" = "recipient: Length",
+   "pronoun_rec" = "recipient: Pronoun",
+   "definite_rec" = "recipient: Definite"),
+  pvalue_fun = ~style_sigfig(., digits = 3)) |> 
+  remove_abbreviation("CI = Confidence Interval") |> 
+  remove_abbreviation("SE = Standard Error")
 ```
+
+Before studying this regression table in any detail, it is important to call into mind what the coefficients mean. They reflect the association between predictor and outcome that remains once we adjust for all the other variables in the model. Since these coefficients are blind to the underlying causal structure, however, the DAG in @fig-dag is needed to put them into perspective. 
+
+
+#### Direct vs. indirect va. total causal effect
+
+In the model we have fit, the coefficient for `discourse status`, for instance, along with its standard error, reflects the **direct causal effect** of this variable. This is to say that the model compares a given and a new recipient (or theme, as the case may be) that are identical on all other variables: They have the same `pronominality`, `definiteness`, and `length`. 
+
+Let's use the `{marginaleffects}` package [@ArelBundock_etal2024] to get an estimate of the direct causal effect of recipient `discourse status` (on the proportion scale). Apparently, it is quite small (88% NPs for a given recipient vs. 82% NPs for recipient that is not given).
 
 ```{r}
 marginaleffects::avg_predictions(
   m_full,
-  newdata = datagrid(spoken = unique)
+  variables = "given_rec"
 )
 ```
 
-#### Pairwise distribution of variables
+According to @fig-dag, however, the predictor `discourse status` also affects the realization of the recipient indirectly, through other causal channels. Specifically, there are four other pathways:
+
+- `discourse status` -> `definiteness` -> `NP`
+- `discourse status` -> `length` -> `NP`
+- `discourse status` -> `pronominality` -> `NP`
+- `discourse status` -> `pronominality` -> `length` -> `NP`
+
+Aggregating over these four indirect pathways, we obtain the **indirect effect** of `discourse status` on the realization of the recipient. Once a DAG is drawn, then, we can distinguish between **direct effects** and **indirect effects**. The direct effect is represented by the arrow going from `discourse status` into `NP`:
+
+- `discourse status` -> `NP`
+
+The indirect effect, on the other hand, is the sum of the indirect causal pathways. The **total effect** of `discourse status` is the sum of the direct and all indirect effects.
+
+Importantly, the coefficients returned by regression models always reflect direct effects. This means that if the model includes predictors that transmit indirect effects, these indirect effects will not be reflected in the coefficients. If we would like a regression coefficient to return an estimate of the total causal effect of a predictor, we must leave all indirect pathways open. This means that we must not adjust for those variables that transmit an indirect effect. According to @fig-dag, a regression model that addresses the total causal effect of `discourse status` must not include any of the other predictors. 
+
+Let us fit such a model:
 
 ```{r}
-round(
-  with(
-    dative_give, 
-    tapply(exp(log_length_rec), given_rec, mean)),
-  2)
-round(
-  with(
-    dative_give, 
-    tapply(exp(log_length_thm), given_thm, mean)),
-  2)
+m_marginal_given <- glm(
+  NP ~ given_rec, 
+  family = binomial,
+  data = dative_give)
 ```
 
+And then we use `{marginaleffects}` to get an estimate of the **total causal effect** of the `discourse status` of the recipient (again on the proportion scale). This association is much larger: 93% NPs for a given recipient vs. 57% NPs for a recipient that is not given.
+
 ```{r}
-round(
-  with(
-    dative_give, 
-    tapply(exp(log_length_rec), pronoun_rec, mean)),
-  1)
-round(
-  with(
-    dative_give, 
-    tapply(exp(log_length_thm), pronoun_thm, mean)),
-  1)
+marginaleffects::avg_predictions(
+  m_marginal_given,
+  variables = "given_rec"
+)
 ```
 
-```{r}
-round(
-  prop.table(
-    xtabs(~ pronoun_rec + given_rec, data = dative_give),
-    margin = 2), 2)
+The first key question, then, is whether you are interested in the direct or the total effect of a predictor. Both are usually meaningful (and relevant), and it therefore seems reasonable to consider both. It is arguably only in combination, and alongside a DAG, that these coefficients tell the linguistic story behind the data.
 
-round(
-  prop.table(
-    xtabs(~ pronoun_thm + given_thm, data = dative_give),
-    margin = 2), 2)
+The distinction between direct, indirect, and total effects is the first key insight a DAG can contribute to our interpretation of the data.
+
+
+#### Confounding
+
+Another important theme in multifactorial modeling is confounding. Thus, in the data at hand, we observe an overall association between `definiteness` and `NP`. This is reflected in a regression model including `definiteness` as the only predictor:
+
+```{r}
+m_marginal_definite <- glm(
+  NP ~ definite_rec, 
+  family = binomial,
+  data = dative_give)
 ```
 
-### Different types of causal effects: Dative alternation
-
-#### Recipient: Models
-
-Monofactorial models
+Using `{marginaleffects}`, we can get an estimate of the overall association between recipient `definiteness` and the response variable on the proportion scale: 88% of the definite recipients are realized as a NP, vs. 62% of the indefinite recipients.
 
 ```{r}
+marginaleffects::avg_predictions(
+  m_marginal_definite,
+  variables = "definite_rec"
+)
+```
+
+According to @fig-dag, this association is at least partly spurious. This is due to the confounder `discourse status`, i.e. a third variable which has a causal effect both on `definiteness` and on `NP`. In such a situation, we must adjust for the confounding variable `discourse status` to get a more accurate assessment of the effect of `definiteness` on `NP`. There are various strategies for "getting rid of" the spurious part of the association between `definiteness` and `NP`:
+
+- Data analysis: We could include the confounder as an adjustment variable into the analysis
+- Study design: We could control the distribution of the confounding variable in the data, so that definite and indefinite constituents do not differ systematically in terms of discourse status; this could be done via matching or blocking/stratification
+
+Let's pursue the first strategy and include the confounder `discourse status` as an adjustment variable into the model:
+
+```{r}
+m_total_definite <- glm(
+  NP ~ definite_rec + given_rec, 
+  family = binomial,
+  data = dative_give)
+```
+
+Having adjusted for `discourse status`, there is no longer an association between `definiteness` and the outcome variable:
+
+```{r}
+marginaleffects::avg_predictions(
+  m_total_definite,
+  variables = "definite_rec"
+)
+```
+
+Another important function of DAGs, then, is that they inform us about spurious patterns of associations in the data. This means that they allow us to recognize whether pairwise, overall associations between variables are due to confounding or whether they reflect a genuine causal relationship. 
+
+
+#### Difference between overall and adjusted association
+
+To recapitulate, for both `discourse status` and `definiteness`, the marginal (overall) association with the response variable differs from the adjusted association:
+
+- For `discourse status`, the marginal association is larger. According @fig-dag, this is because it reflects the total causal effect of this predictor.
+- For `definiteness`, the marginal association is smaller. According @fig-dag, this is because it is confounded by the variable `discourse status`.
+
+To do causally informed regression modeling, we must learn how to read relevant information from a DAG:
+
+- Which variable(s) do I need to adjust for to obtain information on a direct causal effect?
+- Which variable(s) do I need to adjust for to obtain information on a total causal effect?
+- Which variable(s) do I need to adjust for to block spurious paths?
+
+However, this only scratches the surface of causal inference. For more background, I can recommend @pearl_etal2016, @McElreath2020, and @Cunningham2021.
+
+
+#### Application to the dative alternation
+
+Let us now apply these insights to the dative alternation. For each predictor variable, we will obtain three quantities. All of these are differences between proportions, i.e. measures of association:
+
+- The first is an estimate of the overall association with the response variable, i.e. not adjusting for any other variables. I will refer to this as the **marginal association**
+- The second is an estimate of the **total causal effect**, which requires us to use a model that (i) adjusts for confounders and (ii) does not adjust for variables transmitting relevant indirect effects
+- The third one is an estimate of the **direct causal effect**, which requires us to use a model that adjusts for confounders
+
+More generally, the structure of a DAG tells us what kind of model specification will produce a coefficient with the desired interpretation, i.e. a direct or a total effect. In order to arrive at unbiased estimates of both types of effects, so-called backdoor paths, which often reflect confounding, need to be closed. This is usually accomplished by including certain variables into the model. For `definiteness`, for instance, we need to adjust for `discourse status` to block confounding paths.
+
+If we want to estimate the total effect of a variable in a situation where there are mediators through which it transmits indirect effects, these causal pathways must remain open, which is to say that no adjustment should take place. For `discourse status`, for instance, we must not adjust for any variables, since all of them (may) operate as mediators and therefore contribute to its overall causal association with the outcome. 
+
+These quantities are addressed by different model specifications. The marginal associations are straightforward to obtain:
+
+- Marginal association
+  - `NP ~ given` (Discourse status)
+  - `NP ~ pronoun` (Pronominality)
+  - `NP ~ definite` (Definiteness)
+  - `NP ~ length` (Length)
+  
+According to @fig-dag, the following model specifications estimate the total causal association of each predictor with the outcome.
+
+- Total causal effect
+  - `NP ~ given` (Discourse status)
+  - `NP ~ given + pronoun` (Pronominality)
+  - `NP ~ given + definite` (Definiteness)
+  - `NP ~ given + pronoun + length` (Length)
+
+And a regression model including all predictors may serve to address the direct causal effect for each variable:
+
+- Direct causal effect
+  - `NP ~ given + pronoun + definite + length` (all predictors)
+
+
+We start by fitting all of these models, separately for predictors tied to the recipient and the theme.
+
+```{r}
+#| code-fold: true
+#| code-summary: "fit models"
+
+# Recipient
+#-------------------------------------------------------------------------------
+
+# marginal associations
+#----------------------
+
 m_marginal_given <- glm(
   NP ~ given_rec, 
   family = binomial,
@@ -171,11 +328,9 @@ m_marginal_definite <- glm(
   data = dative_give)
 
 
-```
+# total causal effects
+#---------------------
 
-Total causal effects
-
-```{r}
 m_total_pronoun <- glm(
   NP ~ pronoun_rec + given_rec, 
   family = binomial,
@@ -190,31 +345,70 @@ m_total_definite <- glm(
   NP ~ definite_rec + given_rec, 
   family = binomial,
   data = dative_give)
-```
 
-Full regression model
 
-```{r}
-m_full <- glm(
-  NP ~ given_rec + log_length_rec + definite_rec + pronoun_rec +
-    given_thm + log_length_thm + definite_thm + pronoun_thm, 
+
+# Theme
+#-------------------------------------------------------------------------------
+
+# marginal associations
+#----------------------
+
+m_marginal_given_thm <- glm(
+  NP ~ given_thm, 
   family = binomial,
   data = dative_give)
 
-arm::display(m_full)
+m_marginal_pronoun_thm <- glm(
+  NP ~ pronoun_thm, 
+  family = binomial,
+  data = dative_give)
+
+m_marginal_length_thm <- glm(
+  NP ~ log_length_thm, 
+  family = binomial,
+  data = dative_give)
+
+m_marginal_definite_thm <- glm(
+  NP ~ definite_thm, 
+  family = binomial,
+  data = dative_give)
+
+
+# total causal effects
+#---------------------
+
+m_total_pronoun_thm <- glm(
+  NP ~ pronoun_thm + given_thm, 
+  family = binomial,
+  data = dative_give)
+
+m_total_length_thm <- glm(
+  NP ~ log_length_thm + given_thm + pronoun_thm, 
+  family = binomial,
+  data = dative_give)
+
+m_total_definite_thm <- glm(
+  NP ~ definite_thm + given_thm, 
+  family = binomial,
+  data = dative_give)
+
+
 ```
 
-```{r}
-summary(m_full)
-```
-
-#### Recipient: Average comparisons
-
-##### Given
+The we use `{marginaleffects}` to express relevant estimates on the proportion scale.
 
 ```{r}
+#| code-fold: true
+#| code-summary: "form predictions"
+
+# Recipient
+#-------------------------------------------------------------------------------
+
+# given
+#------
+
 # direct causal effect
-
 given_direct_preds_rec <- marginaleffects::avg_predictions(
   m_full,
   variables = "given_rec"
@@ -225,7 +419,6 @@ given_direct_comp_rec <- marginaleffects::avg_comparisons(
 )
 
 # marginal association
-
 given_marginal_preds_rec <- marginaleffects::avg_predictions(
   m_marginal_given,
   variables = "given_rec"
@@ -236,7 +429,6 @@ given_marginal_comp_rec <- marginaleffects::avg_comparisons(
 )
 
 # total association
-
 given_total_preds_rec <- marginaleffects::avg_predictions(
   m_marginal_given,
   variables = "given_rec"
@@ -245,13 +437,13 @@ given_total_comp_rec <- marginaleffects::avg_comparisons(
   m_marginal_given,
   variables = "given_rec"
 )
-```
 
-##### Pronoun
 
-```{r}
+
+# pronoun
+#--------
+
 # direct causal effect
-
 pronoun_direct_preds_rec <- marginaleffects::avg_predictions(
   m_full,
   variables = "pronoun_rec"
@@ -262,7 +454,6 @@ pronoun_direct_comp_rec <- marginaleffects::avg_comparisons(
 )
 
 # marginal association
-
 pronoun_marginal_preds_rec <- marginaleffects::avg_predictions(
   m_marginal_pronoun,
   variables = "pronoun_rec"
@@ -273,7 +464,6 @@ pronoun_marginal_comp_rec <- marginaleffects::avg_comparisons(
 )
 
 # total association
-
 pronoun_total_preds_rec <- marginaleffects::avg_predictions(
   m_total_pronoun,
   variables = "pronoun_rec"
@@ -282,13 +472,12 @@ pronoun_total_comp_rec <- marginaleffects::avg_comparisons(
   m_total_pronoun,
   variables = "pronoun_rec"
 )
-```
 
-##### Definiteness
 
-```{r}
+# definite
+#---------
+
 # direct causal effect
-
 definite_direct_preds_rec <- marginaleffects::avg_predictions(
   m_full,
   variables = "definite_rec"
@@ -299,7 +488,6 @@ definite_direct_comp_rec <- marginaleffects::avg_comparisons(
 )
 
 # marginal association
-
 definite_marginal_preds_rec <- marginaleffects::avg_predictions(
   m_marginal_definite,
   variables = "definite_rec"
@@ -310,7 +498,6 @@ definite_marginal_comp_rec <- marginaleffects::avg_comparisons(
 )
 
 # total association
-
 definite_total_preds_rec <- marginaleffects::avg_predictions(
   m_total_definite,
   variables = "definite_rec"
@@ -319,13 +506,12 @@ definite_total_comp_rec <- marginaleffects::avg_comparisons(
   m_total_definite,
   variables = "definite_rec"
 )
-```
 
-##### Length
 
-```{r}
+# length
+#-------
+
 # direct causal effect
-
 length_direct_preds_rec <- marginaleffects::avg_predictions(
   m_full,
   variables = list(log_length_rec = log(c(1, 4))))
@@ -335,7 +521,6 @@ length_direct_comp_rec <- marginaleffects::avg_comparisons(
   variables = list(log_length_rec = log(c(1, 4))))
 
 # marginal association
-
 length_marginal_preds_rec <- marginaleffects::avg_predictions(
   m_marginal_length,
   variables = list(log_length_rec = log(c(1, 4))))
@@ -344,9 +529,7 @@ length_marginal_comp_rec <- marginaleffects::avg_comparisons(
   m_marginal_length,
   variables = list(log_length_rec = log(c(1, 4))))
 
-
 # total association
-
 length_total_preds_rec <- marginaleffects::avg_predictions(
   m_total_length,
   variables = list(log_length_rec = log(c(1, 4))))
@@ -355,29 +538,177 @@ length_total_comp_rec <- marginaleffects::avg_comparisons(
   m_total_length,
   variables = list(log_length_rec = log(c(1, 4))))
 
+
+
+# Theme
+#-------------------------------------------------------------------------------
+
+# given
+#------
+
+# direct causal effect
+given_direct_preds_thm <- marginaleffects::avg_predictions(
+  m_full,
+  variables = "given_thm"
+)
+given_direct_comp_thm <- marginaleffects::avg_comparisons(
+  m_full,
+  variables = "given_thm"
+)
+
+# marginal association
+given_marginal_preds_thm <- marginaleffects::avg_predictions(
+  m_marginal_given_thm,
+  variables = "given_thm"
+)
+given_marginal_comp_thm <- marginaleffects::avg_comparisons(
+  m_marginal_given_thm,
+  variables = "given_thm"
+)
+
+# total association
+given_total_preds_thm <- marginaleffects::avg_predictions(
+  m_marginal_given_thm,
+  variables = "given_thm"
+)
+given_total_comp_thm <- marginaleffects::avg_comparisons(
+  m_marginal_given_thm,
+  variables = "given_thm"
+)
+
+
+# pronoun
+#--------
+
+# direct causal effect
+
+pronoun_direct_preds_thm <- marginaleffects::avg_predictions(
+  m_full,
+  variables = "pronoun_thm"
+)
+pronoun_direct_comp_thm <- marginaleffects::avg_comparisons(
+  m_full,
+  variables = "pronoun_thm"
+)
+
+# marginal association
+
+pronoun_marginal_preds_thm <- marginaleffects::avg_predictions(
+  m_marginal_pronoun_thm,
+  variables = "pronoun_thm"
+)
+pronoun_marginal_comp_thm <- marginaleffects::avg_comparisons(
+  m_marginal_pronoun_thm,
+  variables = "pronoun_thm"
+)
+
+# total association
+
+pronoun_total_preds_thm <- marginaleffects::avg_predictions(
+  m_total_pronoun_thm,
+  variables = "pronoun_thm"
+)
+pronoun_total_comp_thm <- marginaleffects::avg_comparisons(
+  m_total_pronoun_thm,
+  variables = "pronoun_thm"
+)
+
+
+# definite
+#---------
+
+# direct causal effect
+
+definite_direct_preds_thm <- marginaleffects::avg_predictions(
+  m_full,
+  variables = "definite_thm"
+)
+definite_direct_comp_thm <- marginaleffects::avg_comparisons(
+  m_full,
+  variables = "definite_thm"
+)
+
+# marginal association
+
+definite_marginal_preds_thm <- marginaleffects::avg_predictions(
+  m_marginal_definite_thm,
+  variables = "definite_thm"
+)
+definite_marginal_comp_thm <- marginaleffects::avg_comparisons(
+  m_marginal_definite_thm,
+  variables = "definite_thm"
+)
+
+# total association
+
+definite_total_preds_thm <- marginaleffects::avg_predictions(
+  m_total_definite_thm,
+  variables = "definite_thm"
+)
+definite_total_comp_thm <- marginaleffects::avg_comparisons(
+  m_total_definite_thm,
+  variables = "definite_thm"
+)
+
+
+# length
+#-------
+
+# direct causal effect
+
+length_direct_preds_thm <- marginaleffects::avg_predictions(
+  m_full,
+  variables = list(log_length_thm = log(c(1, 4))))
+
+length_direct_comp_thm <- marginaleffects::avg_comparisons(
+  m_full,
+  variables = list(log_length_thm = log(c(1, 4))))
+
+# marginal association
+
+length_marginal_preds_thm <- marginaleffects::avg_predictions(
+  m_marginal_length_thm,
+  variables = list(log_length_thm = log(c(1, 4))))
+
+length_marginal_comp_thm <- marginaleffects::avg_comparisons(
+  m_marginal_length_thm,
+  variables = list(log_length_thm = log(c(1, 4))))
+
+
+# total association
+
+length_total_preds_thm <- marginaleffects::avg_predictions(
+  m_total_length_thm,
+  variables = list(log_length_thm = log(c(1, 4))))
+
+length_total_comp_thm <- marginaleffects::avg_comparisons(
+  m_total_length_thm,
+  variables = list(log_length_thm = log(c(1, 4))))
 ```
 
+@fig-results, which graphs these estimates, is quite rich in information. The graph is structured as follows:
+
+- There are four rows, one per predictor variable
+- The right panel shows estimates for theme-related predictor (left: characteristics of the recipient)
+- The plotting symbols show the predicted difference in the share of NP realization as a measure of association (or effect size)
+  - M: marginal association 
+  - T: total causal effect 
+  - D: direct causal effect
+
 ```{r}
-str(length_total_comp_rec)
-length_total_comp_rec$estimate
-```
+#| code-fold: true
+#| code-summary: "draw plots"
+#| fig-width: 5
+#| fig-height: 2.75
+#| label: fig-results
+#| fig-caption: "Estimates (and 95% confidence intervals) for the marginal association (M), the total causal effect (T), and the direct causal effect (D) of all predictors in the analysis."
 
-##### Plot
-
-```{r}
-#| fig-width: 4.5
-#| fig-height: 2.5
-
-
-p1 <- xyplot(1~1, type = "n", xlim = c(-.1, .55), ylim = c(.5, 4.5),
-       par.settings = my_settings, #axis = axis_bottom,
-       scales = list(y = list(at = 4:1, labels = c("given",
-           "pronominal",
-           "definite",
-           "shorter\n(1 vs. 4 words)"), lineheight = .8),
+p1 <- xyplot(1~1, type = "n", xlim = c(-.05, .55), ylim = c(.5, 4.5),
+       par.settings = lattice_ls, #axis = axis_bottom,
+       scales = list(y = list(draw = FALSE),
        x = list(at = c(0, .2, .4)),
        labels = c("0", "+20", "+40")),
-       xlab = list(label = "                                                      Predicted difference in the share of NP realizations (percentage points)"),
+       xlab = list(label = "Predicted difference in the share of NP realizations (percentage points)                                                            "),
        ylab = NULL,
        panel = function(x,y){
          panel.abline(h = c(1.5, 2.5, 3.5), col = "lightgrey")
@@ -416,47 +747,27 @@ p1 <- xyplot(1~1, type = "n", xlim = c(-.1, .55), ylim = c(.5, 4.5),
            y0 = (4:1)-.2, y1 = (4:1)-.2, col = "grey"
          )
          
-         # panel.points(x = c(
-         #   given_total_comp_rec$estimate,
-         #   pronoun_total_comp_rec$estimate,
-         #   definite_total_comp_rec$estimate,
-         #   -length_total_comp_rec$estimate
-         # ), y = (4:1), pch = 19, cex = 2, col = "white")
-         # 
-         # panel.points(x = c(
-         #   given_marginal_comp_rec$estimate,
-         #   pronoun_marginal_comp_rec$estimate,
-         #   definite_marginal_comp_rec$estimate,
-         #   -length_marginal_comp_rec$estimate
-         # ), y = (4:1) + .2, pch = 19, cex = 2, col = "white")
-         # 
-         # panel.points(x = c(
-         #   given_direct_comp_rec$estimate,
-         #   pronoun_direct_comp_rec$estimate,
-         #   definite_direct_comp_rec$estimate,
-         #   -length_direct_comp_rec$estimate
-         # ), y = (4:1) - .2, pch = 19, cex = 2, col = "white")
          
          panel.points(x = c(
            given_total_comp_rec$estimate,
            pronoun_total_comp_rec$estimate,
            definite_total_comp_rec$estimate,
            -length_total_comp_rec$estimate
-         ), y = (4:1), pch = "T", cex = 1.6, col = "white", fontface = "bold")
+         ), y = (4:1), pch = "T", cex = 2.2, col = "white", fontface = "bold")
          
          panel.points(x = c(
            given_marginal_comp_rec$estimate,
            pronoun_marginal_comp_rec$estimate,
            definite_marginal_comp_rec$estimate,
            -length_marginal_comp_rec$estimate
-         ), y = (4:1) + .2, pch = "M", cex = 1.6, col = "white", fontface = "bold")
+         ), y = (4:1) + .2, pch = "M", cex = 2.2, col = "white", fontface = "bold")
          
          panel.points(x = c(
            given_direct_comp_rec$estimate,
            pronoun_direct_comp_rec$estimate,
            definite_direct_comp_rec$estimate,
            -length_direct_comp_rec$estimate
-         ), y = (4:1) - .2, pch = "D", cex = 1.6, col = "white", fontface = "bold")
+         ), y = (4:1) - .2, pch = "D", cex = 2.2, col = "white", fontface = "bold")
          
          
          panel.points(x = c(
@@ -464,256 +775,34 @@ p1 <- xyplot(1~1, type = "n", xlim = c(-.1, .55), ylim = c(.5, 4.5),
            pronoun_total_comp_rec$estimate,
            definite_total_comp_rec$estimate,
            -length_total_comp_rec$estimate
-         ), y = (4:1), pch = "T", cex = 1.5)
+         ), y = (4:1), pch = "T", cex = 2)
          
          panel.points(x = c(
            given_marginal_comp_rec$estimate,
            pronoun_marginal_comp_rec$estimate,
            definite_marginal_comp_rec$estimate,
            -length_marginal_comp_rec$estimate
-         ), y = (4:1) + .2, pch = "M", cex = 1.5)
+         ), y = (4:1) + .2, pch = "M", cex = 2)
          
          panel.points(x = c(
            given_direct_comp_rec$estimate,
            pronoun_direct_comp_rec$estimate,
            definite_direct_comp_rec$estimate,
            -length_direct_comp_rec$estimate
-         ), y = (4:1) - .2, pch = "D", cex = 1.5)
+         ), y = (4:1) - .2, pch = "D", cex = 2)
          
-         panel.text(x = .8, y = 5.5, label = "The percentage of NP realizations is:", cex = .8, lineheight = .8)
-         panel.text(x = .225, y = 5, label = "Higher if the RECIPIENT is:", cex = .8, lineheight = .8)
+         panel.text(x = 0, y = 5, label = "Higher if the RECIPIENT is:", cex = .9, adj = 0)
 
          
-         panel.segments(x0=-.1, x1 = .55, y0 = .5, y1 = .5)
+         panel.segments(x0=-.05, x1 = .55, y0 = .5, y1 = .5)
          panel.segments(x0=seq(0, .4, .2), x1=seq(0, .4, .2),
                         y0 = .5, y1 = .4)
        })
 
-print(p1, position=c(0,0,.7,.85))
-
-```
-
-#### Theme: Models
-
-Monofactorial models
-
-```{r}
-m_marginal_given <- glm(
-  NP ~ given_thm, 
-  family = binomial,
-  data = dative_give)
-
-m_marginal_pronoun <- glm(
-  NP ~ pronoun_thm, 
-  family = binomial,
-  data = dative_give)
-
-m_marginal_length <- glm(
-  NP ~ log_length_thm, 
-  family = binomial,
-  data = dative_give)
-
-m_marginal_definite <- glm(
-  NP ~ definite_thm, 
-  family = binomial,
-  data = dative_give)
-
-
-```
-
-Total causal effects
-
-```{r}
-m_total_pronoun <- glm(
-  NP ~ pronoun_thm + given_thm, 
-  family = binomial,
-  data = dative_give)
-
-m_total_length <- glm(
-  NP ~ log_length_thm + given_thm + pronoun_thm, 
-  family = binomial,
-  data = dative_give)
-
-m_total_definite <- glm(
-  NP ~ definite_thm + given_thm, 
-  family = binomial,
-  data = dative_give)
-```
-
-Full regression model
-
-```{r}
-m_full <- glm(
-  NP ~ given_thm + log_length_thm + definite_thm + pronoun_thm, 
-  family = binomial,
-  data = dative_give)
-
-arm::display(m_full)
-```
-
-#### Theme: Average comparisons
-
-##### Given
-
-```{r}
-# direct causal effect
-
-given_direct_preds_thm <- marginaleffects::avg_predictions(
-  m_full,
-  variables = "given_thm"
-)
-given_direct_comp_thm <- marginaleffects::avg_comparisons(
-  m_full,
-  variables = "given_thm"
-)
-
-# marginal association
-
-given_marginal_preds_thm <- marginaleffects::avg_predictions(
-  m_marginal_given,
-  variables = "given_thm"
-)
-given_marginal_comp_thm <- marginaleffects::avg_comparisons(
-  m_marginal_given,
-  variables = "given_thm"
-)
-
-# total association
-
-given_total_preds_thm <- marginaleffects::avg_predictions(
-  m_marginal_given,
-  variables = "given_thm"
-)
-given_total_comp_thm <- marginaleffects::avg_comparisons(
-  m_marginal_given,
-  variables = "given_thm"
-)
-```
-
-##### Pronoun
-
-```{r}
-# direct causal effect
-
-pronoun_direct_preds_thm <- marginaleffects::avg_predictions(
-  m_full,
-  variables = "pronoun_thm"
-)
-pronoun_direct_comp_thm <- marginaleffects::avg_comparisons(
-  m_full,
-  variables = "pronoun_thm"
-)
-
-# marginal association
-
-pronoun_marginal_preds_thm <- marginaleffects::avg_predictions(
-  m_marginal_pronoun,
-  variables = "pronoun_thm"
-)
-pronoun_marginal_comp_thm <- marginaleffects::avg_comparisons(
-  m_marginal_pronoun,
-  variables = "pronoun_thm"
-)
-
-# total association
-
-pronoun_total_preds_thm <- marginaleffects::avg_predictions(
-  m_total_pronoun,
-  variables = "pronoun_thm"
-)
-pronoun_total_comp_thm <- marginaleffects::avg_comparisons(
-  m_total_pronoun,
-  variables = "pronoun_thm"
-)
-```
-
-##### Definiteness
-
-```{r}
-# direct causal effect
-
-definite_direct_preds_thm <- marginaleffects::avg_predictions(
-  m_full,
-  variables = "definite_thm"
-)
-definite_direct_comp_thm <- marginaleffects::avg_comparisons(
-  m_full,
-  variables = "definite_thm"
-)
-
-# marginal association
-
-definite_marginal_preds_thm <- marginaleffects::avg_predictions(
-  m_marginal_definite,
-  variables = "definite_thm"
-)
-definite_marginal_comp_thm <- marginaleffects::avg_comparisons(
-  m_marginal_definite,
-  variables = "definite_thm"
-)
-
-# total association
-
-definite_total_preds_thm <- marginaleffects::avg_predictions(
-  m_total_definite,
-  variables = "definite_thm"
-)
-definite_total_comp_thm <- marginaleffects::avg_comparisons(
-  m_total_definite,
-  variables = "definite_thm"
-)
-```
-
-##### Length
-
-```{r}
-# direct causal effect
-
-length_direct_preds_thm <- marginaleffects::avg_predictions(
-  m_full,
-  variables = list(log_length_thm = log(c(1, 4))))
-
-length_direct_comp_thm <- marginaleffects::avg_comparisons(
-  m_full,
-  variables = list(log_length_thm = log(c(1, 4))))
-
-# marginal association
-
-length_marginal_preds_thm <- marginaleffects::avg_predictions(
-  m_marginal_length,
-  variables = list(log_length_thm = log(c(1, 4))))
-
-length_marginal_comp_thm <- marginaleffects::avg_comparisons(
-  m_marginal_length,
-  variables = list(log_length_thm = log(c(1, 4))))
-
-
-# total association
-
-length_total_preds_thm <- marginaleffects::avg_predictions(
-  m_total_length,
-  variables = list(log_length_thm = log(c(1, 4))))
-
-length_total_comp_thm <- marginaleffects::avg_comparisons(
-  m_total_length,
-  variables = list(log_length_thm = log(c(1, 4))))
-
-```
-
-```{r}
-str(length_total_comp_thm)
-length_total_comp_thm$estimate
-```
-
-##### Plot
-
-```{r}
-#| fig-width: 4.5
-#| fig-height: 2.5
 
 
 p2 <- xyplot(1~1, type = "n", xlim = c(-.85, .05), ylim = c(.5, 4.5),
-       par.settings = my_settings, #axis = axis_bottom,
+       par.settings = lattice_ls, #axis = axis_bottom,
        scales = list(y = list(at = 4:1, labels = NULL),
                      x = list(at = c(-.8, -.6, -.4, -.2, 0)),
        labels = c("\u221280", "\u221260", "\u221240", "\u221220", "0")),
@@ -756,93 +845,78 @@ p2 <- xyplot(1~1, type = "n", xlim = c(-.85, .05), ylim = c(.5, 4.5),
            y0 = (4:1)-.2, y1 = (4:1)-.2, col = "grey"
          )
          
-         # panel.points(x = c(
-         #   given_total_comp_thm$estimate,
-         #   pronoun_total_comp_thm$estimate,
-         #   definite_total_comp_thm$estimate,
-         #   -length_total_comp_thm$estimate
-         # ), y = (4:1), pch = 19, cex = 2, col = "white")
-         # 
-         # panel.points(x = c(
-         #   given_marginal_comp_thm$estimate,
-         #   pronoun_marginal_comp_thm$estimate,
-         #   definite_marginal_comp_thm$estimate,
-         #   -length_marginal_comp_thm$estimate
-         # ), y = (4:1) + .2, pch = 19, cex = 2, col = "white")
-         # 
-         # panel.points(x = c(
-         #   given_direct_comp_thm$estimate,
-         #   pronoun_direct_comp_thm$estimate,
-         #   definite_direct_comp_thm$estimate,
-         #   -length_direct_comp_thm$estimate
-         # ), y = (4:1) - .2, pch = 19, cex = 2, col = "white")
-         
-         
          panel.points(x = c(
            given_total_comp_thm$estimate,
            pronoun_total_comp_thm$estimate,
            definite_total_comp_thm$estimate,
            -length_total_comp_thm$estimate
-         ), y = (4:1), pch = "T", cex = 1.6, col = "white", fontface = "bold")
+         ), y = (4:1), pch = "T", cex = 2.2, col = "white", fontface = "bold")
          
          panel.points(x = c(
            given_marginal_comp_thm$estimate,
            pronoun_marginal_comp_thm$estimate,
            definite_marginal_comp_thm$estimate,
            -length_marginal_comp_thm$estimate
-         ), y = (4:1) + .2, pch = "M", cex = 1.6, col = "white", fontface = "bold")
+         ), y = (4:1) + .2, pch = "M", cex = 2.2, col = "white", fontface = "bold")
          
          panel.points(x = c(
            given_direct_comp_thm$estimate,
            pronoun_direct_comp_thm$estimate,
            definite_direct_comp_thm$estimate,
            -length_direct_comp_thm$estimate
-         ), y = (4:1) - .2, pch = "D", cex = 1.6, col = "white", fontface = "bold")
+         ), y = (4:1) - .2, pch = "D", cex = 2.2, col = "white", fontface = "bold")
          
          panel.points(x = c(
            given_total_comp_thm$estimate,
            pronoun_total_comp_thm$estimate,
            definite_total_comp_thm$estimate,
            -length_total_comp_thm$estimate
-         ), y = (4:1), pch = "T", cex = 1.5)
+         ), y = (4:1), pch = "T", cex = 2)
          
          panel.points(x = c(
            given_marginal_comp_thm$estimate,
            pronoun_marginal_comp_thm$estimate,
            definite_marginal_comp_thm$estimate,
            -length_marginal_comp_thm$estimate
-         ), y = (4:1) + .2, pch = "M", cex = 1.5)
+         ), y = (4:1) + .2, pch = "M", cex = 2)
          
          panel.points(x = c(
            given_direct_comp_thm$estimate,
            pronoun_direct_comp_thm$estimate,
            definite_direct_comp_thm$estimate,
            -length_direct_comp_thm$estimate
-         ), y = (4:1) - .2, pch = "D", cex = 1.5)
+         ), y = (4:1) - .2, pch = "D", cex = 2)
          
-         panel.text(x = -.4, y = 5, label = "Lower if the THEME is:", cex = .8, lineheight = .8)
-         panel.text(x = .1, y = 4:1, label = c(
-           "given",
-           "pronominal",
-           "definite",
+         panel.text(x = 0, y = 5, label = "Lower if the THEME is:", cex = .9, adj=1)
+         panel.text(x = .3, y = 5.5, label = "The percentage of NP realizations is:", cex = .9)
+        panel.text(x = .28, y = 4:1, label = c(
+           "given\n(vs. other)",
+           "pronominal\n(vs. other)",
+           "definite\n(vs. indefinite)",
            "shorter\n(1 vs. 4 words)"
-         ), adj = 0, cex = .8, lineheight = .8)
+         ), cex = .9, lineheight = .8)
          
          panel.segments(x0=-.85, x1 = .05, y0 = .5, y1 = .5)
          panel.segments(x0=seq(-.8, 0, .2), x1=seq(-.8, 0, .2),
                         y0 = .5, y1 = .4)
        })
 
-print(p2, position=c(0,0,.7,.8))
 
+print(p2, position=c(-.04,0,.46,.84), more = TRUE)
+print(p1, position=c(.63,0,.96,.84))
 ```
 
-```{r}
-#| fig-width: 5
-#| fig-height: 2.5
+@fig-results allows us to see why there is a difference between the adjusted and the overall (marginal) association of a predictor with the outcome. The variable `definiteness`, for instance, shows a relatively strong marginal association with the outcome. Overall, there is a 20-point difference in the percentage of NP realizations between definite and indefinite recipients. Almost all of this association, however, is due to the confounder `discourse status`. Once we adjust for this variable, the association drops to(ward) zero.
 
-print(p1, position=c(0,0,.45,.84), more = TRUE)
-print(p2, position=c(.5,0,.85,.84))
+@fig-results compares each predictor's marginal association (M) with the outcome, its total effect (T), and its direct effect (D). The fact that the constellations resemble mirror images of one another provides reassurance that the causal diagram in @fig-dag is not entirely unreasonable: 
+
+- Discourse status: There is more to `discourse status` than its direct effect suggests; much of its causal effect (or, in the case of the theme, most of it) flows indirectly. 
+- Pronominality: The marginal association of this variable with the outcome conflates a direct effect, an indirect effect (via `length`), and a confounding relationship with `discourse status`. Removing the non-causal part that is due to confounding leaves us with a smaller (in the case of the recipient, much smaller) total effect. For recipients, there appears to be little evidence for a direct effect of `pronominality`, which means that it operates exclusively via the mediator `length`. For the theme, however, a relatively strong direct effect remains. 
+- Definiteness: The marginal association between `definiteness` and the outcome appears to be largely attributable to confounding; after adjusting for `discourse status`, there is little evidence for a noticeable total or direct effect. 
+- Length: About half of the marginal association seems to be due to the confounders `discourse status` and `pronominality`; the total and direct effect are virtually identical since there are no indirect effects flowing from `length`. 
 
 
-```
+#### Conclusion
+
+This blog post serves as an online supplement to @Soenning2025, where the topic of causally informed modeling is addressed in some more detail, and from a linguistic perspective. The above discussion of the dative alternation was rather selective and failed to address a number of additional questions that will arise. However, it has managed to show that we must always be careful not to draw incomplete conclusions from regression tables or the overall (marginal) association between a predictor and the outcome. 
+
