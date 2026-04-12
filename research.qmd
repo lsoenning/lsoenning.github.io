@@ -6,8 +6,7 @@ editor: source
 
 #### Unpublished
 
-
-- **Sönning**, Lukas. (forthcoming). Case-control down-sampling in corpus research. *Corpus Linguistics and Linguistic Theory* [Submitted manuscript](https://osf.io/preprints/osf/g74bk_v1){target="_blank"} | [Data](https://doi.org/10.5281/zenodo.17736042){target="_blank"} | {{< ai osf >}} [OSF](https://osf.io/t59h6/){target="_blank"}
+- **Sönning**, Lukas. (forthcoming). Random forests in corpus research: A systematic review. *Corpus Linguistics and Linguistic Theory*. [Submitted manuscript](https://osf.io/preprints/psyarxiv/byd5c_v2){target="_blank"} | [Data](https://doi.org/10.5281/zenodo.17755086){target="_blank"} | {{< ai osf >}} [OSF](https://osf.io/qybwm){target="_blank"}
 
 - **Sönning**, Lukas & Jesse Egbert. (forthcoming). Sensitivity of dispersion measures to distributional patterns and corpus design. *International Journal of Corpus Linguistics* [Submitted manuscript](https://osf.io/preprints/psyarxiv/rz8qn_v1){target="_blank"} | {{< ai osf >}} [OSF](https://osf.io/mfjst/){target="_blank"}
 
@@ -21,19 +20,17 @@ editor: source
 
 - **Sönning**, Lukas. (forthcoming). Juggling internal and external factors when modeling natural language data.
 
-- **Sönning**, Lukas. (forthcoming). Dispersion analysis. In Hilary Nesi & Petar Milin (eds.), *International Encyclopedia of Language and Linguistics*, 3rd ed. Amsterdam: Elsevier. [Submitted manuscript](https://osf.io/preprints/osf/h3dyx_v2){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/epvk2/){target="_blank"} 
+- Schützler, Ole, Lukas **Sönning**, Fabian Vetter & Manfred Krug. (forthcoming). The morpho-syntax of Standard Scottish English: Questionnaire-based insights. *English World-Wide* [Submitted manuscript](http://dx.doi.org/10.2139/ssrn.5381956){target="_blank"} | {{< ai osf >}} [OSF](https://osf.io/hykq5/){target="_blank"}
 
 
-
-- Schützler, Ole, Lukas **Sönning**, Fabian Vetter & Manfred Krug. (under review). The morpho-syntax of Standard Scottish English: Questionnaire-based insights. [Submitted manuscript](http://dx.doi.org/10.2139/ssrn.5381956){target="_blank"} | {{< ai osf >}} [OSF](https://osf.io/hykq5/){target="_blank"}
 
 - Mühlbauer, Michael & Lukas **Sönning**. (under review). Ordinal random forests in language data analysis. [Submitted manuscript](https://osf.io/preprints/psyarxiv/s4bv2_v1){target="_blank"} | [Data](https://doi.org/10.5281/zenodo.18020809){target="_blank"}
 
-- **Sönning**, Lukas. (under review). Random forests in corpus research: A systematic review. [Submitted manuscript](https://osf.io/preprints/psyarxiv/byd5c_v2){target="_blank"} | [Data](https://doi.org/10.5281/zenodo.17755086){target="_blank"} | {{< ai osf >}} [OSF](https://osf.io/qybwm){target="_blank"}
-
+- **Sönning**, Lukas. (under review). Language data reuse in methodological research: Advancing down-sampling methods in corpus-based work. 
 
 
 - **Sönning**, Lukas. (in preparation). Distributional latent-variable modeling of ordinal outcomes in language data analysis.
+
 
 - **Sönning**, Lukas. (unpublished manuscript). Evaluation of text-level measures of lexical dispersion: Robustness and consistency.   {{< ai psyarxiv >}} [Working paper](https://psyarxiv.com/h9mvs/){target="_blank"}  | {{< ai dataverse >}} [Data](https://doi.org/10.18710/MNVB36){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/rpfb8/){target="_blank"} 
 
@@ -49,6 +46,8 @@ Monograph
 
 
 Journal articles
+
+- **Sönning**, Lukas. 2026. Case-control down-sampling in corpus research. *Corpus Linguistics and Linguistic Theory*. doi: [10.1515/cllt-2025-0074](https://doi.org/10.1515/cllt-2025-0074). | [Submitted manuscript](https://osf.io/preprints/osf/g74bk_v1){target="_blank"} | [Data](https://doi.org/10.5281/zenodo.17736042){target="_blank"} | {{< ai osf >}} [OSF](https://osf.io/t59h6/){target="_blank"}
 
 - **Sönning**, Lukas. 2025. Advancing our understanding of dispersion measures in corpus research. *Corpora* 20(1). 3–35. doi: [10.3366/cor.2025.0326](https://doi.org/10.3366/cor.2025.0326) | {{< ai 'open-access' >}} [Open access](https://doi.org/10.3366/cor.2025.0326){target="_blank"} | {{< ai dataverse >}} [Data](https://doi.org/10.18710/FVHTFM){target="_blank"}   | {{< ai osf >}} [OSF](https://osf.io/nhw2y/){target="_blank"} 
 
@@ -77,6 +76,8 @@ Edited volumes
 
 
 Book chapters
+
+- **Sönning**, Lukas. 2026. Dispersion analysis. In Hilary Nesi & Petar Milin (eds.), *International Encyclopedia of Language and Linguistics*, 3rd ed. Amsterdam: Elsevier. doi: [10.1016/B978-0-323-95504-1.01496-4](https://doi.org/10.1016/B978-0-323-95504-1.01496-4) | [Submitted manuscript](https://osf.io/preprints/osf/h3dyx_v2){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/epvk2/){target="_blank"} 
 
 - **Sönning**, Lukas. 2023. Drawing on principles of perception: The line plot. In Lukas Sönning & Ole Schützler (eds.), *Data visualization in corpus linguistics: Reflections and future directions* (Studies in Variation, Contacts and Change in English; No. 22). University of Helsinki: VARIENG.  {{< ai 'open-access' >}}  [https://urn.fi/URN:NBN:fi:varieng:series-22-2](https://urn.fi/URN:NBN:fi:varieng:series-22-2)   | {{< ai psyarxiv >}} [Preprint](https://psyarxiv.com/tjfz5/){target="_blank"}  | {{< ai osf >}} [OSF](https://osf.io/ksr5a){target="_blank"} 
 
