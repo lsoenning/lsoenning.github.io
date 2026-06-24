@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.5.57">
+<meta name="generator" content="quarto-1.8.25">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -24,8 +24,9 @@ ul.task-list li input[type="checkbox"] {
   vertical-align: middle;
 }
 /* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -36,7 +37,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -87,15 +88,17 @@ div.csl-indent {
 <script src="../../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../../">
-<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="../../site_libs/quarto-html/popper.min.js"></script>
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-5e06ce7f4fa58899905e7bf52f1dec48.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -128,13 +131,15 @@ div.csl-indent {
 <link rel="stylesheet" href="../../styles.css">
 </head>
 
-<body class="nav-fixed">
+<body class="nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
+    <a href="../../index.html" class="navbar-brand navbar-brand-logo">
+    </a>
     <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">Lukas Sönning</span>
     </a>
@@ -235,13 +240,13 @@ div.csl-indent {
 <div class="cell">
 <details class="code-fold">
 <summary>R setup</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rethinking)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rethinking)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dagitty)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(languageR)</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(marginaleffects)</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lattice)</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gtsummary)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(uls)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(uls)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>A complication that arises in the analysis of corpus data is the fact that predictor variables often show varying levels of association. These associations, which are usually discussed under the label “(multi-)collinearity”, may reflect causal relations between predictor variables. This blog post is a companion to <span class="citation" data-cites="Soenning2025">Sönning (<a href="#ref-Soenning2025" role="doc-biblioref">2025</a>)</span>, and it describes how to incorporate information about such causal relations into regression modeling.</p>
@@ -272,7 +277,7 @@ div.csl-indent {
 <div class="cell">
 <details class="code-fold">
 <summary>prepare data</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>dative_give <span class="ot">&lt;-</span> <span class="fu">subset</span>(dative, Verb <span class="sc">==</span> <span class="st">"give"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>dative_give <span class="ot">&lt;-</span> <span class="fu">subset</span>(dative, Verb <span class="sc">==</span> <span class="st">"give"</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>dative_give<span class="sc">$</span>NP <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(dative_give<span class="sc">$</span>RealizationOfRecipient <span class="sc">==</span> <span class="st">"NP"</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -286,7 +291,7 @@ div.csl-indent {
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>dative_give<span class="sc">$</span>pronoun_rec <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(dative_give<span class="sc">$</span>PronomOfRec <span class="sc">==</span> <span class="st">"pronominal"</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>dative_give<span class="sc">$</span>definite_thm <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(dative_give<span class="sc">$</span>DefinOfTheme <span class="sc">==</span> <span class="st">"definite"</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>dative_give<span class="sc">$</span>definite_rec <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(dative_give<span class="sc">$</span>DefinOfRec <span class="sc">==</span> <span class="st">"definite"</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>dative_give<span class="sc">$</span>definite_rec <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(dative_give<span class="sc">$</span>DefinOfRec <span class="sc">==</span> <span class="st">"definite"</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
@@ -296,7 +301,7 @@ div.csl-indent {
 <div class="cell preview-image">
 <details class="code-fold">
 <summary>draw DAG</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>dag_dative <span class="ot">&lt;-</span> <span class="fu">dagitty</span>( <span class="st">"dag{DiscourseStatus -&gt; Pronominality; </span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>dag_dative <span class="ot">&lt;-</span> <span class="fu">dagitty</span>( <span class="st">"dag{DiscourseStatus -&gt; Pronominality; </span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="st">                       Pronominality -&gt; Length; </span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="st">                       Length -&gt; Realization; </span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="st">                       DiscourseStatus -&gt; Definiteness;</span></span>
@@ -310,7 +315,7 @@ div.csl-indent {
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">y=</span><span class="fu">c</span>(<span class="at">DiscourseStatus =</span> <span class="dv">1</span>, <span class="at">Pronominality =</span> <span class="dv">3</span>, <span class="at">Length =</span> <span class="fl">1.8</span>, <span class="at">Definiteness =</span> <span class="dv">0</span>, <span class="at">Realization =</span> <span class="dv">1</span>)</span>
 <span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="fu">drawdag</span>(dag_dative)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="fu">drawdag</span>(dag_dative)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div id="fig-dag" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -330,37 +335,43 @@ Figure&nbsp;1: Directed acyclic graph for internal variables characterizing the 
 <h4 class="anchored" data-anchor-id="naive-modeling-approach">Naive modeling approach</h4>
 <p>The typical approach to data of this kind is to fit a regression model and look at the coefficients and standard errors for the individual predictors. Let’s go ahead and fit such a model:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>m_full <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>m_full <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  NP <span class="sc">~</span> </span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    given_thm <span class="sc">+</span> log_length_thm <span class="sc">+</span> pronoun_thm <span class="sc">+</span> definite_thm <span class="sc">+</span> </span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    given_rec <span class="sc">+</span> log_length_rec <span class="sc">+</span> pronoun_rec <span class="sc">+</span> definite_rec,</span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dative_give,</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Information on the regression coefficients is provided in the table below, where the predictors are grouped by semantic role. Reassuringly, the estimates for characteristics of the recipient and the theme are, to a first approximation, mirror images of one another, meaning that they are similar in magnitude but differ in sign. This makes sense, since this alternation is essentially a question about the order of theme and recipient. Since the outcome variable is coded to indicate a noun phrase realization (i.e.&nbsp;recipient first), the following patterns emerge:</p>
 <ul>
 <li>Given, pronominal, definite, and short <em>recipients</em> forge ahead, <strong>favoring</strong> the recipient-first order.</li>
 <li>Given, pronominal, definite, and short <em>themes</em> likewise forge ahead, <strong>disfavoring</strong> the recipient-first order.</li>
 </ul>
-<div id="tbl-full-model" class="cell anchored">
+<div class="cell">
+<div id="tbl-full-model" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl quarto-uncaptioned" id="tbl-full-model-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1
+</figcaption>
+<div aria-describedby="tbl-full-model-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="cell-output-display">
-<div id="dsiuxviena" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#dsiuxviena table {
+<div id="lkauodcrea" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#lkauodcrea table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#dsiuxviena thead, #dsiuxviena tbody, #dsiuxviena tfoot, #dsiuxviena tr, #dsiuxviena td, #dsiuxviena th {
+#lkauodcrea thead, #lkauodcrea tbody, #lkauodcrea tfoot, #lkauodcrea tr, #lkauodcrea td, #lkauodcrea th {
   border-style: none;
 }
 
-#dsiuxviena p {
+#lkauodcrea p {
   margin: 0;
   padding: 0;
 }
 
-#dsiuxviena .gt_table {
+#lkauodcrea .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -386,12 +397,12 @@ Figure&nbsp;1: Directed acyclic graph for internal variables characterizing the 
   border-left-color: #D3D3D3;
 }
 
-#dsiuxviena .gt_caption {
+#lkauodcrea .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#dsiuxviena .gt_title {
+#lkauodcrea .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -403,7 +414,7 @@ Figure&nbsp;1: Directed acyclic graph for internal variables characterizing the 
   border-bottom-width: 0;
 }
 
-#dsiuxviena .gt_subtitle {
+#lkauodcrea .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -415,7 +426,7 @@ Figure&nbsp;1: Directed acyclic graph for internal variables characterizing the 
   border-top-width: 0;
 }
 
-#dsiuxviena .gt_heading {
+#lkauodcrea .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -427,13 +438,13 @@ Figure&nbsp;1: Directed acyclic graph for internal variables characterizing the 
   border-right-color: #D3D3D3;
 }
 
-#dsiuxviena .gt_bottom_border {
+#lkauodcrea .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#dsiuxviena .gt_col_headings {
+#lkauodcrea .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -448,7 +459,7 @@ Figure&nbsp;1: Directed acyclic graph for internal variables characterizing the 
   border-right-color: #D3D3D3;
 }
 
-#dsiuxviena .gt_col_heading {
+#lkauodcrea .gt_col_heading {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -468,7 +479,7 @@ Figure&nbsp;1: Directed acyclic graph for internal variables characterizing the 
   overflow-x: hidden;
 }
 
-#dsiuxviena .gt_column_spanner_outer {
+#lkauodcrea .gt_column_spanner_outer {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -480,15 +491,15 @@ Figure&nbsp;1: Directed acyclic graph for internal variables characterizing the 
   padding-right: 4px;
 }
 
-#dsiuxviena .gt_column_spanner_outer:first-child {
+#lkauodcrea .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#dsiuxviena .gt_column_spanner_outer:last-child {
+#lkauodcrea .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#dsiuxviena .gt_column_spanner {
+#lkauodcrea .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -500,11 +511,11 @@ Figure&nbsp;1: Directed acyclic graph for internal variables characterizing the 
   width: 100%;
 }
 
-#dsiuxviena .gt_spanner_row {
+#lkauodcrea .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#dsiuxviena .gt_group_heading {
+#lkauodcrea .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -530,7 +541,7 @@ Figure&nbsp;1: Directed acyclic graph for internal variables characterizing the 
   text-align: left;
 }
 
-#dsiuxviena .gt_empty_group_heading {
+#lkauodcrea .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -545,15 +556,15 @@ Figure&nbsp;1: Directed acyclic graph for internal variables characterizing the 
   vertical-align: middle;
 }
 
-#dsiuxviena .gt_from_md > :first-child {
+#lkauodcrea .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#dsiuxviena .gt_from_md > :last-child {
+#lkauodcrea .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#dsiuxviena .gt_row {
+#lkauodcrea .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -572,7 +583,7 @@ Figure&nbsp;1: Directed acyclic graph for internal variables characterizing the 
   overflow-x: hidden;
 }
 
-#dsiuxviena .gt_stub {
+#lkauodcrea .gt_stub {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -585,7 +596,7 @@ Figure&nbsp;1: Directed acyclic graph for internal variables characterizing the 
   padding-right: 5px;
 }
 
-#dsiuxviena .gt_stub_row_group {
+#lkauodcrea .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -599,15 +610,15 @@ Figure&nbsp;1: Directed acyclic graph for internal variables characterizing the 
   vertical-align: top;
 }
 
-#dsiuxviena .gt_row_group_first td {
+#lkauodcrea .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#dsiuxviena .gt_row_group_first th {
+#lkauodcrea .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#dsiuxviena .gt_summary_row {
+#lkauodcrea .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -617,16 +628,16 @@ Figure&nbsp;1: Directed acyclic graph for internal variables characterizing the 
   padding-right: 5px;
 }
 
-#dsiuxviena .gt_first_summary_row {
+#lkauodcrea .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #D3D3D3;
 }
 
-#dsiuxviena .gt_first_summary_row.thick {
+#lkauodcrea .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#dsiuxviena .gt_last_summary_row {
+#lkauodcrea .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -636,7 +647,7 @@ Figure&nbsp;1: Directed acyclic graph for internal variables characterizing the 
   border-bottom-color: #D3D3D3;
 }
 
-#dsiuxviena .gt_grand_summary_row {
+#lkauodcrea .gt_grand_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -646,7 +657,7 @@ Figure&nbsp;1: Directed acyclic graph for internal variables characterizing the 
   padding-right: 5px;
 }
 
-#dsiuxviena .gt_first_grand_summary_row {
+#lkauodcrea .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -656,7 +667,7 @@ Figure&nbsp;1: Directed acyclic graph for internal variables characterizing the 
   border-top-color: #D3D3D3;
 }
 
-#dsiuxviena .gt_last_grand_summary_row_top {
+#lkauodcrea .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -666,11 +677,11 @@ Figure&nbsp;1: Directed acyclic graph for internal variables characterizing the 
   border-bottom-color: #D3D3D3;
 }
 
-#dsiuxviena .gt_striped {
+#lkauodcrea .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#dsiuxviena .gt_table_body {
+#lkauodcrea .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -679,7 +690,7 @@ Figure&nbsp;1: Directed acyclic graph for internal variables characterizing the 
   border-bottom-color: #D3D3D3;
 }
 
-#dsiuxviena .gt_footnotes {
+#lkauodcrea .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -693,7 +704,7 @@ Figure&nbsp;1: Directed acyclic graph for internal variables characterizing the 
   border-right-color: #D3D3D3;
 }
 
-#dsiuxviena .gt_footnote {
+#lkauodcrea .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -702,7 +713,7 @@ Figure&nbsp;1: Directed acyclic graph for internal variables characterizing the 
   padding-right: 5px;
 }
 
-#dsiuxviena .gt_sourcenotes {
+#lkauodcrea .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -716,7 +727,7 @@ Figure&nbsp;1: Directed acyclic graph for internal variables characterizing the 
   border-right-color: #D3D3D3;
 }
 
-#dsiuxviena .gt_sourcenote {
+#lkauodcrea .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -724,79 +735,79 @@ Figure&nbsp;1: Directed acyclic graph for internal variables characterizing the 
   padding-right: 5px;
 }
 
-#dsiuxviena .gt_left {
+#lkauodcrea .gt_left {
   text-align: left;
 }
 
-#dsiuxviena .gt_center {
+#lkauodcrea .gt_center {
   text-align: center;
 }
 
-#dsiuxviena .gt_right {
+#lkauodcrea .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#dsiuxviena .gt_font_normal {
+#lkauodcrea .gt_font_normal {
   font-weight: normal;
 }
 
-#dsiuxviena .gt_font_bold {
+#lkauodcrea .gt_font_bold {
   font-weight: bold;
 }
 
-#dsiuxviena .gt_font_italic {
+#lkauodcrea .gt_font_italic {
   font-style: italic;
 }
 
-#dsiuxviena .gt_super {
+#lkauodcrea .gt_super {
   font-size: 65%;
 }
 
-#dsiuxviena .gt_footnote_marks {
+#lkauodcrea .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#dsiuxviena .gt_asterisk {
+#lkauodcrea .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#dsiuxviena .gt_indent_1 {
+#lkauodcrea .gt_indent_1 {
   text-indent: 5px;
 }
 
-#dsiuxviena .gt_indent_2 {
+#lkauodcrea .gt_indent_2 {
   text-indent: 10px;
 }
 
-#dsiuxviena .gt_indent_3 {
+#lkauodcrea .gt_indent_3 {
   text-indent: 15px;
 }
 
-#dsiuxviena .gt_indent_4 {
+#lkauodcrea .gt_indent_4 {
   text-indent: 20px;
 }
 
-#dsiuxviena .gt_indent_5 {
+#lkauodcrea .gt_indent_5 {
   text-indent: 25px;
 }
 
-#dsiuxviena .katex-display {
+#lkauodcrea .katex-display {
   display: inline-flex !important;
   margin-bottom: 0.75em !important;
 }
 
-#dsiuxviena div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+#lkauodcrea div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
   height: 0px !important;
 }
 </style>
 
-<table class="gt_table caption-top table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<table class="gt_table do-not-create-environment caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
 <thead>
-<tr class="header gt_col_headings">
+<tr class="gt_col_headings header">
 <th id="label" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Characteristic</strong></th>
 <th id="estimate" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>log(OR)</strong></th>
 <th id="conf.low" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>95% CI</strong></th>
@@ -852,8 +863,8 @@ Figure&nbsp;1: Directed acyclic graph for internal variables characterizing the 
 <td class="gt_row gt_center" headers="conf.low">0.21, 1.4</td>
 <td class="gt_row gt_center" headers="p.value">0.008</td>
 </tr>
-</tbody><tfoot class="gt_sourcenotes">
-<tr class="odd">
+</tbody><tfoot>
+<tr class="gt_sourcenotes odd">
 <td colspan="4" class="gt_sourcenote">Abbreviation: OR = Odds Ratio</td>
 </tr>
 </tfoot>
@@ -863,6 +874,9 @@ Figure&nbsp;1: Directed acyclic graph for internal variables characterizing the 
 </div>
 </div>
 </div>
+</figure>
+</div>
+</div>
 <p>Before studying this regression table in any detail, it is important to call into mind what the coefficients mean. They reflect the association between predictor and outcome that remains once we adjust for all the other variables in the model. Since these coefficients are blind to the underlying causal structure, however, the DAG in <a href="#fig-dag" class="quarto-xref">Figure&nbsp;1</a> is needed to put them into perspective.</p>
 </section>
 <section id="direct-vs.-indirect-va.-total-causal-effect" class="level4">
@@ -870,17 +884,17 @@ Figure&nbsp;1: Directed acyclic graph for internal variables characterizing the 
 <p>In the model we have fit, the coefficient for <code>discourse status</code>, for instance, along with its standard error, reflects the <strong>direct causal effect</strong> of this variable. This is to say that the model compares a given and a new recipient (or theme, as the case may be) that are identical on all other variables: They have the same <code>pronominality</code>, <code>definiteness</code>, and <code>length</code>.</p>
 <p>Let’s use the <code>{marginaleffects}</code> package <span class="citation" data-cites="ArelBundock_etal2024">(<a href="#ref-ArelBundock_etal2024" role="doc-biblioref">Arel-Bundock, Greifer, and Heiss 2024</a>)</span> to get an estimate of the direct causal effect of recipient <code>discourse status</code> (on the proportion scale). Apparently, it is quite small (88% NPs for a given recipient vs.&nbsp;82% NPs for recipient that is not given).</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  m_full,</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"given_rec"</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
  given_rec Estimate Std. Error    z Pr(&gt;|z|)   S 2.5 % 97.5 %
          0    0.815    0.01218 66.9   &lt;0.001 Inf 0.791  0.839
          1    0.876    0.00899 97.5   &lt;0.001 Inf 0.859  0.894
 
-Type:  response </code></pre>
+Type: response</code></pre>
 </div>
 </div>
 <p>According to <a href="#fig-dag" class="quarto-xref">Figure&nbsp;1</a>, however, the predictor <code>discourse status</code> also affects the realization of the recipient indirectly, through other causal channels. Specifically, there are four other pathways:</p>
@@ -898,24 +912,24 @@ Type:  response </code></pre>
 <p>Importantly, the coefficients returned by regression models always reflect direct effects. This means that if the model includes predictors that transmit indirect effects, these indirect effects will not be reflected in the coefficients. If we would like a regression coefficient to return an estimate of the total causal effect of a predictor, we must leave all indirect pathways open. This means that we must not adjust for those variables that transmit an indirect effect. According to <a href="#fig-dag" class="quarto-xref">Figure&nbsp;1</a>, a regression model that addresses the total causal effect of <code>discourse status</code> must not include any of the other predictors.</p>
 <p>Let us fit such a model:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>m_marginal_given <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>m_marginal_given <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  NP <span class="sc">~</span> given_rec, </span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dative_give)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dative_give)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>And then we use <code>{marginaleffects}</code> to get an estimate of the <strong>total causal effect</strong> of the <code>discourse status</code> of the recipient (again on the proportion scale). This association is much larger: 93% NPs for a given recipient vs.&nbsp;57% NPs for a recipient that is not given.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  m_marginal_given,</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"given_rec"</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
  given_rec Estimate Std. Error     z Pr(&gt;|z|)     S 2.5 % 97.5 %
          0    0.567    0.02587  21.9   &lt;0.001 351.1 0.516  0.617
          1    0.925    0.00729 126.9   &lt;0.001   Inf 0.911  0.940
 
-Type:  response </code></pre>
+Type: response</code></pre>
 </div>
 </div>
 <p>The first key question, then, is whether you are interested in the direct or the total effect of a predictor. Both are usually meaningful (and relevant), and it therefore seems reasonable to consider both. It is arguably only in combination, and alongside a DAG, that these coefficients tell the linguistic story behind the data.</p>
@@ -925,24 +939,24 @@ Type:  response </code></pre>
 <h4 class="anchored" data-anchor-id="confounding">Confounding</h4>
 <p>Another important theme in multifactorial modeling is confounding. Thus, in the data at hand, we observe an overall association between <code>definiteness</code> and <code>NP</code>. This is reflected in a regression model including <code>definiteness</code> as the only predictor:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>m_marginal_definite <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>m_marginal_definite <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  NP <span class="sc">~</span> definite_rec, </span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dative_give)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dative_give)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Using <code>{marginaleffects}</code>, we can get an estimate of the overall association between recipient <code>definiteness</code> and the response variable on the proportion scale: 88% of the definite recipients are realized as a NP, vs.&nbsp;62% of the indefinite recipients.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  m_marginal_definite,</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"definite_rec"</span></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
  definite_rec Estimate Std. Error     z Pr(&gt;|z|)     S 2.5 % 97.5 %
             0    0.616    0.03529  17.5   &lt;0.001 224.1 0.547  0.685
             1    0.876    0.00858 102.1   &lt;0.001   Inf 0.859  0.893
 
-Type:  response </code></pre>
+Type: response</code></pre>
 </div>
 </div>
 <p>According to <a href="#fig-dag" class="quarto-xref">Figure&nbsp;1</a>, this association is at least partly spurious. This is due to the confounder <code>discourse status</code>, i.e.&nbsp;a third variable which has a causal effect both on <code>definiteness</code> and on <code>NP</code>. In such a situation, we must adjust for the confounding variable <code>discourse status</code> to get a more accurate assessment of the effect of <code>definiteness</code> on <code>NP</code>. There are various strategies for “getting rid of” the spurious part of the association between <code>definiteness</code> and <code>NP</code>:</p>
@@ -952,24 +966,24 @@ Type:  response </code></pre>
 </ul>
 <p>Let’s pursue the first strategy and include the confounder <code>discourse status</code> as an adjustment variable into the model:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>m_total_definite <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>m_total_definite <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  NP <span class="sc">~</span> definite_rec <span class="sc">+</span> given_rec, </span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dative_give)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dative_give)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Having adjusted for <code>discourse status</code>, there is no longer an association between <code>definiteness</code> and the outcome variable:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>marginaleffects<span class="sc">::</span><span class="fu">avg_predictions</span>(</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  m_total_definite,</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="st">"definite_rec"</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
  definite_rec Estimate Std. Error    z Pr(&gt;|z|)   S 2.5 % 97.5 %
             0    0.855    0.01770 48.3   &lt;0.001 Inf 0.820  0.889
             1    0.844    0.00968 87.1   &lt;0.001 Inf 0.825  0.863
 
-Type:  response </code></pre>
+Type: response</code></pre>
 </div>
 </div>
 <p>Another important function of DAGs, then, is that they inform us about spurious patterns of associations in the data. This means that they allow us to recognize whether pairwise, overall associations between variables are due to confounding or whether they reflect a genuine causal relationship.</p>
@@ -1030,7 +1044,7 @@ Type:  response </code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>fit models</summary>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Recipient</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Recipient</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co">#-------------------------------------------------------------------------------</span></span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># marginal associations</span></span>
@@ -1120,14 +1134,14 @@ Type:  response </code></pre>
 <span id="cb16-88"><a href="#cb16-88" aria-hidden="true" tabindex="-1"></a>m_total_definite_thm <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
 <span id="cb16-89"><a href="#cb16-89" aria-hidden="true" tabindex="-1"></a>  NP <span class="sc">~</span> definite_thm <span class="sc">+</span> given_thm, </span>
 <span id="cb16-90"><a href="#cb16-90" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> binomial,</span>
-<span id="cb16-91"><a href="#cb16-91" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dative_give)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb16-91"><a href="#cb16-91" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dative_give)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p>The we use <code>{marginaleffects}</code> to express relevant estimates on the proportion scale.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>form predictions</summary>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Recipient</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Recipient</span></span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="co">#-------------------------------------------------------------------------------</span></span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co"># given</span></span>
@@ -1408,7 +1422,7 @@ Type:  response </code></pre>
 <span id="cb17-279"><a href="#cb17-279" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb17-280"><a href="#cb17-280" aria-hidden="true" tabindex="-1"></a>length_total_comp_thm <span class="ot">&lt;-</span> marginaleffects<span class="sc">::</span><span class="fu">avg_comparisons</span>(</span>
 <span id="cb17-281"><a href="#cb17-281" aria-hidden="true" tabindex="-1"></a>  m_total_length_thm,</span>
-<span id="cb17-282"><a href="#cb17-282" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">log_length_thm =</span> <span class="fu">log</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">4</span>))))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb17-282"><a href="#cb17-282" aria-hidden="true" tabindex="-1"></a>  <span class="at">variables =</span> <span class="fu">list</span>(<span class="at">log_length_thm =</span> <span class="fu">log</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">4</span>))))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <p><a href="#fig-results" class="quarto-xref">Figure&nbsp;2</a>, which graphs these estimates, is quite rich in information. The graph is structured as follows:</p>
@@ -1425,7 +1439,7 @@ Type:  response </code></pre>
 <div class="cell" data-fig-caption="Estimates (and 95% confidence intervals) for the marginal association (M), the total causal effect (T), and the direct causal effect (D) of all predictors in the analysis.">
 <details class="code-fold">
 <summary>draw plots</summary>
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(<span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type =</span> <span class="st">"n"</span>, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span>.<span class="dv">05</span>, .<span class="dv">55</span>), <span class="at">ylim =</span> <span class="fu">c</span>(.<span class="dv">5</span>, <span class="fl">4.5</span>),</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">xyplot</span>(<span class="dv">1</span><span class="sc">~</span><span class="dv">1</span>, <span class="at">type =</span> <span class="st">"n"</span>, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span>.<span class="dv">05</span>, .<span class="dv">55</span>), <span class="at">ylim =</span> <span class="fu">c</span>(.<span class="dv">5</span>, <span class="fl">4.5</span>),</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>       <span class="at">par.settings =</span> lattice_ls, <span class="co">#axis = axis_bottom,</span></span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">scales =</span> <span class="fu">list</span>(<span class="at">y =</span> <span class="fu">list</span>(<span class="at">draw =</span> <span class="cn">FALSE</span>),</span>
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="fu">list</span>(<span class="at">at =</span> <span class="fu">c</span>(<span class="dv">0</span>, .<span class="dv">2</span>, .<span class="dv">4</span>)),</span>
@@ -1625,7 +1639,7 @@ Type:  response </code></pre>
 <span id="cb18-198"><a href="#cb18-198" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb18-199"><a href="#cb18-199" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb18-200"><a href="#cb18-200" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p2, <span class="at">position=</span><span class="fu">c</span>(<span class="sc">-</span>.<span class="dv">04</span>,<span class="dv">0</span>,.<span class="dv">46</span>,.<span class="dv">84</span>), <span class="at">more =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb18-201"><a href="#cb18-201" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1, <span class="at">position=</span><span class="fu">c</span>(.<span class="dv">63</span>,<span class="dv">0</span>,.<span class="dv">96</span>,.<span class="dv">84</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb18-201"><a href="#cb18-201" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p1, <span class="at">position=</span><span class="fu">c</span>(.<span class="dv">63</span>,<span class="dv">0</span>,.<span class="dv">96</span>,.<span class="dv">84</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div id="fig-results" class="quarto-float quarto-figure quarto-figure-center anchored" width="480">
@@ -1692,239 +1706,243 @@ Sönning, Lukas. 2026. <span>“Causally Informed Regression Modeling: The
 Dative Alternation.”</span> January 16, 2026. <a href="https://lsoenning.github.io/posts/2025-10-31_causally_informed_modeling/">https://lsoenning.github.io/posts/2025-10-31_causally_informed_modeling/</a>.
 </div></div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
-window.document.addEventListener("DOMContentLoaded", function (event) {
-  const toggleBodyColorMode = (bsSheetEl) => {
-    const mode = bsSheetEl.getAttribute("data-mode");
-    const bodyEl = window.document.querySelector("body");
-    if (mode === "dark") {
-      bodyEl.classList.add("quarto-dark");
-      bodyEl.classList.remove("quarto-light");
-    } else {
-      bodyEl.classList.add("quarto-light");
-      bodyEl.classList.remove("quarto-dark");
-    }
-  }
-  const toggleBodyColorPrimary = () => {
-    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
-    if (bsSheetEl) {
-      toggleBodyColorMode(bsSheetEl);
-    }
-  }
-  toggleBodyColorPrimary();  
-  const icon = "";
-  const anchorJS = new window.AnchorJS();
-  anchorJS.options = {
-    placement: 'right',
-    icon: icon
-  };
-  anchorJS.add('.anchored');
-  const isCodeAnnotation = (el) => {
-    for (const clz of el.classList) {
-      if (clz.startsWith('code-annotation-')) {                     
-        return true;
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
       }
+      return false;
     }
-    return false;
-  }
-  const onCopySuccess = function(e) {
-    // button target
-    const button = e.trigger;
-    // don't keep focus
-    button.blur();
-    // flash "checked"
-    button.classList.add('code-copy-button-checked');
-    var currentTitle = button.getAttribute("title");
-    button.setAttribute("title", "Copied!");
-    let tooltip;
-    if (window.bootstrap) {
-      button.setAttribute("data-bs-toggle", "tooltip");
-      button.setAttribute("data-bs-placement", "left");
-      button.setAttribute("data-bs-title", "Copied!");
-      tooltip = new bootstrap.Tooltip(button, 
-        { trigger: "manual", 
-          customClass: "code-copy-button-tooltip",
-          offset: [0, -8]});
-      tooltip.show();    
-    }
-    setTimeout(function() {
-      if (tooltip) {
-        tooltip.hide();
-        button.removeAttribute("data-bs-title");
-        button.removeAttribute("data-bs-toggle");
-        button.removeAttribute("data-bs-placement");
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
       }
-      button.setAttribute("title", currentTitle);
-      button.classList.remove('code-copy-button-checked');
-    }, 1000);
-    // clear code selection
-    e.clearSelection();
-  }
-  const getTextToCopy = function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
       for (const childEl of codeEl.children) {
         if (isCodeAnnotation(childEl)) {
           childEl.remove();
         }
       }
       return codeEl.innerText;
-  }
-  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
-    text: getTextToCopy
-  });
-  clipboard.on('success', onCopySuccess);
-  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-    // For code content inside modals, clipBoardJS needs to be initialized with a container option
-    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
-    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
-      text: getTextToCopy,
-      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
     });
-    clipboardModal.on('success', onCopySuccess);
-  }
-    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-    var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp("https:\/\/lsoenning\.github\.io");
-    var isInternal = (href) => {
-        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
     }
-    // Inspect non-navigation links and adorn them if external
- 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
-    for (var i=0; i<links.length; i++) {
-      const link = links[i];
-      if (!isInternal(link.href)) {
-        // undo the damage that might have been done by quarto-nav.js in the case of
-        // links that we want to consider external
-        if (link.dataset.originalHref !== undefined) {
-          link.href = link.dataset.originalHref;
-        }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/lsoenning\.github\.io");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }
-    }
-  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
-    const config = {
-      allowHTML: true,
-      maxWidth: 500,
-      delay: 100,
-      arrow: false,
-      appendTo: function(el) {
-          return el.parentElement;
-      },
-      interactive: true,
-      interactiveBorder: 10,
-      theme: 'quarto',
-      placement: 'bottom-start',
-    };
-    if (contentFn) {
-      config.content = contentFn;
-    }
-    if (onTriggerFn) {
-      config.onTrigger = onTriggerFn;
-    }
-    if (onUntriggerFn) {
-      config.onUntrigger = onUntriggerFn;
-    }
-    window.tippy(el, config); 
-  }
-  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
-  for (var i=0; i<noterefs.length; i++) {
-    const ref = noterefs[i];
-    tippyHover(ref, function() {
-      // use id or data attribute instead here
-      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
-      try { href = new URL(href).hash; } catch {}
-      const id = href.replace(/^#\/?/, "");
-      const note = window.document.getElementById(id);
-      if (note) {
-        return note.innerHTML;
-      } else {
-        return "";
-      }
-    });
-  }
-  const xrefs = window.document.querySelectorAll('a.quarto-xref');
-  const processXRef = (id, note) => {
-    // Strip column container classes
-    const stripColumnClz = (el) => {
-      el.classList.remove("page-full", "page-columns");
-      if (el.children) {
-        for (const child of el.children) {
-          stripColumnClz(child);
-        }
-      }
-    }
-    stripColumnClz(note)
-    if (id === null || id.startsWith('sec-')) {
-      // Special case sections, only their first couple elements
-      const container = document.createElement("div");
-      if (note.children && note.children.length > 2) {
-        container.appendChild(note.children[0].cloneNode(true));
-        for (let i = 1; i < note.children.length; i++) {
-          const child = note.children[i];
-          if (child.tagName === "P" && child.innerText === "") {
-            continue;
-          } else {
-            container.appendChild(child.cloneNode(true));
-            break;
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
           }
         }
-        if (window.Quarto?.typesetMath) {
-          window.Quarto.typesetMath(container);
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
         }
-        return container.innerHTML
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
       } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
         if (window.Quarto?.typesetMath) {
           window.Quarto.typesetMath(note);
         }
-        return note.innerHTML;
-      }
-    } else {
-      // Remove any anchor links if they are present
-      const anchorLink = note.querySelector('a.anchorjs-link');
-      if (anchorLink) {
-        anchorLink.remove();
-      }
-      if (window.Quarto?.typesetMath) {
-        window.Quarto.typesetMath(note);
-      }
-      // TODO in 1.5, we should make sure this works without a callout special case
-      if (note.classList.contains("callout")) {
-        return note.outerHTML;
-      } else {
-        return note.innerHTML;
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
       }
     }
-  }
-  for (var i=0; i<xrefs.length; i++) {
-    const xref = xrefs[i];
-    tippyHover(xref, undefined, function(instance) {
-      instance.disable();
-      let url = xref.getAttribute('href');
-      let hash = undefined; 
-      if (url.startsWith('#')) {
-        hash = url;
-      } else {
-        try { hash = new URL(url).hash; } catch {}
-      }
-      if (hash) {
-        const id = hash.replace(/^#\/?/, "");
-        const note = window.document.getElementById(id);
-        if (note !== null) {
-          try {
-            const html = processXRef(id, note.cloneNode(true));
-            instance.setContent(html);
-          } finally {
-            instance.enable();
-            instance.show();
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
           }
         } else {
-          // See if we can fetch this
-          fetch(url.split('#')[0])
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
           .then(res => res.text())
           .then(html => {
             const parser = new DOMParser();
             const htmlDoc = parser.parseFromString(html, "text/html");
-            const note = htmlDoc.getElementById(id);
+            const note = htmlDoc.querySelector('main.content');
             if (note !== null) {
-              const html = processXRef(id, note);
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
               instance.setContent(html);
             } 
           }).finally(() => {
@@ -1932,185 +1950,161 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             instance.show();
           });
         }
-      } else {
-        // See if we can fetch a full url (with no hash to target)
-        // This is a special case and we should probably do some content thinning / targeting
-        fetch(url)
-        .then(res => res.text())
-        .then(html => {
-          const parser = new DOMParser();
-          const htmlDoc = parser.parseFromString(html, "text/html");
-          const note = htmlDoc.querySelector('main.content');
-          if (note !== null) {
-            // This should only happen for chapter cross references
-            // (since there is no id in the URL)
-            // remove the first header
-            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
-              note.children[0].remove();
-            }
-            const html = processXRef(null, note);
-            instance.setContent(html);
-          } 
-        }).finally(() => {
-          instance.enable();
-          instance.show();
-        });
-      }
-    }, function(instance) {
-    });
-  }
-      let selectedAnnoteEl;
-      const selectorForAnnotation = ( cell, annotation) => {
-        let cellAttr = 'data-code-cell="' + cell + '"';
-        let lineAttr = 'data-code-annotation="' +  annotation + '"';
-        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
-        return selector;
-      }
-      const selectCodeLines = (annoteEl) => {
-        const doc = window.document;
-        const targetCell = annoteEl.getAttribute("data-target-cell");
-        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
-        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
-        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
-        const lineIds = lines.map((line) => {
-          return targetCell + "-" + line;
-        })
-        let top = null;
-        let height = null;
-        let parent = null;
-        if (lineIds.length > 0) {
-            //compute the position of the single el (top and bottom and make a div)
-            const el = window.document.getElementById(lineIds[0]);
-            top = el.offsetTop;
-            height = el.offsetHeight;
-            parent = el.parentElement.parentElement;
-          if (lineIds.length > 1) {
-            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-            height = bottom - top;
-          }
-          if (top !== null && height !== null && parent !== null) {
-            // cook up a div (if necessary) and position it 
-            let div = window.document.getElementById("code-annotation-line-highlight");
-            if (div === null) {
-              div = window.document.createElement("div");
-              div.setAttribute("id", "code-annotation-line-highlight");
-              div.style.position = 'absolute';
-              parent.appendChild(div);
-            }
-            div.style.top = top - 2 + "px";
-            div.style.height = height + 4 + "px";
-            div.style.left = 0;
-            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-            if (gutterDiv === null) {
-              gutterDiv = window.document.createElement("div");
-              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-              gutterDiv.style.position = 'absolute';
-              const codeCell = window.document.getElementById(targetCell);
-              const gutter = codeCell.querySelector('.code-annotation-gutter');
-              gutter.appendChild(gutterDiv);
-            }
-            gutterDiv.style.top = top - 2 + "px";
-            gutterDiv.style.height = height + 4 + "px";
-          }
-          selectedAnnoteEl = annoteEl;
-        }
-      };
-      const unselectCodeLines = () => {
-        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
-        elementsIds.forEach((elId) => {
-          const div = window.document.getElementById(elId);
-          if (div) {
-            div.remove();
-          }
-        });
-        selectedAnnoteEl = undefined;
-      };
-        // Handle positioning of the toggle
-    window.addEventListener(
-      "resize",
-      throttle(() => {
-        elRect = undefined;
-        if (selectedAnnoteEl) {
-          selectCodeLines(selectedAnnoteEl);
-        }
-      }, 10)
-    );
-    function throttle(fn, ms) {
-    let throttle = false;
-    let timer;
-      return (...args) => {
-        if(!throttle) { // first call gets through
-            fn.apply(this, args);
-            throttle = true;
-        } else { // all the others get throttled
-            if(timer) clearTimeout(timer); // cancel #2
-            timer = setTimeout(() => {
-              fn.apply(this, args);
-              timer = throttle = false;
-            }, ms);
-        }
-      };
-    }
-      // Attach click handler to the DT
-      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
-      for (const annoteDlNode of annoteDls) {
-        annoteDlNode.addEventListener('click', (event) => {
-          const clickedEl = event.target;
-          if (clickedEl !== selectedAnnoteEl) {
-            unselectCodeLines();
-            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
-            if (activeEl) {
-              activeEl.classList.remove('code-annotation-active');
-            }
-            selectCodeLines(clickedEl);
-            clickedEl.classList.add('code-annotation-active');
-          } else {
-            // Unselect the line
-            unselectCodeLines();
-            clickedEl.classList.remove('code-annotation-active');
-          }
-        });
-      }
-  const findCites = (el) => {
-    const parentEl = el.parentElement;
-    if (parentEl) {
-      const cites = parentEl.dataset.cites;
-      if (cites) {
-        return {
-          el,
-          cites: cites.split(' ')
-        };
-      } else {
-        return findCites(el.parentElement)
-      }
-    } else {
-      return undefined;
-    }
-  };
-  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-  for (var i=0; i<bibliorefs.length; i++) {
-    const ref = bibliorefs[i];
-    const citeInfo = findCites(ref);
-    if (citeInfo) {
-      tippyHover(citeInfo.el, function() {
-        var popup = window.document.createElement('div');
-        citeInfo.cites.forEach(function(cite) {
-          var citeDiv = window.document.createElement('div');
-          citeDiv.classList.add('hanging-indent');
-          citeDiv.classList.add('csl-entry');
-          var biblioDiv = window.document.getElementById('ref-' + cite);
-          if (biblioDiv) {
-            citeDiv.innerHTML = biblioDiv.innerHTML;
-          }
-          popup.appendChild(citeDiv);
-        });
-        return popup.innerHTML;
+      }, function(instance) {
       });
     }
-  }
-});
-</script>
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
 </div> <!-- /content -->
 
 

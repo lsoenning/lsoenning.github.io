@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://lsoenning.github.io/posts.html</loc>
-    <lastmod>2023-12-13T15:50:31.409Z</lastmod>
+    <lastmod>2023-12-13T15:50:32.000Z</lastmod>
   </url>
   <url>
     <loc>https://lsoenning.github.io/index.html</loc>
@@ -18,7 +18,7 @@
   </url>
   <url>
     <loc>https://lsoenning.github.io/research.html</loc>
-    <lastmod>2026-04-12T15:14:36.787Z</lastmod>
+    <lastmod>2026-06-24T07:57:47.462Z</lastmod>
   </url>
   <url>
     <loc>https://lsoenning.github.io/resources.html</loc>
@@ -154,6 +154,10 @@
   </url>
   <url>
     <loc>https://lsoenning.github.io/posts/2025-10-31_causally_informed_modeling/index.html</loc>
-    <lastmod>2026-01-16T11:51:01.929Z</lastmod>
+    <lastmod>2026-04-22T09:10:21.889Z</lastmod>
+  </url>
+  <url>
+    <loc>https://lsoenning.github.io/posts/2026-04-13_rfs_conditional_standard_vim/index.html</loc>
+    <lastmod>2026-04-22T11:03:50.361Z</lastmod>
   </url>
 </urlset>
