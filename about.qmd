@@ -6,7 +6,7 @@ editor: source
 
 ### Dr. Lukas Sönning
 
-I am a post-doctoral researcher at the Chair of English Linguistics, University of Bamberg (Germany). Following my PhD project, which looked at phonological features in German Learner English, my interest shifted to statistical aspects of corpus-linguistic methodology. I have worked on topics such as keyness analysis, dispersion, and down-sampling, and my habilitation (post-doc) project concentrates on the linguistically grounded use of mixed-effects models in variationist corpus research. I have made an active effort to promote open-science practices and have a passion for data visualization. Currently, I am also involved in a DFG-funded project on the analysis of high-dimensional survey data drawn from the BSLVC (*Bamberg Survey of Language Variation and Change*).
+I am a post-doctoral researcher at the Chair of English Linguistics, University of Bamberg (Germany). Following my PhD project, which looked at phonological features in German Learner English, my interest shifted to statistical aspects of corpus-linguistic methodology. I have worked on topics such as keyness analysis, dispersion, and down-sampling, and my habilitation (post-doc) project concentrates on the linguistically grounded use of mixed-effects models in variationist corpus research. I make an active effort to promote open-science practices and have a passion for data visualization. Currently, I am also involved in a DFG-funded project on the analysis of high-dimensional survey data drawn from the [BSLVC](https://bslvc.uni-bamberg.de/) (*Bamberg Survey of Language Variation and Change*).
 
 
 #### Short academic CV
@@ -58,6 +58,7 @@ Workshops
 
 #### Talks
 
+- 2026 Language dataset reuse in methodological research on down-sampling corpus data. CLARIN Café, JOHD Special Collection on Language Dataset Reuse.
 - 2025 Case-control down-sampling in corpus research. CL2025, Birmingham, UK.
 - 2025 Raising the bar: An analysis of bar chart usage in corpus linguistics. CL2025, Birmingham, UK.
 - 2025 Per corpora et diagrammata ad astra: Data visualization in corpus linguistics. Plenary at ICAME 46, Vilnius, Lithuania.
